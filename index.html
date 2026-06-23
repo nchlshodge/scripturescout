@@ -2822,6 +2822,7 @@ async function startFillBlank(diff, size) {
   fitbSession.score = 0;
   fitbSession.correct = 0;
   fitbSession.verses = [];
+  fitbSession._dailyMode = false; // always reset daily mode for regular games
 
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading verses…</div></div>`;
