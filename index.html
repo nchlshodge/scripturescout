@@ -2917,21 +2917,18 @@ function checkAllFitbAnswers() {
   });
 
   document.querySelectorAll('#fitbWordBank .word-chip').forEach(b => b.disabled = true);
-  const checkArea = document.getElementById('fitbCheckArea');
-  if(checkArea) checkArea.innerHTML = '';
+
+  // Award points per correct word
+  const pointsPerWord = 200;
+  const correctCount = s.blanks.length - wrongCount;
+  const pointsEarned = correctCount * pointsPerWord;
+  fitbSession.score += pointsEarned;
+  fitbSession.correct += correctCount;
 
   if(allCorrect) {
-    fitbSession.score += s.blanks.length * 200;
-    fitbSession.correct += s.blanks.length;
-    if(fb) { fb.className='feedback correct'; fb.innerHTML=`✓ All correct! <span class="points-pop">+${s.blanks.length*200}</span>`; }
-    setTimeout(() => {
-      fitbSession.current++;
-      fitbWordBank = [];
-      fitbAnswerRow = [];
-      renderFillBlankCard();
-    }, 1000);
+    if(fb) { fb.className='feedback correct'; fb.innerHTML=`✓ All correct! <span class="points-pop">+${pointsEarned}</span>`; }
   } else {
-    // Show correct answers and move on
+    // Show correct answers in answer row
     const row = document.getElementById('fitbAnswerRow');
     if(row) {
       row.innerHTML = s.blanks.map((blank, i) => {
@@ -2940,19 +2937,22 @@ function checkAllFitbAnswers() {
         return `<span class="answer-chip" style="border-color:${isCorrect?'var(--teal)':'var(--earth)'};background:${isCorrect?'var(--teal-dim)':'var(--earth-dim)'};color:${isCorrect?'var(--teal)':'var(--earth)'};">${isCorrect ? given.word : blank.word}</span>`;
       }).join('');
     }
-    if(fb) { fb.className='feedback wrong'; fb.textContent=`${wrongCount} wrong — correct answers shown above.`; }
-    const checkArea = document.getElementById('fitbCheckArea');
-    if(checkArea) checkArea.innerHTML = `
-      <button class="btn-next" id="fitbNextBtn" style="margin-top:8px;">
-        ${s.current + 1 < s.verses.length ? 'Next Verse →' : 'See Results →'}
-      </button>`;
-    document.getElementById('fitbNextBtn').onclick = () => {
-      fitbSession.current++;
-      fitbWordBank = [];
-      fitbAnswerRow = [];
-      renderFillBlankCard();
-    };
+    if(fb) { fb.className='feedback wrong'; fb.innerHTML=`${wrongCount} wrong — ${correctCount > 0 ? `<span class="points-pop">+${pointsEarned}</span> for ${correctCount} correct` : 'no points this round'}`; }
   }
+
+  // Always show Next Verse button regardless of correct or wrong
+  const checkArea = document.getElementById('fitbCheckArea');
+  if(checkArea) checkArea.innerHTML = `
+    <button class="btn-next" id="fitbNextBtn" style="margin-top:8px;">
+      ${s.current + 1 < s.verses.length ? 'Next Verse →' : 'See Results →'}
+    </button>`;
+  const nextBtn = document.getElementById('fitbNextBtn');
+  if(nextBtn) nextBtn.onclick = () => {
+    fitbSession.current++;
+    fitbWordBank = [];
+    fitbAnswerRow = [];
+    renderFillBlankCard();
+  };
 }
 
 async function renderFillBlankComplete() {
