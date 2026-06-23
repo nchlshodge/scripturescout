@@ -360,6 +360,18 @@
   .heart-refill-slot.empty { background:var(--border); }
   @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
 
+  /* Streak System */
+  .streak-bar { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-bottom:12px; }
+  .streak-fire { font-size:1.8rem; }
+  .streak-info { flex:1; }
+  .streak-count { font-size:1.4rem; font-weight:700; color:var(--earth); line-height:1; }
+  .streak-label { font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; font-weight:600; }
+  .streak-tokens { display:flex; gap:6px; align-items:center; }
+  .streak-token { font-size:1.2rem; }
+  .streak-token.empty { opacity:0.25; filter:grayscale(1); }
+  .streak-warning { background:rgba(244,185,66,0.1); border:1px solid #F4B942; border-radius:10px; padding:10px 14px; font-size:0.82rem; color:#F4B942; font-weight:600; text-align:center; margin-bottom:12px; }
+  .streak-milestone { background:rgba(59,191,160,0.1); border:1px solid var(--teal); border-radius:10px; padding:12px 16px; font-size:0.85rem; color:var(--teal); font-weight:600; text-align:center; margin-top:12px; }
+
   /* Daily Challenge */
   .daily-card { background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(56,189,248,0.05)); border:1.5px solid #A78BFA; border-radius:16px; padding:20px; margin-bottom:16px; cursor:pointer; transition:all 0.15s; }
   .daily-card:hover { border-color:#7C5CFC; background:linear-gradient(135deg,rgba(167,139,250,0.14),rgba(56,189,248,0.08)); }
@@ -762,19 +774,19 @@ async function showHome() {
         </div>
       </div>
 
-      ${userStats ? `
-      <div class="home-section-label">📊 Your Stats</div>
-      <div class="home-stats">
-        <div class="home-stats-row">
-          <div class="home-stat-item"><div class="home-stat-val">${userStats.games}</div><div class="home-stat-label">Games</div></div>
-          <div class="home-stat-divider"></div>
-          <div class="home-stat-item"><div class="home-stat-val">${userStats.best.toLocaleString()}</div><div class="home-stat-label">Best Score</div></div>
-          <div class="home-stat-divider"></div>
-          <div class="home-stat-item"><div class="home-stat-val">${userStats.streak} 🔥</div><div class="home-stat-label">Day Streak</div></div>
-        </div>
-        <button class="btn-change-diff" onclick="showFullStats()" style="margin-top:4px;">View Full Stats →</button>
-      </div>` : currentUser ? '' : `
       <div class="home-section-label">👤 Your Account</div>
+      ${currentUser ? `
+      <div class="home-stats">
+        <div id="homeStreakDisplay">${getStreakDisplay()}</div>
+        <div class="home-stats-row" style="margin-top:8px;">
+          <div class="home-stat-item"><div class="home-stat-val">${userStats ? userStats.games : 0}</div><div class="home-stat-label">Games</div></div>
+          <div class="home-stat-divider"></div>
+          <div class="home-stat-item"><div class="home-stat-val">${userStats ? userStats.best.toLocaleString() : 0}</div><div class="home-stat-label">Best Score</div></div>
+          <div class="home-stat-divider"></div>
+          <div class="home-stat-item" id="homeStreakStat"><div class="home-stat-val">${currentStreak ? currentStreak.longest_streak : '—'} 🔥</div><div class="home-stat-label">Best Streak</div></div>
+        </div>
+        <button class="btn-change-diff" onclick="signOut()" style="margin-top:8px;font-size:0.75rem;">Sign Out</button>
+      </div>` : `
       <div class="home-stats" style="text-align:center;">
         <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Sign in to track your progress and appear on the leaderboard!</div>
         <button class="btn-next" onclick="renderAuthScreen()">Sign In / Create Account</button>
@@ -811,7 +823,10 @@ async function showHome() {
   const completedCount = dailyGames.filter(g => isDailyCompleted(g)).length;
   const badge = document.getElementById('homeDailyBadge');
   if(badge) badge.textContent = completedCount === 4 ? '✓ All Done' : completedCount > 0 ? `${completedCount}/4 Done` : 'Play';
-  if(badge && completedCount === 4) { badge.style.background='var(--teal-dim)'; badge.style.color='var(--teal)'; badge.style.borderColor='var(--teal)'; }
+  if(badge && completedCount === 4) {
+    badge.style.background='var(--teal-dim)'; badge.style.color='var(--teal)'; badge.style.borderColor='var(--teal)';
+    updateStreak(true); // bonus streak day for completing all 4
+  }
 
   document.getElementById('homeMemoryBtn').onclick = () => { showBackBtn(true); renderFlashcardSetup(); };
   document.getElementById('homeMiaBtn').onclick = () => { showBackBtn(true); renderFillBlankSetup(); };
@@ -1215,6 +1230,15 @@ function showApp() {
   // Check for monthly champion announcement
   if(currentUser) setTimeout(checkMonthlyChampion, 2000);
   prefetchDailyChallenge();
+  if(currentUser) {
+    loadStreak().then(() => {
+      // Update streak display after it loads
+      const el = document.getElementById('homeStreakDisplay');
+      if(el) el.innerHTML = getStreakDisplay();
+      const statEl = document.getElementById('homeStreakStat');
+      if(statEl && currentStreak) statEl.innerHTML = `<div class="home-stat-val">${currentStreak.longest_streak} 🔥</div><div class="home-stat-label">Best Streak</div>`;
+    });
+  }
 }
 
 function showUsernamePrompt() {
@@ -2198,7 +2222,8 @@ function renderGameOver(card){
     try {
       await submitScore(name, score, difficulty);
       document.getElementById('submitBtn').textContent = '✓ Score Submitted!';
-      setTimeout(()=>switchTab(currentUser ? 'stats' : 'leaderboard'), 1200);
+      updateStreak();
+  setTimeout(()=>switchTab(currentUser ? 'stats' : 'leaderboard'), 1200);
     } catch(e) {
       document.getElementById('submitBtn').textContent = '⚠️ Failed — try again';
       document.getElementById('submitBtn').disabled = false;
@@ -3054,6 +3079,7 @@ async function renderFillBlankComplete() {
   }
   const justUnlockedMIA = s.difficulty === 'hard' && perfectHardMIA === 3;
 
+  updateStreak();
   const miaName = currentUsername || (currentUser ? currentUser.email.split('@')[0] : playerName) || 'Scout';
   await submitGameScore('leaderboard_mia', {
     name: miaName, score: s.score, correct: s.correct,
@@ -3303,6 +3329,7 @@ async function renderRefChallengeComplete() {
   }
   const justUnlockedTrack = s.difficulty === 'hard' && perfectHardTrack === 3;
 
+  updateStreak();
   const trackName = currentUsername || (currentUser ? currentUser.email.split('@')[0] : playerName) || 'Scout';
   await submitGameScore('leaderboard_track', {
     name: trackName, score: s.score, correct: s.correct,
@@ -4562,6 +4589,145 @@ function endTrackEndless(lost) {
       <button class="btn-next" onclick="startTrackEndless()">Play Again</button>
       <button class="btn-change-diff" style="margin-top:8px;" onclick="renderRefChallengeSetup()">← Back</button>
     </div>`;
+}
+
+// ═══════════════════════════════════════
+// STREAK SYSTEM
+// ═══════════════════════════════════════
+let currentStreak = null; // loaded from Supabase
+
+async function loadStreak() {
+  if(!currentUser) return null;
+  try {
+    const rows = await sbFetch(`streaks?user_id=eq.${currentUser.id}&select=*&limit=1`);
+    if(rows.length) {
+      currentStreak = rows[0];
+    } else {
+      // Create new streak record
+      const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' };
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/streaks`, { method:'POST', headers, body: JSON.stringify({ user_id: currentUser.id, current_streak:0, longest_streak:0, freeze_tokens:0, total_days_played:0 }) });
+      const data = await res.json();
+      currentStreak = Array.isArray(data) ? data[0] : data;
+    }
+    return currentStreak;
+  } catch(e) { console.error('Load streak failed:', e); return null; }
+}
+
+async function updateStreak(bonusDay=false) {
+  if(!currentUser) return;
+  const streak = await loadStreak();
+  if(!streak) return;
+
+  const today = getDailyKey();
+  const lastPlayed = streak.last_played_date;
+
+  // Already played today
+  if(lastPlayed === today) {
+    // If bonus day (completed all daily challenges) add extra
+    if(bonusDay && !streak._bonusAwardedToday) {
+      await patchStreak({ current_streak: streak.current_streak + 1, longest_streak: Math.max(streak.longest_streak, streak.current_streak + 1), _bonusAwardedToday: true });
+    }
+    return;
+  }
+
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const twoDaysAgo = new Date(Date.now() - 2*86400000).toISOString().split('T')[0];
+
+  let newStreak = streak.current_streak;
+  let newTokens = streak.freeze_tokens;
+  let usedFreeze = false;
+
+  if(lastPlayed === yesterday) {
+    // Consecutive day
+    newStreak++;
+  } else if(lastPlayed === twoDaysAgo && streak.freeze_tokens > 0) {
+    // Missed one day but has freeze token
+    newStreak++;
+    newTokens = Math.max(0, newTokens - 1);
+    usedFreeze = true;
+  } else if(!lastPlayed) {
+    // First time
+    newStreak = 1;
+  } else {
+    // Streak broken
+    newStreak = 1;
+    newTokens = 0;
+  }
+
+  // Award freeze token every 7 days
+  if(newStreak % 7 === 0 && newStreak > 0) {
+    newTokens = Math.min(3, newTokens + 1);
+  }
+
+  const newLongest = Math.max(streak.longest_streak, newStreak);
+  const newTotal = (streak.total_days_played || 0) + 1;
+
+  await patchStreak({
+    current_streak: newStreak,
+    longest_streak: newLongest,
+    last_played_date: today,
+    freeze_tokens: newTokens,
+    total_days_played: newTotal,
+    updated_at: new Date().toISOString()
+  });
+
+  // Show milestone notifications
+  if(usedFreeze) showStreakToast(`❄️ Freeze token used! Streak protected.`);
+  else if(newStreak % 7 === 0 && newTokens > streak.freeze_tokens) showStreakToast(`🎉 ${newStreak} day streak! ❄️ Freeze token earned!`);
+  else if([3,7,14,30,50,100].includes(newStreak)) showStreakToast(`🔥 ${newStreak} day streak! Keep it up!`);
+}
+
+async function patchStreak(updates) {
+  if(!currentUser || !currentStreak) return;
+  try {
+    const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' };
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/streaks?user_id=eq.${currentUser.id}`, { method:'PATCH', headers, body: JSON.stringify(updates) });
+    const data = await res.json();
+    if(Array.isArray(data) && data[0]) currentStreak = data[0];
+    else Object.assign(currentStreak, updates);
+  } catch(e) { console.error('Patch streak failed:', e); }
+}
+
+function showStreakToast(msg) {
+  const toast = document.createElement('div');
+  toast.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--teal);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:600;color:var(--text);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.style.opacity='0', 2500);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function getStreakDisplay() {
+  if(!currentStreak) return '';
+  const { current_streak, freeze_tokens, last_played_date } = currentStreak;
+  const today = getDailyKey();
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const playedToday = last_played_date === today;
+  const atRisk = last_played_date === yesterday && !playedToday;
+
+  const tokens = [0,1,2].map(i =>
+    `<span class="streak-token ${i < freeze_tokens ? '' : 'empty'}">❄️</span>`
+  ).join('');
+
+  return `
+    ${atRisk && current_streak > 0 ? `<div class="streak-warning">⚠️ Play today to keep your ${current_streak} day streak!</div>` : ''}
+    <div class="streak-bar">
+      <div class="streak-fire">${playedToday ? '🔥' : '💤'}</div>
+      <div class="streak-info">
+        <div class="streak-count">${current_streak} day${current_streak !== 1 ? 's' : ''}</div>
+        <div class="streak-label">${playedToday ? 'Streak active today' : 'Current streak'}</div>
+      </div>
+      <div>
+        <div class="streak-tokens">${tokens}</div>
+        <div style="font-size:0.68rem;color:var(--text-muted);text-align:right;margin-top:2px;">freeze tokens</div>
+      </div>
+    </div>`;
+}
+
+async function useFreeze() {
+  if(!currentStreak || currentStreak.freeze_tokens <= 0) return;
+  await patchStreak({ freeze_tokens: currentStreak.freeze_tokens - 1 });
+  showStreakToast('❄️ Freeze token used!');
 }
 
 // ═══════════════════════════════════════
