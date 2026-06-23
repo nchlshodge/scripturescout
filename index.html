@@ -4571,15 +4571,15 @@ function getDailyKey() {
 }
 
 function isDailyCompleted(game) {
-  return localStorage.getItem(`ss_daily_${game}_${getDailyKey()}`) !== null;
+  return localStorage.getItem(`ss_dailychallenge_${game}_${getDailyKey()}`) !== null;
 }
 
 function markDailyCompleted(game, score) {
-  localStorage.setItem(`ss_daily_${game}_${getDailyKey()}`, score);
+  localStorage.setItem(`ss_dailychallenge_${game}_${getDailyKey()}`, score);
 }
 
 function getDailyScore(game) {
-  return parseInt(localStorage.getItem(`ss_daily_${game}_${getDailyKey()}`) || '0');
+  return parseInt(localStorage.getItem(`ss_dailychallenge_${game}_${getDailyKey()}`) || '0');
 }
 
 // Seed a number from today's date
