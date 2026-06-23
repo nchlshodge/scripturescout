@@ -360,6 +360,22 @@
   .heart-refill-slot.empty { background:var(--border); }
   @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
 
+  /* Daily Challenge */
+  .daily-card { background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(56,189,248,0.05)); border:1.5px solid #A78BFA; border-radius:16px; padding:20px; margin-bottom:16px; cursor:pointer; transition:all 0.15s; }
+  .daily-card:hover { border-color:#7C5CFC; background:linear-gradient(135deg,rgba(167,139,250,0.14),rgba(56,189,248,0.08)); }
+  .daily-card.completed { opacity:0.6; cursor:default; border-color:var(--teal); background:var(--teal-dim); }
+  .daily-card-header { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .daily-card-icon { font-size:1.6rem; }
+  .daily-card-title { font-size:1rem; font-weight:700; color:var(--text); }
+  .daily-card-badge { margin-left:auto; padding:4px 10px; border-radius:20px; font-size:0.7rem; font-weight:700; letter-spacing:0.05em; }
+  .daily-badge-new { background:rgba(167,139,250,0.15); color:#A78BFA; border:1px solid #A78BFA; }
+  .daily-badge-done { background:var(--teal-dim); color:var(--teal); border:1px solid var(--teal); }
+  .daily-card-desc { font-size:0.82rem; color:var(--text-muted); line-height:1.5; }
+  .daily-lb-row { display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid var(--border); }
+  .daily-lb-row:last-child { border-bottom:none; }
+  .daily-lb-row.highlight { background:rgba(167,139,250,0.08); }
+  .daily-countdown { font-size:0.78rem; color:var(--text-muted); text-align:center; margin-top:8px; }
+
   /* Monthly Champion Modal */
   .champion-modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; }
   .champion-card { background:var(--surface); border:1.5px solid #F4B942; border-radius:20px; padding:28px 24px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto; }
@@ -701,6 +717,19 @@ async function showHome() {
 
       </div>
 
+      <!-- ⚡ Daily Challenge -->
+      <div class="home-section-label">⚡ Daily Challenge</div>
+      <div class="home-game-grid">
+        <div class="home-game-card featured" id="homeDailyBtn" style="border-color:#A78BFA;background:rgba(167,139,250,0.04);grid-column:1/-1;">
+          <div class="home-game-icon">⚡</div>
+          <div style="flex:1;">
+            <div class="home-game-name" style="color:#A78BFA;">Daily Challenge</div>
+            <div class="home-game-desc">One verse, four games. Everyone gets the same challenge today. Resets at midnight!</div>
+          </div>
+          <div class="home-game-badge" style="background:rgba(167,139,250,0.15);color:#A78BFA;border:1px solid #A78BFA;position:static;" id="homeDailyBadge">Play</div>
+        </div>
+      </div>
+
       <div class="home-section-label">🧩 Game Modes</div>
       <div class="home-game-grid">
         <div class="home-game-card" id="homeMemoryBtn">
@@ -775,6 +804,14 @@ async function showHome() {
 
   // Wire up buttons
   document.getElementById('homePlayBtn').onclick = () => { showBackBtn(true); renderDiffScreen(); };
+
+  document.getElementById('homeDailyBtn').onclick = () => { showBackBtn(true); renderDailyChallenge(); };
+  // Update daily badge to show completion count
+  const dailyGames = ['scout','memory','mia','track'];
+  const completedCount = dailyGames.filter(g => isDailyCompleted(g)).length;
+  const badge = document.getElementById('homeDailyBadge');
+  if(badge) badge.textContent = completedCount === 4 ? '✓ All Done' : completedCount > 0 ? `${completedCount}/4 Done` : 'Play';
+  if(badge && completedCount === 4) { badge.style.background='var(--teal-dim)'; badge.style.color='var(--teal)'; badge.style.borderColor='var(--teal)'; }
 
   document.getElementById('homeMemoryBtn').onclick = () => { showBackBtn(true); renderFlashcardSetup(); };
   document.getElementById('homeMiaBtn').onclick = () => { showBackBtn(true); renderFillBlankSetup(); };
@@ -1177,6 +1214,7 @@ function showApp() {
   }
   // Check for monthly champion announcement
   if(currentUser) setTimeout(checkMonthlyChampion, 2000);
+  prefetchDailyChallenge();
 }
 
 function showUsernamePrompt() {
@@ -2980,14 +3018,20 @@ function checkAllFitbAnswers() {
   const checkArea = document.getElementById('fitbCheckArea');
   if(checkArea) checkArea.innerHTML = `
     <button class="btn-next" id="fitbNextBtn" style="margin-top:8px;">
-      ${s.current + 1 < s.verses.length ? 'Next Verse →' : 'See Results →'}
+      ${s._dailyMode ? 'See Results →' : s.current + 1 < s.verses.length ? 'Next Verse →' : 'See Results →'}
     </button>`;
   const nextBtn = document.getElementById('fitbNextBtn');
-  if(nextBtn) nextBtn.onclick = () => {
-    fitbSession.current++;
-    fitbWordBank = [];
-    fitbAnswerRow = [];
-    renderFillBlankCard();
+  if(nextBtn) nextBtn.onclick = async () => {
+    if(s._dailyMode) {
+      markDailyCompleted('mia', s.score);
+      await submitDailyScore('mia', s.score);
+      showDailyResult('mia', s.score);
+    } else {
+      fitbSession.current++;
+      fitbWordBank = [];
+      fitbAnswerRow = [];
+      renderFillBlankCard();
+    }
   };
 }
 
@@ -4501,6 +4545,461 @@ function endTrackEndless(lost) {
       <button class="btn-next" onclick="startTrackEndless()">Play Again</button>
       <button class="btn-change-diff" style="margin-top:8px;" onclick="renderRefChallengeSetup()">← Back</button>
     </div>`;
+}
+
+// ═══════════════════════════════════════
+// DAILY CHALLENGE SYSTEM
+// ═══════════════════════════════════════
+// Required Supabase table:
+// CREATE TABLE leaderboard_daily (
+//   id SERIAL PRIMARY KEY, name TEXT, score INTEGER,
+//   game TEXT, user_id UUID, created_at TIMESTAMPTZ DEFAULT NOW()
+// );
+
+function getDailyKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function isDailyCompleted(game) {
+  return localStorage.getItem(`ss_daily_${game}_${getDailyKey()}`) !== null;
+}
+
+function markDailyCompleted(game, score) {
+  localStorage.setItem(`ss_daily_${game}_${getDailyKey()}`, score);
+}
+
+function getDailyScore(game) {
+  return parseInt(localStorage.getItem(`ss_daily_${game}_${getDailyKey()}`) || '0');
+}
+
+// Seed a number from today's date
+function getDailySeed(extra='') {
+  const key = getDailyKey() + extra;
+  let hash = 0;
+  for(let i = 0; i < key.length; i++) {
+    hash = ((hash << 5) - hash) + key.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+// Curated daily topics — cycles through 255 biblical themes
+const DAILY_TOPICS = ["faith", "prayer", "love", "grace", "hope", "forgiveness", "salvation", "worship", "trust", "obedience", "humility", "wisdom", "peace", "joy", "strength", "courage", "patience", "kindness", "mercy", "truth", "righteousness", "holiness", "redemption", "sacrifice", "resurrection", "eternal life", "heaven", "light", "darkness", "sin", "repentance", "baptism", "the holy spirit", "jesus", "god", "bible", "scripture", "creation", "miracles", "healing", "prophecy", "angels", "praise", "thanksgiving", "generosity", "serving others", "justice", "compassion", "suffering", "trials", "temptation", "spiritual warfare", "armor of god", "the church", "community", "marriage", "family", "children", "parenting", "friendship", "enemies", "pride", "money", "giving", "stewardship", "work", "rest", "sabbath", "fear of god", "awe", "wonder", "seeking god", "hearing god", "following jesus", "the cross", "blood of jesus", "born again", "new creation", "sanctification", "the word of god", "meditation", "fasting", "solitude", "discipleship", "evangelism", "missions", "the great commission", "the kingdom of god", "the gospel", "covenant", "promise", "blessing", "anointing", "the throne of god", "intercession", "spiritual gifts", "the body of christ", "unity", "love for enemies", "peacemaking", "anger", "jealousy", "envy", "greed", "lust", "gluttony", "sloth", "wrath", "contentment", "gratitude", "celebration", "mourning", "grief", "comfort", "refuge", "protection", "provision", "guidance", "direction", "calling", "purpose", "identity in christ", "new life", "transformation", "renewal", "restoration", "wholeness", "freedom", "liberty", "bondage", "slavery", "exodus", "deliverance", "the promised land", "wilderness", "desert", "testing", "david", "moses", "abraham", "joseph", "elijah", "paul", "peter", "mary", "the psalms", "lament", "confession", "proverbs", "teaching", "shepherds", "sheep", "the vine", "bread of life", "living water", "light of world", "servant leadership", "the last supper", "the lord prayer", "beatitudes", "sermon on mount", "parables", "the prodigal son", "the good samaritan", "the lost sheep", "the mustard seed", "hell", "judgment", "the second coming", "rapture", "end times", "revelation", "the new jerusalem", "eternity", "glory", "the fear of the lord", "consecration", "dedication", "offering", "tithing", "first fruits", "hospitality", "strangers", "widows", "orphans", "the poor", "love your neighbor", "the great commandment", "bearing fruit", "abiding in christ", "walking in the spirit", "crucifying the flesh", "dying to self", "taking up your cross", "surrendering", "letting go", "trusting god", "waiting on god", "seasons", "times and purposes", "sovereignty", "providence", "gods plan", "creation care", "stewardship of the earth", "work and vocation", "excellence", "integrity", "honesty", "loyalty", "faithfulness", "endurance", "perseverance", "running the race", "finishing well", "crowns", "rewards", "eternal perspective", "laying up treasure", "the heart", "the mind", "renewing your mind", "guarding your heart", "thoughts", "words", "tongue", "speaking life", "encouragement", "edification", "accountability", "reconciliation", "church discipline", "spiritual authority", "submission", "fire", "wind", "water", "baptism of the spirit", "speaking in tongues", "signs and wonders", "faith to move mountains", "asking in faith", "persisting in prayer", "the lords answer", "gods silence", "dark night of the soul", "doubt", "questioning", "wrestling with god", "raw honesty with god", "psalms of ascent", "pilgrimage", "the journey", "walking with god", "enoch"];
+
+// Cache today's topic and verse pool
+let _dailyTopicCache = null;
+let _dailyVersePool = null;
+
+async function getDailyTopicAndVerses() {
+  if(_dailyTopicCache && _dailyVersePool) return { topic: _dailyTopicCache, verses: _dailyVersePool };
+
+  // Check localStorage cache first
+  const cacheKey = `ss_daily_topic_${getDailyKey()}`;
+  const cached = localStorage.getItem(cacheKey);
+  if(cached) {
+    try {
+      const { topic, verses } = JSON.parse(cached);
+      _dailyTopicCache = topic;
+      _dailyVersePool = verses;
+      return { topic, verses };
+    } catch(e) {}
+  }
+
+  // Pick today's topic from curated list using day-of-year
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  const topic = DAILY_TOPICS[dayOfYear % DAILY_TOPICS.length];
+  _dailyTopicCache = topic;
+
+  // Fetch top verse references for this topic
+  const topicVerses = await sbFetch(`verse_topics?topic=eq.${encodeURIComponent(topic)}&order=quality_score.desc&limit=20&select=book,chapter,verse`);
+
+  // Fetch all matching verses in PARALLEL instead of sequential
+  const versePromises = topicVerses.slice(0, 8).map(tv =>
+    sbFetch(`verses?translation=eq.${TRANSLATION}&book=eq.${encodeURIComponent(tv.book)}&chapter=eq.${tv.chapter}&verse=eq.${tv.verse}&select=*&limit=1`)
+      .then(rows => rows[0] || null)
+      .catch(() => null)
+  );
+  const results = await Promise.all(versePromises);
+  const pool = results.filter(Boolean).slice(0, 4);
+
+  // Fallback if not enough verses found
+  if(pool.length < 4) {
+    const dow = now.getDay();
+    const diff = [0,6].includes(dow) ? 'hard' : [2,4].includes(dow) ? 'medium' : 'easy';
+    const total = DIFF_COUNTS[TRANSLATION][diff];
+    const offset = getDailySeed('fallback') % total;
+    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=${4-pool.length}&offset=${offset}`);
+    pool.push(...rows);
+  }
+
+  _dailyVersePool = pool;
+
+  // Cache in localStorage for instant loads today
+  try { localStorage.setItem(cacheKey, JSON.stringify({ topic, verses: pool })); } catch(e) {}
+
+  return { topic, verses: pool };
+}
+
+// Pre-fetch daily verses on app load so they're ready instantly
+function prefetchDailyChallenge() {
+  setTimeout(() => getDailyTopicAndVerses().catch(()=>{}), 3000);
+}
+
+async function fetchDailyVerse(game) {
+  const { topic, verses } = await getDailyTopicAndVerses();
+  const gameIndex = ['scout','memory','mia','track'].indexOf(game);
+  return verses[Math.min(gameIndex, verses.length-1)] || null;
+}
+
+async function submitDailyScore(game, score) {
+  const name = currentUsername || (currentUser?.email?.split('@')[0]) || playerName || 'Scout';
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/leaderboard_daily`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Authorization': authToken ? `Bearer ${authToken}` : `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ name, score, game, user_id: currentUser?.id || null })
+    });
+  } catch(e) { console.error('Daily score submit failed:', e); }
+}
+
+async function fetchDailyLeaderboard(game) {
+  const today = getDailyKey();
+  const since = new Date(today).toISOString();
+  const tomorrow = new Date(new Date(today).getTime() + 86400000).toISOString();
+  return sbFetch(`leaderboard_daily?game=eq.${game}&created_at=gte.${since}&created_at=lt.${tomorrow}&order=score.desc&limit=10&select=*`);
+}
+
+async function renderDailyChallenge() {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading Daily Challenge…</div></div>`;
+
+  const games = [
+    { id: 'scout', icon: '📖', name: 'Scripture Scout', desc: 'Guess the Testament, Book and Chapter' },
+    { id: 'memory', icon: '🃏', name: 'Memory Trail', desc: 'Recall the key verse from its reference' },
+    { id: 'mia', icon: '✏️', name: 'Missing in Action', desc: 'Fill in the blanks of the verse' },
+    { id: 'track', icon: '🎯', name: 'Track It Down', desc: 'Find the correct reference from 4 choices' }
+  ];
+
+  // Calculate time until midnight
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24,0,0,0);
+  const msLeft = midnight - now;
+  const hLeft = Math.floor(msLeft/3600000);
+  const mLeft = Math.floor((msLeft%3600000)/60000);
+
+  // Load today's topic
+  let todayTopic = '…';
+  getDailyTopicAndVerses().then(({topic}) => {
+    todayTopic = topic;
+    const topicEl = document.getElementById('dailyTopicLabel');
+    if(topicEl) topicEl.textContent = `Today's theme: ${topic}`;
+  });
+
+  root.innerHTML = `
+    <div class="story-screen">
+      <div class="verse-label">⚡ Daily Challenge</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;line-height:1.5;text-align:center;">
+        One theme. Four games. Everyone gets the same challenge today.
+      </p>
+      <div id="dailyTopicLabel" style="text-align:center;font-size:1.6rem;font-weight:700;color:#A78BFA;margin-bottom:8px;text-transform:capitalize;letter-spacing:-0.02em;">Loading today's theme…</div>
+      <div style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;"><strong style="color:var(--teal);">Resets in ${hLeft}h ${mLeft}m</strong></div>
+      ${games.map(g => {
+        const done = isDailyCompleted(g.id);
+        const score = getDailyScore(g.id);
+        return `
+          <div class="daily-card ${done?'completed':''}" id="daily_${g.id}">
+            <div class="daily-card-header">
+              <span class="daily-card-icon">${g.icon}</span>
+              <span class="daily-card-title">${g.name}</span>
+              <span class="daily-card-badge ${done?'daily-badge-done':'daily-badge-new'}">${done?'✓ Done':'Play'}</span>
+            </div>
+            <div class="daily-card-desc">${done ? `Your score: <strong style="color:var(--teal);">${score.toLocaleString()} pts</strong>` : g.desc}</div>
+          </div>`;
+      }).join('')}
+      <button class="btn-change-diff" style="margin-top:8px;" onclick="showHome()">← Home</button>
+    </div>`;
+
+  games.forEach(g => {
+    if(!isDailyCompleted(g.id)) {
+      document.getElementById(`daily_${g.id}`).onclick = () => startDailyGame(g.id);
+    } else {
+      document.getElementById(`daily_${g.id}`).onclick = () => showDailyLeaderboard(g.id);
+    }
+  });
+}
+
+async function startDailyGame(game) {
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading today's verse…</div></div>`;
+
+  const verse = await fetchDailyVerse(game);
+  if(!verse) { root.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-muted);">Could not load today's challenge. Try again!</div>`; return; }
+
+  if(game === 'scout') {
+    dailyChallengeMode = { active: true, game };
+    renderDailyScout(verse);
+  } else if(game === 'memory') {
+    dailyChallengeMode = { active: true, game };
+    renderDailyMemory(verse);
+  } else if(game === 'mia') {
+    dailyChallengeMode = { active: true, game };
+    renderDailyMIA(verse);
+  } else if(game === 'track') {
+    dailyChallengeMode = { active: true, game };
+    renderDailyTrack(verse);
+  }
+}
+
+let dailyChallengeMode = { active: false, game: null };
+
+async function renderDailyScout(verse) {
+  const root = document.getElementById('root');
+  const correctTestament = verse.testament;
+  const correctBook = verse.book;
+  const correctChapter = parseInt(verse.chapter);
+  let phase = 1; // 1=testament, 2=book, 3=chapter
+  let score = 0;
+  let correct = 0;
+
+  function renderPhase() {
+    root.innerHTML = `
+      <div style="text-align:center;margin-bottom:12px;">
+        <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Scripture Scout</div>
+      </div>
+      <div class="card" style="max-width:560px;width:100%;">
+        <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
+        <hr class="divider"/>
+        <div id="scoutPhaseArea"></div>
+        <div class="feedback" id="scoutFeedback"></div>
+      </div>`;
+
+    const area = document.getElementById('scoutPhaseArea');
+    const fb = document.getElementById('scoutFeedback');
+
+    if(phase === 1) {
+      area.innerHTML = `
+        <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Testament?</div>
+        <div style="display:flex;gap:10px;">
+          <button class="ref-option" style="flex:1;" data-ans="OT">📜 Old Testament</button>
+          <button class="ref-option" style="flex:1;" data-ans="NT">✝️ New Testament</button>
+        </div>`;
+      area.querySelectorAll('.ref-option').forEach(btn => {
+        btn.onclick = () => {
+          area.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
+          const isCorrect = btn.dataset.ans === correctTestament;
+          btn.classList.add(isCorrect?'correct':'wrong');
+          if(!isCorrect) area.querySelector(`[data-ans="${correctTestament}"]`).classList.add('correct');
+          if(isCorrect) { score+=300; correct++; fb.className='feedback correct'; fb.textContent='✓ Correct! +300'; }
+          else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctTestament==='OT'?'Old':'New'} Testament`; }
+          setTimeout(()=>{ phase=2; renderPhase(); }, 1200);
+        };
+      });
+    } else if(phase === 2) {
+      const books = correctTestament === 'OT' ? OT_BOOKS : NT_BOOKS;
+      const wrongBooks = books.filter(b=>b[0]!==correctBook).sort(()=>Math.random()-0.5).slice(0,3).map(b=>b[0]);
+      const choices = [correctBook,...wrongBooks].sort(()=>Math.random()-0.5);
+      area.innerHTML = `
+        <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Book?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${choices.map(c=>`<button class="ref-option" data-ans="${c}">${c}</button>`).join('')}
+        </div>`;
+      area.querySelectorAll('.ref-option').forEach(btn => {
+        btn.onclick = () => {
+          area.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
+          const isCorrect = btn.dataset.ans === correctBook;
+          btn.classList.add(isCorrect?'correct':'wrong');
+          if(!isCorrect) area.querySelector(`[data-ans="${correctBook}"]`).classList.add('correct');
+          if(isCorrect) { score+=500; correct++; fb.className='feedback correct'; fb.textContent='✓ Correct! +500'; }
+          else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctBook}`; }
+          setTimeout(()=>{ phase=3; renderPhase(); }, 1200);
+        };
+      });
+    } else {
+      const wrongChapters = [];
+      for(let i=0;i<3;i++) {
+        let c;
+        do { c=Math.max(1,correctChapter+Math.floor(Math.random()*6)-3); } while(c===correctChapter||wrongChapters.includes(c));
+        wrongChapters.push(c);
+      }
+      const choices = [correctChapter,...wrongChapters].sort(()=>Math.random()-0.5);
+      area.innerHTML = `
+        <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Chapter?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${choices.map(c=>`<button class="ref-option" data-ans="${c}">Chapter ${c}</button>`).join('')}
+        </div>`;
+      area.querySelectorAll('.ref-option').forEach(btn => {
+        btn.onclick = async () => {
+          area.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
+          const isCorrect = parseInt(btn.dataset.ans) === correctChapter;
+          btn.classList.add(isCorrect?'correct':'wrong');
+          if(!isCorrect) area.querySelector(`[data-ans="${correctChapter}"]`).classList.add('correct');
+          if(isCorrect) { score+=700; correct++; fb.className='feedback correct'; fb.textContent='✓ Correct! +700'; }
+          else { fb.className='feedback wrong'; fb.textContent=`✗ It was Chapter ${correctChapter}`; }
+          markDailyCompleted('scout', score);
+          await submitDailyScore('scout', score);
+          setTimeout(()=>showDailyResult('scout', score), 1200);
+        };
+      });
+    }
+  }
+  renderPhase();
+}
+
+function renderDailyMemory(verse) {
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <div style="text-align:center;margin-bottom:12px;">
+      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Memory Trail</div>
+    </div>
+    <div class="card" style="max-width:560px;width:100%;">
+      <div class="flashcard-label">Can you recall this verse?</div>
+      <div class="flashcard-reference">${verse.book} ${verse.chapter}:${verse.verse}</div>
+      <div class="flashcard-book">${verse.testament==='OT'?'📜 Old Testament':'✝️ New Testament'}</div>
+      <hr class="divider" style="margin:14px 0;"/>
+      <div id="dailyMemFlip">
+        <button class="btn-next" id="dailyFlipBtn">Flip to see verse →</button>
+      </div>
+    </div>`;
+
+  document.getElementById('dailyFlipBtn').onclick = () => {
+    document.getElementById('dailyMemFlip').innerHTML = `
+      <div class="flashcard-verse" style="margin-bottom:14px;">"${verse.text}"</div>
+      <div class="rating-btns">
+        <button class="rating-btn rating-didnt" onclick="completeDailyMemory('didnt_know',0)"><span class="rating-icon">😬</span>Didn't Know</button>
+        <button class="rating-btn rating-almost" onclick="completeDailyMemory('almost',100)"><span class="rating-icon">🤔</span>Almost</button>
+        <button class="rating-btn rating-knew" onclick="completeDailyMemory('knew_it',300)"><span class="rating-icon">✅</span>Knew It!</button>
+      </div>`;
+  };
+}
+
+async function completeDailyMemory(rating, score) {
+  markDailyCompleted('memory', score);
+  await submitDailyScore('memory', score);
+  showDailyResult('memory', score);
+}
+
+async function renderDailyMIA(verse) {
+  const blanks = getBlankWords(verse.text, 'hard');
+  const options = blanks.map(b => generateOptions(b.word, verse.text.split(' ')));
+  const blankHtml = buildBlankVerse(verse.text, blanks, 0, {});
+
+  // Temporarily set fitbSession for daily
+  fitbSession = { verses:[verse], current:0, difficulty:'hard', score:0, correct:0,
+    blanks, currentBlankIndex:0, options };
+  fitbWordBank = []; fitbAnswerRow = [];
+
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <div style="text-align:center;margin-bottom:12px;">
+      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Missing in Action</div>
+    </div>
+    <div class="card" style="max-width:560px;width:100%;">
+      <div class="verse-label">✏️ Fill in the blanks</div>
+      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;margin-bottom:10px;">📖 ${verse.book} ${verse.chapter}:${verse.verse}</div>
+      <div class="blank-verse" id="blankVerse">${blankHtml}</div>
+      <div id="blankInputArea"></div>
+      <div class="feedback" id="fitbFeedback"></div>
+    </div>`;
+
+  renderBlankInput();
+
+  // Override next button to complete daily
+  const origRenderFillBlankCard = window._origRFC;
+  fitbSession._dailyMode = true;
+}
+
+async function renderDailyTrack(verse) {
+  const options = await generateRefOptions(verse, 'hard');
+  const letters = ['A','B','C','D'];
+  const correctRef = `${verse.book} ${verse.chapter}`;
+
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <div style="text-align:center;margin-bottom:12px;">
+      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Track It Down</div>
+    </div>
+    <div class="card" style="max-width:560px;width:100%;">
+      <div class="verse-label">🎯 Where is this verse from?</div>
+      <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
+      <hr class="divider"/>
+      <div id="dailyTrackOptions">
+        ${options.map((opt,i)=>`
+          <button class="ref-option" data-ref="${opt}">
+            <span class="ref-option-letter">${letters[i]}</span>${opt}
+          </button>`).join('')}
+      </div>
+      <div class="feedback" id="dailyTrackFeedback"></div>
+    </div>`;
+
+  document.querySelectorAll('.ref-option').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('.ref-option').forEach(b => b.disabled=true);
+      const isCorrect = btn.dataset.ref === correctRef;
+      document.querySelectorAll('.ref-option').forEach(b => {
+        if(b.dataset.ref===correctRef) b.classList.add('correct');
+        if(b===btn && !isCorrect) b.classList.add('wrong');
+      });
+      const score = isCorrect ? 500 : 0;
+      const fb = document.getElementById('dailyTrackFeedback');
+      if(fb) { fb.className=`feedback ${isCorrect?'correct':'wrong'}`; fb.textContent=isCorrect?'✓ Correct!':'✗ Not quite!'; }
+      markDailyCompleted('track', score);
+      await submitDailyScore('track', score);
+      setTimeout(()=>showDailyResult('track', score), 1200);
+    });
+  });
+}
+
+async function showDailyResult(game, score) {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading results…</div></div>`;
+
+  const rows = await fetchDailyLeaderboard(game);
+  const myRank = rows.findIndex(r => r.score === score) + 1;
+  const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
+  const gameIcons = { scout:'📖', memory:'🃏', mia:'✏️', track:'🎯' };
+
+  root.innerHTML = `
+    <div class="card" style="max-width:560px;width:100%;text-align:center;padding:28px 24px;">
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:600;margin-bottom:8px;">⚡ Daily Challenge Complete!</div>
+      <div style="font-size:2rem;margin-bottom:8px;">${gameIcons[game]}</div>
+      <div style="font-size:2.5rem;font-weight:700;color:var(--teal);margin-bottom:4px;">${score.toLocaleString()}</div>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:${myRank?'8px':'20px'};">points scored</div>
+      ${myRank ? `<div style="font-size:0.9rem;color:#A78BFA;font-weight:600;margin-bottom:20px;">You ranked #${myRank} today! ${myRank===1?'🏆':myRank<=3?'🎉':''}</div>` : ''}
+
+      <div style="text-align:left;margin-bottom:16px;">
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Today's Leaderboard</div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          ${rows.length ? rows.map((r,i) => `
+            <div class="daily-lb-row ${r.score===score&&!r._marked?'highlight':''}">
+              <span style="font-size:1rem;width:28px;text-align:center;">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
+              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${r.name}</span>
+              <span style="font-size:0.88rem;font-weight:700;color:var(--teal);">${r.score.toLocaleString()}</span>
+            </div>`).join('') : `<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.85rem;">You're the first to play today!</div>`}
+        </div>
+      </div>
+
+      <button class="btn-next" onclick="renderDailyChallenge()">← Back to Daily Challenges</button>
+      <button class="btn-change-diff" style="margin-top:8px;" onclick="showHome()">← Home</button>
+    </div>`;
+}
+
+async function showDailyLeaderboard(game) {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading leaderboard…</div></div>`;
+  const score = getDailyScore(game);
+  await showDailyResult(game, score);
 }
 
 // ═══════════════════════════════════════
