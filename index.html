@@ -5074,14 +5074,15 @@ async function completeDailyMemory(rating, score) {
 }
 
 async function renderDailyMIA(verse) {
+  // Use completely separate state — never touch fitbSession
   const blanks = getBlankWords(verse.text, 'hard');
   const options = blanks.map(b => generateOptions(b.word, verse.text.split(' ')));
   const blankHtml = buildBlankVerse(verse.text, blanks, 0, {});
 
-  // Temporarily set fitbSession for daily
-  fitbSession = { verses:[verse], current:0, difficulty:'hard', score:0, correct:0,
-    blanks, currentBlankIndex:0, options };
-  fitbWordBank = []; fitbAnswerRow = [];
+  // Daily-specific state
+  let dailyMIAWordBank = [];
+  let dailyMIAAnswerRow = [];
+  let dailyMIAScore = 0;
 
   const root = document.getElementById('root');
   root.innerHTML = `
@@ -5091,16 +5092,96 @@ async function renderDailyMIA(verse) {
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label">✏️ Fill in the blanks</div>
       <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;margin-bottom:10px;">📖 ${verse.book} ${verse.chapter}:${verse.verse}</div>
-      <div class="blank-verse" id="blankVerse">${blankHtml}</div>
-      <div id="blankInputArea"></div>
-      <div class="feedback" id="fitbFeedback"></div>
+      <div class="blank-verse" id="dailyMIAVerse">${blankHtml}</div>
+      <div id="dailyMIAInput"></div>
+      <div class="feedback" id="dailyMIAFeedback"></div>
     </div>`;
 
-  renderBlankInput();
+  // Build word bank
+  const wordList = [];
+  blanks.forEach(b => wordList.push(b.word));
+  options.forEach(opts => opts.forEach(o => { if(!blanks.map(b=>b.word).includes(o)) wordList.push(o); }));
+  dailyMIAWordBank = shuffle(wordList).map((w,i) => ({ word:w, used:false, chipIndex:i }));
 
-  // Override next button to complete daily
-  const origRenderFillBlankCard = window._origRFC;
-  fitbSession._dailyMode = true;
+  const area = document.getElementById('dailyMIAInput');
+  area.innerHTML = `
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--teal);font-weight:600;margin-bottom:6px;">Your answer:</div>
+    <div id="dailyMIAAnswerRow" class="answer-row">
+      <span class="answer-placeholder">Tap words below…</span>
+    </div>
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:10px 0 6px;">Word bank:</div>
+    <div id="dailyMIAWordBank" class="word-bank">
+      ${dailyMIAWordBank.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
+    </div>
+    <div id="dailyMIACheckArea">
+      <button class="btn-next" id="dailyMIACheckBtn" style="background:linear-gradient(135deg,#4A7C59,#3BBFA0);margin-top:8px;" disabled>Check Answers (0/${blanks.length})</button>
+    </div>`;
+
+  function refreshDailyMIAAnswerRow() {
+    const row = document.getElementById('dailyMIAAnswerRow');
+    if(!row) return;
+    if(dailyMIAAnswerRow.length === 0) { row.innerHTML = '<span class="answer-placeholder">Tap words below…</span>'; return; }
+    row.innerHTML = dailyMIAAnswerRow.map((a,pos) =>
+      `<button class="answer-chip" onclick="removeDailyMIAWord(${pos})">${a.word}</button>`
+    ).join('');
+  }
+
+  window.removeDailyMIAWord = (pos) => {
+    const removed = dailyMIAAnswerRow[pos];
+    if(!removed) return;
+    dailyMIAAnswerRow.splice(pos, 1);
+    const chip = document.querySelector(`#dailyMIAWordBank .word-chip[data-index="${removed.chipIndex}"]`);
+    if(chip) chip.classList.remove('used');
+    refreshDailyMIAAnswerRow();
+    updateDailyMIACheckBtn();
+  };
+
+  function updateDailyMIACheckBtn() {
+    const btn = document.getElementById('dailyMIACheckBtn');
+    if(!btn) return;
+    const filled = dailyMIAAnswerRow.length;
+    btn.disabled = filled < blanks.length;
+    btn.textContent = filled >= blanks.length ? 'Check Answers ✓' : `Check Answers (${filled}/${blanks.length})`;
+    if(filled >= blanks.length) btn.onclick = checkDailyMIA;
+  }
+
+  function checkDailyMIA() {
+    let correct = 0;
+    blanks.forEach((blank, i) => {
+      const given = dailyMIAAnswerRow[i];
+      const isCorrect = given && given.word.toLowerCase() === blank.word.toLowerCase();
+      if(isCorrect) correct++;
+    });
+    dailyMIAScore = correct * 200;
+    document.querySelectorAll('#dailyMIAWordBank .word-chip').forEach(b => b.disabled=true);
+    // Show correct answers
+    const row = document.getElementById('dailyMIAAnswerRow');
+    if(row) {
+      row.innerHTML = blanks.map((blank,i) => {
+        const given = dailyMIAAnswerRow[i];
+        const isCorrect = given && given.word.toLowerCase() === blank.word.toLowerCase();
+        return `<span class="answer-chip" style="border-color:${isCorrect?'var(--teal)':'var(--earth)'};background:${isCorrect?'var(--teal-dim)':'var(--earth-dim)'};color:${isCorrect?'var(--teal)':'var(--earth)'};">${isCorrect?given.word:blank.word}</span>`;
+      }).join('');
+    }
+    const checkArea = document.getElementById('dailyMIACheckArea');
+    if(checkArea) checkArea.innerHTML = `<button class="btn-next" id="dailyMIADoneBtn" style="margin-top:8px;">See Results →</button>`;
+    document.getElementById('dailyMIADoneBtn').onclick = async () => {
+      markDailyCompleted('mia', dailyMIAScore);
+      await submitDailyScore('mia', dailyMIAScore);
+      showDailyResult('mia', dailyMIAScore);
+    };
+  }
+
+  document.querySelectorAll('#dailyMIAWordBank .word-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(btn.classList.contains('used')) return;
+      if(dailyMIAAnswerRow.length >= blanks.length) return;
+      dailyMIAAnswerRow.push({ word: btn.dataset.word, chipIndex: parseInt(btn.dataset.index) });
+      btn.classList.add('used');
+      refreshDailyMIAAnswerRow();
+      updateDailyMIACheckBtn();
+    });
+  });
 }
 
 async function renderDailyTrack(verse) {
