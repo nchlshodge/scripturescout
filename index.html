@@ -2991,9 +2991,15 @@ function refreshFitbAnswerRow() {
     return;
   }
 
-  row.innerHTML = fitbAnswerRow.map((a, pos) =>
-    `<button class="answer-chip" onclick="fitbRemoveAnswer(${pos})">${a.word}</button>`
-  ).join('');
+  // Clear and rebuild chips with event listeners (not inline onclick)
+  row.innerHTML = '';
+  fitbAnswerRow.forEach((a, pos) => {
+    const chip = document.createElement('button');
+    chip.className = 'answer-chip';
+    chip.textContent = a.word;
+    chip.addEventListener('click', () => fitbRemoveAnswer(pos));
+    row.appendChild(chip);
+  });
 }
 
 function checkAllFitbAnswers() {
