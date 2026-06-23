@@ -3859,6 +3859,14 @@ function renderLeaderboardHub() {
       <div class="verse-label">🏆 Leaderboards</div>
       <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;line-height:1.5;">Select a game to see the top scores.</p>
       <div class="chapter-list">
+        <div class="chapter-item unlocked" id="lbDailyBtn" style="border-color:#A78BFA;background:rgba(167,139,250,0.04);">
+          <div class="chapter-num current">⚡</div>
+          <div class="chapter-info">
+            <div class="chapter-title" style="color:#A78BFA;">Daily Challenge</div>
+            <div class="chapter-ref">Today's top scores across all 4 games</div>
+          </div>
+          <div class="chapter-lock">▶️</div>
+        </div>
         <div class="chapter-item unlocked" id="lbScriptureBtn">
           <div class="chapter-num current">📖</div>
           <div class="chapter-info">
@@ -3895,6 +3903,7 @@ function renderLeaderboardHub() {
       <button class="btn-change-diff" style="margin-top:16px;" onclick="showHome()">← Home</button>
     </div>`;
 
+  document.getElementById('lbDailyBtn').onclick = () => { showBackBtn(true); renderFullDailyLeaderboard(); };
   document.getElementById('lbScriptureBtn').onclick = () => { showBackBtn(true); renderLeaderboard(); };
   document.getElementById('lbMemoryBtn').onclick = () => renderGameLeaderboard('🃏 Memory Trail','leaderboard_memory',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
   document.getElementById('lbMiaBtn').onclick = () => renderGameLeaderboard('✏️ Missing in Action','leaderboard_mia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
@@ -4674,7 +4683,8 @@ async function fetchDailyLeaderboard(game) {
   const today = getDailyKey();
   const since = new Date(today).toISOString();
   const tomorrow = new Date(new Date(today).getTime() + 86400000).toISOString();
-  return sbFetch(`leaderboard_daily?game=eq.${game}&created_at=gte.${since}&created_at=lt.${tomorrow}&order=score.desc&limit=10&select=*`);
+  // Sort by score desc, then created_at asc — first to get the score wins tiebreaker
+  return sbFetch(`leaderboard_daily?game=eq.${game}&created_at=gte.${since}&created_at=lt.${tomorrow}&order=score.desc,created_at.asc&limit=10&select=*`);
 }
 
 async function renderDailyChallenge() {
@@ -4991,6 +5001,60 @@ async function showDailyResult(game, score) {
 
       <button class="btn-next" onclick="renderDailyChallenge()">← Back to Daily Challenges</button>
       <button class="btn-change-diff" style="margin-top:8px;" onclick="showHome()">← Home</button>
+    </div>`;
+}
+
+async function renderFullDailyLeaderboard() {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading daily leaderboard…</div></div>`;
+
+  const games = [
+    { id: 'scout', icon: '📖', name: 'Scripture Scout' },
+    { id: 'memory', icon: '🃏', name: 'Memory Trail' },
+    { id: 'mia', icon: '✏️', name: 'Missing in Action' },
+    { id: 'track', icon: '🎯', name: 'Track It Down' }
+  ];
+
+  // Fetch all 4 leaderboards in parallel
+  const results = await Promise.all(games.map(g => fetchDailyLeaderboard(g.id)));
+
+  // Get today's topic
+  const { topic } = await getDailyTopicAndVerses().catch(() => ({ topic: '' }));
+
+  // Calculate time until midnight
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24,0,0,0);
+  const msLeft = midnight - now;
+  const hLeft = Math.floor(msLeft/3600000);
+  const mLeft = Math.floor((msLeft%3600000)/60000);
+
+  function renderSection(game, rows) {
+    return `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+          <span>${game.icon} ${game.name}</span>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          ${rows.length ? rows.map((r,i) => `
+            <div class="daily-lb-row">
+              <span style="font-size:1rem;width:28px;text-align:center;">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
+              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${r.name}</span>
+              <span style="font-size:0.88rem;font-weight:700;color:var(--teal);">${r.score.toLocaleString()}</span>
+            </div>`).join('') : `<div style="padding:14px;text-align:center;color:var(--text-muted);font-size:0.85rem;">No scores yet today — be the first!</div>`}
+        </div>
+      </div>`;
+  }
+
+  root.innerHTML = `
+    <div class="game-lb">
+      <div class="verse-label">⚡ Daily Challenge Leaderboard</div>
+      ${topic ? `<div style="text-align:center;font-size:1.1rem;font-weight:700;color:#A78BFA;margin-bottom:4px;text-transform:capitalize;">${topic}</div>` : ''}
+      <div style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;">Resets in ${hLeft}h ${mLeft}m</div>
+      ${games.map((g, i) => renderSection(g, results[i])).join('')}
+      <button class="btn-change-diff" style="margin-top:8px;" onclick="renderLeaderboardHub()">← Leaderboards</button>
     </div>`;
 }
 
