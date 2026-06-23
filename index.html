@@ -2822,7 +2822,7 @@ async function startFillBlank(diff, size) {
   fitbSession.score = 0;
   fitbSession.correct = 0;
   fitbSession.verses = [];
-  fitbSession._dailyMode = false; // always reset daily mode for regular games
+
 
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading verses…</div></div>`;
@@ -3048,24 +3048,18 @@ function checkAllFitbAnswers() {
     if(fb) { fb.className='feedback wrong'; fb.innerHTML=`${wrongCount} wrong — ${correctCount > 0 ? `<span class="points-pop">+${pointsEarned}</span> for ${correctCount} correct` : 'no points this round'}`; }
   }
 
-  // Always show Next Verse button regardless of correct or wrong
+  // Always show Next Verse button
   const checkArea = document.getElementById('fitbCheckArea');
   if(checkArea) checkArea.innerHTML = `
     <button class="btn-next" id="fitbNextBtn" style="margin-top:8px;">
-      ${s._dailyMode ? 'See Results →' : s.current + 1 < s.verses.length ? 'Next Verse →' : 'See Results →'}
+      ${s.current + 1 < s.verses.length ? 'Next Verse →' : 'See Results →'}
     </button>`;
   const nextBtn = document.getElementById('fitbNextBtn');
-  if(nextBtn) nextBtn.onclick = async () => {
-    if(s._dailyMode) {
-      markDailyCompleted('mia', s.score);
-      await submitDailyScore('mia', s.score);
-      showDailyResult('mia', s.score);
-    } else {
-      fitbSession.current++;
-      fitbWordBank = [];
-      fitbAnswerRow = [];
-      renderFillBlankCard();
-    }
+  if(nextBtn) nextBtn.onclick = () => {
+    fitbSession.current++;
+    fitbWordBank = [];
+    fitbAnswerRow = [];
+    renderFillBlankCard();
   };
 }
 
@@ -5074,7 +5068,7 @@ async function completeDailyMemory(rating, score) {
 }
 
 async function renderDailyMIA(verse) {
-  // Use completely separate state — never touch fitbSession
+
   const blanks = getBlankWords(verse.text, 'hard');
   const options = blanks.map(b => generateOptions(b.word, verse.text.split(' ')));
   const blankHtml = buildBlankVerse(verse.text, blanks, 0, {});
