@@ -360,6 +360,23 @@
   .heart-refill-slot.empty { background:var(--border); }
   @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
 
+  /* Monthly Champion Modal */
+  .champion-modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; }
+  .champion-card { background:var(--surface); border:1.5px solid #F4B942; border-radius:20px; padding:28px 24px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto; }
+  .champion-header { text-align:center; margin-bottom:20px; }
+  .champion-icon { font-size:3rem; margin-bottom:8px; }
+  .champion-title { font-size:1.3rem; font-weight:700; color:#F4B942; margin-bottom:4px; }
+  .champion-subtitle { font-size:0.82rem; color:var(--text-muted); }
+  .champion-section { margin-bottom:16px; }
+  .champion-section-title { font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+  .champion-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+  .champion-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+  .champion-row:last-child { border-bottom:none; }
+  .champion-rank { font-size:1.2rem; width:28px; text-align:center; flex-shrink:0; }
+  .champion-name { flex:1; font-size:0.88rem; font-weight:600; color:var(--text); }
+  .champion-score { font-size:0.88rem; font-weight:700; color:#F4B942; }
+  .btn-champion-close { width:100%; padding:14px; background:linear-gradient(135deg,#4A7C59,#3BBFA0); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:700; color:white; cursor:pointer; margin-top:16px; }
+
   /* Game leaderboards */
   .game-lb { width:100%; max-width:560px; }
   .game-lb-tabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
@@ -1158,6 +1175,8 @@ function showApp() {
   if(currentUser && !currentUsername) {
     setTimeout(showUsernamePrompt, 500);
   }
+  // Check for monthly champion announcement
+  if(currentUser) setTimeout(checkMonthlyChampion, 2000);
 }
 
 function showUsernamePrompt() {
@@ -1402,18 +1421,28 @@ async function submitScore(name, scoreVal, diff) {
   }
 }
 
-async function fetchLeaderboard(diff) {
-  if(diff === 'endless') return sbFetch(`leaderboard?select=*&difficulty=eq.endless&order=score.desc&limit=20`);
-  return sbFetch(`leaderboard?select=*&difficulty=eq.${diff}&order=score.desc&limit=20`);
+async function fetchLeaderboard(diff, weeksBack=null) {
+  let url = `leaderboard?select=*&difficulty=eq.${diff}&order=score.desc&limit=20`;
+  if(weeksBack) {
+    const since = new Date(Date.now() - weeksBack * 7 * 24 * 60 * 60 * 1000).toISOString();
+    url += `&created_at=gte.${since}`;
+  }
+  return sbFetch(url);
 }
 
 // ═══════════════════════════════════════
 // LEADERBOARD SCREEN
 // ═══════════════════════════════════════
 async function renderLeaderboard() {
+  // Check for monthly champion announcement
+  checkMonthlyChampion();
   const root = document.getElementById('root');
   root.innerHTML = `
     <div class="leaderboard-screen">
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button class="game-lb-tab ${lbView==='weekly'?'active':''}" id="lbWeeklyTab" onclick="setLbView('weekly')" style="flex:1;">📅 This Week</button>
+        <button class="game-lb-tab ${lbView==='alltime'?'active':''}" id="lbAlltimeTab" onclick="setLbView('alltime')" style="flex:1;">🏆 All Time</button>
+      </div>
       <div class="lb-diff-tabs">
         <button class="lb-diff-tab ${lbFilter==='easy'?'active':''}"    id="lbEasy"    onclick="setLbFilter('easy')">🌱 Easy</button>
         <button class="lb-diff-tab ${lbFilter==='medium'?'active':''}"  id="lbMedium"  onclick="setLbFilter('medium')">🌿 Medium</button>
@@ -1465,9 +1494,16 @@ async function loadLbScores() {
   }
 }
 
+let lbView = 'weekly'; // 'weekly' or 'alltime'
+function setLbView(v) {
+  lbView = v;
+  document.getElementById('lbWeeklyTab')?.classList.toggle('active', v==='weekly');
+  document.getElementById('lbAlltimeTab')?.classList.toggle('active', v==='alltime');
+  refreshLeaderboard();
+}
+
 function setLbFilter(f) {
   lbFilter = f;
-  // Update tab active states
   ['easy','medium','hard','endless'].forEach(d => {
     const el = document.getElementById(`lb${d.charAt(0).toUpperCase()+d.slice(1)}`);
     if(el) el.classList.toggle('active', d===f);
@@ -3821,22 +3857,42 @@ function renderLeaderboardHub() {
   document.getElementById('lbTrackBtn').onclick = () => renderGameLeaderboard('🎯 Track It Down','leaderboard_track',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
 }
 
+async function fetchGameLBFiltered(table, diff, limit=10, weeksBack=null) {
+  try {
+    let url = `${table}?difficulty=eq.${diff}&order=score.desc&limit=${limit}&select=*`;
+    if(weeksBack) {
+      const since = new Date(Date.now() - weeksBack * 7 * 24 * 60 * 60 * 1000).toISOString();
+      url += `&created_at=gte.${since}`;
+    }
+    return await sbFetch(url);
+  } catch(e) { return []; }
+}
+
 async function renderGameLeaderboard(title, table, difficulties, diffLabels, currentDiff) {
   showBackBtn(true);
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading leaderboard…</div></div>`;
 
   let activeDiff = currentDiff || difficulties[0];
+  let activeView = 'weekly'; // 'weekly' or 'alltime'
+
   async function renderLB() {
-    const rows = await fetchGameLB(table, activeDiff);
-    const tabs = difficulties.map(d =>
+    const rows = activeView === 'weekly'
+      ? await fetchGameLBFiltered(table, activeDiff, 10, 1)
+      : await fetchGameLBFiltered(table, activeDiff, 10);
+
+    const diffTabs = difficulties.map(d =>
       `<button class="game-lb-tab ${d===activeDiff?'active':''}" data-diff="${d}">${diffLabels[d]}</button>`
     ).join('');
 
     root.innerHTML = `
       <div class="game-lb">
         <div class="verse-label">${title} Leaderboard</div>
-        <div class="game-lb-tabs">${tabs}</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;">
+          <button class="game-lb-tab ${activeView==='weekly'?'active':''}" id="weeklyTab" style="flex:1;">📅 This Week</button>
+          <button class="game-lb-tab ${activeView==='alltime'?'active':''}" id="alltimeTab" style="flex:1;">🏆 All Time</button>
+        </div>
+        <div class="game-lb-tabs">${diffTabs}</div>
         <div class="card" style="max-width:560px;width:100%;padding:0;overflow:hidden;">
           ${rows.length ? rows.map((r,i) => `
             <div class="game-lb-row">
@@ -3846,12 +3902,14 @@ async function renderGameLeaderboard(title, table, difficulties, diffLabels, cur
                 ${r.streak ? `<div class="game-lb-diff">Streak: ${r.streak}</div>` : `<div class="game-lb-diff">${r.correct ? r.correct+' correct' : ''}</div>`}
               </div>
               <span class="game-lb-score">${r.score.toLocaleString()}</span>
-            </div>`).join('') : `<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:0.88rem;">No scores yet — be the first!</div>`}
+            </div>`).join('') : `<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:0.88rem;">No scores this week — be the first!</div>`}
         </div>
         <button class="btn-change-diff" style="margin-top:12px;" onclick="renderLeaderboardHub()">← Leaderboards</button>
       </div>`;
 
-    document.querySelectorAll('.game-lb-tab').forEach(btn => {
+    document.getElementById('weeklyTab').onclick = () => { activeView='weekly'; renderLB(); };
+    document.getElementById('alltimeTab').onclick = () => { activeView='alltime'; renderLB(); };
+    document.querySelectorAll('.game-lb-tab[data-diff]').forEach(btn => {
       btn.addEventListener('click', () => { activeDiff = btn.dataset.diff; renderLB(); });
     });
   }
@@ -4443,6 +4501,80 @@ function endTrackEndless(lost) {
       <button class="btn-next" onclick="startTrackEndless()">Play Again</button>
       <button class="btn-change-diff" style="margin-top:8px;" onclick="renderRefChallengeSetup()">← Back</button>
     </div>`;
+}
+
+// ═══════════════════════════════════════
+// MONTHLY CHAMPION ANNOUNCEMENT
+// ═══════════════════════════════════════
+async function checkMonthlyChampion() {
+  const now = new Date();
+  const monthKey = `ss_champion_${now.getFullYear()}_${now.getMonth()}`;
+  if(localStorage.getItem(monthKey)) return; // Already shown this month
+
+  // Only show on the 1st-3rd of the month
+  if(now.getDate() > 3) return;
+
+  // Get last month's date range
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const from = lastMonth.toISOString();
+  const to = thisMonth.toISOString();
+  const monthName = lastMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+  try {
+    // Fetch top 3 from each leaderboard
+    const [scout, memory, mia, track] = await Promise.all([
+      sbFetch(`leaderboard?difficulty=eq.easy&order=score.desc&limit=3&created_at=gte.${from}&created_at=lt.${to}&select=name,score`),
+      sbFetch(`leaderboard_memory?order=score.desc&limit=3&created_at=gte.${from}&created_at=lt.${to}&select=name,score,difficulty`),
+      sbFetch(`leaderboard_mia?order=score.desc&limit=3&created_at=gte.${from}&created_at=lt.${to}&select=name,score,difficulty`),
+      sbFetch(`leaderboard_track?order=score.desc&limit=3&created_at=gte.${from}&created_at=lt.${to}&select=name,score,difficulty`)
+    ]);
+
+    // Only show if there are scores
+    if(!scout.length && !memory.length && !mia.length && !track.length) return;
+
+    showChampionModal(monthName, scout, memory, mia, track);
+    localStorage.setItem(monthKey, '1');
+  } catch(e) { console.log('Champion check failed:', e); }
+}
+
+function showChampionModal(month, scout, memory, mia, track) {
+  const rankIcon = i => i===0?'🥇':i===1?'🥈':'🥉';
+
+  function section(title, rows) {
+    if(!rows.length) return '';
+    return `
+      <div class="champion-section">
+        <div class="champion-section-title">${title}</div>
+        ${rows.map((r,i) => `
+          <div class="champion-row">
+            <span class="champion-rank">${rankIcon(i)}</span>
+            <span class="champion-name">${r.name}</span>
+            <span class="champion-score">${r.score.toLocaleString()}</span>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  const modal = document.createElement('div');
+  modal.className = 'champion-modal';
+  modal.id = 'championModal';
+  modal.innerHTML = `
+    <div class="champion-card">
+      <div class="champion-header">
+        <div class="champion-icon">🏆</div>
+        <div class="champion-title">${month} Champions!</div>
+        <div class="champion-subtitle">Congratulations to last month's top Scripture Scouts!</div>
+      </div>
+      ${section('📖 Scripture Scout', scout)}
+      ${section('🃏 Memory Trail', memory)}
+      ${section('✏️ Missing in Action', mia)}
+      ${section('🎯 Track It Down', track)}
+      <button class="btn-champion-close" onclick="document.getElementById('championModal').remove()">
+        🎉 Let's Play!
+      </button>
+    </div>`;
+
+  document.body.appendChild(modal);
 }
 
 // Initialize Supabase client with fallback if library not loaded
