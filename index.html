@@ -2770,17 +2770,25 @@ function buildBlankVerse(text, blanks, activeIndex, filledMap) {
   }).join(' ');
 }
 
+function shuffle(arr) {
+  const a = [...arr];
+  for(let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function generateOptions(correctWord, allWords) {
   // Generate 3 wrong options from verse words
-  const wrong = allWords
-    .filter(w => w.replace(/[^a-zA-Z]/g, '').toLowerCase() !== correctWord.toLowerCase() && w.replace(/[^a-zA-Z]/g, '').length > 3)
-    .map(w => w.replace(/[^a-zA-Z]/g, ''))
-    .filter((w, i, arr) => arr.indexOf(w) === i)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 3);
+  const wrong = shuffle(
+    allWords
+      .filter(w => w.replace(/[^a-zA-Z]/g, '').toLowerCase() !== correctWord.toLowerCase() && w.replace(/[^a-zA-Z]/g, '').length > 3)
+      .map(w => w.replace(/[^a-zA-Z]/g, ''))
+      .filter((w, i, arr) => arr.indexOf(w) === i)
+  ).slice(0, 3);
 
-  const options = [correctWord, ...wrong].sort(() => Math.random() - 0.5);
-  return options;
+  return shuffle([correctWord, ...wrong]);
 }
 
 async function startFillBlank(diff, size) {
@@ -2869,7 +2877,7 @@ function renderBlankInput() {
       }
     }));
     // Shuffle
-    fitbWordBank = wordList.sort(() => Math.random() - 0.5)
+    fitbWordBank = shuffle(wordList)
       .map((w, i) => ({ word: w, used: false, chipIndex: i }));
 
     area.innerHTML = `
