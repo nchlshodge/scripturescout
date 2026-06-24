@@ -1324,6 +1324,9 @@ function showApp() {
       if(statEl && currentStreak) statEl.innerHTML = `<div class="home-stat-val">${currentStreak.longest_streak} 🔥</div><div class="home-stat-label">Best Streak</div>`;
     });
     loadNotifications();
+    // Poll notifications every 30 seconds
+    if(window._notifPollInterval) clearInterval(window._notifPollInterval);
+    window._notifPollInterval = setInterval(() => { if(currentUser) loadNotifications(); }, 30000);
   }
 }
 
@@ -4683,16 +4686,16 @@ function endTrackEndless(lost) {
 // NOTIFICATIONS
 // ═══════════════════════════════════════
 async function loadNotifications() {
-  if(!currentUser) return;
+  if(!currentUser) return [];
   try {
     const rows = await sbFetch(`notifications?user_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`);
     const unread = rows.filter(r => !r.read).length;
     const badge = document.getElementById('notifBadge');
     const bell = document.getElementById('notifBellWrap');
-    if(bell) bell.style.display = 'block';
+    if(bell) bell.style.display = 'flex';
     if(badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'block' : 'none'; }
     return rows;
-  } catch(e) { return []; }
+  } catch(e) { console.log('Notif load error:', e); return []; }
 }
 
 async function createNotification(userId, type, message, data={}) {
@@ -5068,7 +5071,7 @@ async function renderFriends() {
 
   const [friends, requests] = await Promise.all([
     sbFetch(`friends?or=(user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id})&status=eq.accepted&select=*`),
-    sbFetch(`friends?friend_id=eq.${currentUser.id}&status=eq.pending&select=*`)
+    sbFetch(`friends?friend_id=eq.${currentUser.id}&status=eq.pending&select=*&order=created_at.desc`)
   ]);
 
   // Get usernames for friends
@@ -5091,8 +5094,8 @@ async function renderFriends() {
       <div class="friends-screen">
         <div class="verse-label">👥 Friends</div>
         <div class="friends-tabs">
-          <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="window._friendsActiveTab='friends';window._friendsRender()">Friends ${friends.length>0?`(${friends.length})`:''}</div>
-          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="window._friendsActiveTab='requests';window._friendsRender()">Requests ${requests.length>0?`(${requests.length})`:''}</div>
+          <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="window._friendsActiveTab='friends';renderFriends()">Friends ${friends.length>0?`(${friends.length})`:''}</div>
+          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="window._friendsActiveTab='requests';renderFriends()">Requests ${requests.length>0?`(${requests.length})`:''}</div>
           <div class="friends-tab ${activeTab==='add'?'active':''}" onclick="window._friendsActiveTab='add';window._friendsRender()">Add Friend</div>
         </div>
 
@@ -5138,7 +5141,10 @@ async function renderFriends() {
           </div>
         `}
 
-        <button class="btn-change-diff" style="margin-top:12px;" onclick="showHome()">← Home</button>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn-change-diff" style="flex:1;" onclick="showHome()">← Home</button>
+          <button class="btn-change-diff" style="flex:0 0 auto;" onclick="renderFriends()">🔄 Refresh</button>
+        </div>
       </div>`;
 
     if(activeTab === 'add') {
