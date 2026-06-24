@@ -4966,9 +4966,10 @@ async function renderProfile(userId=null, username=null) {
             ${renderAvatarEl(isOwnProfile?currentAvatarIcon:null, isOwnProfile?currentAvatarColor:'purple', profileUsername[0]?.toUpperCase(), 80, '2rem')}
             ${isOwnProfile ? `<button onclick="showAvatarPicker()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#A78BFA;border:2px solid var(--surface);color:white;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✏️</button>` : ''}
           </div>
-          <div class="profile-username">${profileUsername}</div>
+          <div class="profile-username">${profileUsername || '(no username set)'}</div>
           <div class="profile-joined">Scripture Scout Player</div>
-          ${isOwnProfile ? `<button class="btn-friend-action" style="margin-top:8px;" onclick="editUsername()">✏️ Edit Username</button>` : ''}
+          ${isOwnProfile && !currentUsername ? `<div style="font-size:0.78rem;color:#F4B942;margin-top:4px;">⚠️ Set a username so friends can find you!</div>` : ''}
+          ${isOwnProfile ? `<button class="btn-friend-action" style="margin-top:8px;" onclick="editUsername()">${currentUsername ? '✏️ Change Username' : '✏️ Set Username'}</button>` : ''}
         </div>
 
         <hr class="divider" style="margin:0;"/>
