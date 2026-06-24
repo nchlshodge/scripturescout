@@ -3254,7 +3254,7 @@ async function generateRefOptions(correct, difficulty) {
     }
   }
 
-  return [correctRef, ...wrongOptions].sort(() => Math.random() - 0.5);
+  return shuffle([correctRef, ...wrongOptions]);
 }
 
 async function renderRefChallengeCard() {
@@ -4992,7 +4992,7 @@ async function renderDailyScout(verse) {
     } else if(phase === 2) {
       const books = correctTestament === 'OT' ? OT_BOOKS : NT_BOOKS;
       const wrongBooks = books.filter(b=>b[0]!==correctBook).sort(()=>Math.random()-0.5).slice(0,3).map(b=>b[0]);
-      const choices = [correctBook,...wrongBooks].sort(()=>Math.random()-0.5);
+      const choices = shuffle([correctBook,...wrongBooks]);
       area.innerHTML = `
         <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Book?</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -5016,7 +5016,7 @@ async function renderDailyScout(verse) {
         do { c=Math.max(1,correctChapter+Math.floor(Math.random()*6)-3); } while(c===correctChapter||wrongChapters.includes(c));
         wrongChapters.push(c);
       }
-      const choices = [correctChapter,...wrongChapters].sort(()=>Math.random()-0.5);
+      const choices = shuffle([correctChapter,...wrongChapters]);
       area.innerHTML = `
         <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Chapter?</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
