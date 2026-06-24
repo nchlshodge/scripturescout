@@ -4733,16 +4733,19 @@ async function renderFriends() {
   }
   const getUsername = id => profiles.find(p => p.id === id)?.username || 'Unknown';
 
-  let activeTab = 'friends';
+  window._friendsActiveTab = 'friends';
+  window._friendsData = { friends, requests, profiles, getUsername };
 
-  function render() {
+  window._friendsRender = function() {
+    const activeTab = window._friendsActiveTab;
+    const { friends, requests, getUsername } = window._friendsData;
     root.innerHTML = `
       <div class="friends-screen">
         <div class="verse-label">👥 Friends</div>
         <div class="friends-tabs">
-          <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="activeTab='friends';render()">Friends ${friends.length>0?`(${friends.length})`:''}</div>
-          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="activeTab='requests';render()">Requests ${requests.length>0?`(${requests.length})`:''}</div>
-          <div class="friends-tab ${activeTab==='add'?'active':''}" onclick="activeTab='add';render()">Add Friend</div>
+          <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="window._friendsActiveTab='friends';window._friendsRender()">Friends ${friends.length>0?`(${friends.length})`:''}</div>
+          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="window._friendsActiveTab='requests';window._friendsRender()">Requests ${requests.length>0?`(${requests.length})`:''}</div>
+          <div class="friends-tab ${activeTab==='add'?'active':''}" onclick="window._friendsActiveTab='add';window._friendsRender()">Add Friend</div>
         </div>
 
         ${activeTab === 'friends' ? `
@@ -4792,11 +4795,14 @@ async function renderFriends() {
     if(activeTab === 'add') {
       const input = document.getElementById('friendSearch');
       if(input) {
+        input.focus();
         input.addEventListener('input', async () => {
           const q = input.value.trim();
           const results = document.getElementById('friendSearchResults');
+          if(!results) return;
           if(q.length < 2) { results.innerHTML = ''; return; }
-          const rows = await sbFetch(`profiles?username=ilike.*${q}*&select=id,username&limit=5`);
+          results.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:0.85rem;">Searching…</div>';
+          const rows = await sbFetch(`profiles?username=ilike.*${encodeURIComponent(q)}*&select=id,username&limit=5`);
           const filtered = rows.filter(r => r.id !== currentUser.id);
           results.innerHTML = filtered.length ? filtered.map(r => `
             <div class="friend-card">
@@ -4808,15 +4814,13 @@ async function renderFriends() {
               <div class="friend-actions">
                 <button class="btn-friend-action accept" onclick="sendFriendRequest('${r.id}','${r.username}')">+ Add</button>
               </div>
-            </div>`).join('') : `<div class="empty-state">No users found for "${q}"</div>`;
+            </div>`).join('') : `<div class="empty-state">No users found for "<strong>${q}</strong>"</div>`;
         });
       }
     }
-  }
+  };
 
-  // Make render accessible in onclick
-  window.activeTab = activeTab;
-  render();
+  window._friendsRender();
 }
 
 async function sendFriendRequest(friendId, friendUsername) {
