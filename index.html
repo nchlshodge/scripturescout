@@ -360,6 +360,42 @@
   .heart-refill-slot.empty { background:var(--border); }
   @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
 
+  /* Avatar System */
+  .avatar-picker-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:flex-end; justify-content:center; }
+  .avatar-picker-sheet { background:var(--surface); border-radius:20px 20px 0 0; padding:20px; width:100%; max-width:560px; max-height:80vh; overflow-y:auto; }
+  .avatar-picker-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:16px; text-align:center; }
+  .avatar-icon-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-bottom:16px; }
+  .avatar-icon-btn { width:48px; height:48px; border-radius:12px; border:2px solid transparent; background:var(--surface-2); font-size:1.5rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.1s; }
+  .avatar-icon-btn:active { transform:scale(0.9); }
+  .avatar-icon-btn.selected { border-color:#A78BFA; background:rgba(167,139,250,0.15); }
+  .avatar-color-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; justify-content:center; }
+  .avatar-color-btn { width:40px; height:40px; border-radius:50%; border:3px solid transparent; cursor:pointer; transition:all 0.1s; }
+  .avatar-color-btn.selected { border-color:white; box-shadow:0 0 0 2px #A78BFA; }
+
+  /* Profile Page */
+  .profile-header { text-align:center; padding:24px 16px 16px; }
+  .profile-avatar-lg { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#7C5CFC,#38BDF8); display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:700; color:white; margin:0 auto 12px; }
+  .profile-username { font-size:1.4rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .profile-joined { font-size:0.78rem; color:var(--text-muted); }
+  .profile-stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:16px 0; }
+  .profile-stat { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 8px; text-align:center; }
+  .profile-stat-val { font-size:1.4rem; font-weight:700; color:var(--teal); }
+  .profile-stat-label { font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+  .badge-grid-profile { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:8px; }
+  .badge-pill { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 6px; text-align:center; }
+  .badge-pill.earned { border-color:#F4B942; background:rgba(244,185,66,0.06); }
+  .badge-pill.locked { opacity:0.3; filter:grayscale(1); }
+  .badge-pill-icon { font-size:1.4rem; display:block; margin-bottom:4px; }
+  .badge-pill-name { font-size:0.62rem; color:var(--text-muted); font-weight:600; line-height:1.3; }
+  .recent-score-row { display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid var(--border); }
+  .recent-score-row:last-child { border-bottom:none; }
+  .recent-score-game { font-size:1rem; width:28px; }
+  .recent-score-info { flex:1; }
+  .recent-score-name { font-size:0.85rem; font-weight:600; color:var(--text); }
+  .recent-score-diff { font-size:0.72rem; color:var(--text-muted); }
+  .recent-score-pts { font-size:0.88rem; font-weight:700; color:var(--teal); }
+  .recent-score-date { font-size:0.7rem; color:var(--text-muted); }
+
   /* Friends & Messaging */
   .friends-screen { width:100%; max-width:560px; }
   .friend-card { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:8px; }
@@ -830,7 +866,10 @@ async function showHome() {
           <div class="home-stat-divider"></div>
           <div class="home-stat-item" id="homeStreakStat"><div class="home-stat-val">${currentStreak ? currentStreak.longest_streak : '—'} 🔥</div><div class="home-stat-label">Best Streak</div></div>
         </div>
-        <button class="btn-change-diff" onclick="signOut()" style="margin-top:8px;font-size:0.75rem;">Sign Out</button>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="btn-change-diff" style="flex:1;" onclick="showBackBtn(true);renderProfile()">👤 My Profile</button>
+          <button class="btn-change-diff" style="flex:1;" onclick="signOut()">Sign Out</button>
+        </div>
       </div>` : `
       <div class="home-stats" style="text-align:center;">
         <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Sign in to track your progress and appear on the leaderboard!</div>
@@ -945,7 +984,7 @@ async function signIn(email, password) {
   localStorage.setItem('ss_user', JSON.stringify(currentUser));
   // Fetch username from profiles
   try {
-    const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username`);
+    const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username,avatar_icon,avatar_color`);
     if(profiles.length) {
       currentUsername = profiles[0].username;
       playerName = currentUsername;
@@ -993,7 +1032,7 @@ async function restoreSession() {
           playerName = currentUsername;
         } else {
           try {
-            const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username`);
+            const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username,avatar_icon,avatar_color`);
             if(profiles.length) {
               currentUsername = profiles[0].username;
               playerName = currentUsername;
@@ -3412,6 +3451,7 @@ async function renderRefChallengeComplete() {
 let storyProgress = {}; // pathId -> chapterNum completed
 
 async function renderStoryMode() {
+  localStorage.setItem('ss_story_started', '1');
   showBackBtn(true);
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading stories…</div></div>`;
@@ -4713,6 +4753,314 @@ function timeAgo(ts) {
 // ═══════════════════════════════════════
 // FRIENDS SYSTEM
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════
+// PROFILE & BADGES
+// ═══════════════════════════════════════
+// Avatar options
+const AVATAR_ICONS = [
+  // Bible themed
+  '✝️','📖','🕊️','🔥','📜','⚡','🙏','🌟','👑','🛡️','⚔️','🏺',
+  // Fun mix
+  '🦁','🐟','🦅','🌊','🌿','🌙','☀️','❄️','🎯','🎮','🏆','💎',
+  // People/faces
+  '😊','🤔','😎','🙌','👋','✌️','🫶','🤝','💪','🌱','🎉','🕊️'
+];
+
+const AVATAR_COLORS = [
+  { id:'purple',  gradient:'linear-gradient(135deg,#7C5CFC,#A78BFA)', label:'Purple' },
+  { id:'teal',    gradient:'linear-gradient(135deg,#0F6E56,#3BBFA0)', label:'Teal' },
+  { id:'blue',    gradient:'linear-gradient(135deg,#1851a3,#38BDF8)', label:'Blue' },
+  { id:'amber',   gradient:'linear-gradient(135deg,#B87D0A,#F4B942)', label:'Gold' },
+  { id:'red',     gradient:'linear-gradient(135deg,#991B1B,#E53E3E)', label:'Red' },
+  { id:'green',   gradient:'linear-gradient(135deg,#166534,#4ADE80)', label:'Green' },
+  { id:'pink',    gradient:'linear-gradient(135deg,#9D174D,#F472B6)', label:'Pink' },
+  { id:'dark',    gradient:'linear-gradient(135deg,#1F2937,#4B5563)', label:'Dark' },
+];
+
+let currentAvatarIcon = null;
+let currentAvatarColor = 'purple';
+
+function getAvatarGradient(colorId) {
+  return AVATAR_COLORS.find(c => c.id === colorId)?.gradient || AVATAR_COLORS[0].gradient;
+}
+
+function renderAvatarEl(icon, colorId, initial, size=80, fontSize='2rem') {
+  const gradient = getAvatarGradient(colorId);
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${gradient};display:flex;align-items:center;justify-content:center;font-size:${icon?'1.8rem':fontSize};font-weight:700;color:white;flex-shrink:0;">${icon || initial}</div>`;
+}
+
+function showAvatarPicker() {
+  const overlay = document.createElement('div');
+  overlay.className = 'avatar-picker-overlay';
+  overlay.id = 'avatarPickerOverlay';
+  overlay.onclick = e => { if(e.target === overlay) overlay.remove(); };
+
+  let selectedIcon = currentAvatarIcon;
+  let selectedColor = currentAvatarColor;
+
+  function renderPicker() {
+    overlay.innerHTML = `
+      <div class="avatar-picker-sheet">
+        <div class="avatar-picker-title">Choose Your Avatar</div>
+
+        <!-- Preview -->
+        <div style="text-align:center;margin-bottom:16px;">
+          ${renderAvatarEl(selectedIcon, selectedColor, (currentUsername||'S')[0].toUpperCase(), 70, '1.8rem')}
+        </div>
+
+        <!-- Color picker -->
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Background Color</div>
+        <div class="avatar-color-row">
+          ${AVATAR_COLORS.map(c => `
+            <div class="avatar-color-btn ${selectedColor===c.id?'selected':''}"
+              style="background:${c.gradient};"
+              onclick="selectAvatarColor('${c.id}')">
+            </div>`).join('')}
+        </div>
+
+        <!-- Icon picker -->
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Icon (optional)</div>
+        <div class="avatar-icon-grid">
+          <button class="avatar-icon-btn ${!selectedIcon?'selected':''}" onclick="selectAvatarIcon(null)" style="font-size:0.8rem;color:var(--text-muted);">None</button>
+          ${AVATAR_ICONS.map(icon => `
+            <button class="avatar-icon-btn ${selectedIcon===icon?'selected':''}" onclick="selectAvatarIcon('${icon}')">${icon}</button>
+          `).join('')}
+        </div>
+
+        <button class="btn-next" onclick="saveAvatar()" style="width:100%;">Save Avatar ✓</button>
+        <button class="btn-change-diff" style="width:100%;margin-top:8px;" onclick="document.getElementById('avatarPickerOverlay').remove()">Cancel</button>
+      </div>`;
+  }
+
+  window.selectAvatarIcon = (icon) => {
+    selectedIcon = icon;
+    renderPicker();
+    window._pendingIcon = icon;
+  };
+  window.selectAvatarColor = (color) => {
+    selectedColor = color;
+    renderPicker();
+    window._pendingColor = color;
+  };
+  window.saveAvatar = async () => {
+    currentAvatarIcon = window._pendingIcon !== undefined ? window._pendingIcon : selectedIcon;
+    currentAvatarColor = window._pendingColor || selectedColor;
+    try {
+      const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` };
+      await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${currentUser.id}`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ avatar_icon: currentAvatarIcon, avatar_color: currentAvatarColor })
+      });
+      showStreakToast('Avatar saved! ✅');
+      overlay.remove();
+      renderProfile();
+    } catch(e) { showStreakToast('Could not save avatar.'); }
+  };
+
+  renderPicker();
+  document.body.appendChild(overlay);
+}
+
+const ALL_BADGES = [
+  // Streak badges
+  { id:'streak_3',    icon:'🔥', name:'First Flame',      desc:'3 day streak',           cat:'streak' },
+  { id:'streak_7',    icon:'🕯️', name:'Week Warrior',     desc:'7 day streak',           cat:'streak' },
+  { id:'streak_14',   icon:'⚡', name:'Fortnight Faith',  desc:'14 day streak',          cat:'streak' },
+  { id:'streak_30',   icon:'🌙', name:'Month of Grace',   desc:'30 day streak',          cat:'streak' },
+  { id:'streak_100',  icon:'🌟', name:'Faithful Servant', desc:'100 day streak',         cat:'streak' },
+  { id:'streak_365',  icon:'👑', name:'Scripture Legend', desc:'365 day streak',         cat:'streak' },
+  // Performance badges
+  { id:'perfect_1',   icon:'🎯', name:'First Blood',      desc:'First perfect score',    cat:'performance' },
+  { id:'perfect_10',  icon:'💎', name:'Flawless',         desc:'10 perfect scores',      cat:'performance' },
+  { id:'top_1',       icon:'🏆', name:'Leaderboard King', desc:'Reach #1 on any board',  cat:'performance' },
+  { id:'hard_3',      icon:'🔱', name:'Hard Mode Hero',   desc:'3 perfect Hard runs',    cat:'performance' },
+  { id:'endless',     icon:'♾️', name:'Endless Explorer', desc:'Unlock Endless Mode',    cat:'performance' },
+  { id:'score_10k',   icon:'📈', name:'High Roller',      desc:'Score 10,000+ pts',      cat:'performance' },
+  // Exploration badges
+  { id:'all_games',   icon:'🗺️', name:'Scout',            desc:'Play all 4 games',       cat:'exploration' },
+  { id:'story_start', icon:'📖', name:'Story Seeker',     desc:'Start Story Mode',       cat:'exploration' },
+  { id:'story_done',  icon:'✝️', name:'Gospel Student',   desc:'Complete Gospel Story',  cat:'exploration' },
+  { id:'daily_all',   icon:'⚡', name:'Daily Devotee',    desc:'Complete all 4 daily',   cat:'exploration' },
+  { id:'daily_7',     icon:'📅', name:'Consistent',       desc:'7 daily challenges done',cat:'exploration' },
+  { id:'both_tests',  icon:'🌍', name:'Both Testaments',  desc:'Score in OT and NT',     cat:'exploration' },
+];
+
+function computeBadges(stats, streak, scores) {
+  const earned = new Set();
+  const s = streak || {};
+  const current = s.current_streak || 0;
+  const longest = s.longest_streak || 0;
+  const totalGames = stats?.games || 0;
+
+  // Streak badges
+  if(longest >= 3)   earned.add('streak_3');
+  if(longest >= 7)   earned.add('streak_7');
+  if(longest >= 14)  earned.add('streak_14');
+  if(longest >= 30)  earned.add('streak_30');
+  if(longest >= 100) earned.add('streak_100');
+  if(longest >= 365) earned.add('streak_365');
+
+  // Performance badges
+  if(parseInt(localStorage.getItem('ss_perfect_hard')||0) >= 1) earned.add('perfect_1');
+  if(parseInt(localStorage.getItem('ss_perfect_hard')||0) >= 10) earned.add('perfect_10');
+  if(parseInt(localStorage.getItem('ss_perfect_hard')||0) >= 3) earned.add('hard_3');
+  if(localStorage.getItem('ss_perfect_hard')) earned.add('endless');
+  if((stats?.best||0) >= 10000) earned.add('score_10k');
+
+  // Exploration badges
+  const playedGames = new Set(scores.map(s => s.game || 'scout'));
+  if(playedGames.size >= 4 || totalGames >= 4) earned.add('all_games');
+  if(localStorage.getItem('ss_story_started')) earned.add('story_start');
+  if(parseInt(localStorage.getItem('ss_daily_done_count')||0) >= 7) earned.add('daily_7');
+
+  return earned;
+}
+
+async function renderProfile(userId=null, username=null) {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading profile…</div></div>`;
+
+  const isOwnProfile = !userId || userId === currentUser?.id;
+  const profileId = userId || currentUser?.id;
+  const profileUsername = username || currentUsername || 'Scout';
+
+  // Fetch data in parallel
+  const [streakRows, recentScouts, recentMemory, recentMIA, recentTrack] = await Promise.all([
+    sbFetch(`streaks?user_id=eq.${profileId}&select=*&limit=1`),
+    sbFetch(`leaderboard?user_id=eq.${profileId}&order=created_at.desc&limit=3&select=score,difficulty,created_at`),
+    sbFetch(`leaderboard_memory?user_id=eq.${profileId}&order=created_at.desc&limit=2&select=score,difficulty,created_at`),
+    sbFetch(`leaderboard_mia?user_id=eq.${profileId}&order=created_at.desc&limit=2&select=score,difficulty,created_at`),
+    sbFetch(`leaderboard_track?user_id=eq.${profileId}&order=created_at.desc&limit=2&select=score,difficulty,created_at`),
+  ]);
+
+  const streak = streakRows[0] || {};
+  const allScores = [
+    ...recentScouts.map(s=>({...s,game:'scout',icon:'📖',name:'Scripture Scout'})),
+    ...recentMemory.map(s=>({...s,game:'memory',icon:'🃏',name:'Memory Trail'})),
+    ...recentMIA.map(s=>({...s,game:'mia',icon:'✏️',name:'Missing in Action'})),
+    ...recentTrack.map(s=>({...s,game:'track',icon:'🎯',name:'Track It Down'})),
+  ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,8);
+
+  const stats = {
+    games: (streak.total_days_played || 0),
+    best: Math.max(...[...recentScouts,...recentMemory,...recentMIA,...recentTrack].map(s=>s.score||0), 0),
+    streak: streak.longest_streak || 0
+  };
+
+  const earnedBadges = isOwnProfile ? computeBadges(stats, streak, allScores) : new Set();
+
+  // Group badges by category
+  const cats = { streak:'🔥 Streak', performance:'🎯 Performance', exploration:'🗺️ Exploration' };
+
+  root.innerHTML = `
+    <div class="friends-screen">
+      <div class="card" style="max-width:560px;width:100%;padding:0;overflow:hidden;">
+
+        <div class="profile-header">
+          <div style="position:relative;display:inline-block;margin-bottom:12px;">
+            ${renderAvatarEl(isOwnProfile?currentAvatarIcon:null, isOwnProfile?currentAvatarColor:'purple', profileUsername[0]?.toUpperCase(), 80, '2rem')}
+            ${isOwnProfile ? `<button onclick="showAvatarPicker()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#A78BFA;border:2px solid var(--surface);color:white;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✏️</button>` : ''}
+          </div>
+          <div class="profile-username">${profileUsername}</div>
+          <div class="profile-joined">Scripture Scout Player</div>
+          ${isOwnProfile ? `<button class="btn-friend-action" style="margin-top:8px;" onclick="editUsername()">✏️ Edit Username</button>` : ''}
+        </div>
+
+        <hr class="divider" style="margin:0;"/>
+
+        <!-- Stats -->
+        <div style="padding:16px;">
+          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Stats</div>
+          <div class="profile-stats-grid">
+            <div class="profile-stat">
+              <div class="profile-stat-val">${streak.current_streak||0}🔥</div>
+              <div class="profile-stat-label">Current Streak</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val">${streak.longest_streak||0}</div>
+              <div class="profile-stat-label">Best Streak</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val">${streak.total_days_played||0}</div>
+              <div class="profile-stat-label">Days Played</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val">${stats.best.toLocaleString()}</div>
+              <div class="profile-stat-label">Best Score</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val">${streak.freeze_tokens||0}❄️</div>
+              <div class="profile-stat-label">Freeze Tokens</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val">${earnedBadges.size}</div>
+              <div class="profile-stat-label">Badges</div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider" style="margin:0;"/>
+
+        <!-- Badges -->
+        ${isOwnProfile ? `
+        <div style="padding:16px;">
+          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Badges</div>
+          ${Object.entries(cats).map(([cat, catLabel]) => `
+            <div style="font-size:0.75rem;font-weight:600;color:var(--text-muted);margin:10px 0 6px;">${catLabel}</div>
+            <div class="badge-grid-profile">
+              ${ALL_BADGES.filter(b=>b.cat===cat).map(b => `
+                <div class="badge-pill ${earnedBadges.has(b.id)?'earned':'locked'}" title="${b.desc}">
+                  <span class="badge-pill-icon">${b.icon}</span>
+                  <div class="badge-pill-name">${b.name}</div>
+                </div>`).join('')}
+            </div>`).join('')}
+        </div>
+        <hr class="divider" style="margin:0;"/>` : ''}
+
+        <!-- Recent Scores -->
+        <div style="padding:16px 16px 8px;">
+          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Recent Scores</div>
+        </div>
+        ${allScores.length ? allScores.map(s => `
+          <div class="recent-score-row">
+            <span class="recent-score-game">${s.icon}</span>
+            <div class="recent-score-info">
+              <div class="recent-score-name">${s.name}</div>
+              <div class="recent-score-diff">${s.difficulty} difficulty</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="recent-score-pts">${s.score.toLocaleString()} pts</div>
+              <div class="recent-score-date">${timeAgo(s.created_at)}</div>
+            </div>
+          </div>`).join('') : `<div class="empty-state" style="padding:16px;">No scores yet — start playing!</div>`}
+
+      </div>
+      <button class="btn-change-diff" style="margin-top:12px;" onclick="showHome()">← Home</button>
+    </div>`;
+}
+
+async function editUsername() {
+  const newName = prompt('Enter new username:', currentUsername || '');
+  if(!newName || newName === currentUsername) return;
+  if(newName.length < 3) { showStreakToast('Username must be at least 3 characters!'); return; }
+  if(newName.length > 20) { showStreakToast('Username must be 20 characters or less!'); return; }
+
+  try {
+    const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=minimal' };
+    // Check if username taken
+    const existing = await sbFetch(`profiles?username=eq.${encodeURIComponent(newName)}&select=id`);
+    if(existing.length && existing[0].id !== currentUser.id) { showStreakToast('Username already taken!'); return; }
+    // Update
+    await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${currentUser.id}`, { method:'PATCH', headers, body: JSON.stringify({ username: newName }) });
+    currentUsername = newName;
+    playerName = newName;
+    localStorage.setItem('ss_username', newName);
+    showStreakToast('Username updated! ✅');
+    renderProfile();
+  } catch(e) { showStreakToast('Could not update username.'); }
+}
+
 async function renderFriends() {
   showBackBtn(true);
   const root = document.getElementById('root');
@@ -4754,12 +5102,13 @@ async function renderFriends() {
             const uname = getUsername(fId);
             return `
               <div class="friend-card">
-                <div class="friend-avatar">${uname[0]?.toUpperCase()}</div>
+                <div class="friend-avatar" style="font-size:${uname[0]?'1.1rem':'1.4rem'}">${uname[0]?.toUpperCase()}</div>
                 <div>
                   <div class="friend-name">${uname}</div>
                   <div class="friend-meta">Scripture Scout friend</div>
                 </div>
                 <div class="friend-actions">
+                  <button class="btn-friend-action" onclick="showBackBtn(true);renderProfile('${fId}','${uname}')">👤</button>
                   <button class="btn-friend-action message" onclick="openDirectMessage('${fId}','${uname}')">💬</button>
                   <button class="btn-friend-action challenge" onclick="challengeFriend('${fId}','${uname}')">⚔️</button>
                 </div>
@@ -5898,11 +6247,13 @@ const supabaseClient = (typeof supabase !== 'undefined')
         localStorage.setItem('ss_user', JSON.stringify(session.user));
 
         try {
-          const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username`);
+          const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username,avatar_icon,avatar_color`);
           if(profiles.length) {
             currentUsername = profiles[0].username;
             playerName = currentUsername;
             localStorage.setItem('ss_username', currentUsername);
+            currentAvatarIcon = profiles[0].avatar_icon || null;
+            currentAvatarColor = profiles[0].avatar_color || 'purple';
           } else {
             playerName = currentUser.email ? currentUser.email.split('@')[0] : 'Scout';
           }
