@@ -5064,7 +5064,7 @@ async function editUsername() {
   } catch(e) { showStreakToast('Could not update username.'); }
 }
 
-async function renderFriends() {
+async function renderFriends(startTab=null) {
   showBackBtn(true);
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading friends…</div></div>`;
@@ -5084,7 +5084,8 @@ async function renderFriends() {
   }
   const getUsername = id => profiles.find(p => p.id === id)?.username || 'Unknown';
 
-  window._friendsActiveTab = 'friends';
+  // Preserve current tab or use startTab
+  window._friendsActiveTab = startTab || window._friendsActiveTab || 'friends';
   window._friendsData = { friends, requests, profiles, getUsername };
 
   window._friendsRender = function() {
@@ -5094,9 +5095,9 @@ async function renderFriends() {
       <div class="friends-screen">
         <div class="verse-label">👥 Friends</div>
         <div class="friends-tabs">
-          <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="window._friendsActiveTab='friends';renderFriends()">Friends ${friends.length>0?`(${friends.length})`:''}</div>
-          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="window._friendsActiveTab='requests';renderFriends()">Requests ${requests.length>0?`(${requests.length})`:''}</div>
-          <div class="friends-tab ${activeTab==='add'?'active':''}" onclick="window._friendsActiveTab='add';window._friendsRender()">Add Friend</div>
+          <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="renderFriends('friends')">Friends ${friends.length>0?`(${friends.length})`:''}</div>
+          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="renderFriends('requests')">Requests ${requests.length>0?`(${requests.length})`:''}</div>
+          <div class="friends-tab ${activeTab==='add'?'active':''}" onclick="renderFriends('add')">Add Friend</div>
         </div>
 
         ${activeTab === 'friends' ? `
@@ -5143,7 +5144,7 @@ async function renderFriends() {
 
         <div style="display:flex;gap:8px;margin-top:12px;">
           <button class="btn-change-diff" style="flex:1;" onclick="showHome()">← Home</button>
-          <button class="btn-change-diff" style="flex:0 0 auto;" onclick="renderFriends()">🔄 Refresh</button>
+          <button class="btn-change-diff" style="flex:0 0 auto;" onclick="renderFriends(window._friendsActiveTab)">🔄 Refresh</button>
         </div>
       </div>`;
 
