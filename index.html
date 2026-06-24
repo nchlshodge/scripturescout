@@ -777,7 +777,7 @@ async function showHome() {
       <div class="home-section-label">👤 Your Account</div>
       ${currentUser ? `
       <div class="home-stats">
-        <div id="homeStreakDisplay">${getStreakDisplay()}</div>
+        <div id="homeStreakDisplay">${currentStreak ? getStreakDisplay() : '<div class="streak-bar"><div class="streak-fire">🔥</div><div class="streak-info"><div class="streak-count" style="color:var(--text-muted);">—</div><div class="streak-label">Loading streak…</div></div></div>'}</div>
         <div class="home-stats-row" style="margin-top:8px;">
           <div class="home-stat-item"><div class="home-stat-val">${userStats ? userStats.games : 0}</div><div class="home-stat-label">Games</div></div>
           <div class="home-stat-divider"></div>
@@ -1219,20 +1219,19 @@ function skipAuth() {
 }
 
 function showApp() {
-  // Show top bar
   const topBar = document.getElementById('topBar');
   if(topBar) topBar.style.display = 'block';
+
+  // Show home immediately — no waiting
   showHome();
-  // Show username prompt if logged in but no username set
-  if(currentUser && !currentUsername) {
-    setTimeout(showUsernamePrompt, 500);
-  }
-  // Check for monthly champion announcement
+
+  if(currentUser && !currentUsername) setTimeout(showUsernamePrompt, 500);
   if(currentUser) setTimeout(checkMonthlyChampion, 2000);
   prefetchDailyChallenge();
+
+  // Load streak in background and update display when ready
   if(currentUser) {
     loadStreak().then(() => {
-      // Update streak display after it loads
       const el = document.getElementById('homeStreakDisplay');
       if(el) el.innerHTML = getStreakDisplay();
       const statEl = document.getElementById('homeStreakStat');
