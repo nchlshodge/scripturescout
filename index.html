@@ -4967,7 +4967,8 @@ async function startChallengeScout(verse, difficulty) {
     const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`);
     if(rows.length) verse = rows[0];
   }
-  renderDailyScout(verse, true);
+  if(!verse) { showStreakToast('Could not load verse.'); return; }
+  renderChallengeScout(verse);
 }
 
 async function startChallengeMIA(verse, difficulty) {
@@ -4978,7 +4979,8 @@ async function startChallengeMIA(verse, difficulty) {
     const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`);
     if(rows.length) verse = rows[0];
   }
-  renderDailyMIA(verse, true);
+  if(!verse) { showStreakToast('Could not load verse.'); return; }
+  renderChallengeMIA(verse);
 }
 
 async function startChallengeTrack(verse, difficulty) {
@@ -4989,7 +4991,8 @@ async function startChallengeTrack(verse, difficulty) {
     const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`);
     if(rows.length) verse = rows[0];
   }
-  renderDailyTrack(verse, true);
+  if(!verse) { showStreakToast('Could not load verse.'); return; }
+  renderChallengeTrack(verse);
 }
 
 async function startChallengeMemory(verse) {
@@ -4997,9 +5000,290 @@ async function startChallengeMemory(verse) {
     const total = DIFF_COUNTS[TRANSLATION]['hard'];
     const offset = Math.floor(Math.random() * total);
     const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.hard&select=*&limit=1&offset=${offset}`);
-    if(verse.length) verse = rows[0];
+    if(rows.length) verse = rows[0];
   }
-  renderDailyMemory(verse, true);
+  if(!verse) { showStreakToast('Could not load verse.'); return; }
+  renderChallengeMemory(verse);
+}
+
+// ═══════════════════════════════════════
+// CHALLENGE GAME SCREENS (separate from daily)
+// ═══════════════════════════════════════
+function challengeHUD() {
+  const pc = window._pendingChallenge;
+  const target = pc?.challengerScore || null;
+  return `<div style="text-align:center;padding:12px 16px 0;">
+    <div style="font-size:0.75rem;font-weight:700;color:#F4B942;text-transform:uppercase;letter-spacing:0.1em;">⚔️ Challenge Mode</div>
+    ${target ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px;">Beat <strong style="color:#F4B942;">${target.toLocaleString()} pts</strong> to win!</div>` : ''}
+  </div>`;
+}
+
+async function completeChallengeGame(score, verse) {
+  const pc = window._pendingChallenge;
+  if(pc && pc.friendId) {
+    // Challenger just played — send challenge to friend
+    window._pendingChallenge = null;
+    await sendChallenge(pc.friendId, pc.friendUsername, pc.game, pc.difficulty, score, verse || pc.verse);
+    showStreakToast(`Challenge sent to ${pc.friendUsername}! ⚔️`);
+    renderChallenges();
+  } else if(window._activeChallenge) {
+    // Opponent responding to challenge
+    await finishChallenge(score, verse);
+  }
+}
+
+function renderChallengeScout(verse) {
+  const root = document.getElementById('root');
+  const correctTestament = verse.testament;
+  const correctBook = verse.book;
+  const correctChapter = parseInt(verse.chapter);
+  let score = 0;
+  let phase = 1;
+
+  function renderPhase() {
+    root.innerHTML = challengeHUD() + `
+      <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
+        <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
+        <hr class="divider"/>
+        <div id="challengePhaseArea"></div>
+        <div class="feedback" id="challengeFeedback"></div>
+      </div>`;
+
+    const area = document.getElementById('challengePhaseArea');
+    const fb = document.getElementById('challengeFeedback');
+
+    if(phase === 1) {
+      area.innerHTML = `
+        <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Testament?</div>
+        <div style="display:flex;gap:10px;">
+          <button class="ref-option" style="flex:1;" data-ans="OT">📜 Old Testament</button>
+          <button class="ref-option" style="flex:1;" data-ans="NT">✝️ New Testament</button>
+        </div>`;
+      area.querySelectorAll('.ref-option').forEach(btn => {
+        btn.onclick = () => {
+          area.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
+          const isCorrect = btn.dataset.ans === correctTestament;
+          btn.classList.add(isCorrect?'correct':'wrong');
+          if(!isCorrect) area.querySelector(`[data-ans="${correctTestament}"]`).classList.add('correct');
+          if(isCorrect) { score+=300; fb.className='feedback correct'; fb.textContent='✓ Correct! +300'; }
+          else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctTestament==='OT'?'Old':'New'} Testament`; }
+          setTimeout(()=>{ phase=2; renderPhase(); }, 1200);
+        };
+      });
+    } else if(phase === 2) {
+      const books = correctTestament === 'OT' ? OT_BOOKS : NT_BOOKS;
+      const wrongBooks = books.filter(b=>b[0]!==correctBook).sort(()=>Math.random()-0.5).slice(0,3).map(b=>b[0]);
+      const choices = shuffle([correctBook,...wrongBooks]);
+      area.innerHTML = `
+        <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Book?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${choices.map(c=>`<button class="ref-option" data-ans="${c}">${c}</button>`).join('')}
+        </div>`;
+      area.querySelectorAll('.ref-option').forEach(btn => {
+        btn.onclick = () => {
+          area.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
+          const isCorrect = btn.dataset.ans === correctBook;
+          btn.classList.add(isCorrect?'correct':'wrong');
+          if(!isCorrect) area.querySelector(`[data-ans="${correctBook}"]`).classList.add('correct');
+          if(isCorrect) { score+=500; fb.className='feedback correct'; fb.textContent='✓ Correct! +500'; }
+          else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctBook}`; }
+          setTimeout(()=>{ phase=3; renderPhase(); }, 1200);
+        };
+      });
+    } else {
+      const wrongChapters = [];
+      for(let i=0;i<3;i++) {
+        let c;
+        do { c=Math.max(1,correctChapter+Math.floor(Math.random()*6)-3); } while(c===correctChapter||wrongChapters.includes(c));
+        wrongChapters.push(c);
+      }
+      const choices = shuffle([correctChapter,...wrongChapters]);
+      area.innerHTML = `
+        <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Chapter?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${choices.map(c=>`<button class="ref-option" data-ans="${c}">Chapter ${c}</button>`).join('')}
+        </div>`;
+      area.querySelectorAll('.ref-option').forEach(btn => {
+        btn.onclick = async () => {
+          area.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
+          const isCorrect = parseInt(btn.dataset.ans) === correctChapter;
+          btn.classList.add(isCorrect?'correct':'wrong');
+          if(!isCorrect) area.querySelector(`[data-ans="${correctChapter}"]`).classList.add('correct');
+          if(isCorrect) { score+=700; fb.className='feedback correct'; fb.textContent='✓ Correct! +700'; }
+          else { fb.className='feedback wrong'; fb.textContent=`✗ Chapter ${correctChapter}`; }
+          setTimeout(()=>completeChallengeGame(score, verse), 1200);
+        };
+      });
+    }
+  }
+  renderPhase();
+}
+
+function renderChallengeMIA(verse) {
+  const root = document.getElementById('root');
+  const blanks = getBlankWords(verse.text, 'hard');
+  const options = blanks.map(b => generateOptions(b.word, verse.text.split(' ')));
+  const blankHtml = buildBlankVerse(verse.text, blanks, 0, {});
+
+  let challengeWordBank = [];
+  let challengeAnswerRow = [];
+  let challengeScore = 0;
+
+  root.innerHTML = challengeHUD() + `
+    <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
+      <div class="verse-label">✏️ Fill in the blanks</div>
+      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;margin-bottom:10px;">📖 ${verse.book} ${verse.chapter}:${verse.verse}</div>
+      <div class="blank-verse" id="challengeMIAVerse">${blankHtml}</div>
+      <div id="challengeMIAInput"></div>
+      <div class="feedback" id="challengeMIAFeedback"></div>
+    </div>`;
+
+  const wordList = [];
+  blanks.forEach(b => wordList.push(b.word));
+  const distractors = new Set();
+  options.forEach(opts => opts.forEach(o => { if(!blanks.map(b=>b.word).includes(o) && !distractors.has(o)) { distractors.add(o); wordList.push(o); } }));
+  challengeWordBank = shuffle(wordList).map((w,i) => ({ word:w, chipIndex:i }));
+
+  const area = document.getElementById('challengeMIAInput');
+  area.innerHTML = `
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--teal);font-weight:600;margin-bottom:6px;">Your answer:</div>
+    <div id="challengeAnswerRow" class="answer-row"><span class="answer-placeholder">Tap words below…</span></div>
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:10px 0 6px;">Word bank:</div>
+    <div id="challengeWordBank" class="word-bank">
+      ${challengeWordBank.map(w=>`<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
+    </div>
+    <div id="challengeCheckArea">
+      <button class="btn-next" id="challengeCheckBtn" style="background:linear-gradient(135deg,#4A7C59,#3BBFA0);margin-top:8px;" disabled>Check Answers (0/${blanks.length})</button>
+    </div>`;
+
+  function refreshChallengeVerse() {
+    const verseEl = document.getElementById('challengeMIAVerse');
+    if(!verseEl) return;
+    const filled = {};
+    challengeAnswerRow.forEach((a,i) => { if(blanks[i]) filled[blanks[i].index] = a.word; });
+    verseEl.innerHTML = buildBlankVerse(verse.text, blanks, challengeAnswerRow.length, filled);
+  }
+
+  function refreshChallengeAnswerRow() {
+    const row = document.getElementById('challengeAnswerRow');
+    if(!row) return;
+    if(challengeAnswerRow.length === 0) { row.innerHTML = '<span class="answer-placeholder">Tap words below…</span>'; return; }
+    row.innerHTML = '';
+    challengeAnswerRow.forEach((w,i) => {
+      const chip = document.createElement('button');
+      chip.className = 'answer-chip';
+      chip.textContent = w.word;
+      chip.addEventListener('click', () => {
+        challengeAnswerRow.splice(i,1);
+        document.querySelector(`#challengeWordBank .word-chip[data-index="${w.chipIndex}"]`)?.classList.remove('used');
+        refreshChallengeAnswerRow();
+        refreshChallengeVerse();
+        updateChallengeCheckBtn();
+      });
+      row.appendChild(chip);
+    });
+  }
+
+  function updateChallengeCheckBtn() {
+    const btn = document.getElementById('challengeCheckBtn');
+    if(!btn) return;
+    const filled = challengeAnswerRow.length;
+    btn.disabled = filled < blanks.length;
+    btn.textContent = filled >= blanks.length ? 'Check Answers ✓' : `Check Answers (${filled}/${blanks.length})`;
+    if(filled >= blanks.length) btn.onclick = checkChallengeMIA;
+  }
+
+  function checkChallengeMIA() {
+    let correct = 0;
+    blanks.forEach((blank,i) => {
+      const given = challengeAnswerRow[i];
+      if(given && given.word.toLowerCase() === blank.word.toLowerCase()) correct++;
+    });
+    challengeScore = correct * 200;
+    document.querySelectorAll('#challengeWordBank .word-chip').forEach(b=>b.disabled=true);
+    const row = document.getElementById('challengeAnswerRow');
+    if(row) {
+      row.innerHTML = blanks.map((blank,i) => {
+        const given = challengeAnswerRow[i];
+        const isCorrect = given && given.word.toLowerCase() === blank.word.toLowerCase();
+        return `<span class="answer-chip" style="border-color:${isCorrect?'var(--teal)':'var(--earth)'};background:${isCorrect?'var(--teal-dim)':'var(--earth-dim)'};color:${isCorrect?'var(--teal)':'var(--earth)'};">${isCorrect?given.word:blank.word}</span>`;
+      }).join('');
+    }
+    const checkArea = document.getElementById('challengeCheckArea');
+    if(checkArea) checkArea.innerHTML = `<button class="btn-next" style="margin-top:8px;" onclick="completeChallengeGame(${challengeScore}, ${JSON.stringify(verse).replace(/"/g,'&quot;')})">See Results →</button>`;
+  }
+
+  document.querySelectorAll('#challengeWordBank .word-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(btn.classList.contains('used')) return;
+      if(challengeAnswerRow.length >= blanks.length) return;
+      challengeAnswerRow.push({ word: btn.dataset.word, chipIndex: parseInt(btn.dataset.index) });
+      btn.classList.add('used');
+      refreshChallengeAnswerRow();
+      refreshChallengeVerse();
+      updateChallengeCheckBtn();
+    });
+  });
+}
+
+async function renderChallengeTrack(verse) {
+  const root = document.getElementById('root');
+  const options = await generateRefOptions(verse, 'hard');
+  const letters = ['A','B','C','D'];
+  const correctRef = `${verse.book} ${verse.chapter}`;
+  let score = 0;
+
+  root.innerHTML = challengeHUD() + `
+    <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
+      <div class="verse-label">🎯 Where is this verse from?</div>
+      <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
+      <hr class="divider"/>
+      <div id="challengeTrackOptions">
+        ${options.map((opt,i)=>`<button class="ref-option" data-ref="${opt}"><span class="ref-option-letter">${letters[i]}</span>${opt}</button>`).join('')}
+      </div>
+      <div class="feedback" id="challengeTrackFeedback"></div>
+    </div>`;
+
+  document.querySelectorAll('.ref-option').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
+      const isCorrect = btn.dataset.ref === correctRef;
+      document.querySelectorAll('.ref-option').forEach(b => {
+        if(b.dataset.ref===correctRef) b.classList.add('correct');
+        if(b===btn && !isCorrect) b.classList.add('wrong');
+      });
+      score = isCorrect ? 500 : 0;
+      const fb = document.getElementById('challengeTrackFeedback');
+      if(fb) { fb.className=`feedback ${isCorrect?'correct':'wrong'}`; fb.textContent=isCorrect?'✓ Correct! +500':'✗ Not quite!'; }
+      setTimeout(()=>completeChallengeGame(score, verse), 1200);
+    });
+  });
+}
+
+function renderChallengeMemory(verse) {
+  const root = document.getElementById('root');
+  let score = 0;
+
+  root.innerHTML = challengeHUD() + `
+    <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
+      <div class="flashcard-label">Can you recall this verse?</div>
+      <div class="flashcard-reference">${verse.book} ${verse.chapter}:${verse.verse}</div>
+      <div class="flashcard-book">${verse.testament==='OT'?'📜 Old Testament':'✝️ New Testament'}</div>
+      <hr class="divider" style="margin:14px 0;"/>
+      <div id="challengeMemFlip">
+        <button class="btn-next" id="challengeFlipBtn">Flip to see verse →</button>
+      </div>
+    </div>`;
+
+  document.getElementById('challengeFlipBtn').onclick = () => {
+    document.getElementById('challengeMemFlip').innerHTML = `
+      <div class="flashcard-verse" style="margin-bottom:14px;">"${verse.text}"</div>
+      <div class="rating-btns">
+        <button class="rating-btn rating-didnt" onclick="completeChallengeGame(0,null)"><span class="rating-icon">😬</span>Didn't Know</button>
+        <button class="rating-btn rating-almost" onclick="completeChallengeGame(100,null)"><span class="rating-icon">🤔</span>Almost</button>
+        <button class="rating-btn rating-knew" onclick="completeChallengeGame(300,null)"><span class="rating-icon">✅</span>Knew It!</button>
+      </div>`;
+  };
 }
 
 async function finishChallenge(score, verse) {
