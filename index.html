@@ -360,6 +360,25 @@
   .heart-refill-slot.empty { background:var(--border); }
   @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
 
+  /* Challenge System */
+  .challenge-card { background:var(--surface); border:1.5px solid #F4B942; border-radius:14px; padding:16px; margin-bottom:10px; }
+  .challenge-card.won { border-color:var(--teal); }
+  .challenge-card.lost { border-color:var(--earth); }
+  .challenge-card.pending { border-color:#F4B942; }
+  .challenge-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .challenge-icon { font-size:1.6rem; }
+  .challenge-title { font-size:0.92rem; font-weight:700; color:var(--text); }
+  .challenge-meta { font-size:0.75rem; color:var(--text-muted); }
+  .challenge-scores { display:flex; gap:8px; margin-bottom:10px; }
+  .challenge-score-box { flex:1; background:var(--surface-2); border-radius:10px; padding:10px; text-align:center; }
+  .challenge-score-val { font-size:1.3rem; font-weight:700; }
+  .challenge-score-label { font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .challenge-result { text-align:center; font-size:0.82rem; font-weight:700; padding:6px; border-radius:8px; margin-bottom:8px; }
+  .challenge-result.win { background:var(--teal-dim); color:var(--teal); }
+  .challenge-result.lose { background:var(--earth-dim); color:var(--earth); }
+  .challenge-result.pending { background:rgba(244,185,66,0.1); color:#F4B942; }
+  .challenge-result.expired { background:var(--surface-2); color:var(--text-muted); }
+
   /* Avatar System */
   .avatar-picker-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:flex-end; justify-content:center; }
   .avatar-picker-sheet { background:var(--surface); border-radius:20px 20px 0 0; padding:20px; width:100%; max-width:560px; max-height:80vh; overflow-y:auto; }
@@ -895,6 +914,7 @@ async function showHome() {
         <button class="btn-share" onclick="shareApp()" style="flex:1;">📨 Invite a Friend</button>
         ${currentUser ? `<button class="btn-share" onclick="showBackBtn(true);renderFriends();" style="flex:1;background:rgba(167,139,250,0.1);border-color:#A78BFA;color:#A78BFA;">👥 Friends</button>` : ''}
         ${currentUser ? `<button class="btn-share" onclick="showBackBtn(true);renderMessages();" style="flex:1;background:rgba(167,139,250,0.1);border-color:#A78BFA;color:#A78BFA;">💬 Messages</button>` : ''}
+        ${currentUser ? `<button class="btn-share" onclick="showBackBtn(true);renderChallenges();" style="flex:1;background:rgba(244,185,66,0.1);border-color:#F4B942;color:#F4B942;">⚔️ Challenges</button>` : ''}
         ${currentUser ? `<button class="btn-signout" onclick="signOut()" style="flex:0 0 auto;padding:11px 14px;">Sign Out</button>` : ''}
       </div>
 
@@ -4784,6 +4804,233 @@ function endTrackEndless(lost) {
 }
 
 // ═══════════════════════════════════════
+// CHALLENGE SYSTEM
+// ═══════════════════════════════════════
+async function sendChallenge(friendId, friendUsername, game, difficulty, score, verse) {
+  if(!currentUser) { showStreakToast('Sign in to challenge friends!'); return; }
+  try {
+    const body = {
+      challenger_id: currentUser.id,
+      opponent_id: friendId,
+      game,
+      difficulty,
+      challenger_score: score,
+      challenger_name: currentUsername || playerName,
+      verse_id: verse?.id || null,
+      verse_book: verse?.book || null,
+      verse_chapter: verse?.chapter || null,
+      verse_verse: verse?.verse || null
+    };
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/challenges`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    // Send notification
+    const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
+    await createNotification(friendId, 'challenge',
+      `⚔️ ${currentUsername} challenged you to beat ${score.toLocaleString()} pts on ${gameNames[game]} ${difficulty}! You have 24 hours.`,
+      { challenge_id: data[0]?.id, from_id: currentUser.id, from_username: currentUsername, game, difficulty, score }
+    );
+    showStreakToast(`Challenge sent to ${friendUsername}! ⚔️`);
+  } catch(e) { console.error('Challenge send failed:', e); showStreakToast('Could not send challenge.'); }
+}
+
+async function respondToChallenge(challengeId, score, verse) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/challenges?id=eq.${challengeId}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' },
+      body: JSON.stringify({ opponent_score: score, opponent_name: currentUsername || playerName, status: 'completed' })
+    });
+    const data = await res.json();
+    const challenge = data[0];
+    if(challenge) {
+      const won = score > challenge.challenger_score;
+      const tied = score === challenge.challenger_score;
+      const msg = won
+        ? `🏆 ${currentUsername} beat your challenge on ${challenge.game}! They scored ${score.toLocaleString()} vs your ${challenge.challenger_score.toLocaleString()}.`
+        : tied
+        ? `🤝 ${currentUsername} tied your challenge on ${challenge.game}! You both scored ${score.toLocaleString()}.`
+        : `😅 ${currentUsername} accepted your challenge on ${challenge.game} but couldn't beat your score of ${challenge.challenger_score.toLocaleString()}.`;
+      await createNotification(challenge.challenger_id, 'challenge_result', msg, { challenge_id: challengeId, score, challenger_score: challenge.challenger_score });
+    }
+    return data[0];
+  } catch(e) { console.error('Challenge respond failed:', e); }
+}
+
+async function renderChallenges() {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading challenges…</div></div>`;
+
+  const now = new Date().toISOString();
+  const [sent, received] = await Promise.all([
+    sbFetch(`challenges?challenger_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`),
+    sbFetch(`challenges?opponent_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`)
+  ]);
+
+  const gameIcons = { scout:'📖', memory:'🃏', mia:'✏️', track:'🎯' };
+  const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
+
+  function renderChallenge(c, isMine) {
+    const expired = new Date(c.expires_at) < new Date() && c.status === 'pending';
+    const status = expired ? 'expired' : c.status;
+    const myScore = isMine ? c.challenger_score : c.opponent_score;
+    const theirScore = isMine ? c.opponent_score : c.challenger_score;
+    const theirName = isMine ? (c.opponent_name || 'Waiting...') : c.challenger_name;
+    const won = myScore !== null && theirScore !== null && myScore > theirScore;
+    const tied = myScore !== null && theirScore !== null && myScore === theirScore;
+
+    let resultText = '';
+    let resultClass = '';
+    if(status === 'expired') { resultText = '⏰ Expired — no response'; resultClass = 'expired'; }
+    else if(status === 'pending' && isMine) { resultText = '⏳ Waiting for response...'; resultClass = 'pending'; }
+    else if(status === 'pending' && !isMine) { resultText = '⚔️ Challenge waiting for you!'; resultClass = 'pending'; }
+    else if(won) { resultText = '🏆 You won!'; resultClass = 'win'; }
+    else if(tied) { resultText = '🤝 Tied!'; resultClass = 'win'; }
+    else { resultText = '😅 You lost'; resultClass = 'lose'; }
+
+    return `
+      <div class="challenge-card ${won?'won':status==='pending'?'pending':'lost'}">
+        <div class="challenge-header">
+          <div class="challenge-icon">${gameIcons[c.game]||'🎮'}</div>
+          <div>
+            <div class="challenge-title">${gameNames[c.game]||c.game} — ${c.difficulty}</div>
+            <div class="challenge-meta">${isMine ? 'You challenged' : 'Challenge from'} ${theirName} · ${timeAgo(c.created_at)}</div>
+            ${c.verse_book ? `<div class="challenge-meta">📖 ${c.verse_book} ${c.verse_chapter}:${c.verse_verse}</div>` : ''}
+          </div>
+        </div>
+        <div class="challenge-scores">
+          <div class="challenge-score-box">
+            <div class="challenge-score-val" style="color:var(--teal);">${(isMine ? c.challenger_score : (c.opponent_score ?? '—')).toLocaleString?.() || '—'}</div>
+            <div class="challenge-score-label">Your Score</div>
+          </div>
+          <div style="display:flex;align-items:center;font-size:1.2rem;color:var(--text-muted);">⚔️</div>
+          <div class="challenge-score-box">
+            <div class="challenge-score-val" style="color:#F4B942;">${(isMine ? (c.opponent_score ?? '—') : c.challenger_score).toLocaleString?.() || '—'}</div>
+            <div class="challenge-score-label">${theirName.split(' ')[0]}'s Score</div>
+          </div>
+        </div>
+        <div class="challenge-result ${resultClass}">${resultText}</div>
+        ${status === 'pending' && !isMine ? `<button class="btn-next" onclick="acceptChallenge('${c.id}','${c.game}','${c.difficulty}',${c.challenger_score},'${c.verse_book||''}',${c.verse_chapter||0},${c.verse_verse||0})" style="margin-top:0;">Accept Challenge →</button>` : ''}
+      </div>`;
+  }
+
+  const allChallenges = [
+    ...received.map(c => ({ ...c, _received: true })),
+    ...sent.map(c => ({ ...c, _received: false }))
+  ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  root.innerHTML = `
+    <div class="friends-screen">
+      <div class="verse-label">⚔️ Challenges</div>
+      ${allChallenges.length ? allChallenges.map(c => renderChallenge(c, !c._received)).join('') :
+        `<div class="empty-state">No challenges yet!<br>Challenge a friend after finishing a game.</div>`}
+      <button class="btn-change-diff" style="margin-top:12px;" onclick="showHome()">← Home</button>
+    </div>`;
+}
+
+async function acceptChallenge(challengeId, game, difficulty, challengerScore, book, chapter, verse) {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+
+  // Fetch the specific verse if provided
+  let challengeVerse = null;
+  if(book && chapter && verse) {
+    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&book=eq.${encodeURIComponent(book)}&chapter=eq.${chapter}&verse=eq.${verse}&select=*&limit=1`);
+    if(rows.length) challengeVerse = rows[0];
+  }
+
+  // Store challenge context
+  window._activeChallenge = { id: challengeId, game, difficulty, challengerScore, verse: challengeVerse };
+
+  // Launch the appropriate game
+  root.innerHTML = `
+    <div style="text-align:center;padding:20px;">
+      <div style="font-size:0.78rem;font-weight:700;color:#F4B942;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">⚔️ Challenge Mode</div>
+      <div style="font-size:0.88rem;color:var(--text-muted);margin-bottom:20px;">Beat ${challengerScore.toLocaleString()} pts to win!</div>
+    </div>`;
+
+  if(game === 'scout') startChallengeScout(challengeVerse, difficulty);
+  else if(game === 'mia') startChallengeMIA(challengeVerse, difficulty);
+  else if(game === 'track') startChallengeTrack(challengeVerse, difficulty);
+  else if(game === 'memory') startChallengeMemory(challengeVerse);
+}
+
+async function startChallengeScout(verse, difficulty) {
+  if(!verse) {
+    const diff = difficulty || 'hard';
+    const total = DIFF_COUNTS[TRANSLATION][diff];
+    const offset = Math.floor(Math.random() * total);
+    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`);
+    if(rows.length) verse = rows[0];
+  }
+  renderDailyScout(verse, true);
+}
+
+async function startChallengeMIA(verse, difficulty) {
+  if(!verse) {
+    const diff = difficulty || 'hard';
+    const total = DIFF_COUNTS[TRANSLATION][diff];
+    const offset = Math.floor(Math.random() * total);
+    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`);
+    if(rows.length) verse = rows[0];
+  }
+  renderDailyMIA(verse, true);
+}
+
+async function startChallengeTrack(verse, difficulty) {
+  if(!verse) {
+    const diff = difficulty || 'hard';
+    const total = DIFF_COUNTS[TRANSLATION][diff];
+    const offset = Math.floor(Math.random() * total);
+    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`);
+    if(rows.length) verse = rows[0];
+  }
+  renderDailyTrack(verse, true);
+}
+
+async function startChallengeMemory(verse) {
+  if(!verse) {
+    const total = DIFF_COUNTS[TRANSLATION]['hard'];
+    const offset = Math.floor(Math.random() * total);
+    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.hard&select=*&limit=1&offset=${offset}`);
+    if(verse.length) verse = rows[0];
+  }
+  renderDailyMemory(verse, true);
+}
+
+async function finishChallenge(score, verse) {
+  const ch = window._activeChallenge;
+  if(!ch) return;
+  const result = await respondToChallenge(ch.id, score, verse);
+  window._activeChallenge = null;
+  const won = result && score > ch.challengerScore;
+  const tied = result && score === ch.challengerScore;
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
+      <div style="font-size:3rem;margin-bottom:12px;">${won?'🏆':tied?'🤝':'😅'}</div>
+      <div style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:8px;">${won?'You won!':tied?'Tied!':'So close!'}</div>
+      <div style="display:flex;gap:12px;justify-content:center;margin:16px 0;">
+        <div class="challenge-score-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;">
+          <div style="font-size:1.5rem;font-weight:700;color:var(--teal);">${score.toLocaleString()}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);">Your Score</div>
+        </div>
+        <div style="display:flex;align-items:center;font-size:1.2rem;">⚔️</div>
+        <div class="challenge-score-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;">
+          <div style="font-size:1.5rem;font-weight:700;color:#F4B942;">${ch.challengerScore.toLocaleString()}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);">Their Score</div>
+        </div>
+      </div>
+      <button class="btn-next" onclick="renderChallenges()">View All Challenges</button>
+      <button class="btn-change-diff" style="margin-top:8px;" onclick="showHome()">← Home</button>
+    </div>`;
+}
+
+// ═══════════════════════════════════════
 // NOTIFICATIONS
 // ═══════════════════════════════════════
 async function loadNotifications() {
@@ -5318,13 +5565,63 @@ async function declineFriend(requestId) {
 }
 
 async function challengeFriend(friendId, friendUsername) {
-  // Send a challenge with your best score today
-  const score = getDailyScore('scout') || getDailyScore('mia') || getDailyScore('track') || getDailyScore('memory');
-  const msg = score
-    ? `⚔️ ${currentUsername} challenges you to beat ${score.toLocaleString()} pts on today's Daily Challenge!`
-    : `⚔️ ${currentUsername} challenges you to today's Daily Challenge!`;
-  await createNotification(friendId, 'challenge', msg, { from_id: currentUser.id, score });
-  showStreakToast(`Challenge sent to ${friendUsername}! ⚔️`);
+  // Show game picker
+  const root = document.getElementById('root');
+  showBackBtn(true);
+  root.innerHTML = `
+    <div class="friends-screen">
+      <div class="verse-label">⚔️ Challenge ${friendUsername}</div>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Pick a game to challenge them on. You play first then they have 24 hours to beat your score!</p>
+      <div class="chapter-list">
+        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','scout','hard')">
+          <div class="chapter-num current">📖</div>
+          <div class="chapter-info"><div class="chapter-title">Scripture Scout</div><div class="chapter-ref">Hard difficulty</div></div>
+          <div class="chapter-lock">▶️</div>
+        </div>
+        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','mia','hard')">
+          <div class="chapter-num current">✏️</div>
+          <div class="chapter-info"><div class="chapter-title">Missing in Action</div><div class="chapter-ref">Hard difficulty</div></div>
+          <div class="chapter-lock">▶️</div>
+        </div>
+        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','track','hard')">
+          <div class="chapter-num current">🎯</div>
+          <div class="chapter-info"><div class="chapter-title">Track It Down</div><div class="chapter-ref">Hard difficulty</div></div>
+          <div class="chapter-lock">▶️</div>
+        </div>
+        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','memory','hard')">
+          <div class="chapter-num current">🃏</div>
+          <div class="chapter-info"><div class="chapter-title">Memory Trail</div><div class="chapter-ref">Hard difficulty</div></div>
+          <div class="chapter-lock">▶️</div>
+        </div>
+      </div>
+      <button class="btn-change-diff" style="margin-top:12px;" onclick="renderFriends()">← Back</button>
+    </div>`;
+}
+
+async function startChallengeGame(friendId, friendUsername, game, difficulty) {
+  // Pick a random verse for the challenge
+  const total = DIFF_COUNTS[TRANSLATION][difficulty];
+  const offset = Math.floor(Math.random() * total);
+  const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${difficulty}&select=*&limit=1&offset=${offset}`);
+  if(!rows.length) { showStreakToast('Could not load verse. Try again!'); return; }
+  const verse = rows[0];
+
+  // Store pending challenge info
+  window._pendingChallenge = { friendId, friendUsername, game, difficulty, verse };
+
+  // Launch the game
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <div style="text-align:center;padding:20px 16px 8px;">
+      <div style="font-size:0.78rem;font-weight:700;color:#F4B942;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">⚔️ Challenge Mode</div>
+      <div style="font-size:0.85rem;color:var(--text-muted);">Play your best — ${friendUsername} will try to beat you!</div>
+    </div>`;
+
+  if(game === 'scout') await startChallengeScout(verse, difficulty);
+  else if(game === 'mia') await startChallengeMIA(verse, difficulty);
+  else if(game === 'track') await startChallengeTrack(verse, difficulty);
+  else if(game === 'memory') await startChallengeMemory(verse);
 }
 
 // ═══════════════════════════════════════
@@ -5973,9 +6270,16 @@ async function renderDailyScout(verse) {
           if(!isCorrect) area.querySelector(`[data-ans="${correctChapter}"]`).classList.add('correct');
           if(isCorrect) { score+=700; correct++; fb.className='feedback correct'; fb.textContent='✓ Correct! +700'; }
           else { fb.className='feedback wrong'; fb.textContent=`✗ It was Chapter ${correctChapter}`; }
-          markDailyCompleted('scout', score);
-          await submitDailyScore('scout', score);
-          setTimeout(()=>showDailyResult('scout', score), 1200);
+          if(window._pendingChallenge) {
+            const pc = window._pendingChallenge;
+            window._pendingChallenge = null;
+            await sendChallenge(pc.friendId, pc.friendUsername, pc.game, pc.difficulty, score, pc.verse);
+            showDailyResult('scout', score);
+          } else {
+            markDailyCompleted('scout', score);
+            await submitDailyScore('scout', score);
+            setTimeout(()=>showDailyResult('scout', score), 1200);
+          }
         };
       });
     }
