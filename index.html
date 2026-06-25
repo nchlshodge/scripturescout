@@ -3473,6 +3473,27 @@ async function renderStoryMode() {
       } catch(e) {}
     }
 
+    const otPaths = paths.filter(p => p.testament !== 'NT');
+    const ntPaths = paths.filter(p => p.testament === 'NT');
+
+    function renderPathCard(path) {
+      const pathChapters = chapters.filter(c => c.path_id === path.id);
+      const total = pathChapters.length;
+      const completed = storyProgress[path.id] || 0;
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      return `
+        <div class="story-path-card" data-path="${path.id}" data-slug="${path.slug}">
+          <div class="story-path-icon">${path.icon}</div>
+          <div class="story-path-info">
+            <div class="story-path-title">${path.title}</div>
+            <div class="story-path-desc">${path.description}</div>
+            <div class="story-path-progress"><div class="story-path-progress-fill" style="width:${pct}%"></div></div>
+            <div class="story-path-progress-label">${completed} of ${total} chapters complete</div>
+          </div>
+          ${path.is_free ? '<div class="story-path-badge">Free</div>' : '<div class="story-path-badge" style="background:rgba(200,135,58,0.15);color:var(--earth);border-color:var(--earth);">Pro</div>'}
+        </div>`;
+    }
+
     root.innerHTML = `
       <div class="story-screen">
         <div class="verse-label">📜 Story Mode</div>
@@ -3483,23 +3504,15 @@ async function renderStoryMode() {
             ${TRANSLATIONS.map(t=>`<button class="trans-btn ${TRANSLATION===t.code?'active':''}" onclick="setTranslation('${t.code}');renderStoryMode();">${t.short} — ${t.name}</button>`).join('')}
           </div>
         </div>
-        ${paths.map(path => {
-          const pathChapters = chapters.filter(c => c.path_id === path.id);
-          const total = pathChapters.length;
-          const completed = storyProgress[path.id] || 0;
-          const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-          return `
-            <div class="story-path-card" data-path="${path.id}" data-slug="${path.slug}">
-              <div class="story-path-icon">${path.icon}</div>
-              <div class="story-path-info">
-                <div class="story-path-title">${path.title}</div>
-                <div class="story-path-desc">${path.description}</div>
-                <div class="story-path-progress"><div class="story-path-progress-fill" style="width:${pct}%"></div></div>
-                <div class="story-path-progress-label">${completed} of ${total} chapters complete</div>
-              </div>
-              ${path.is_free ? '<div class="story-path-badge">Free</div>' : '<div class="story-path-badge" style="background:rgba(200,135,58,0.15);color:var(--earth);border-color:var(--earth);">Pro</div>'}
-            </div>`;
-        }).join('')}
+
+        ${ntPaths.length ? `
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:700;margin-bottom:10px;">✝️ New Testament</div>
+        ${ntPaths.map(renderPathCard).join('')}` : ''}
+
+        ${otPaths.length ? `
+        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#F4B942;font-weight:700;margin:16px 0 10px;">📜 Old Testament</div>
+        ${otPaths.map(renderPathCard).join('')}` : ''}
+
       </div>`;
 
     document.querySelectorAll('.story-path-card').forEach(card => {
@@ -3886,73 +3899,120 @@ function checkStoryRef(answer, correct, btn) {
   }
 }
 
+// Story mode word bank state
+let storyWordBankData = [];
+let storyAnsweredWords = [];
+
 function renderStoryBlankInput() {
   const s = storyInteractive;
   const rs = storyRoundState;
   const area = document.getElementById('storyBlankInput');
   if(!area) return;
 
-  // Refresh verse display
-  const verseEl = document.getElementById('storyBlankVerse');
-  if(verseEl) verseEl.innerHTML = buildBlankVerse(s.verseText, rs.blanks, rs.currentBlankIndex);
+  storyAnsweredWords = [];
+  storyWordBankData = [];
 
-  if(rs.currentBlankIndex >= rs.blanks.length) {
-    // All blanks done — complete round!
-    completeStoryRound();
-    return;
-  }
+  // Build word pool — one chip per blank + distractors
+  const wordList = [];
+  const blankWords = rs.blanks.map(b => b.word);
+  blankWords.forEach(w => wordList.push(w));
+  const distractors = new Set();
+  rs.blankOptions.forEach(opts => opts.forEach(o => {
+    if(!blankWords.includes(o) && !distractors.has(o)) {
+      distractors.add(o);
+      wordList.push(o);
+    }
+  }));
+  storyWordBankData = shuffle(wordList).map((w, i) => ({ word: w, chipIndex: i, used: false }));
 
-  const blank = rs.blanks[rs.currentBlankIndex];
-  const options = rs.blankOptions[rs.currentBlankIndex];
-
-  const inOrder = rs.orderedMode;
   area.innerHTML = `
-    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;font-weight:600;">
-      ${inOrder ? `Fill word <strong style="color:#A78BFA;">${rs.currentBlankIndex+1} of ${rs.blanks.length}</strong> — in order ↓` : `Tap blank <strong style="color:#A78BFA;">${rs.currentBlankIndex+1} of ${rs.blanks.length}</strong>`}
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#A78BFA;font-weight:600;margin-bottom:6px;">Your answer:</div>
+    <div id="storyAnswerRow" class="answer-row">
+      <span class="answer-placeholder" id="storyAnswerPlaceholder">Tap words below…</span>
     </div>
-    <div class="blank-options">
-      ${options.map(o=>`<button class="blank-option" data-word="${o}">${o}</button>`).join('')}
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:10px 0 6px;">Word bank:</div>
+    <div id="storyWordPool" class="word-bank">
+      ${storyWordBankData.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
+    </div>
+    <div id="storyCheckBlanksArea">
+      <button class="btn-next" id="storyCheckBlanksBtn" style="background:linear-gradient(135deg,#7C5CFC,#A78BFA);margin-top:8px;" disabled>
+        Check Answers (0/${rs.blanks.length})
+      </button>
     </div>`;
 
-  area.querySelectorAll('.blank-option').forEach(btn => {
-    btn.addEventListener('click', () => checkStoryBlank(btn.dataset.word, blank.word, blank.index, btn));
+  // Refresh verse with empty filled map
+  refreshStoryBlankVerse();
+
+  // Wire word chips ONCE
+  document.querySelectorAll('#storyWordPool .word-chip').forEach(btn => {
+    btn.addEventListener('click', () => tapStoryWordChip(btn));
   });
 }
 
-function checkStoryBlank(answer, correct, blankIndex, btn) {
+function tapStoryWordChip(btn) {
+  const rs = storyRoundState;
+  if(btn.classList.contains('used')) return;
+  if(storyAnsweredWords.length >= rs.blanks.length) return;
+  storyAnsweredWords.push({ word: btn.dataset.word, chipIndex: parseInt(btn.dataset.index) });
+  btn.classList.add('used');
+  refreshStoryAnswerRow();
+  refreshStoryBlankVerse();
+  updateStoryCheckButton();
+}
+
+function removeStoryAnswerWord(pos) {
+  const removed = storyAnsweredWords[pos];
+  if(!removed) return;
+  storyAnsweredWords.splice(pos, 1);
+  const chip = document.querySelector(`#storyWordPool .word-chip[data-index="${removed.chipIndex}"]`);
+  if(chip) chip.classList.remove('used');
+  refreshStoryAnswerRow();
+  refreshStoryBlankVerse();
+  updateStoryCheckButton();
+}
+
+function refreshStoryAnswerRow() {
+  const row = document.getElementById('storyAnswerRow');
+  if(!row) return;
+  if(storyAnsweredWords.length === 0) {
+    row.innerHTML = '<span class="answer-placeholder" id="storyAnswerPlaceholder">Tap words below…</span>';
+    return;
+  }
+  row.innerHTML = '';
+  storyAnsweredWords.forEach((w, i) => {
+    const chip = document.createElement('button');
+    chip.className = 'answer-chip';
+    chip.textContent = w.word;
+    chip.addEventListener('click', () => removeStoryAnswerWord(i));
+    row.appendChild(chip);
+  });
+}
+
+function refreshStoryBlankVerse() {
   const s = storyInteractive;
   const rs = storyRoundState;
-  const fb = document.getElementById('storyBlankFeedback');
-  const isCorrect = answer.toLowerCase() === correct.toLowerCase();
-  const blankSpan = document.querySelector(`.blank-word[data-index="${blankIndex}"]`);
+  const verseEl = document.getElementById('storyBlankVerse');
+  if(!verseEl) return;
+  const filled = {};
+  storyAnsweredWords.forEach((w, i) => {
+    if(rs.blanks[i]) filled[rs.blanks[i].index] = w.word;
+  });
+  verseEl.innerHTML = buildBlankVerse(s.verseText, rs.blanks, storyAnsweredWords.length, filled);
+}
 
-  if(isCorrect) {
-    document.querySelectorAll('.blank-option').forEach(b=>{b.disabled=true; if(b.dataset.word===correct) b.classList.add('correct');});
-    if(blankSpan){blankSpan.textContent=correct;blankSpan.classList.add('revealed');}
-    if(fb){fb.className='story-feedback correct';fb.textContent='✓ Correct!';}
-    rs.currentBlankIndex++;
-    setTimeout(()=>{if(fb)fb.textContent=''; renderStoryBlankInput();}, 800);
-  } else {
-    const remaining = loseHeart();
-    btn.classList.add('wrong');
-    if(fb){
-      fb.className='story-feedback wrong';
-      fb.textContent = remaining > 0
-        ? `✗ The word was "${correct}". ${remaining} heart${remaining===1?'':'s'} left!`
-        : `💔 Out of hearts! The word was "${correct}"`;
-    }
-    const heartEl = document.querySelector('.story-hearts');
-    if(heartEl) heartEl.textContent = '❤️'.repeat(remaining) + '🖤'.repeat(3-remaining);
-    if(remaining <= 0) {
-      setTimeout(() => showHeartsEmptyScreen(()=>renderStoryPath(s.pathId)), 1500);
-    } else {
-      setTimeout(()=>{
-        btn.classList.remove('wrong');
-        document.querySelectorAll('.blank-option').forEach(b=>{b.disabled=false;});
-        if(fb) fb.textContent='';
-      }, 1500);
-    }
-  }
+function updateStoryCheckButton() {
+  const rs = storyRoundState;
+  const btn = document.getElementById('storyCheckBlanksBtn');
+  if(!btn) return;
+  const answered = storyAnsweredWords.length;
+  const needed = rs.blanks.length;
+  btn.disabled = answered < needed;
+  btn.textContent = answered >= needed ? 'Check Answers ✓' : `Check Answers (${answered}/${needed})`;
+  if(answered >= needed) btn.onclick = checkAllStoryBlanks;
+}
+
+function checkStoryBlank(answer, correct, blankIndex, btn) {
+  // Legacy stub
 }
 
 // ═══════════════════════════════════════
@@ -6015,6 +6075,14 @@ async function renderDailyMIA(verse) {
     };
   }
 
+  function refreshDailyMIAVerse() {
+    const verseEl = document.getElementById('dailyMIAVerse');
+    if(!verseEl) return;
+    const filled = {};
+    dailyMIAAnswerRow.forEach((a, i) => { filled[blanks[i]?.index] = a.word; });
+    verseEl.innerHTML = buildBlankVerse(verse.text, blanks, dailyMIAAnswerRow.length, filled);
+  }
+
   document.querySelectorAll('#dailyMIAWordBank .word-chip').forEach(btn => {
     btn.addEventListener('click', () => {
       if(btn.classList.contains('used')) return;
@@ -6022,9 +6090,22 @@ async function renderDailyMIA(verse) {
       dailyMIAAnswerRow.push({ word: btn.dataset.word, chipIndex: parseInt(btn.dataset.index) });
       btn.classList.add('used');
       refreshDailyMIAAnswerRow();
+      refreshDailyMIAVerse();
       updateDailyMIACheckBtn();
     });
   });
+
+  // Also update verse when a word is removed
+  window.removeDailyMIAWord = (pos) => {
+    const removed = dailyMIAAnswerRow[pos];
+    if(!removed) return;
+    dailyMIAAnswerRow.splice(pos, 1);
+    const chip = document.querySelector(`#dailyMIAWordBank .word-chip[data-index="${removed.chipIndex}"]`);
+    if(chip) chip.classList.remove('used');
+    refreshDailyMIAAnswerRow();
+    refreshDailyMIAVerse();
+    updateDailyMIACheckBtn();
+  };
 }
 
 async function renderDailyTrack(verse) {
