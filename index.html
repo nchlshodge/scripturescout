@@ -3494,26 +3494,69 @@ async function renderStoryMode() {
         </div>`;
     }
 
-    root.innerHTML = `
-      <div class="story-screen">
-        <div class="verse-label">📜 Story Mode</div>
-        <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">Journey through Scripture one story at a time. Read the narrative, find the key verse, and unlock the next chapter.</p>
-        <div style="margin-bottom:16px;">
-          <div class="trans-label">Translation</div>
-          <div class="translation-switcher" style="max-width:100%;">
-            ${TRANSLATIONS.map(t=>`<button class="trans-btn ${TRANSLATION===t.code?'active':''}" onclick="setTranslation('${t.code}');renderStoryMode();">${t.short} — ${t.name}</button>`).join('')}
+    // Find last worked on path
+    const lastPathId = Object.keys(storyProgress).sort((a,b) => (storyProgress[b]||0) - (storyProgress[a]||0))[0];
+    const lastPath = lastPathId ? paths.find(p => p.id === parseInt(lastPathId)) : null;
+    const lastCompleted = lastPath ? (storyProgress[lastPath.id] || 0) : 0;
+    const lastTotal = lastPath ? chapters.filter(c => c.path_id === lastPath.id).length : 0;
+    const lastPct = lastTotal > 0 ? Math.round((lastCompleted / lastTotal) * 100) : 0;
+
+    let activeTestament = localStorage.getItem('ss_story_testament') || 'NT';
+
+    function renderStoryScreen() {
+      const currentPaths = activeTestament === 'NT' ? ntPaths : otPaths;
+
+      root.innerHTML = `
+        <div class="story-screen">
+          <div class="verse-label">📜 Story Mode</div>
+
+          ${lastPath && lastCompleted > 0 && lastCompleted < lastTotal ? `
+          <div style="background:linear-gradient(135deg,rgba(167,139,250,0.1),rgba(56,189,248,0.05));border:1.5px solid #A78BFA;border-radius:14px;padding:16px;margin-bottom:16px;cursor:pointer;" onclick="renderStoryPath(${lastPath.id})">
+            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:700;margin-bottom:6px;">▶️ Continue where you left off</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="font-size:1.8rem;">${lastPath.icon}</div>
+              <div style="flex:1;">
+                <div style="font-size:0.92rem;font-weight:700;color:var(--text);">${lastPath.title}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">Chapter ${lastCompleted + 1} of ${lastTotal}</div>
+                <div class="story-path-progress" style="margin-top:6px;"><div class="story-path-progress-fill" style="width:${lastPct}%"></div></div>
+              </div>
+              <div style="color:#A78BFA;font-weight:700;font-size:1.2rem;">→</div>
+            </div>
+          </div>` : ''}
+
+          <div style="margin-bottom:16px;">
+            <div class="trans-label">Translation</div>
+            <div class="translation-switcher" style="max-width:100%;">
+              ${TRANSLATIONS.map(t=>`<button class="trans-btn ${TRANSLATION===t.code?'active':''}" onclick="setTranslation('${t.code}');renderStoryMode();">${t.short} — ${t.name}</button>`).join('')}
+            </div>
           </div>
-        </div>
 
-        ${ntPaths.length ? `
-        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:700;margin-bottom:10px;">✝️ New Testament</div>
-        ${ntPaths.map(renderPathCard).join('')}` : ''}
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <button class="game-lb-tab ${activeTestament==='NT'?'active':''}" id="storyNTTab" style="flex:1;">✝️ New Testament</button>
+            <button class="game-lb-tab ${activeTestament==='OT'?'active':''}" id="storyOTTab" style="flex:1;">📜 Old Testament</button>
+          </div>
 
-        ${otPaths.length ? `
-        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#F4B942;font-weight:700;margin:16px 0 10px;">📜 Old Testament</div>
-        ${otPaths.map(renderPathCard).join('')}` : ''}
+          <div id="storyPathList">
+            ${currentPaths.map(renderPathCard).join('')}
+          </div>
+        </div>`;
 
-      </div>`;
+      document.getElementById('storyNTTab').onclick = () => {
+        activeTestament = 'NT';
+        localStorage.setItem('ss_story_testament', 'NT');
+        renderStoryScreen();
+      };
+      document.getElementById('storyOTTab').onclick = () => {
+        activeTestament = 'OT';
+        localStorage.setItem('ss_story_testament', 'OT');
+        renderStoryScreen();
+      };
+      document.querySelectorAll('.story-path-card').forEach(card => {
+        card.addEventListener('click', () => renderStoryPath(parseInt(card.dataset.path)));
+      });
+    }
+
+    renderStoryScreen();
 
   } catch(e) {
     root.innerHTML = `<div class="error-box">⚠️ Could not load stories — ${e.message}</div>
