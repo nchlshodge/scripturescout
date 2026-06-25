@@ -360,6 +360,23 @@
   .heart-refill-slot.empty { background:var(--border); }
   @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
 
+  /* Challenge Banner */
+  .challenge-banner-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; animation:fadeIn 0.3s ease; }
+  .challenge-banner-card { background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid #F4B942; border-radius:24px; padding:36px 28px; max-width:420px; width:100%; text-align:center; animation:scaleIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+  .challenge-banner-swords { font-size:4rem; margin-bottom:16px; animation:swords 1s ease-in-out infinite alternate; }
+  .challenge-banner-title { font-size:2rem; font-weight:700; color:#F4B942; margin-bottom:8px; letter-spacing:-0.02em; line-height:1.1; }
+  .challenge-banner-subtitle { font-size:1rem; color:#DFF0E3; margin-bottom:6px; }
+  .challenge-banner-from { font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:8px; }
+  .challenge-banner-score { display:inline-block; background:rgba(244,185,66,0.15); border:1.5px solid #F4B942; border-radius:12px; padding:10px 24px; margin-bottom:24px; }
+  .challenge-banner-score-val { font-size:1.8rem; font-weight:700; color:#F4B942; }
+  .challenge-banner-score-label { font-size:0.72rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.08em; }
+  .challenge-banner-verse { font-size:0.82rem; color:rgba(255,255,255,0.5); margin-bottom:24px; font-style:italic; }
+  .btn-accept-challenge { width:100%; padding:16px; background:linear-gradient(135deg,#B87D0A,#F4B942); border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:700; color:#1a1a2e; cursor:pointer; margin-bottom:10px; }
+  .btn-decline-challenge { width:100%; padding:12px; background:transparent; border:1.5px solid rgba(255,255,255,0.2); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; color:rgba(255,255,255,0.5); cursor:pointer; }
+  @keyframes swords { from{transform:rotate(-15deg) scale(0.9)} to{transform:rotate(15deg) scale(1.1)} }
+  @keyframes scaleIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
   /* Challenge System */
   .challenge-card { background:var(--surface); border:1.5px solid #F4B942; border-radius:14px; padding:16px; margin-bottom:10px; }
   .challenge-card.won { border-color:var(--teal); }
@@ -887,6 +904,7 @@ async function showHome() {
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;">
           <button class="btn-change-diff" style="flex:1;" onclick="showBackBtn(true);renderProfile()">👤 My Profile</button>
+          <button class="btn-change-diff" style="flex:1;position:relative;" id="homeNotifBtn" onclick="showBackBtn(true);renderNotificationHub()">🔔 Alerts <span id="homeNotifCount" style="display:none;background:#E53E3E;color:white;font-size:0.65rem;font-weight:700;border-radius:10px;padding:1px 5px;margin-left:4px;">0</span></button>
           <button class="btn-change-diff" style="flex:1;" onclick="signOut()">Sign Out</button>
         </div>
       </div>` : `
@@ -1345,6 +1363,7 @@ function showApp() {
       if(statEl && currentStreak) statEl.innerHTML = `<div class="home-stat-val">${currentStreak.longest_streak} 🔥</div><div class="home-stat-label">Best Streak</div>`;
     });
     loadNotifications();
+    checkForPendingChallenges();
     // Poll notifications every 30 seconds
     if(window._notifPollInterval) clearInterval(window._notifPollInterval);
     window._notifPollInterval = setInterval(() => { if(currentUser) loadNotifications(); }, 30000);
@@ -4839,10 +4858,23 @@ async function sendChallenge(friendId, friendUsername, game, difficulty, score, 
 
 async function respondToChallenge(challengeId, score, verse) {
   try {
+    // Calculate time bonus based on how fast they completed it
+    const ch = window._activeChallenge;
+    let timeBonus = 0;
+    if(ch?.startedAt) {
+      const elapsed = (new Date() - ch.startedAt) / 1000; // seconds
+      // Max 500 pts, decays over 300 seconds (5 minutes)
+      // Full bonus if under 30 seconds, zero bonus after 5 minutes
+      const maxBonus = 500;
+      const maxSeconds = 300;
+      timeBonus = Math.max(0, Math.floor(maxBonus * (1 - elapsed / maxSeconds)));
+    }
+    const totalScore = score + timeBonus;
+
     const res = await fetch(`${SUPABASE_URL}/rest/v1/challenges?id=eq.${challengeId}`, {
       method: 'PATCH',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' },
-      body: JSON.stringify({ opponent_score: score, opponent_name: currentUsername || playerName, status: 'completed' })
+      body: JSON.stringify({ opponent_score: totalScore, opponent_name: currentUsername || playerName, status: 'completed', time_bonus: timeBonus })
     });
     const data = await res.json();
     const challenge = data[0];
@@ -4858,6 +4890,58 @@ async function respondToChallenge(challengeId, score, verse) {
     }
     return data[0];
   } catch(e) { console.error('Challenge respond failed:', e); }
+}
+
+function showChallengeBanner(challenge) {
+  const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
+  const gameIcons = { scout:'📖', memory:'🃏', mia:'✏️', track:'🎯' };
+  const fromName = challenge.challenger_name || 'Someone';
+  const game = gameNames[challenge.game] || challenge.game;
+  const icon = gameIcons[challenge.game] || '🎮';
+  const score = challenge.challenger_score;
+  const expires = new Date(challenge.expires_at);
+  const hoursLeft = Math.max(0, Math.floor((expires - new Date()) / 3600000));
+
+  const banner = document.createElement('div');
+  banner.className = 'challenge-banner-overlay';
+  banner.id = 'challengeBannerOverlay';
+  banner.innerHTML = `
+    <div class="challenge-banner-card">
+      <div class="challenge-banner-swords">⚔️</div>
+      <div class="challenge-banner-title">You've Been<br>Challenged!</div>
+      <div class="challenge-banner-subtitle">${fromName} wants to battle</div>
+      <div class="challenge-banner-from">${icon} ${game} · ${challenge.difficulty} difficulty</div>
+      <div class="challenge-banner-score">
+        <div class="challenge-banner-score-val">${score.toLocaleString()}</div>
+        <div class="challenge-banner-score-label">Score to beat</div>
+      </div>
+      ${challenge.verse_book ? `<div class="challenge-banner-verse">📖 ${challenge.verse_book} ${challenge.verse_chapter}:${challenge.verse_verse}</div>` : ''}
+      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:16px;">⏰ ${hoursLeft} hour${hoursLeft!==1?'s':''} remaining</div>
+      <button class="btn-accept-challenge" onclick="document.getElementById('challengeBannerOverlay').remove();acceptChallenge('${challenge.id}','${challenge.game}','${challenge.difficulty}',${score},'${challenge.verse_book||''}',${challenge.verse_chapter||0},${challenge.verse_verse||0})">
+        ⚔️ Accept the Challenge!
+      </button>
+      <button class="btn-decline-challenge" onclick="document.getElementById('challengeBannerOverlay').remove()">
+        Maybe later
+      </button>
+    </div>`;
+
+  document.body.appendChild(banner);
+}
+
+async function checkForPendingChallenges() {
+  if(!currentUser) return;
+  try {
+    const now = new Date().toISOString();
+    const challenges = await sbFetch(`challenges?opponent_id=eq.${currentUser.id}&status=eq.pending&expires_at=gt.${now}&order=created_at.desc&limit=1&select=*`);
+    if(challenges.length) {
+      // Only show if not already seen this session
+      const seenKey = `ss_challenge_seen_${challenges[0].id}`;
+      if(!sessionStorage.getItem(seenKey)) {
+        sessionStorage.setItem(seenKey, '1');
+        setTimeout(() => showChallengeBanner(challenges[0]), 2500);
+      }
+    }
+  } catch(e) {}
 }
 
 async function renderChallenges() {
@@ -4936,6 +5020,16 @@ async function acceptChallenge(challengeId, game, difficulty, challengerScore, b
   showBackBtn(true);
   const root = document.getElementById('root');
 
+  // Record when opponent started
+  const startedAt = new Date().toISOString();
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/challenges?id=eq.${challengeId}`, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+      body: JSON.stringify({ opponent_started_at: startedAt })
+    });
+  } catch(e) {}
+
   // Fetch the specific verse if provided
   let challengeVerse = null;
   if(book && chapter && verse) {
@@ -4943,8 +5037,8 @@ async function acceptChallenge(challengeId, game, difficulty, challengerScore, b
     if(rows.length) challengeVerse = rows[0];
   }
 
-  // Store challenge context
-  window._activeChallenge = { id: challengeId, game, difficulty, challengerScore, verse: challengeVerse };
+  // Store challenge context with start time
+  window._activeChallenge = { id: challengeId, game, difficulty, challengerScore, verse: challengeVerse, startedAt: new Date() };
 
   // Launch the appropriate game
   root.innerHTML = `
@@ -5011,10 +5105,28 @@ async function startChallengeMemory(verse) {
 // ═══════════════════════════════════════
 function challengeHUD() {
   const pc = window._pendingChallenge;
-  const target = pc?.challengerScore || null;
+  const ac = window._activeChallenge;
+  const target = ac?.challengerScore || pc?.challengerScore || null;
+  const startedAt = ac?.startedAt || new Date();
+  const hudId = 'challengeTimerHUD_' + Date.now();
+
+  // Start timer interval
+  setTimeout(() => {
+    const el = document.getElementById('challengeSpeedBonus');
+    if(!el) return;
+    const interval = setInterval(() => {
+      const elapsed = (new Date() - startedAt) / 1000;
+      const bonus = Math.max(0, Math.floor(500 * (1 - elapsed / 300)));
+      const bonusEl = document.getElementById('challengeSpeedBonus');
+      if(bonusEl) bonusEl.textContent = `⚡ Speed bonus: +${bonus} pts`;
+      else clearInterval(interval);
+    }, 1000);
+  }, 100);
+
   return `<div style="text-align:center;padding:12px 16px 0;">
     <div style="font-size:0.75rem;font-weight:700;color:#F4B942;text-transform:uppercase;letter-spacing:0.1em;">⚔️ Challenge Mode</div>
     ${target ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px;">Beat <strong style="color:#F4B942;">${target.toLocaleString()} pts</strong> to win!</div>` : ''}
+    <div id="challengeSpeedBonus" style="font-size:0.78rem;color:#F4B942;margin-top:2px;">⚡ Speed bonus: +500 pts</div>
   </div>`;
 }
 
@@ -5291,17 +5403,23 @@ async function finishChallenge(score, verse) {
   if(!ch) return;
   const result = await respondToChallenge(ch.id, score, verse);
   window._activeChallenge = null;
-  const won = result && score > ch.challengerScore;
-  const tied = result && score === ch.challengerScore;
+
+  // Get the time bonus that was applied
+  const timeBonus = result?.time_bonus || 0;
+  const totalScore = score + timeBonus;
+  const won = result && totalScore > ch.challengerScore;
+  const tied = result && totalScore === ch.challengerScore;
+
   const root = document.getElementById('root');
   root.innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div style="font-size:3rem;margin-bottom:12px;">${won?'🏆':tied?'🤝':'😅'}</div>
       <div style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:8px;">${won?'You won!':tied?'Tied!':'So close!'}</div>
+      ${timeBonus > 0 ? `<div style="font-size:0.82rem;color:#F4B942;margin-bottom:8px;">⚡ Speed bonus: +${timeBonus} pts</div>` : ''}
       <div style="display:flex;gap:12px;justify-content:center;margin:16px 0;">
         <div class="challenge-score-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;">
-          <div style="font-size:1.5rem;font-weight:700;color:var(--teal);">${score.toLocaleString()}</div>
-          <div style="font-size:0.72rem;color:var(--text-muted);">Your Score</div>
+          <div style="font-size:1.5rem;font-weight:700;color:var(--teal);">${totalScore.toLocaleString()}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);">Your Score${timeBonus>0?' (inc. speed bonus)':''}</div>
         </div>
         <div style="display:flex;align-items:center;font-size:1.2rem;">⚔️</div>
         <div class="challenge-score-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;">
@@ -5320,12 +5438,20 @@ async function finishChallenge(score, verse) {
 async function loadNotifications() {
   if(!currentUser) return [];
   try {
-    const rows = await sbFetch(`notifications?user_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`);
-    const unread = rows.filter(r => !r.read).length;
+    const now = new Date().toISOString();
+    const [rows, friendReqs, challenges] = await Promise.all([
+      sbFetch(`notifications?user_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`),
+      sbFetch(`friends?friend_id=eq.${currentUser.id}&status=eq.pending&select=id`).catch(()=>[]),
+      sbFetch(`challenges?opponent_id=eq.${currentUser.id}&status=eq.pending&expires_at=gt.${now}&select=id`).catch(()=>[])
+    ]);
+    const unread = rows.filter(r => !r.read).length + friendReqs.length + challenges.length;
     const badge = document.getElementById('notifBadge');
     const bell = document.getElementById('notifBellWrap');
     if(bell) bell.style.display = 'flex';
     if(badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'block' : 'none'; }
+    // Also update home screen alert button
+    const homeCount = document.getElementById('homeNotifCount');
+    if(homeCount) { homeCount.textContent = unread; homeCount.style.display = unread > 0 ? 'inline' : 'none'; }
     return rows;
   } catch(e) { console.log('Notif load error:', e); return []; }
 }
@@ -5351,26 +5477,82 @@ async function markNotifRead(id) {
 }
 
 async function renderNotifications() {
+  return renderNotificationHub();
+}
+
+async function renderNotificationHub() {
   showBackBtn(true);
   const root = document.getElementById('root');
-  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading notifications…</div></div>`;
-  const notifs = await loadNotifications();
-  // Mark all as read
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading…</div></div>`;
+
+  const now = new Date().toISOString();
+  const [notifs, friendRequests, pendingChallenges] = await Promise.all([
+    loadNotifications(),
+    sbFetch(`friends?friend_id=eq.${currentUser.id}&status=eq.pending&select=*&order=created_at.desc`).catch(()=>[]),
+    sbFetch(`challenges?opponent_id=eq.${currentUser.id}&status=eq.pending&expires_at=gt.${now}&select=*&order=created_at.desc`).catch(()=>[])
+  ]);
+
+  // Get usernames for friend requests
+  const reqUserIds = friendRequests.map(r => r.user_id);
+  let reqProfiles = [];
+  if(reqUserIds.length) reqProfiles = await sbFetch(`profiles?id=in.(${reqUserIds.join(',')})&select=id,username`).catch(()=>[]);
+  const getReqName = id => reqProfiles.find(p=>p.id===id)?.username || 'Someone';
+
+  // Mark notifications as read
   notifs.filter(n => !n.read).forEach(n => markNotifRead(n.id));
+
+  const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
 
   root.innerHTML = `
     <div class="friends-screen">
       <div class="verse-label">🔔 Notifications</div>
+
+      ${friendRequests.length ? `
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:600;margin-bottom:8px;">👋 Friend Requests (${friendRequests.length})</div>
+      ${friendRequests.map(r => `
+        <div class="friend-card" style="margin-bottom:8px;">
+          <div class="friend-avatar">${getReqName(r.user_id)[0]?.toUpperCase()}</div>
+          <div>
+            <div class="friend-name">${getReqName(r.user_id)}</div>
+            <div class="friend-meta">${timeAgo(r.created_at)}</div>
+          </div>
+          <div class="friend-actions">
+            <button class="btn-friend-action accept" onclick="acceptFriend('${r.id}','${r.user_id}','${getReqName(r.user_id)}');renderNotificationHub();">✓ Accept</button>
+            <button class="btn-friend-action decline" onclick="declineFriend('${r.id}');renderNotificationHub();">✗</button>
+          </div>
+        </div>`).join('')}
+      <hr class="divider" style="margin:12px 0;"/>` : ''}
+
+      ${pendingChallenges.length ? `
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#F4B942;font-weight:600;margin-bottom:8px;">⚔️ Pending Challenges (${pendingChallenges.length})</div>
+      ${pendingChallenges.map(c => {
+        const hoursLeft = Math.max(0, Math.floor((new Date(c.expires_at) - new Date()) / 3600000));
+        return `
+        <div class="challenge-card pending" style="margin-bottom:8px;cursor:pointer;" onclick="showChallengeBanner(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+          <div class="challenge-header">
+            <div class="challenge-icon">⚔️</div>
+            <div>
+              <div class="challenge-title">${c.challenger_name} challenged you!</div>
+              <div class="challenge-meta">${gameNames[c.game]||c.game} · Beat ${c.challenger_score.toLocaleString()} pts · ⏰ ${hoursLeft}h left</div>
+            </div>
+          </div>
+          <button class="btn-next" style="margin-top:4px;" onclick="event.stopPropagation();showChallengeBanner(${JSON.stringify(c).replace(/"/g,'&quot;')})">⚔️ Accept Challenge!</button>
+        </div>`;
+      }).join('')}
+      <hr class="divider" style="margin:12px 0;"/>` : ''}
+
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">📬 Recent Notifications</div>
       <div class="card" style="max-width:560px;width:100%;padding:0;overflow:hidden;">
         ${notifs.length ? notifs.map(n => `
-          <div class="notif-item ${n.read?'':'unread'}">
-            <div class="notif-icon">${n.type==='friend_request'?'👋':n.type==='friend_accept'?'🤝':n.type==='challenge'?'⚔️':'💬'}</div>
+          <div class="notif-item">
+            <div class="notif-icon">${n.type==='friend_request'?'👋':n.type==='friend_accept'?'🤝':n.type==='challenge'?'⚔️':n.type==='challenge_result'?'🏆':'💬'}</div>
             <div>
               <div class="notif-text">${n.message}</div>
               <div class="notif-time">${timeAgo(n.created_at)}</div>
             </div>
-          </div>`).join('') : `<div class="empty-state">No notifications yet!<br>Add some friends to get started.</div>`}
+          </div>`).join('') : `<div class="empty-state">No notifications yet!</div>`}
       </div>
+
       <button class="btn-change-diff" style="margin-top:12px;" onclick="showHome()">← Home</button>
     </div>`;
 }
