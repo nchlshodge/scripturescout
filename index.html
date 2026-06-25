@@ -3515,9 +3515,6 @@ async function renderStoryMode() {
 
       </div>`;
 
-    document.querySelectorAll('.story-path-card').forEach(card => {
-      card.addEventListener('click', () => renderStoryPath(parseInt(card.dataset.path)));
-    });
   } catch(e) {
     root.innerHTML = `<div class="error-box">⚠️ Could not load stories — ${e.message}</div>
       <button class="btn-next" onclick="renderStoryMode()">Retry</button>`;
