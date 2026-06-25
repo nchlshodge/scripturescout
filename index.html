@@ -1560,10 +1560,9 @@ async function fetchEndlessVerse() {
 }
 
 async function fetchVerse() {
-  // Pick a random offset within this difficulty's verse pool
   const total = DIFF_COUNTS[TRANSLATION][difficulty];
   let attempts = 0;
-  while (attempts < 5) {
+  while (attempts < 10) {
     attempts++;
     const offset = Math.floor(Math.random() * total);
     const rows = await sbFetch(
@@ -1571,11 +1570,15 @@ async function fetchVerse() {
     );
     if (!rows.length) continue;
     const row = rows[0];
-    // Avoid repeating same book too soon
-    if (usedIds.has(row.book) && usedIds.size < total * 0.8) continue;
-    usedIds.add(row.book);
-    if (usedIds.size > 20) usedIds.clear();
-    return {t:row.testament, book:row.book, ch:row.chapter, v:row.verse, text:row.text};
+    // Avoid repeating the exact same verse ID recently
+    if (usedIds.has(row.id) && usedIds.size < Math.min(50, total * 0.5)) continue;
+    usedIds.add(row.id);
+    // Keep pool at max 50 to allow cycling
+    if (usedIds.size > 50) {
+      const first = usedIds.values().next().value;
+      usedIds.delete(first);
+    }
+    return {t:row.testament, book:row.book, ch:row.chapter, v:row.verse, text:row.text, id:row.id};
   }
   throw new Error('Could not fetch a verse — please try again.');
 }
@@ -2534,20 +2537,20 @@ async function startFlashcards(size) {
     const book = flashcardSession.filter.book;
     const total = DIFF_COUNTS[TRANSLATION][diff];
     const verses = [];
-    const usedOffsets = new Set();
+    const usedVerseIdsMT = new Set();
+    let safetyMT = 0;
 
     // Fetch verses
-    while(verses.length < size) {
-      let offset = Math.floor(Math.random() * total);
-      if(usedOffsets.has(offset)) continue;
-      usedOffsets.add(offset);
-
+    while(verses.length < size && safetyMT < size * 10) {
+      safetyMT++;
+      const offset = Math.floor(Math.random() * total);
       let url = `verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`;
       if(book) url += `&book=eq.${encodeURIComponent(book)}`;
-
       const rows = await sbFetch(url);
-      if(rows.length) verses.push(rows[0]);
-      if(usedOffsets.size > total * 2) break; // safety
+      if(rows.length && !usedVerseIdsMT.has(rows[0].id)) {
+        usedVerseIdsMT.add(rows[0].id);
+        verses.push(rows[0]);
+      }
     }
 
     flashcardSession = {
@@ -2960,14 +2963,16 @@ async function startFillBlank(diff, size) {
     // Easy and Medium use easy verse pool; Hard uses medium pool for harder content
     const versePool = diff === 'hard' ? 'medium' : 'easy';
     const total = DIFF_COUNTS[TRANSLATION][versePool];
-    const usedOffsets = new Set();
-    while(fitbSession.verses.length < size) {
+    const usedVerseIds = new Set();
+    let safetyCount = 0;
+    while(fitbSession.verses.length < size && safetyCount < size * 10) {
+      safetyCount++;
       const offset = Math.floor(Math.random() * total);
-      if(usedOffsets.has(offset)) continue;
-      usedOffsets.add(offset);
       const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${versePool}&select=*&limit=1&offset=${offset}`);
-      if(rows.length) fitbSession.verses.push(rows[0]);
-      if(usedOffsets.size > total * 2) break;
+      if(rows.length && !usedVerseIds.has(rows[0].id)) {
+        usedVerseIds.add(rows[0].id);
+        fitbSession.verses.push(rows[0]);
+      }
     }
     renderFillBlankCard();
   } catch(e) {
@@ -3332,14 +3337,16 @@ async function startRefChallenge(diff, size) {
 
   try {
     const total = DIFF_COUNTS[TRANSLATION][diff];
-    const usedOffsets = new Set();
-    while(rcSession.verses.length < size) {
+    const usedVerseIdsRC = new Set();
+    let safetyRC = 0;
+    while(rcSession.verses.length < size && safetyRC < size * 10) {
+      safetyRC++;
       const offset = Math.floor(Math.random() * total);
-      if(usedOffsets.has(offset)) continue;
-      usedOffsets.add(offset);
       const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`);
-      if(rows.length) rcSession.verses.push(rows[0]);
-      if(usedOffsets.size > total * 2) break;
+      if(rows.length && !usedVerseIdsRC.has(rows[0].id)) {
+        usedVerseIdsRC.add(rows[0].id);
+        rcSession.verses.push(rows[0]);
+      }
     }
     renderRefChallengeCard();
   } catch(e) {
@@ -4505,14 +4512,16 @@ async function startMemoryEndless() {
 
   // Pre-fetch a batch of verses
   const total = DIFF_COUNTS[TRANSLATION]['hard'];
-  const usedOffsets = new Set();
-  while(flashcardSession.verses.length < 20) {
+  const usedVerseIdsEM = new Set();
+  let safetyEM = 0;
+  while(flashcardSession.verses.length < 20 && safetyEM < 200) {
+    safetyEM++;
     const offset = Math.floor(Math.random() * total);
-    if(usedOffsets.has(offset)) continue;
-    usedOffsets.add(offset);
     const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.hard&select=*&limit=1&offset=${offset}`);
-    if(rows.length) flashcardSession.verses.push(rows[0]);
-    if(usedOffsets.size > total * 2) break;
+    if(rows.length && !usedVerseIdsEM.has(rows[0].id)) {
+      usedVerseIdsEM.add(rows[0].id);
+      flashcardSession.verses.push(rows[0]);
+    }
   }
 
   renderMemoryEndlessCard();
