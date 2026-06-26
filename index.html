@@ -4106,6 +4106,77 @@ function checkStoryBlank(answer, correct, blankIndex, btn) {
   // Legacy stub
 }
 
+function checkAllStoryBlanks() {
+  const s = storyInteractive;
+  const rs = storyRoundState;
+  const fb = document.getElementById('storyBlankFeedback');
+
+  const answeredSequence = (storyAnsweredWords||[]).map(w => w.word.toLowerCase());
+  const correctSequence = rs.blanks.map(b => b.word.toLowerCase());
+
+  let correct = 0;
+  correctSequence.forEach((word, i) => {
+    if(answeredSequence[i] === word) correct++;
+  });
+
+  // Show correct/wrong in answer row
+  const row = document.getElementById('storyAnswerRow');
+  if(row) {
+    row.innerHTML = '';
+    rs.blanks.forEach((blank, i) => {
+      const given = storyAnsweredWords[i];
+      const isCorrect = given && given.word.toLowerCase() === blank.word.toLowerCase();
+      const chip = document.createElement('span');
+      chip.className = 'answer-chip';
+      chip.style.borderColor = isCorrect ? 'var(--teal)' : 'var(--earth)';
+      chip.style.background = isCorrect ? 'var(--teal-dim)' : 'var(--earth-dim)';
+      chip.style.color = isCorrect ? 'var(--teal)' : 'var(--earth)';
+      chip.textContent = isCorrect ? given.word : blank.word;
+      row.appendChild(chip);
+    });
+  }
+
+  // Disable word bank
+  document.querySelectorAll('#storyWordPool .word-chip').forEach(b => b.disabled = true);
+
+  const checkBtn = document.getElementById('storyCheckBlanksBtn');
+  if(checkBtn) checkBtn.style.display = 'none';
+
+  const allCorrect = correct === rs.blanks.length;
+
+  if(allCorrect) {
+    if(fb) { fb.className = 'story-feedback correct'; fb.textContent = '✓ Perfect!'; }
+    setTimeout(() => completeStoryRound(), 1000);
+  } else {
+    // Lost a heart
+    const remaining = loseHeart();
+    if(fb) {
+      fb.className = 'story-feedback wrong';
+      fb.textContent = remaining > 0
+        ? `${correct}/${rs.blanks.length} correct. ${remaining} heart${remaining===1?'':'s'} left — try again!`
+        : `💔 Out of hearts!`;
+    }
+    const heartEl = document.querySelector('.story-hearts');
+    if(heartEl) heartEl.textContent = '❤️'.repeat(remaining) + '🖤'.repeat(3-remaining);
+
+    if(remaining <= 0) {
+      setTimeout(() => showHeartsEmptyScreen(() => renderStoryPath(s.pathId)), 1500);
+    } else {
+      setTimeout(() => {
+        storyAnsweredWords = [];
+        document.querySelectorAll('#storyWordPool .word-chip').forEach(b => {
+          b.disabled = false;
+          b.classList.remove('used');
+        });
+        if(checkBtn) { checkBtn.style.display = 'block'; checkBtn.disabled = true; checkBtn.textContent = `Check Answers (0/${rs.blanks.length})`; }
+        refreshStoryAnswerRow();
+        refreshStoryBlankVerse();
+        if(fb) fb.textContent = '';
+      }, 2000);
+    }
+  }
+}
+
 // ═══════════════════════════════════════
 // GAME LEADERBOARDS
 // ═══════════════════════════════════════
@@ -4337,7 +4408,7 @@ function renderStoryRoundComplete(stars) {
     const pathChapters = await sbFetch(`story_chapters?path_id=eq.${s.pathId}&order=chapter_num&select=*`);
     const nextChapter = pathChapters.find(c => c.chapter_num === s.chapter.chapter_num + 1);
     if(nextChapter) {
-      renderStoryChapter(s.pathId, nextChapter);
+      renderStoryChapter(nextChapter, s.pathId, s.chapter.chapter_num);
     } else {
       // No more chapters — path complete!
       renderStoryPath(s.pathId);
