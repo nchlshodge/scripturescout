@@ -928,13 +928,18 @@ async function showHome() {
         </div>`).join('')}
       </div>` : ''}
 
-      <div style="margin-top:16px;display:flex;gap:8px;">
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn-share" onclick="shareApp()" style="flex:1;">📨 Invite a Friend</button>
         ${currentUser ? `<button class="btn-share" onclick="showBackBtn(true);renderFriends();" style="flex:1;background:rgba(167,139,250,0.1);border-color:#A78BFA;color:#A78BFA;">👥 Friends</button>` : ''}
         ${currentUser ? `<button class="btn-share" onclick="showBackBtn(true);renderMessages();" style="flex:1;background:rgba(167,139,250,0.1);border-color:#A78BFA;color:#A78BFA;">💬 Messages</button>` : ''}
         ${currentUser ? `<button class="btn-share" onclick="showBackBtn(true);renderChallenges();" style="flex:1;background:rgba(244,185,66,0.1);border-color:#F4B942;color:#F4B942;">⚔️ Challenges</button>` : ''}
         ${currentUser ? `<button class="btn-signout" onclick="signOut()" style="flex:0 0 auto;padding:11px 14px;">Sign Out</button>` : ''}
       </div>
+      <!-- Buy Me a Coffee button — add back on hard launch
+      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:10px;background:rgba(59,191,160,0.12);border:1px solid rgba(59,191,160,0.3);border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:var(--teal);">
+        ☕ Support Scripture Scout
+      </a>
+      -->
 
     </div>`;
 
@@ -4327,7 +4332,17 @@ function renderStoryRoundComplete(stars) {
     };
   }
 
-  document.getElementById('nextChapterBtn').onclick = () => renderStoryPath(s.pathId);
+  document.getElementById('nextChapterBtn').onclick = async () => {
+    // Find next chapter and go directly to it
+    const pathChapters = await sbFetch(`story_chapters?path_id=eq.${s.pathId}&order=chapter_num&select=*`);
+    const nextChapter = pathChapters.find(c => c.chapter_num === s.chapter.chapter_num + 1);
+    if(nextChapter) {
+      renderStoryChapter(s.pathId, nextChapter);
+    } else {
+      // No more chapters — path complete!
+      renderStoryPath(s.pathId);
+    }
+  };
 }
 
 async function completeStoryChapter(pathId, chapterNum, stars) {
@@ -4335,22 +4350,28 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
 
   if(currentUser) {
     try {
+      // Get total chapters for this path to determine if completed
+      const pathChapters = await sbFetch(`story_chapters?path_id=eq.${pathId}&select=chapter_num&order=chapter_num.desc&limit=1`);
+      const totalChapters = pathChapters.length ? pathChapters[0].chapter_num : 10;
+      const isCompleted = chapterNum >= totalChapters;
+
       await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_KEY,
           'Authorization': `Bearer ${authToken || SUPABASE_KEY}`,
           'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
+          'Prefer': 'resolution=merge-duplicates,return=minimal'
         },
         body: JSON.stringify({
           user_id: currentUser.id,
           path_id: pathId,
           chapter_num: chapterNum,
-          completed: chapterNum >= 12
+          stars: stars || 1,
+          completed: isCompleted
         })
       });
-    } catch(e) {}
+    } catch(e) { console.log('Story save error:', e); }
   }
 }
 
