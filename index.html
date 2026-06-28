@@ -727,7 +727,16 @@
 </div>
 
 <div id="topBar" style="display:none;width:100%;max-width:560px;display:none;">
-  <div id="userBar"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <div id="userBar" style="flex:1;"></div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <button id="themeToggleBtn" onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;padding:6px;line-height:1;" title="Toggle light/dark mode">🌙</button>
+      <div style="position:relative;display:none;" id="notifBellWrap">
+        <button onclick="renderNotificationHub()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;padding:6px;line-height:1;">🔔</button>
+        <span id="notifBadge" style="display:none;position:absolute;top:0;right:0;background:#E53E3E;color:white;font-size:0.6rem;font-weight:700;border-radius:10px;padding:2px 5px;min-width:16px;text-align:center;line-height:1.4;">0</span>
+      </div>
+    </div>
+  </div>
   <button id="backHomeBtn" onclick="showHome()" style="display:none;width:100%;padding:9px;background:transparent;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:var(--text-muted);cursor:pointer;margin-bottom:12px;">← Back to Home</button>
 </div>
 <div id="shareBar" style="display:none;"></div>
