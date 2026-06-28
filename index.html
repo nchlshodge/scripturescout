@@ -27,6 +27,20 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+  .light-mode {
+    --bg:         #F0F4F1;
+    --surface:    #FFFFFF;
+    --surface-2:  #E8F0EA;
+    --border:     #C8D8CC;
+    --border-hi:  #A0BCA8;
+    --text:       #1A2E1F;
+    --text-muted: #5A7A62;
+    --teal:       #0F6E56;
+    --teal-dim:   rgba(15,110,86,0.1);
+    --earth:      #9B5E1A;
+    --earth-dim:  rgba(155,94,26,0.1);
+  }
+
   body {
     background: var(--bg);
     background-image:
@@ -1371,7 +1385,7 @@ function showApp() {
     checkForPendingChallenges();
     // Poll notifications every 30 seconds
     if(window._notifPollInterval) clearInterval(window._notifPollInterval);
-    window._notifPollInterval = setInterval(() => { if(currentUser) loadNotifications(); }, 30000);
+    window._notifPollInterval = setInterval(() => { if(currentUser) loadNotifications(); }, 15000);
   }
 }
 
@@ -2485,7 +2499,7 @@ function renderFlashcardSetup() {
         </div>
 
         <button class="btn-next" id="startFlashcardBtn">Start Flashcards →</button>
-        <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderGameLeaderboard('🃏 Memory Trail','leaderboard_memory',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy')">🏆 View Leaderboard</button>
+        <button class="btn-next" style="margin-top:8px;" onclick="showBackBtn(true);renderGameLeaderboard('🃏 Memory Trail','leaderboard_memory',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.filter?.difficulty||"easy"}')">🏆 View Leaderboard →</button>
         <button class="btn-change-diff" style="margin-top:8px;" onclick="renderTrainScreen()">← Back</button>
       </div>
     </div>`;
@@ -2776,6 +2790,10 @@ async function rateFlashcard(rating) {
 
 async function renderFlashcardComplete() {
   const s = flashcardSession;
+  if(s._scoreSubmitted) return;
+  s._scoreSubmitted = true;
+  window._lastGameTable = 'leaderboard_memory';
+  window._lastGameDiff = s.filter?.difficulty || 'easy';
   const total = s.verses.length;
   const pct = Math.round((s.knew / total) * 100);
 
@@ -2959,6 +2977,7 @@ async function startFillBlank(diff, size) {
   fitbSession.score = 0;
   fitbSession.correct = 0;
   fitbSession.verses = [];
+  fitbSession._scoreSubmitted = false;
 
 
   const root = document.getElementById('root');
@@ -3210,6 +3229,10 @@ function checkAllFitbAnswers() {
 
 async function renderFillBlankComplete() {
   const s = fitbSession;
+  if(s._scoreSubmitted) return;
+  s._scoreSubmitted = true;
+  window._lastGameTable = 'leaderboard_mia';
+  window._lastGameDiff = s.difficulty;
   const pct = Math.round((s.correct / (s.verses.length * (s.difficulty === 'easy' ? 2 : 4))) * 100);
 
   // Track perfect Hard runs for MIA
@@ -3462,6 +3485,10 @@ function checkRefAnswer(btn, chosen, correct) {
 
 async function renderRefChallengeComplete() {
   const s = rcSession;
+  if(s._scoreSubmitted) return;
+  s._scoreSubmitted = true;
+  window._lastGameTable = 'leaderboard_track';
+  window._lastGameDiff = s.difficulty;
   const pct = Math.round((s.correct / s.verses.length) * 100);
 
   // Track perfect Hard runs for Track It Down
@@ -4180,7 +4207,19 @@ function checkAllStoryBlanks() {
 // ═══════════════════════════════════════
 // GAME LEADERBOARDS
 // ═══════════════════════════════════════
+const _submittedScores = new Set();
+
 async function submitGameScore(table, data) {
+  // Guard against double submissions
+  const key = `${table}_${data.score}_${data.difficulty}_${Date.now().toString().slice(0,-3)}`;
+  if(_submittedScores.has(key)) {
+    console.log('Duplicate score submission blocked:', key);
+    return;
+  }
+  _submittedScores.add(key);
+  // Clear old keys after 10 seconds
+  setTimeout(() => _submittedScores.delete(key), 10000);
+
   try {
     const headers = {
       'apikey': SUPABASE_KEY,
@@ -4188,10 +4227,34 @@ async function submitGameScore(table, data) {
       'Prefer': 'return=minimal'
     };
     if(authToken) headers['Authorization'] = `Bearer ${authToken}`;
-    await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
       method: 'POST', headers, body: JSON.stringify(data)
     });
+    if(res.ok) showScoreToast(data.score, table, data.difficulty);
   } catch(e) { console.error('Score submit failed:', e); }
+}
+
+function showScoreToast(score, table, difficulty) {
+  const toast = document.createElement('div');
+  toast.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--teal);border-radius:12px;padding:10px 20px;font-size:0.85rem;font-weight:600;color:var(--teal);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;cursor:pointer;`;
+  toast.textContent = `🏆 Score of ${score.toLocaleString()} submitted! Tap to view leaderboard`;
+  if(table && difficulty) {
+    toast.onclick = () => {
+      toast.remove();
+      const lbNames = {
+        leaderboard: '📖 Scripture Scout',
+        leaderboard_memory: '🃏 Memory Trail',
+        leaderboard_mia: '✏️ Missing in Action',
+        leaderboard_track: '🎯 Track It Down'
+      };
+      const lbDiffs = { easy:'🌱 Easy', medium:'🌿 Medium', hard:'🪨 Hard', endless:'♾️ Endless' };
+      showBackBtn(true);
+      renderGameLeaderboard(lbNames[table]||'Leaderboard', table, ['easy','medium','hard'], lbDiffs, difficulty);
+    };
+  }
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.5s'; }, 3000);
+  setTimeout(() => toast.remove(), 3500);
 }
 
 async function fetchGameLB(table, diff, limit=10) {
@@ -5536,25 +5599,41 @@ async function finishChallenge(score, verse) {
 // ═══════════════════════════════════════
 // NOTIFICATIONS
 // ═══════════════════════════════════════
-async function loadNotifications() {
+// Cache notifications to speed up display
+let _notifCache = { rows:[], friendReqs:[], challenges:[], unread:0, lastFetched:0 };
+
+async function loadNotifications(force=false) {
   if(!currentUser) return [];
+  // Use cache if fresh (under 10 seconds old) and not forced
+  const age = Date.now() - _notifCache.lastFetched;
+  if(!force && age < 10000 && _notifCache.lastFetched > 0) {
+    updateNotifBadge(_notifCache.unread);
+    return _notifCache.rows;
+  }
   try {
     const now = new Date().toISOString();
     const [rows, friendReqs, challenges] = await Promise.all([
       sbFetch(`notifications?user_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`),
-      sbFetch(`friends?friend_id=eq.${currentUser.id}&status=eq.pending&select=id`).catch(()=>[]),
+      sbFetch(`friends?friend_id=eq.${currentUser.id}&status=eq.pending&select=id,user_id`).catch(()=>[]),
       sbFetch(`challenges?opponent_id=eq.${currentUser.id}&status=eq.pending&expires_at=gt.${now}&select=id`).catch(()=>[])
     ]);
     const unread = rows.filter(r => !r.read).length + friendReqs.length + challenges.length;
-    const badge = document.getElementById('notifBadge');
-    const bell = document.getElementById('notifBellWrap');
-    if(bell) bell.style.display = 'flex';
-    if(badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'block' : 'none'; }
-    // Also update home screen alert button
-    const homeCount = document.getElementById('homeNotifCount');
-    if(homeCount) { homeCount.textContent = unread; homeCount.style.display = unread > 0 ? 'inline' : 'none'; }
+    _notifCache = { rows, friendReqs, challenges, unread, lastFetched: Date.now() };
+    updateNotifBadge(unread);
     return rows;
   } catch(e) { console.log('Notif load error:', e); return []; }
+}
+
+function updateNotifBadge(unread) {
+  const badge = document.getElementById('notifBadge');
+  const bell = document.getElementById('notifBellWrap');
+  if(bell) bell.style.display = 'flex';
+  if(badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'block' : 'none'; }
+  const homeCount = document.getElementById('homeNotifCount');
+  if(homeCount) { homeCount.textContent = unread; homeCount.style.display = unread > 0 ? 'inline' : 'none'; }
+  // Add pulse animation when there are notifications
+  const alertBtn = document.getElementById('homeNotifBtn');
+  if(alertBtn) alertBtn.style.borderColor = unread > 0 ? '#E53E3E' : 'var(--border)';
 }
 
 async function createNotification(userId, type, message, data={}) {
@@ -5584,14 +5663,27 @@ async function renderNotifications() {
 async function renderNotificationHub() {
   showBackBtn(true);
   const root = document.getElementById('root');
-  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading…</div></div>`;
 
+  // Show cached data immediately if available
+  if(_notifCache.lastFetched > 0) {
+    renderNotifHubContent(root, _notifCache.rows, _notifCache.friendReqs, _notifCache.challenges);
+  } else {
+    root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading…</div></div>`;
+  }
+
+  // Force fresh fetch in background
+  await loadNotifications(true);
   const now = new Date().toISOString();
   const [notifs, friendRequests, pendingChallenges] = await Promise.all([
-    loadNotifications(),
+    Promise.resolve(_notifCache.rows),
     sbFetch(`friends?friend_id=eq.${currentUser.id}&status=eq.pending&select=*&order=created_at.desc`).catch(()=>[]),
     sbFetch(`challenges?opponent_id=eq.${currentUser.id}&status=eq.pending&expires_at=gt.${now}&select=*&order=created_at.desc`).catch(()=>[])
   ]);
+
+  renderNotifHubContent(root, notifs, friendRequests, pendingChallenges);
+}
+
+async function renderNotifHubContent(root, notifs, friendRequests, pendingChallenges) {
 
   // Get usernames for friend requests
   const reqUserIds = friendRequests.map(r => r.user_id);
@@ -5985,15 +6077,17 @@ async function renderFriends(startTab=null) {
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading friends…</div></div>`;
 
-  const [friends, requests] = await Promise.all([
+  const [friends, requests, sentRequests] = await Promise.all([
     sbFetch(`friends?or=(user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id})&status=eq.accepted&select=*`),
-    sbFetch(`friends?friend_id=eq.${currentUser.id}&status=eq.pending&select=*&order=created_at.desc`)
+    sbFetch(`friends?friend_id=eq.${currentUser.id}&status=eq.pending&select=*&order=created_at.desc`),
+    sbFetch(`friends?user_id=eq.${currentUser.id}&status=eq.pending&select=*&order=created_at.desc`)
   ]);
 
   // Get usernames for friends
   const friendIds = friends.map(f => f.user_id === currentUser.id ? f.friend_id : f.user_id);
   const requestUserIds = requests.map(r => r.user_id);
-  const allIds = [...new Set([...friendIds, ...requestUserIds])];
+  const sentUserIds = sentRequests.map(r => r.friend_id);
+  const allIds = [...new Set([...friendIds, ...requestUserIds, ...sentUserIds])];
   let profiles = [];
   if(allIds.length) {
     profiles = await sbFetch(`profiles?id=in.(${allIds.join(',')})&select=id,username`);
@@ -6012,7 +6106,7 @@ async function renderFriends(startTab=null) {
         <div class="verse-label">👥 Friends</div>
         <div class="friends-tabs">
           <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="renderFriends('friends')">Friends ${friends.length>0?`(${friends.length})`:''}</div>
-          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="renderFriends('requests')">Requests ${requests.length>0?`(${requests.length})`:''}</div>
+          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="renderFriends('requests')">Requests ${requests.length>0?`(${requests.length})`:''}${sentRequests.length>0?` · ${sentRequests.length} sent`:''}</div>
           <div class="friends-tab ${activeTab==='add'?'active':''}" onclick="renderFriends('add')">Add Friend</div>
         </div>
 
@@ -6035,18 +6129,36 @@ async function renderFriends(startTab=null) {
               </div>`;
           }).join('') : `<div class="empty-state">No friends yet!<br>Search for friends by username to get started.</div>`}
         ` : activeTab === 'requests' ? `
-          ${requests.length ? requests.map(r => `
+          ${requests.length ? `
+            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#A78BFA;font-weight:600;margin-bottom:8px;">👋 Incoming Requests</div>
+            ${requests.map(r => `
             <div class="friend-card">
               <div class="friend-avatar">${getUsername(r.user_id)[0]?.toUpperCase()}</div>
               <div>
                 <div class="friend-name">${getUsername(r.user_id)}</div>
-                <div class="friend-meta">Wants to be your friend!</div>
+                <div class="friend-meta">Wants to be your friend! · ${timeAgo(r.created_at)}</div>
               </div>
               <div class="friend-actions">
                 <button class="btn-friend-action accept" onclick="acceptFriend('${r.id}','${r.user_id}','${getUsername(r.user_id)}')">✓ Accept</button>
                 <button class="btn-friend-action decline" onclick="declineFriend('${r.id}')">✗</button>
               </div>
-            </div>`).join('') : `<div class="empty-state">No pending requests.</div>`}
+            </div>`).join('')}` : ''}
+
+          ${sentRequests.length ? `
+            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:12px 0 8px;">⏳ Sent — Waiting for Response</div>
+            ${sentRequests.map(r => `
+            <div class="friend-card" style="opacity:0.7;">
+              <div class="friend-avatar">${getUsername(r.friend_id)[0]?.toUpperCase()}</div>
+              <div>
+                <div class="friend-name">${getUsername(r.friend_id)}</div>
+                <div class="friend-meta">Request sent · ${timeAgo(r.created_at)}</div>
+              </div>
+              <div class="friend-actions">
+                <button class="btn-friend-action decline" onclick="declineFriend('${r.id}')">Cancel</button>
+              </div>
+            </div>`).join('')}` : ''}
+
+          ${!requests.length && !sentRequests.length ? `<div class="empty-state">No pending requests.</div>` : ''}
         ` : `
           <input class="search-input" id="friendSearch" placeholder="Search by username…" autocomplete="off"/>
           <div id="friendSearchResults"></div>
@@ -6102,8 +6214,11 @@ async function sendFriendRequest(friendId, friendUsername) {
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=minimal' },
       body: JSON.stringify({ user_id: currentUser.id, friend_id: friendId, status: 'pending' })
     });
-    await createNotification(friendId, 'friend_request', `${currentUsername} sent you a friend request!`, { from_id: currentUser.id, from_username: currentUsername });
-    showStreakToast(`Friend request sent to ${friendUsername}!`);
+    await createNotification(friendId, 'friend_request', `${currentUsername} sent you a friend request! Tap to accept.`, { from_id: currentUser.id, from_username: currentUsername });
+    showStreakToast(`✅ Friend request sent to ${friendUsername}!`);
+    // Refresh to show in pending tab
+    _notifCache.lastFetched = 0;
+    renderFriends('requests');
   } catch(e) { showStreakToast('Could not send request — maybe already sent?'); }
 }
 
@@ -6494,6 +6609,22 @@ async function patchStreak(updates) {
     if(Array.isArray(data) && data[0]) currentStreak = data[0];
     else Object.assign(currentStreak, updates);
   } catch(e) { console.error('Patch streak failed:', e); }
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-mode');
+  localStorage.setItem('ss_theme', isLight ? 'light' : 'dark');
+  const btn = document.getElementById('themeToggleBtn');
+  if(btn) btn.textContent = isLight ? '☀️' : '🌙';
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('ss_theme');
+  if(saved === 'light') {
+    document.body.classList.add('light-mode');
+    const btn = document.getElementById('themeToggleBtn');
+    if(btn) btn.textContent = '☀️';
+  }
 }
 
 function showStreakToast(msg) {
@@ -7278,6 +7409,7 @@ const supabaseClient = (typeof supabase !== 'undefined')
   } else {
     renderAuthScreen();
   }
+  initTheme();
 })();
 </script>
 </body>
