@@ -6625,15 +6625,43 @@ function toggleTheme() {
   localStorage.setItem('ss_theme', isLight ? 'light' : 'dark');
   const btn = document.getElementById('themeToggleBtn');
   if(btn) btn.textContent = isLight ? '☀️' : '🌙';
+  showStreakToast(isLight ? '☀️ Light mode' : '🌙 Dark mode');
 }
 
 function initTheme() {
   const saved = localStorage.getItem('ss_theme');
-  if(saved === 'light') {
+  // If user has manually chosen a theme use that
+  // Otherwise follow system preference
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isLight = saved === 'light' || (saved === null && !prefersDark);
+
+  if(isLight) {
     document.body.classList.add('light-mode');
-    const btn = document.getElementById('themeToggleBtn');
-    if(btn) btn.textContent = '☀️';
+  } else {
+    document.body.classList.remove('light-mode');
   }
+  const btn = document.getElementById('themeToggleBtn');
+  if(btn) btn.textContent = isLight ? '☀️' : '🌙';
+
+  // Listen for system theme changes (if user hasn't manually set a preference)
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if(localStorage.getItem('ss_theme') !== null) return; // respect manual choice
+    if(e.matches) {
+      document.body.classList.remove('light-mode');
+      const btn = document.getElementById('themeToggleBtn');
+      if(btn) btn.textContent = '🌙';
+    } else {
+      document.body.classList.add('light-mode');
+      const btn = document.getElementById('themeToggleBtn');
+      if(btn) btn.textContent = '☀️';
+    }
+  });
+}
+
+function resetThemeToSystem() {
+  localStorage.removeItem('ss_theme');
+  initTheme();
+  showStreakToast('Theme reset to system default');
 }
 
 function showStreakToast(msg) {
