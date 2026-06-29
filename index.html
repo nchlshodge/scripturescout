@@ -885,7 +885,7 @@ async function showHome() {
       <div class="home-section-label">🧩 Game Modes</div>
       <div class="home-game-grid">
         <div class="home-game-card" id="homeMemoryBtn">
-          <div class="home-game-icon small">🃏</div>
+          <div class="home-game-icon small">🗂️</div>
           <div class="home-game-name">Memory Trail</div>
           <div class="home-game-desc">Recall verses — Easy, Medium & Hard</div>
         </div>
@@ -2446,7 +2446,7 @@ function renderTrainScreen() {
     <div class="train-screen">
       <div class="train-modes">
         <div class="train-mode-card" id="flashcardBtn">
-          <div class="train-mode-icon">🃏</div>
+          <div class="train-mode-icon">🗂️</div>
           <div class="train-mode-info">
             <div class="train-mode-name">Memory Trail</div>
             <div class="train-mode-desc">See a reference, recall the verse. Rate yourself and blaze your memory trail.</div>
@@ -2488,7 +2488,7 @@ function renderFlashcardSetup() {
   root.innerHTML = `
     <div class="flashcard-setup">
       <div class="card">
-        <div class="verse-label">🃏 Memory Trail Setup</div>
+        <div class="verse-label">🗂️ Memory Trail Setup</div>
 
         <div class="setup-section">
           <div class="setup-label">Difficulty</div>
@@ -2507,8 +2507,16 @@ function renderFlashcardSetup() {
           </div>
         </div>
 
-        <button class="btn-next" id="startFlashcardBtn">Start Flashcards →</button>
-        <button class="btn-next" style="margin-top:8px;" onclick="showBackBtn(true);renderGameLeaderboard('🃏 Memory Trail','leaderboard_memory',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.filter?.difficulty||"easy"}')">🏆 View Leaderboard →</button>
+        <div class="setup-section">
+          <div class="setup-label">Mode</div>
+          <div class="setup-options" id="modeOptions">
+            <button class="setup-btn selected" data-mode="quiz">🎯 Quiz Mode</button>
+            <button class="setup-btn" data-mode="study">📖 Study Mode</button>
+          </div>
+        </div>
+
+        <button class="btn-next" id="startFlashcardBtn">Start →</button>
+        <button class="btn-next" style="margin-top:8px;" onclick="showBackBtn(true);renderGameLeaderboard('🗂️ Memory Trail','leaderboard_memory',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.filter?.difficulty||"easy"}')">🏆 View Leaderboard →</button>
         <button class="btn-change-diff" style="margin-top:8px;" onclick="renderTrainScreen()">← Back</button>
       </div>
     </div>`;
@@ -2553,7 +2561,19 @@ function renderFlashcardSetup() {
     });
   });
 
-  document.getElementById('startFlashcardBtn').onclick = () => startFlashcards(sessionSize);
+  let selectedMode = 'quiz';
+  document.querySelectorAll('#modeOptions .setup-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#modeOptions .setup-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedMode = btn.dataset.mode;
+    });
+  });
+
+  document.getElementById('startFlashcardBtn').onclick = () => {
+    flashcardSession.mode = selectedMode;
+    startFlashcards(sessionSize);
+  };
 }
 
 async function startFlashcards(size) {
@@ -2700,26 +2720,36 @@ function revealNextHint() {
 function renderFlashcard() {
   const root = document.getElementById('root');
   const s = flashcardSession;
-  if(s.current >= s.verses.length) { renderFlashcardComplete(); return; }
+  if(s.current >= s.verses.length) {
+    if(s.mode === 'study') { renderFlashcardSetup(); return; }
+    renderFlashcardComplete();
+    return;
+  }
 
   const v = s.verses[s.current];
   const progress = (s.current / s.verses.length) * 100;
+  const isStudy = s.mode === 'study';
+  const bookContext = BOOK_CONTEXT[v.book] || '';
 
   root.innerHTML = `
     <div class="flashcard-hud">
       <div class="flashcard-hud-item"><strong>${s.current+1}/${s.verses.length}</strong> card</div>
-      <div class="flashcard-hud-item"><strong style="color:var(--teal);">${s.knew}</strong> knew it</div>
-      <div class="flashcard-hud-item"><strong style="color:var(--fern);">${s.almost}</strong> almost</div>
-      <div class="flashcard-hud-item"><strong style="color:var(--earth);">${s.didnt}</strong> nope</div>
+      ${isStudy ? `
+        <div class="flashcard-hud-item" style="color:#A78BFA;font-weight:600;">📖 Study Mode</div>
+      ` : `
+        <div class="flashcard-hud-item"><strong style="color:var(--teal);">${s.knew}</strong> knew it</div>
+        <div class="flashcard-hud-item"><strong style="color:var(--fern);">${s.almost}</strong> almost</div>
+        <div class="flashcard-hud-item"><strong style="color:var(--earth);">${s.didnt}</strong> nope</div>
+      `}
     </div>
     <div class="flashcard-progress-bar"><div class="flashcard-progress-fill" style="width:${progress}%"></div></div>
     <div class="flashcard-wrap">
-      <div class="flashcard" id="flashcard" onclick="${!s.flipped ? 'flipFlashcard()' : ''}">
+      <div class="flashcard" id="flashcard" onclick="${!s.flipped ? 'flipFlashcard()' : isStudy ? 'flipFlashcard()' : ''}">
         ${!s.flipped ? `
-          <div class="flashcard-label">Can you recall this verse?</div>
+          <div class="flashcard-label">${isStudy ? 'Study this verse' : 'Can you recall this verse?'}</div>
           <div class="flashcard-reference">${v.book} ${v.chapter}:${v.verse}</div>
           <div class="flashcard-book">${v.testament === 'OT' ? '📜 Old Testament' : '✝️ New Testament'}</div>
-          <div class="flashcard-tap-hint">👆 Tap to reveal the verse</div>
+          <div class="flashcard-tap-hint">👆 Tap to ${isStudy ? 'show' : 'reveal'} the verse</div>
         ` : `
           <div class="flashcard-label">${v.book} ${v.chapter}:${v.verse}</div>
           <div class="flashcard-verse">"${v.text}"</div>
@@ -2727,35 +2757,91 @@ function renderFlashcard() {
         `}
       </div>
     </div>
-    ${!s.flipped ? `
-      ${s.filter.difficulty !== 'hard' ? `
-      <div class="hint-strip" id="hintStrip"></div>
-      <button class="btn-hint" id="hintRevealBtn" onclick="revealNextHint()">💡 Reveal Hint 1 of 4</button>` : `
-      <div style="font-size:0.78rem;color:var(--earth);text-align:center;padding:8px 0;font-weight:600;">🪨 Hard Mode — No hints available!</div>`}
-      <button class="btn-change-diff" style="margin-top:8px;" onclick="renderFlashcardSetup()">← End Session</button>
-    ` : `
-      <div class="rating-btns">
-        <button class="rating-btn rating-didnt" onclick="rateFlashcard('didnt_know')">
-          <span class="rating-icon">😬</span>Didn't Know
-        </button>
-        <button class="rating-btn rating-almost" onclick="rateFlashcard('almost')">
-          <span class="rating-icon">🤔</span>Almost
-        </button>
-        <button class="rating-btn rating-knew" onclick="rateFlashcard('knew_it')">
-          <span class="rating-icon">✅</span>Knew It!
-        </button>
+
+    ${isStudy ? `
+      <!-- Study mode controls -->
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn-change-diff" style="flex:1;" onclick="studyPrev()">← Previous</button>
+        <button class="btn-change-diff" style="flex:1;" onclick="flipFlashcard()">${s.flipped ? '🔄 Flip Back' : '👆 Flip'}</button>
+        <button class="btn-next" style="flex:1;margin:0;" onclick="studyNext()">Next →</button>
       </div>
+      ${bookContext ? `
+      <div id="contextSection" style="margin-top:10px;">
+        <button onclick="toggleBookContext()" style="width:100%;padding:10px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:var(--text-muted);cursor:pointer;text-align:left;">
+          📚 About ${v.book} <span id="contextArrow" style="float:right;">▼</span>
+        </button>
+        <div id="contextText" style="display:none;background:var(--surface-2);border:1.5px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:12px 14px;font-size:0.83rem;color:var(--text-muted);line-height:1.6;">
+          ${bookContext}
+        </div>
+      </div>` : ''}
+      <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="renderFlashcardSetup()">← End Session</button>
+    ` : `
+      <!-- Quiz mode controls -->
+      ${!s.flipped ? `
+        ${s.filter.difficulty !== 'hard' ? `
+        <div class="hint-strip" id="hintStrip"></div>
+        <button class="btn-hint" id="hintRevealBtn" onclick="revealNextHint()">💡 Reveal Hint 1 of 4</button>` : `
+        <div style="font-size:0.78rem;color:var(--earth);text-align:center;padding:8px 0;font-weight:600;">🪨 Hard Mode — No hints available!</div>`}
+        <button class="btn-change-diff" style="margin-top:8px;" onclick="renderFlashcardSetup()">← End Session</button>
+      ` : `
+        ${bookContext ? `
+        <div id="contextSection" style="margin-top:8px;">
+          <button onclick="toggleBookContext()" style="width:100%;padding:10px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:var(--text-muted);cursor:pointer;text-align:left;">
+            📚 About ${v.book} <span id="contextArrow" style="float:right;">▼</span>
+          </button>
+          <div id="contextText" style="display:none;background:var(--surface-2);border:1.5px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:12px 14px;font-size:0.83rem;color:var(--text-muted);line-height:1.6;">
+            ${bookContext}
+          </div>
+        </div>` : ''}
+        <div class="rating-btns">
+          <button class="rating-btn rating-didnt" onclick="rateFlashcard('didnt_know')">
+            <span class="rating-icon">😬</span>Didn't Know
+          </button>
+          <button class="rating-btn rating-almost" onclick="rateFlashcard('almost')">
+            <span class="rating-icon">🤔</span>Almost
+          </button>
+          <button class="rating-btn rating-knew" onclick="rateFlashcard('knew_it')">
+            <span class="rating-icon">✅</span>Knew It!
+          </button>
+        </div>
+      `}
     `}`;
 
-  // Start loading AI hints in background
-  if(!s.flipped && s.filter.difficulty !== 'hard') {
+  if(!s.flipped && s.filter.difficulty !== 'hard' && !isStudy) {
     fetchHintsForVerse(v);
     updateHintButton();
   }
 }
 
+function toggleBookContext() {
+  const text = document.getElementById('contextText');
+  const arrow = document.getElementById('contextArrow');
+  if(!text) return;
+  const isOpen = text.style.display !== 'none';
+  text.style.display = isOpen ? 'none' : 'block';
+  if(arrow) arrow.textContent = isOpen ? '▼' : '▲';
+}
+
+function studyNext() {
+  flashcardSession.current++;
+  flashcardSession.flipped = false;
+  renderFlashcard();
+}
+
+function studyPrev() {
+  if(flashcardSession.current > 0) {
+    flashcardSession.current--;
+    flashcardSession.flipped = false;
+    renderFlashcard();
+  }
+}
+
 function flipFlashcard() {
-  flashcardSession.flipped = true;
+  if(flashcardSession.mode === 'study') {
+    flashcardSession.flipped = !flashcardSession.flipped;
+  } else {
+    flashcardSession.flipped = true;
+  }
   renderFlashcard();
 }
 
@@ -2821,9 +2907,9 @@ async function renderFlashcardComplete() {
 
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-      <div class="verse-label">🃏 Memory Trail Complete</div>
+      <div class="verse-label">🗂️ Memory Trail Complete</div>
       ${justUnlocked ? `<div style="background:rgba(244,185,66,0.1);border:1px solid #F4B942;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;font-size:0.85rem;color:#F4B942;font-weight:600;">🔓 Endless Memory Trail Unlocked!</div>` : ''}
-      <div style="font-size:2.5rem;margin:12px 0;">🃏</div>
+      <div style="font-size:2.5rem;margin:12px 0;">🗂️</div>
       <h2 style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:6px;">${grade}</h2>
       <div style="font-size:3rem;font-weight:700;background:linear-gradient(135deg,#8FD9A8,#3BBFA0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:12px 0;">${pct}%</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:24px;">recalled correctly</div>
@@ -4252,7 +4338,7 @@ function showScoreToast(score, table, difficulty) {
       toast.remove();
       const lbNames = {
         leaderboard: '📖 Scripture Scout',
-        leaderboard_memory: '🃏 Memory Trail',
+        leaderboard_memory: '🗂️ Memory Trail',
         leaderboard_mia: '✏️ Missing in Action',
         leaderboard_track: '🎯 Track It Down'
       };
@@ -4297,7 +4383,7 @@ function renderLeaderboardHub() {
           <div class="chapter-lock">▶️</div>
         </div>
         <div class="chapter-item unlocked" id="lbMemoryBtn">
-          <div class="chapter-num current">🃏</div>
+          <div class="chapter-num current">🗂️</div>
           <div class="chapter-info">
             <div class="chapter-title">Memory Trail</div>
             <div class="chapter-ref">Easy · Medium · Hard</div>
@@ -4326,7 +4412,7 @@ function renderLeaderboardHub() {
 
   document.getElementById('lbDailyBtn').onclick = () => { showBackBtn(true); renderFullDailyLeaderboard(); };
   document.getElementById('lbScriptureBtn').onclick = () => { showBackBtn(true); renderLeaderboard(); };
-  document.getElementById('lbMemoryBtn').onclick = () => renderGameLeaderboard('🃏 Memory Trail','leaderboard_memory',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
+  document.getElementById('lbMemoryBtn').onclick = () => renderGameLeaderboard('🗂️ Memory Trail','leaderboard_memory',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
   document.getElementById('lbMiaBtn').onclick = () => renderGameLeaderboard('✏️ Missing in Action','leaderboard_mia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
   document.getElementById('lbTrackBtn').onclick = () => renderGameLeaderboard('🎯 Track It Down','leaderboard_track',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
 }
@@ -5067,7 +5153,7 @@ async function respondToChallenge(challengeId, score, verse) {
 
 function showChallengeBanner(challenge) {
   const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
-  const gameIcons = { scout:'📖', memory:'🃏', mia:'✏️', track:'🎯' };
+  const gameIcons = { scout:'📖', memory:'🗂️', mia:'✏️', track:'🎯' };
   const fromName = challenge.challenger_name || 'Someone';
   const game = gameNames[challenge.game] || challenge.game;
   const icon = gameIcons[challenge.game] || '🎮';
@@ -5128,7 +5214,7 @@ async function renderChallenges() {
     sbFetch(`challenges?opponent_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`)
   ]);
 
-  const gameIcons = { scout:'📖', memory:'🃏', mia:'✏️', track:'🎯' };
+  const gameIcons = { scout:'📖', memory:'🗂️', mia:'✏️', track:'🎯' };
   const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
 
   function renderChallenge(c, isMine) {
@@ -5956,7 +6042,7 @@ async function renderProfile(userId=null, username=null) {
   const streak = streakRows[0] || {};
   const allScores = [
     ...recentScouts.map(s=>({...s,game:'scout',icon:'📖',name:'Scripture Scout'})),
-    ...recentMemory.map(s=>({...s,game:'memory',icon:'🃏',name:'Memory Trail'})),
+    ...recentMemory.map(s=>({...s,game:'memory',icon:'🗂️',name:'Memory Trail'})),
     ...recentMIA.map(s=>({...s,game:'mia',icon:'✏️',name:'Missing in Action'})),
     ...recentTrack.map(s=>({...s,game:'track',icon:'🎯',name:'Track It Down'})),
   ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,8);
@@ -6280,7 +6366,7 @@ async function challengeFriend(friendId, friendUsername) {
           <div class="chapter-lock">▶️</div>
         </div>
         <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','memory','hard')">
-          <div class="chapter-num current">🃏</div>
+          <div class="chapter-num current">🗂️</div>
           <div class="chapter-info"><div class="chapter-title">Memory Trail</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
@@ -6844,7 +6930,7 @@ async function renderDailyChallenge() {
 
   const games = [
     { id: 'scout', icon: '📖', name: 'Scripture Scout', desc: 'Guess the Testament, Book and Chapter' },
-    { id: 'memory', icon: '🃏', name: 'Memory Trail', desc: 'Recall the key verse from its reference' },
+    { id: 'memory', icon: '🗂️', name: 'Memory Trail', desc: 'Recall the key verse from its reference' },
     { id: 'mia', icon: '✏️', name: 'Missing in Action', desc: 'Fill in the blanks of the verse' },
     { id: 'track', icon: '🎯', name: 'Track It Down', desc: 'Find the correct reference from 4 choices' }
   ];
@@ -7236,7 +7322,7 @@ async function showDailyResult(game, score) {
   const rows = await fetchDailyLeaderboard(game);
   const myRank = rows.findIndex(r => r.score === score) + 1;
   const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
-  const gameIcons = { scout:'📖', memory:'🃏', mia:'✏️', track:'🎯' };
+  const gameIcons = { scout:'📖', memory:'🗂️', mia:'✏️', track:'🎯' };
 
   root.innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:28px 24px;">
@@ -7270,7 +7356,7 @@ async function renderFullDailyLeaderboard() {
 
   const games = [
     { id: 'scout', icon: '📖', name: 'Scripture Scout' },
-    { id: 'memory', icon: '🃏', name: 'Memory Trail' },
+    { id: 'memory', icon: '🗂️', name: 'Memory Trail' },
     { id: 'mia', icon: '✏️', name: 'Missing in Action' },
     { id: 'track', icon: '🎯', name: 'Track It Down' }
   ];
@@ -7388,7 +7474,7 @@ function showChampionModal(month, scout, memory, mia, track) {
         <div class="champion-subtitle">Congratulations to last month's top Scripture Scouts!</div>
       </div>
       ${section('📖 Scripture Scout', scout)}
-      ${section('🃏 Memory Trail', memory)}
+      ${section('🗂️ Memory Trail', memory)}
       ${section('✏️ Missing in Action', mia)}
       ${section('🎯 Track It Down', track)}
       <button class="btn-champion-close" onclick="document.getElementById('championModal').remove()">
