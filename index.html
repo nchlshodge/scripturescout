@@ -884,17 +884,17 @@ async function showHome() {
 
       <div class="home-section-label">🧩 Game Modes</div>
       <div class="home-game-grid">
-        <div class="home-game-card" id="homeMemoryBtn">
+        <div class="home-game-card" id="homeMemoryBtn" onclick="showBackBtn(true);renderFlashcardSetup();">
           <div class="home-game-icon small">🗂️</div>
           <div class="home-game-name">Memory Trail</div>
           <div class="home-game-desc">Recall verses — Easy, Medium & Hard</div>
         </div>
-        <div class="home-game-card" id="homeMiaBtn">
+        <div class="home-game-card" id="homeMiaBtn" onclick="showBackBtn(true);renderFillBlankSetup();">
           <div class="home-game-icon small">✏️</div>
           <div class="home-game-name">Missing in Action</div>
           <div class="home-game-desc">Fill blanks — tap, type or no hints</div>
         </div>
-        <div class="home-game-card" id="homeTrackBtn">
+        <div class="home-game-card" id="homeTrackBtn" onclick="showBackBtn(true);renderRefChallengeSetup();">
           <div class="home-game-icon small">🎯</div>
           <div class="home-game-name">Track It Down</div>
           <div class="home-game-desc">Find the reference — same book on Hard!</div>
