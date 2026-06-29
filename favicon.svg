@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500" role="img"><metadata><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><rdf:Description><dc:creator>RealFaviconGenerator</dc:creator><dc:source>https://realfavicongenerator.net</dc:source></rdf:Description></rdf:RDF></metadata><title>Scripture Scout logo</title><desc>A circular emblem with an open Bible, magnifying glass, and compass star on a deep green background</desc><circle cx="250" cy="250" r="235" fill="#1e3a25"></circle><circle cx="250" cy="250" r="220" fill="#142a19"></circle><circle cx="250" cy="250" r="228" fill="none" stroke="#4a7c59" stroke-width="1.5" stroke-dasharray="4 6"></circle><g fill="#c8a84b" opacity="0.85">
+    <polygon points="250,60 258,155 250,168 242,155"></polygon>
+    <polygon points="250,440 258,345 250,332 242,345"></polygon>
+    <polygon points="60,250 155,258 168,250 155,242"></polygon>
+    <polygon points="440,250 345,258 332,250 345,242"></polygon>
+    <polygon points="118,118 174,195 163,207 152,182"></polygon>
+    <polygon points="382,118 326,195 337,207 348,182"></polygon>
+    <polygon points="118,382 174,305 163,293 152,318"></polygon>
+    <polygon points="382,382 326,305 337,293 348,318"></polygon>
+  </g><circle cx="250" cy="250" r="5" fill="#c8a84b"></circle><g transform="translate(250,250)">
+    <path d="M-85,-60 Q-88,-63 -86,-30 L-86,60 Q-48,47 -4,52 L-4,-56 Q-44,-68 -85,-60 Z" fill="#f0e8d5" stroke="#c4a96e" stroke-width="1.5"></path>
+    <path d="M85,-60 Q88,-63 86,-30 L86,60 Q48,47 4,52 L4,-56 Q44,-68 85,-60 Z" fill="#f0e8d5" stroke="#c4a96e" stroke-width="1.5"></path>
+    <rect x="-4" y="-56" width="8" height="108" fill="#8b6914" rx="1"></rect>
+    <line x1="-72" y1="-35" x2="-16" y2="-38" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="-72" y1="-20" x2="-16" y2="-23" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="-72" y1="-5" x2="-16" y2="-8" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="-72" y1="10" x2="-16" y2="7" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="-72" y1="25" x2="-16" y2="22" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="-72" y1="40" x2="-44" y2="38" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="16" y1="-38" x2="72" y2="-35" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="16" y1="-23" x2="72" y2="-20" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="16" y1="-8" x2="72" y2="-5" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="16" y1="7" x2="72" y2="10" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="16" y1="22" x2="72" y2="25" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+    <line x1="16" y1="38" x2="44" y2="40" stroke="#9b8860" stroke-width="1.5" opacity="0.7"></line>
+  </g><circle cx="315" cy="210" r="50" fill="none" stroke="#c8a84b" stroke-width="4"></circle><circle cx="315" cy="210" r="50" fill="#1a3d24" opacity="0.6"></circle><circle cx="300" cy="196" r="11" fill="white" opacity="0.08"></circle><line x1="350" y1="245" x2="388" y2="283" stroke="#c8a84b" stroke-width="7" stroke-linecap="round"></line><line x1="350" y1="245" x2="388" y2="283" stroke="#8b6914" stroke-width="4" stroke-linecap="round"></line><text x="250" y="390" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" letter-spacing="3" fill="#e8f5ea">SCRIPTURE</text><text x="250" y="422" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="400" letter-spacing="7" fill="#7ab88a">SCOUT</text><line x1="158" y1="435" x2="342" y2="435" stroke="#4a7c59" stroke-width="1" opacity="0.6"></line><circle cx="250" cy="435" r="3" fill="#c8a84b"></circle><circle cx="158" cy="435" r="2" fill="#c8a84b" opacity="0.6"></circle><circle cx="342" cy="435" r="2" fill="#c8a84b" opacity="0.6"></circle></svg>
