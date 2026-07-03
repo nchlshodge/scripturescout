@@ -1408,29 +1408,32 @@ function showApp() {
 }
 
 function showUsernamePrompt() {
-  // Don't show if already showing
-  if(document.getElementById('usernamePrompt')) return;
-  const shareBar = document.getElementById('root');
-  if(!shareBar) return;
-  const prompt = document.createElement('div');
-  prompt.id = 'usernamePrompt';
-  prompt.className = 'username-prompt';
-  prompt.innerHTML = `
-    <div class="username-prompt-title">👋 Set your username!</div>
-    <div class="username-prompt-desc">Choose how you'll appear on the leaderboard. Pick something memorable!</div>
-    <div class="username-prompt-row">
-      <input class="username-prompt-input" id="usernamePromptInput" type="text" maxlength="20" placeholder="Choose a username…"/>
-      <button class="btn-set-username" id="usernamePromptBtn" onclick="saveUsername()">Save</button>
-    </div>
-    <div class="username-prompt-error" id="usernamePromptError"></div>
-    <div class="username-prompt-success" id="usernamePromptSuccess"></div>`;
-  // Insert after userBar
-  const userBar = document.getElementById('userBar');
-  userBar.insertAdjacentElement('afterend', prompt);
-  // Allow enter key
-  document.getElementById('usernamePromptInput').addEventListener('keydown', e => {
-    if(e.key === 'Enter') saveUsername();
-  });
+  if(document.getElementById('usernamePromptOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'usernamePromptOverlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border:1.5px solid var(--fern);border-radius:20px;padding:32px 24px;max-width:400px;width:100%;text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">👋</div>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px;">Welcome to Scripture Scout!</div>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">Choose a username so friends can find you and your scores appear on the leaderboard.</div>
+      <input id="usernamePromptInput" type="text" maxlength="20" placeholder="Choose a username…"
+        style="width:100%;padding:12px 16px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.95rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:10px;"/>
+      <div id="usernamePromptError" style="font-size:0.78rem;color:var(--earth);margin-bottom:10px;display:none;"></div>
+      <button id="usernamePromptBtn" onclick="saveUsername()" 
+        style="width:100%;padding:14px;background:linear-gradient(135deg,#4A7C59,#3BBFA0);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;color:white;cursor:pointer;">
+        Let's Go! →
+      </button>
+      <div style="font-size:0.72rem;color:var(--text-muted);margin-top:10px;">You can change this later in your profile.</div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const input = document.getElementById('usernamePromptInput');
+  if(input) {
+    input.focus();
+    input.addEventListener('keydown', e => { if(e.key === 'Enter') saveUsername(); });
+  }
 }
 
 async function saveUsername() {
@@ -3734,7 +3737,15 @@ async function renderStoryMode() {
         renderStoryScreen();
       };
       document.querySelectorAll('.story-path-card').forEach(card => {
-        card.addEventListener('click', () => renderStoryPath(parseInt(card.dataset.path)));
+        card.addEventListener('click', () => {
+          const pathId = parseInt(card.dataset.path);
+          const path = paths.find(p => p.id === pathId);
+          if(path && !path.is_free && !isPro()) {
+            requirePro(() => renderStoryPath(pathId));
+          } else {
+            renderStoryPath(pathId);
+          }
+        });
       });
     }
 
@@ -5893,6 +5904,27 @@ const AVATAR_COLORS = [
 
 let currentAvatarIcon = null;
 let currentAvatarColor = 'purple';
+let currentUserPro = false;
+
+function isPro() {
+  return currentUserPro || !currentUser; // Pro if logged in as pro, or guest (guests can play freely during beta)
+}
+
+function requirePro(callback) {
+  if(isPro()) { callback(); return; }
+  // Show upgrade prompt
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border:1.5px solid #F4B942;border-radius:20px;padding:32px 24px;max-width:400px;width:100%;text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">⭐</div>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px;">Scripture Scout Pro</div>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">This content is part of Scripture Scout Pro. Support the app to unlock all story paths, game modes and more!</div>
+      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:block;padding:14px;background:linear-gradient(135deg,#B87D0A,#F4B942);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#1a1a2e;margin-bottom:10px;">☕ Support on Buy Me a Coffee</div>
+      <button onclick="this.closest('div').parentElement.remove()" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.88rem;color:var(--text-muted);cursor:pointer;">Maybe later</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
 
 function getAvatarGradient(colorId) {
   return AVATAR_COLORS.find(c => c.id === colorId)?.gradient || AVATAR_COLORS[0].gradient;
@@ -6076,7 +6108,7 @@ async function renderProfile(userId=null, username=null) {
             ${renderAvatarEl(isOwnProfile?currentAvatarIcon:null, isOwnProfile?currentAvatarColor:'purple', profileUsername[0]?.toUpperCase(), 80, '2rem')}
             ${isOwnProfile ? `<button onclick="showAvatarPicker()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#A78BFA;border:2px solid var(--surface);color:white;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✏️</button>` : ''}
           </div>
-          <div class="profile-username">${profileUsername || '(no username set)'}</div>
+          <div class="profile-username">${profileUsername || '(no username set)'} ${isOwnProfile && currentUserPro ? '<span style="font-size:0.65rem;background:linear-gradient(135deg,#B87D0A,#F4B942);color:#1a1a2e;padding:2px 8px;border-radius:10px;font-weight:700;vertical-align:middle;">PRO</span>' : ''}</div>
           <div class="profile-joined">Scripture Scout Player</div>
           ${isOwnProfile && !currentUsername ? `<div style="font-size:0.78rem;color:#F4B942;margin-top:4px;">⚠️ Set a username so friends can find you!</div>` : ''}
           ${isOwnProfile ? `<button class="btn-friend-action" style="margin-top:8px;" onclick="editUsername()">${currentUsername ? '✏️ Change Username' : '✏️ Set Username'}</button>` : ''}
