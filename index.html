@@ -1437,30 +1437,27 @@ function showUsernamePrompt() {
 async function saveUsername() {
   const input = document.getElementById('usernamePromptInput');
   const errEl = document.getElementById('usernamePromptError');
-  const sucEl = document.getElementById('usernamePromptSuccess');
   const btn   = document.getElementById('usernamePromptBtn');
   if(!input) return;
 
   const username = input.value.trim();
-  errEl.style.display = 'none';
-  sucEl.style.display = 'none';
+  if(errEl) errEl.style.display = 'none';
 
-  if(!username) { errEl.textContent = 'Please enter a username.'; errEl.style.display = 'block'; return; }
-  if(username.length < 3) { errEl.textContent = 'Must be at least 3 characters.'; errEl.style.display = 'block'; return; }
+  if(!username) { if(errEl) { errEl.textContent = 'Please enter a username.'; errEl.style.display = 'block'; } return; }
+  if(username.length < 3) { if(errEl) { errEl.textContent = 'Must be at least 3 characters.'; errEl.style.display = 'block'; } return; }
+  if(username.length > 20) { if(errEl) { errEl.textContent = 'Must be 20 characters or less.'; errEl.style.display = 'block'; } return; }
 
-  btn.textContent = 'Saving…';
-  btn.disabled = true;
+  if(btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
 
   try {
     // Check availability
     const existing = await sbFetch(`profiles?username=eq.${encodeURIComponent(username)}&select=id`);
-    if(existing.length) {
-      errEl.textContent = '⚠️ That username is taken — try another!';
-      errEl.style.display = 'block';
-      btn.textContent = 'Save';
-      btn.disabled = false;
+    if(existing.length && existing[0].id !== currentUser?.id) {
+      if(errEl) { errEl.textContent = '⚠️ That username is taken — try another!'; errEl.style.display = 'block'; }
+      if(btn) { btn.textContent = "Let's Go! →"; btn.disabled = false; }
       return;
     }
+
     await createProfile(currentUser.id, username);
     currentUsername = username;
     playerName = username;
@@ -1470,21 +1467,16 @@ async function saveUsername() {
     const userBarEmail = document.querySelector('.user-bar-email');
     if(userBarEmail) userBarEmail.textContent = `👤 ${username}`;
 
-    sucEl.textContent = `✓ Username set to "${username}"!`;
-    sucEl.style.display = 'block';
-    btn.textContent = 'Saved!';
+    // Remove whichever prompt is showing
+    document.getElementById('usernamePromptOverlay')?.remove();
+    document.getElementById('usernamePrompt')?.remove();
 
-    // Remove prompt after 2 seconds
-    setTimeout(() => {
-      const prompt = document.getElementById('usernamePrompt');
-      if(prompt) prompt.remove();
-    }, 2000);
+    showStreakToast(`✅ Welcome, ${username}!`);
+    showHome();
 
   } catch(e) {
-    errEl.textContent = `⚠️ ${e.message}`;
-    errEl.style.display = 'block';
-    btn.textContent = 'Save';
-    btn.disabled = false;
+    if(errEl) { errEl.textContent = `⚠️ ${e.message || 'Could not save username. Try again.'}`;  errEl.style.display = 'block'; }
+    if(btn) { btn.textContent = "Let's Go! →"; btn.disabled = false; }
   }
 }
 
