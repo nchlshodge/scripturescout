@@ -7048,6 +7048,8 @@ async function startDailyGame(game) {
 let dailyChallengeMode = { active: false, game: null };
 
 async function renderDailyScout(verse) {
+  // Clear any stale pending challenge
+  if(window._pendingChallenge?.game === 'scout') window._pendingChallenge = null;
   const root = document.getElementById('root');
   const correctTestament = verse.testament;
   const correctBook = verse.book;
@@ -7130,16 +7132,9 @@ async function renderDailyScout(verse) {
           if(!isCorrect) area.querySelector(`[data-ans="${correctChapter}"]`).classList.add('correct');
           if(isCorrect) { score+=700; correct++; fb.className='feedback correct'; fb.textContent='✓ Correct! +700'; }
           else { fb.className='feedback wrong'; fb.textContent=`✗ It was Chapter ${correctChapter}`; }
-          if(window._pendingChallenge) {
-            const pc = window._pendingChallenge;
-            window._pendingChallenge = null;
-            await sendChallenge(pc.friendId, pc.friendUsername, pc.game, pc.difficulty, score, pc.verse);
-            showDailyResult('scout', score);
-          } else {
-            markDailyCompleted('scout', score);
-            await submitDailyScore('scout', score);
-            setTimeout(()=>showDailyResult('scout', score), 1200);
-          }
+          markDailyCompleted('scout', score);
+          await submitDailyScore('scout', score);
+          setTimeout(()=>showDailyResult('scout', score), 1200);
         };
       });
     }
