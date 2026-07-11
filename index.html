@@ -10,6 +10,7 @@
   <link rel="manifest" href="/site.webmanifest">
   <meta name="theme-color" content="#142a19">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Scripture Scout">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -879,6 +880,13 @@ async function showHome() {
       </div>
 
       <!-- ⚡ Daily Challenge -->
+      <!-- Verse of the Day -->
+      <div id="verseOfDayCard" class="card" style="margin-bottom:12px;background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(59,191,160,0.05));border-color:rgba(167,139,250,0.3);">
+        <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;color:#A78BFA;font-weight:700;margin-bottom:8px;">📖 Verse of the Day</div>
+        <div id="votdText" style="font-size:0.88rem;color:var(--text);line-height:1.7;font-style:italic;">"Loading today's verse…"</div>
+        <div id="votdRef" style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;font-weight:600;"></div>
+      </div>
+
       <div class="home-section-label">⚡ Daily Challenge</div>
       <div class="home-game-grid">
         <div class="home-game-card featured" id="homeDailyBtn" style="border-color:#A78BFA;background:rgba(167,139,250,0.04);grid-column:1/-1;">
@@ -1388,6 +1396,7 @@ function showApp() {
   if(currentUser && !currentUsername) setTimeout(showUsernamePrompt, 500);
   if(currentUser) setTimeout(checkMonthlyChampion, 2000);
   prefetchDailyChallenge();
+  fetchVerseOfDay();
 
   // Load streak in background and update display when ready
   if(currentUser) {
@@ -6908,6 +6917,39 @@ function playFlip() {
   // Soft card flip sound
   playTone(440, 0.08, 'sine', 0.15, 0);
   playTone(550, 0.08, 'sine', 0.1, 0.06);
+}
+
+async function fetchVerseOfDay() {
+  const today = getDailyKey();
+  const cacheKey = `ss_votd_${today}`;
+  const cached = localStorage.getItem(cacheKey);
+
+  if(cached) {
+    const v = JSON.parse(cached);
+    updateVOTD(v);
+    return;
+  }
+
+  try {
+    // Use day of year as seed for consistent daily verse
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((now - start) / 86400000);
+    const total = DIFF_COUNTS[TRANSLATION]['easy'];
+    const offset = (dayOfYear * 137) % total; // 137 = prime number spread
+    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.easy&select=book,chapter,verse,text&limit=1&offset=${offset}`);
+    if(rows.length) {
+      localStorage.setItem(cacheKey, JSON.stringify(rows[0]));
+      updateVOTD(rows[0]);
+    }
+  } catch(e) {}
+}
+
+function updateVOTD(v) {
+  const textEl = document.getElementById('votdText');
+  const refEl = document.getElementById('votdRef');
+  if(textEl) textEl.textContent = `"${v.text}"`;
+  if(refEl) refEl.textContent = `— ${v.book} ${v.chapter}:${v.verse}`;
 }
 
 function toggleTheme() {
