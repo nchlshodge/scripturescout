@@ -4669,58 +4669,33 @@ function renderStoryRoundComplete(stars) {
 
 async function completeStoryChapter(pathId, chapterNum, stars) {
   storyProgress[pathId] = Math.max(storyProgress[pathId] || 0, chapterNum);
-
   if(!currentUser || !authToken) return;
 
   try {
     const pathChapters = await sbFetch(`story_chapters?path_id=eq.${pathId}&select=chapter_num&order=chapter_num.desc&limit=1`);
     const totalChapters = pathChapters.length ? pathChapters[0].chapter_num : 10;
     const isCompleted = chapterNum >= totalChapters;
-    const headers = {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${authToken}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    };
 
-    // Try PATCH first — update if exists
-    const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/story_progress?user_id=eq.${currentUser.id}&path_id=eq.${pathId}&chapter_num=eq.${chapterNum}`, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify({ stars, completed: isCompleted, updated_at: new Date().toISOString() })
-    });
-
-    // If PATCH updated nothing (no existing row) — do INSERT
-    if(patchRes.status === 404 || patchRes.headers.get('content-range') === '*/0') {
-      await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ user_id: currentUser.id, path_id: pathId, chapter_num: chapterNum, stars, completed: isCompleted })
-      });
-    }
-
-    // If PATCH returned 0 rows updated, also try INSERT
-    // Most reliable: always try INSERT, handle 409 with PATCH
-    if(patchRes.status === 200 || patchRes.status === 204) {
-      // PATCH succeeded — done
-      return;
-    }
-
-    // Fallback INSERT
-    const postRes = await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
+    // Use upsert — Supabase handles insert or update automatically
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
       method: 'POST',
-      headers: { ...headers, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ user_id: currentUser.id, path_id: pathId, chapter_num: chapterNum, stars, completed: isCompleted })
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=minimal',
+        'On-Conflict': 'user_id,path_id,chapter_num'
+      },
+      body: JSON.stringify({
+        user_id: currentUser.id,
+        path_id: pathId,
+        chapter_num: chapterNum,
+        stars,
+        completed: isCompleted,
+        updated_at: new Date().toISOString()
+      })
     });
-
-    // If INSERT fails with 409 (already exists) — PATCH it
-    if(postRes.status === 409) {
-      await fetch(`${SUPABASE_URL}/rest/v1/story_progress?user_id=eq.${currentUser.id}&path_id=eq.${pathId}&chapter_num=eq.${chapterNum}`, {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({ stars, completed: isCompleted, updated_at: new Date().toISOString() })
-      });
-    }
+    console.log('[Story] Save response:', res.status, 'stars:', stars);
   } catch(e) { console.error('Story save error:', e); }
 }
 
