@@ -2415,6 +2415,75 @@ Think you can beat me? The gauntlet has been thrown. 👇 https://scripturescout
 // ═══════════════════════════════════════
 // TRAIN MODE
 // ═══════════════════════════════════════
+const BOOK_CONTEXT = {
+  'Genesis':'The first book of the Bible, written by Moses. It covers the creation of the world, the fall of mankind, the great flood, and the stories of the patriarchs — Abraham, Isaac, Jacob, and Joseph. Genesis means beginnings and sets the foundation for all of Scripture.',
+  'Exodus':'Written by Moses, Exodus tells the story of God delivering the Israelites from slavery in Egypt. It includes the ten plagues, the Passover, the crossing of the Red Sea, and the giving of the Ten Commandments at Mount Sinai.',
+  'Leviticus':'A book of laws and priestly instructions given by God to Moses. It covers worship, sacrifice, purity, and holiness — revealing God\'s standard for approaching Him.',
+  'Numbers':'Written by Moses, Numbers records Israel\'s 40 years of wandering in the wilderness. It includes census records, laws, and stories of Balaam, Korah\'s rebellion, and the bronze serpent.',
+  'Deuteronomy':'Moses\' final sermon to Israel before entering the Promised Land. A repetition and expansion of the Law, urging Israel to love and obey God in their new land.',
+  'Joshua':'The conquest of Canaan under Joshua\'s leadership. Records Israel taking the Promised Land, the fall of Jericho, and Joshua\'s famous challenge — as for me and my house, we will serve the Lord.',
+  'Judges':'A dark cycle of Israel\'s history — sin, oppression, crying out to God, deliverance, then sin again. Features Deborah, Gideon, and Samson.',
+  'Ruth':'A short, beautiful story of loyalty and redemption. Ruth, a Moabite widow, follows Naomi back to Israel and becomes the great-grandmother of King David.',
+  '1 Samuel':'Covers Israel\'s transition from judges to kings. Includes the anointing of Saul and the rise of David, who kills Goliath and is chosen by God.',
+  '2 Samuel':'The reign of King David — Israel\'s greatest king. Covers his triumphs, his covenant with God, and his failures.',
+  '1 Kings':'Begins with Solomon\'s reign and the building of the Temple. Features Elijah\'s confrontation with the prophets of Baal on Mount Carmel.',
+  '2 Kings':'The decline and fall of both kingdoms. Israel falls to Assyria and Judah falls to Babylon.',
+  '1 Chronicles':'A priestly perspective on David\'s reign and preparations for the Temple. Emphasizes worship and God\'s covenant with David.',
+  '2 Chronicles':'Covers Solomon\'s Temple and the kings of Judah. Ends with Jerusalem\'s destruction and Cyrus\'s decree.',
+  'Ezra':'The return of Jewish exiles from Babylon and the rebuilding of the Temple.',
+  'Nehemiah':'Nehemiah leads the rebuilding of Jerusalem\'s walls despite fierce opposition.',
+  'Esther':'A Jewish queen risks her life to save her people from genocide. Famous for — for such a time as this.',
+  'Job':'The oldest book of the Bible, addressing the problem of suffering. Job loses everything yet refuses to curse God.',
+  'Psalms':'A collection of 150 songs and poems, mostly by David. Covers every human emotion — praise, lament, confession, thanksgiving.',
+  'Proverbs':'Wise sayings mostly from Solomon covering practical wisdom for everyday life.',
+  'Ecclesiastes':'Solomon\'s reflections on the meaning of life — without God everything is empty. Fear God and keep His commands.',
+  'Song of Solomon':'A celebration of love and marriage. Also an allegory of God\'s love for His people.',
+  'Isaiah':'The greatest writing prophet. Called the fifth gospel for its messianic prophecies describing the suffering servant.',
+  'Jeremiah':'The weeping prophet who warned Judah of judgment and prophesied the New Covenant.',
+  'Lamentations':'Five poems of grief after Jerusalem\'s destruction — the steadfast love of the Lord never ceases.',
+  'Ezekiel':'A prophet among the exiles with dramatic visions including the valley of dry bones.',
+  'Daniel':'Daniel remained faithful in Babylon through the fiery furnace, the lion\'s den, and apocalyptic visions.',
+  'Hosea':'A story of love, betrayal, and relentless grace — picturing God\'s love for unfaithful Israel.',
+  'Joel':'A locust plague becomes a call to repentance. Joel prophesied the outpouring of the Holy Spirit.',
+  'Amos':'A shepherd who thundered against social injustice — let justice roll down like waters.',
+  'Obadiah':'The shortest Old Testament book — a judgment oracle against Edom.',
+  'Jonah':'The reluctant prophet swallowed by a great fish, leading to the greatest revival in the Old Testament.',
+  'Micah':'Predicted the birth of the Messiah in Bethlehem — do justice, love kindness, walk humbly with your God.',
+  'Nahum':'A prophecy of judgment against Nineveh after they returned to wickedness.',
+  'Habakkuk':'A prophet who wrestled with God — I will rejoice in the God of my salvation even when everything falls apart.',
+  'Zephaniah':'Warned of the Day of the Lord — the Lord your God is in your midst, a mighty one who will save.',
+  'Haggai':'Urged the returning exiles to finish rebuilding the Temple and put God first.',
+  'Zechariah':'Contains more messianic prophecies than any other minor prophet.',
+  'Malachi':'The last Old Testament book, ending with a promise of Elijah before the Day of the Lord.',
+  'Matthew':'Presents Jesus as the fulfillment of Old Testament prophecy — the King of the Jews. Contains the Sermon on the Mount.',
+  'Mark':'The shortest gospel, presenting Jesus as a servant who acts immediately and powerfully.',
+  'Luke':'Written by a Greek physician, presenting Jesus as the perfect Son of Man. Contains the Good Samaritan and Prodigal Son.',
+  'John':'The most theological gospel. Presents Jesus as the eternal Son of God with seven I am statements.',
+  'Acts':'Records the birth of the church at Pentecost and the spread of the gospel from Jerusalem to Rome.',
+  'Romans':'Paul\'s most systematic letter presenting the full gospel — sin, justification by faith, and sanctification.',
+  '1 Corinthians':'Addresses divisions, spiritual gifts, and resurrection. Contains the great love chapter.',
+  '2 Corinthians':'Paul\'s most personal letter — my grace is sufficient for you.',
+  'Galatians':'Paul\'s passionate defense of the gospel of grace — the Magna Carta of Christian liberty.',
+  'Ephesians':'Presents the church as the body of Christ. Contains the armor of God passage.',
+  'Philippians':'Paul\'s most joyful letter, written from prison — I can do all things through Christ.',
+  'Colossians':'Presents the supremacy of Christ — in whom all things hold together.',
+  '1 Thessalonians':'Covers Christian living and the second coming of Christ.',
+  '2 Thessalonians':'Clarifies the second coming and encourages steadfast faithfulness.',
+  '1 Timothy':'Instructions for church leadership, sound doctrine, and qualifications for elders.',
+  '2 Timothy':'Paul\'s final letter — I have fought the good fight, I have finished the race.',
+  'Titus':'He saved us, not because of works done by us in righteousness.',
+  'Philemon':'A plea to receive a runaway slave as a brother in Christ — a picture of grace.',
+  'Hebrews':'Presents Jesus as superior to everything in the Old Testament — the great High Priest.',
+  'James':'Faith without works is dead. Covers wisdom, trials, the tongue, and prayer.',
+  '1 Peter':'Written to persecuted believers — cast all your anxiety on him because he cares for you.',
+  '2 Peter':'Warning against false teachers — men spoke from God carried along by the Holy Spirit.',
+  '1 John':'About assurance of salvation — God is love. Written so believers may know they have eternal life.',
+  '2 John':'A brief letter warning against false teachers who deny the incarnation of Christ.',
+  '3 John':'A personal letter commending Gaius for his hospitality to traveling missionaries.',
+  'Jude':'An urgent warning against false teachers — to him who is able to keep you from stumbling.',
+  'Revelation':'John\'s visions about the end of history, the defeat of evil, and the new creation — Come, Lord Jesus.'
+};
+
 let flashcardSession = {
   verses: [],
   current: 0,
@@ -4600,50 +4669,51 @@ function renderStoryRoundComplete(stars) {
 
 async function completeStoryChapter(pathId, chapterNum, stars) {
   storyProgress[pathId] = Math.max(storyProgress[pathId] || 0, chapterNum);
+  console.log(`[Story] Saving chapter ${chapterNum} with ${stars} stars for path ${pathId}`);
 
-  if(currentUser) {
-    try {
-      // Get total chapters for this path to determine if completed
-      const pathChapters = await sbFetch(`story_chapters?path_id=eq.${pathId}&select=chapter_num&order=chapter_num.desc&limit=1`);
-      const totalChapters = pathChapters.length ? pathChapters[0].chapter_num : 10;
-      const isCompleted = chapterNum >= totalChapters;
+  if(!currentUser) { console.log('[Story] No user logged in — skipping save'); return; }
+  if(!authToken) { console.log('[Story] No auth token — skipping save'); return; }
 
-      // First try to update existing row
-      const existing = await sbFetch(`story_progress?user_id=eq.${currentUser.id}&path_id=eq.${pathId}&chapter_num=eq.${chapterNum}&select=id`).catch(()=>[]);
-      
-      if(existing.length) {
-        // Update existing record
-        await fetch(`${SUPABASE_URL}/rest/v1/story_progress?user_id=eq.${currentUser.id}&path_id=eq.${pathId}&chapter_num=eq.${chapterNum}`, {
-          method: 'PATCH',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${authToken || SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({ stars: stars || 1, completed: isCompleted, updated_at: new Date().toISOString() })
-        });
-      } else {
-        // Insert new record
-        await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
-          method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${authToken || SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({
-            user_id: currentUser.id,
-            path_id: pathId,
-            chapter_num: chapterNum,
-            stars: stars || 1,
-            completed: isCompleted
-          })
-        });
-      }
-    } catch(e) { console.log('Story save error:', e); }
-  }
+  try {
+    const pathChapters = await sbFetch(`story_chapters?path_id=eq.${pathId}&select=chapter_num&order=chapter_num.desc&limit=1`);
+    const totalChapters = pathChapters.length ? pathChapters[0].chapter_num : 10;
+    const isCompleted = chapterNum >= totalChapters;
+
+    const existing = await sbFetch(`story_progress?user_id=eq.${currentUser.id}&path_id=eq.${pathId}&chapter_num=eq.${chapterNum}&select=id`).catch(()=>[]);
+    console.log(`[Story] Existing record:`, existing.length ? existing[0].id : 'none');
+
+    if(existing.length) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/story_progress?user_id=eq.${currentUser.id}&path_id=eq.${pathId}&chapter_num=eq.${chapterNum}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ stars, completed: isCompleted, updated_at: new Date().toISOString() })
+      });
+      console.log(`[Story] PATCH response: ${res.status}`);
+    } else {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          user_id: currentUser.id,
+          path_id: pathId,
+          chapter_num: chapterNum,
+          stars,
+          completed: isCompleted
+        })
+      });
+      console.log(`[Story] POST response: ${res.status}`);
+    }
+  } catch(e) { console.error('[Story] Save error:', e); }
 }
 
 // ═══════════════════════════════════════
