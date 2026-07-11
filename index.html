@@ -2839,6 +2839,7 @@ function studyPrev() {
 }
 
 function flipFlashcard() {
+  playFlip();
   if(flashcardSession.mode === 'study') {
     flashcardSession.flipped = !flashcardSession.flipped;
   } else {
@@ -2848,6 +2849,9 @@ function flipFlashcard() {
 }
 
 async function rateFlashcard(rating) {
+  if(rating === 'knew_it') playCorrect();
+  else if(rating === 'almost') playFlip();
+  else playWrong();
   const s = flashcardSession;
   const v = s.verses[s.current];
 
@@ -4594,22 +4598,40 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
       const totalChapters = pathChapters.length ? pathChapters[0].chapter_num : 10;
       const isCompleted = chapterNum >= totalChapters;
 
-      await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${authToken || SUPABASE_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates,return=minimal'
-        },
-        body: JSON.stringify({
-          user_id: currentUser.id,
-          path_id: pathId,
-          chapter_num: chapterNum,
-          stars: stars || 1,
-          completed: isCompleted
-        })
-      });
+      // First try to update existing row
+      const existing = await sbFetch(`story_progress?user_id=eq.${currentUser.id}&path_id=eq.${pathId}&chapter_num=eq.${chapterNum}&select=id`).catch(()=>[]);
+      
+      if(existing.length) {
+        // Update existing record
+        await fetch(`${SUPABASE_URL}/rest/v1/story_progress?user_id=eq.${currentUser.id}&path_id=eq.${pathId}&chapter_num=eq.${chapterNum}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${authToken || SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ stars: stars || 1, completed: isCompleted, updated_at: new Date().toISOString() })
+        });
+      } else {
+        // Insert new record
+        await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${authToken || SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            user_id: currentUser.id,
+            path_id: pathId,
+            chapter_num: chapterNum,
+            stars: stars || 1,
+            completed: isCompleted
+          })
+        });
+      }
     } catch(e) { console.log('Story save error:', e); }
   }
 }
@@ -5446,8 +5468,8 @@ function renderChallengeScout(verse) {
           const isCorrect = btn.dataset.ans === correctTestament;
           btn.classList.add(isCorrect?'correct':'wrong');
           if(!isCorrect) area.querySelector(`[data-ans="${correctTestament}"]`).classList.add('correct');
-          if(isCorrect) { score+=300; fb.className='feedback correct'; fb.textContent='✓ Correct! +300'; }
-          else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctTestament==='OT'?'Old':'New'} Testament`; }
+          if(isCorrect) { score+=300; fb.className='feedback correct'; fb.textContent='✓ Correct! +300'; playCorrect(); }
+          else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctTestament==='OT'?'Old':'New'} Testament`; playWrong(); }
           setTimeout(()=>{ phase=2; renderPhase(); }, 1200);
         };
       });
@@ -5466,8 +5488,8 @@ function renderChallengeScout(verse) {
           const isCorrect = btn.dataset.ans === correctBook;
           btn.classList.add(isCorrect?'correct':'wrong');
           if(!isCorrect) area.querySelector(`[data-ans="${correctBook}"]`).classList.add('correct');
-          if(isCorrect) { score+=500; fb.className='feedback correct'; fb.textContent='✓ Correct! +500'; }
-          else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctBook}`; }
+          if(isCorrect) { score+=500; fb.className='feedback correct'; fb.textContent='✓ Correct! +500'; playCorrect(); }
+          else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctBook}`; playWrong(); }
           setTimeout(()=>{ phase=3; renderPhase(); }, 1200);
         };
       });
@@ -6721,9 +6743,9 @@ async function updateStreak(bonusDay=false) {
   });
 
   // Show milestone notifications
-  if(usedFreeze) showStreakToast(`❄️ Freeze token used! Streak protected.`);
-  else if(newStreak % 7 === 0 && newTokens > streak.freeze_tokens) showStreakToast(`🎉 ${newStreak} day streak! ❄️ Freeze token earned!`);
-  else if([3,7,14,30,50,100].includes(newStreak)) showStreakToast(`🔥 ${newStreak} day streak! Keep it up!`);
+  if(usedFreeze) { playStreak(); showStreakToast(`❄️ Freeze token used! Streak protected.`); }
+  else if(newStreak % 7 === 0 && newTokens > streak.freeze_tokens) { playMilestone(); showStreakToast(`🎉 ${newStreak} day streak! ❄️ Freeze token earned!`); }
+  else if([3,7,14,30,50,100].includes(newStreak)) { playMilestone(); showStreakToast(`🔥 ${newStreak} day streak! Keep it up!`); }
 }
 
 async function patchStreak(updates) {
@@ -6735,6 +6757,96 @@ async function patchStreak(updates) {
     if(Array.isArray(data) && data[0]) currentStreak = data[0];
     else Object.assign(currentStreak, updates);
   } catch(e) { console.error('Patch streak failed:', e); }
+}
+
+// ═══════════════════════════════════════
+// AUDIO SYSTEM
+// ═══════════════════════════════════════
+let _audioCtx = null;
+let _soundEnabled = false; // off by default
+
+function getAudioCtx() {
+  if(!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+
+function toggleSound() {
+  _soundEnabled = !_soundEnabled;
+  localStorage.setItem('ss_sound', _soundEnabled ? '1' : '0');
+  const btn = document.getElementById('soundToggleBtn');
+  if(btn) btn.textContent = _soundEnabled ? '🔊' : '🔇';
+  if(_soundEnabled) playCorrect(); // preview sound when turning on
+}
+
+function initSound() {
+  const saved = localStorage.getItem('ss_sound');
+  _soundEnabled = saved === '1';
+  const btn = document.getElementById('soundToggleBtn');
+  if(btn) btn.textContent = _soundEnabled ? '🔊' : '🔇';
+}
+
+function playTone(frequency, duration, type='sine', volume=0.3, delay=0) {
+  if(!_soundEnabled) return;
+  try {
+    const ctx = getAudioCtx();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, ctx.currentTime + delay);
+    gainNode.gain.setValueAtTime(0, ctx.currentTime + delay);
+    gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + delay + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+    oscillator.start(ctx.currentTime + delay);
+    oscillator.stop(ctx.currentTime + delay + duration);
+  } catch(e) {}
+}
+
+function playCorrect() {
+  // Bright ascending chime
+  playTone(523, 0.15, 'sine', 0.25, 0);    // C5
+  playTone(659, 0.15, 'sine', 0.25, 0.08); // E5
+  playTone(784, 0.25, 'sine', 0.3, 0.16);  // G5
+}
+
+function playWrong() {
+  // Soft low thud — not harsh
+  playTone(220, 0.2, 'sine', 0.2, 0);    // A3
+  playTone(185, 0.3, 'sine', 0.15, 0.1); // F#3
+}
+
+function playStreak() {
+  // Celebratory ascending arpeggio
+  playTone(523, 0.12, 'sine', 0.25, 0);    // C5
+  playTone(659, 0.12, 'sine', 0.25, 0.1);  // E5
+  playTone(784, 0.12, 'sine', 0.25, 0.2);  // G5
+  playTone(1047, 0.3, 'sine', 0.3, 0.3);   // C6
+}
+
+function playMilestone() {
+  // Big celebration fanfare
+  playTone(523, 0.12, 'sine', 0.3, 0);
+  playTone(659, 0.12, 'sine', 0.3, 0.1);
+  playTone(784, 0.12, 'sine', 0.3, 0.2);
+  playTone(1047, 0.12, 'sine', 0.3, 0.3);
+  playTone(1319, 0.4, 'sine', 0.35, 0.4);
+  // Add harmony
+  playTone(659, 0.4, 'sine', 0.15, 0.4);
+}
+
+function playComplete() {
+  // Daily challenge complete fanfare
+  playTone(784, 0.15, 'sine', 0.3, 0);
+  playTone(784, 0.15, 'sine', 0.3, 0.15);
+  playTone(784, 0.15, 'sine', 0.3, 0.3);
+  playTone(1047, 0.5, 'sine', 0.35, 0.45);
+}
+
+function playFlip() {
+  // Soft card flip sound
+  playTone(440, 0.08, 'sine', 0.15, 0);
+  playTone(550, 0.08, 'sine', 0.1, 0.06);
 }
 
 function toggleTheme() {
@@ -7341,6 +7453,7 @@ async function renderDailyTrack(verse) {
 }
 
 async function showDailyResult(game, score) {
+  playComplete();
   showBackBtn(true);
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading results…</div></div>`;
@@ -7559,6 +7672,7 @@ const supabaseClient = (typeof supabase !== 'undefined')
     renderAuthScreen();
   }
   initTheme();
+  initSound();
 })();
 </script>
 </body>
