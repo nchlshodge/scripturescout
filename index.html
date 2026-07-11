@@ -861,130 +861,133 @@ async function showHome() {
   const endlessUnlocked = isEndlessUnlocked();
   const displayName = currentUsername || (currentUser ? currentUser.email.split('@')[0] : null);
 
+  // Build daily challenge progress
+  const dailyGames = ['scout','memory','mia','track'];
+  const completedCount = dailyGames.filter(g => isDailyCompleted(g)).length;
+  const dailyPct = Math.round((completedCount / 4) * 100);
+  const gameInfo = [
+    { id:'scout', icon:'📖', name:'Scout' },
+    { id:'memory', icon:'🗂️', name:'Memory' },
+    { id:'mia', icon:'✏️', name:'MIA' },
+    { id:'track', icon:'🎯', name:'Track' }
+  ];
+
+  // Time until midnight
+  const now = new Date();
+  const midnight = new Date(now); midnight.setHours(24,0,0,0);
+  const msLeft = midnight - now;
+  const hLeft = Math.floor(msLeft/3600000);
+  const mLeft = Math.floor((msLeft%3600000)/60000);
+
   root.innerHTML = `
     <div class="home-screen">
 
-      ${displayName ? `
-      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:4px;">Welcome back, <strong style="color:var(--teal);">${displayName}</strong> 👋</div>` : ''}
+      <!-- 1. Randy Welcome Card -->
+      <div style="background:linear-gradient(135deg,#8b4513,#6b3410);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+        ${getRandySVG(80)}
+        <div style="flex:1;">
+          <div style="color:#f4b942;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">${currentUser ? 'Welcome back, Scout' : 'Welcome, Scout!'}</div>
+          <div style="color:#fff8f0;font-size:1.1rem;font-weight:700;margin:3px 0;font-family:Georgia,serif;">${currentUser ? `Hey ${currentUsername || 'Scout'}! 👋` : "Let's Scout the Scriptures!"}</div>
+          <div style="color:#d4a87a;font-size:0.78rem;">${currentUser ? "Ready for today's expedition?" : 'Sign in to track your progress'}</div>
+        </div>
+      </div>
 
-      <div class="home-section-label">🎮 Main Game</div>
+      <!-- 2. Streak -->
+      ${currentUser ? `
+      <div id="homeStreakDisplay">${getStreakDisplay()}</div>` : ''}
+
+      <!-- 3. Verse of the Day -->
+      <div id="verseOfDayCard" style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;position:relative;">
+        <div style="position:absolute;top:4px;left:12px;font-size:40px;color:var(--border);font-family:Georgia,serif;line-height:1;opacity:0.6;">"</div>
+        <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);font-weight:700;margin-bottom:6px;">📖 Verse of the Day</div>
+        <div id="votdText" style="font-size:0.85rem;color:var(--text);line-height:1.7;font-style:italic;font-family:Georgia,serif;">"Loading today's verse…"</div>
+        <div id="votdRef" style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;font-weight:600;text-align:right;"></div>
+      </div>
+
+      <!-- 4. Daily Challenge Hero -->
+      <div style="background:#2d4a1e;border-radius:18px;padding:14px 16px;margin-bottom:10px;cursor:pointer;" id="homeDailyBtn">
+        <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:#a8d878;font-weight:700;margin-bottom:2px;">⚡ Daily Challenge</div>
+        <div id="homeDailyTheme" style="color:#fff8f0;font-size:1.05rem;font-weight:700;margin-bottom:10px;font-family:Georgia,serif;">Today's Challenge</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="flex:1;height:6px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;background:#a8d878;border-radius:3px;width:${dailyPct}%;"></div>
+          </div>
+          <div style="color:#a8d878;font-size:0.75rem;font-weight:600;">${completedCount} of 4</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          ${gameInfo.map(g => {
+            const done = isDailyCompleted(g.id);
+            return `<div style="background:${done ? 'rgba(168,216,120,0.15)' : 'rgba(255,255,255,0.08)'};border:1px solid ${done ? 'rgba(168,216,120,0.4)' : 'rgba(255,255,255,0.1)'};border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:15px;">${g.icon}</span>
+              <span style="color:#d4e8c4;font-size:0.75rem;font-weight:600;flex:1;">${g.name}</span>
+              ${done ? '<span style="color:#a8d878;font-size:13px;">✓</span>' : ''}
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="color:#7a9a6a;font-size:0.72rem;margin-top:8px;text-align:center;">⏰ Resets in ${hLeft}h ${mLeft}m</div>
+      </div>
+
+      <!-- 5. Games Grid -->
+      <div class="home-section-label">🎮 Game Modes</div>
       <div class="home-game-grid">
-        <div class="home-game-card featured" id="homePlayBtn">
+        <div class="home-game-card featured" id="homePlayBtn" style="grid-column:1/-1;">
           <div class="home-game-icon">📖</div>
           <div style="flex:1;">
+            <div style="font-size:0.65rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">FLAGSHIP</div>
             <div class="home-game-name">Scripture Scout</div>
-            <div class="home-game-desc">Guess the Testament, Book and Chapter from a verse</div>
+            <div class="home-game-desc">Guess the verse — Easy to Endless</div>
           </div>
-          <div class="home-game-badge badge-easy" style="position:static;">Play</div>
         </div>
-
-      </div>
-
-      <!-- ⚡ Daily Challenge -->
-      <!-- Verse of the Day -->
-      <div id="verseOfDayCard" class="card" style="margin-bottom:12px;background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(59,191,160,0.05));border-color:rgba(167,139,250,0.3);">
-        <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;color:#A78BFA;font-weight:700;margin-bottom:8px;">📖 Verse of the Day</div>
-        <div id="votdText" style="font-size:0.88rem;color:var(--text);line-height:1.7;font-style:italic;">"Loading today's verse…"</div>
-        <div id="votdRef" style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;font-weight:600;"></div>
-      </div>
-
-      <div class="home-section-label">⚡ Daily Challenge</div>
-      <div class="home-game-grid">
-        <div class="home-game-card featured" id="homeDailyBtn" style="border-color:#A78BFA;background:rgba(167,139,250,0.04);grid-column:1/-1;">
-          <div class="home-game-icon">⚡</div>
+        <div class="home-game-card featured" id="homeStoryBtn" style="grid-column:1/-1;border-color:#8b6914;background:rgba(139,105,20,0.05);">
+          <div class="home-game-icon">📜</div>
           <div style="flex:1;">
-            <div class="home-game-name" style="color:#A78BFA;">Daily Challenge</div>
-            <div class="home-game-desc">One verse, four games. Everyone gets the same challenge today. Resets at midnight!</div>
+            <div class="home-game-name">Story Mode</div>
+            <div class="home-game-desc">19 paths · 212 chapters</div>
           </div>
-          <div class="home-game-badge" style="background:rgba(167,139,250,0.15);color:#A78BFA;border:1px solid #A78BFA;position:static;" id="homeDailyBadge">Play</div>
         </div>
-      </div>
-
-      <div class="home-section-label">🧩 Game Modes</div>
-      <div class="home-game-grid">
         <div class="home-game-card" id="homeMemoryBtn" onclick="showBackBtn(true);renderFlashcardSetup();">
           <div class="home-game-icon small">🗂️</div>
           <div class="home-game-name">Memory Trail</div>
-          <div class="home-game-desc">Recall verses — Easy, Medium & Hard</div>
+          <div class="home-game-desc">Quiz or study mode</div>
         </div>
         <div class="home-game-card" id="homeMiaBtn" onclick="showBackBtn(true);renderFillBlankSetup();">
           <div class="home-game-icon small">✏️</div>
           <div class="home-game-name">Missing in Action</div>
-          <div class="home-game-desc">Fill blanks — tap, type or no hints</div>
+          <div class="home-game-desc">Fill the blanks</div>
         </div>
         <div class="home-game-card" id="homeTrackBtn" onclick="showBackBtn(true);renderRefChallengeSetup();">
           <div class="home-game-icon small">🎯</div>
           <div class="home-game-name">Track It Down</div>
-          <div class="home-game-desc">Find the reference — same book on Hard!</div>
+          <div class="home-game-desc">Find the reference</div>
         </div>
-        <div class="home-game-card" id="homeLeaderboardBtn" style="border-color:var(--border-hi);">
+        <div class="home-game-card" id="homeLeaderboardBtn">
           <div class="home-game-icon small">🏆</div>
           <div class="home-game-name">Leaderboard</div>
-          <div class="home-game-desc">See the top scores</div>
-        </div>
-        <div class="home-game-card featured" id="homeStoryBtn" style="border-color:#A78BFA;background:rgba(167,139,250,0.04);grid-column:1/-1;">
-          <div class="home-game-icon">📜</div>
-          <div style="flex:1;">
-            <div class="home-game-name" style="color:#A78BFA;">Story Mode</div>
-            <div class="home-game-desc">Follow the Gospel Story through 12 key moments. Unlock verses as you go.</div>
-          </div>
-          <div class="home-game-badge" style="background:rgba(167,139,250,0.15);color:#A78BFA;border:1px solid #A78BFA;position:static;">New!</div>
+          <div class="home-game-desc">Top scores</div>
         </div>
       </div>
 
-      <div class="home-section-label">👤 Your Account</div>
+      <!-- 6. Account strip -->
       ${currentUser ? `
-      <div style="background:linear-gradient(135deg,#8b4513,#6b3410);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:8px;">
-        ${getRandySVG(80)}
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-top:4px;">
+        <div style="width:38px;height:38px;border-radius:50%;background:#8b4513;display:flex;align-items:center;justify-content:center;color:#f4b942;font-weight:700;font-size:14px;flex-shrink:0;">${(currentUsername||'S')[0].toUpperCase()}</div>
         <div style="flex:1;">
-          <div style="color:#f4b942;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Welcome back, Scout</div>
-          <div style="color:#fff8f0;font-size:1.1rem;font-weight:700;margin:3px 0;font-family:Georgia,serif;">Hey ${currentUsername || 'Scout'}! 👋</div>
-          <div style="color:#d4a87a;font-size:0.78rem;">Ready for today's expedition?</div>
+          <div style="font-size:0.88rem;font-weight:700;color:var(--text);">${currentUsername || 'Scout'}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted);">Scripture Scout Player</div>
         </div>
-      </div>
-      <div class="home-stats">
-        <div id="homeStreakDisplay">${currentStreak ? getStreakDisplay() : '<div class="streak-bar"><div class="streak-fire">🔥</div><div class="streak-info"><div class="streak-count" style="color:var(--text-muted);">—</div><div class="streak-label">Loading streak…</div></div></div>'}</div>
-        <div class="home-stats-row" style="margin-top:8px;">
-          <div class="home-stat-item"><div class="home-stat-val">${userStats ? userStats.games : 0}</div><div class="home-stat-label">Games</div></div>
-          <div class="home-stat-divider"></div>
-          <div class="home-stat-item"><div class="home-stat-val">${userStats ? userStats.best.toLocaleString() : 0}</div><div class="home-stat-label">Best Score</div></div>
-          <div class="home-stat-divider"></div>
-          <div class="home-stat-item" id="homeStreakStat"><div class="home-stat-val">${currentStreak ? currentStreak.longest_streak : '—'} 🔥</div><div class="home-stat-label">Best Streak</div></div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button class="btn-change-diff" style="flex:1;" onclick="showBackBtn(true);renderProfile()">👤 My Profile</button>
-          <button class="btn-change-diff" style="flex:1;position:relative;" id="homeNotifBtn" onclick="showBackBtn(true);renderNotificationHub()">🔔 Alerts <span id="homeNotifCount" style="display:none;background:#E53E3E;color:white;font-size:0.65rem;font-weight:700;border-radius:10px;padding:1px 5px;margin-left:4px;">0</span></button>
-          <button class="btn-change-diff" style="flex:1;" onclick="signOut()">Sign Out</button>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-change-diff" style="padding:6px 10px;font-size:0.72rem;" onclick="showBackBtn(true);renderProfile()">👤</button>
+          <button class="btn-change-diff" style="padding:6px 10px;font-size:0.72rem;position:relative;" id="homeNotifBtn" onclick="showBackBtn(true);renderNotificationHub()">🔔<span id="homeNotifCount" style="display:none;position:absolute;top:-4px;right:-4px;background:#E53E3E;color:white;font-size:0.6rem;font-weight:700;border-radius:8px;padding:1px 4px;">0</span></button>
+          <button class="btn-change-diff" style="padding:6px 10px;font-size:0.72rem;" onclick="showBackBtn(true);renderFriends()">👥</button>
+          <button class="btn-change-diff" style="padding:6px 10px;font-size:0.72rem;" onclick="showBackBtn(true);renderChallenges()">⚔️</button>
         </div>
       </div>` : `
-      <div class="home-stats" style="text-align:center;">
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;text-align:center;margin-top:4px;">
         <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Sign in to track your progress and appear on the leaderboard!</div>
         <button class="btn-next" onclick="renderAuthScreen()">Sign In / Create Account</button>
       </div>`}
 
-      ${topScores.length ? `
-      <div class="home-section-label">🏆 Top Scores Today</div>
-      <div class="mini-lb">
-        <div class="mini-lb-header">
-          <span class="mini-lb-title">Scripture Scout — Easy</span>
-          <button class="mini-lb-see-all" onclick="showBackBtn(true);renderLeaderboardHub()">See All →</button>
-        </div>
-        ${topScores.map((s,i)=>`
-        <div class="mini-lb-row">
-          <span class="mini-lb-rank">${i===0?'🥇':i===1?'🥈':'🥉'}</span>
-          <span class="mini-lb-name">${s.name}</span>
-          <span class="mini-lb-score">${s.score.toLocaleString()}</span>
-        </div>`).join('')}
-      </div>` : ''}
-
-      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn-share" onclick="shareApp()" style="flex:1;">📨 Invite a Friend</button>
-        ${currentUser ? `<button class="btn-share" onclick="showBackBtn(true);renderFriends();" style="flex:1;background:rgba(167,139,250,0.1);border-color:#A78BFA;color:#A78BFA;">👥 Friends</button>` : ''}
-        ${currentUser ? `<button class="btn-share" onclick="showBackBtn(true);renderMessages();" style="flex:1;background:rgba(167,139,250,0.1);border-color:#A78BFA;color:#A78BFA;">💬 Messages</button>` : ''}
-        ${currentUser ? `<button class="btn-share" onclick="showBackBtn(true);renderChallenges();" style="flex:1;background:rgba(244,185,66,0.1);border-color:#F4B942;color:#F4B942;">⚔️ Challenges</button>` : ''}
-        ${currentUser ? `<button class="btn-signout" onclick="signOut()" style="flex:0 0 auto;padding:11px 14px;">Sign Out</button>` : ''}
-      </div>
-      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:10px;background:rgba(59,191,160,0.12);border:1px solid rgba(59,191,160,0.3);border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:var(--teal);">
+      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:10px;background:rgba(139,69,19,0.08);border:1px solid rgba(139,69,19,0.2);border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:#8b4513;">
         ☕ Support Scripture Scout
       </a>
 
@@ -992,24 +995,23 @@ async function showHome() {
 
   // Wire up buttons
   document.getElementById('homePlayBtn').onclick = () => { showBackBtn(true); renderDiffScreen(); };
-
   document.getElementById('homeDailyBtn').onclick = () => { showBackBtn(true); renderDailyChallenge(); };
-  // Update daily badge to show completion count
-  const dailyGames = ['scout','memory','mia','track'];
-  const completedCount = dailyGames.filter(g => isDailyCompleted(g)).length;
-  const badge = document.getElementById('homeDailyBadge');
-  if(badge) badge.textContent = completedCount === 4 ? '✓ All Done' : completedCount > 0 ? `${completedCount}/4 Done` : 'Play';
-  if(badge && completedCount === 4) {
-    badge.style.background='var(--teal-dim)'; badge.style.color='var(--teal)'; badge.style.borderColor='var(--teal)';
-    updateStreak(true); // bonus streak day for completing all 4
-  }
-
   document.getElementById('homeMemoryBtn').onclick = () => { showBackBtn(true); renderFlashcardSetup(); };
   document.getElementById('homeMiaBtn').onclick = () => { showBackBtn(true); renderFillBlankSetup(); };
   document.getElementById('homeTrackBtn').onclick = () => { showBackBtn(true); renderRefChallengeSetup(); };
-
   document.getElementById('homeLeaderboardBtn').onclick = () => { showBackBtn(true); renderLeaderboardHub(); };
   document.getElementById('homeStoryBtn').onclick = () => { showBackBtn(true); renderStoryMode(); };
+
+  if(completedCount === 4) updateStreak(true);
+
+  // Fetch daily theme
+  try {
+    const dayNum = Math.floor(Date.now() / 86400000);
+    const topicIdx = dayNum % 255;
+    const topics = await sbFetch(`verse_topics?order=id&limit=1&offset=${topicIdx}&select=topic`).catch(()=>[]);
+    const themeEl = document.getElementById('homeDailyTheme');
+    if(themeEl && topics.length) themeEl.textContent = topics[0].topic;
+  } catch(e) {}
 }
 
 function calculateStreak(scores) {
@@ -6989,24 +6991,22 @@ async function fetchVerseOfDay() {
   const cached = localStorage.getItem(cacheKey);
 
   if(cached) {
-    const v = JSON.parse(cached);
-    updateVOTD(v);
-    return;
+    try { updateVOTD(JSON.parse(cached)); return; } catch(e) {}
   }
 
   try {
-    // Use day of year as seed for consistent daily verse
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
     const dayOfYear = Math.floor((now - start) / 86400000);
-    const total = DIFF_COUNTS[TRANSLATION]['easy'];
-    const offset = (dayOfYear * 137) % total; // 137 = prime number spread
-    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.easy&select=book,chapter,verse,text&limit=1&offset=${offset}`);
+    // Use a fixed pool size so it works before DIFF_COUNTS loads
+    const total = 5000;
+    const offset = (dayOfYear * 137) % total;
+    const rows = await sbFetch(`verses?translation=eq.WEB&difficulty=eq.easy&select=book,chapter,verse,text&limit=1&offset=${offset}`);
     if(rows.length) {
       localStorage.setItem(cacheKey, JSON.stringify(rows[0]));
       updateVOTD(rows[0]);
     }
-  } catch(e) {}
+  } catch(e) { console.log('VOTD error:', e); }
 }
 
 function updateVOTD(v) {
