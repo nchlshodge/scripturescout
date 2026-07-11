@@ -3648,7 +3648,16 @@ async function renderStoryMode() {
     if(currentUser) {
       try {
         const progress = await sbFetch(`story_progress?user_id=eq.${currentUser.id}&select=*`);
-        progress.forEach(p => { storyProgress[p.path_id] = p.chapter_num; });
+        progress.forEach(p => {
+          // Track highest chapter completed per path
+          if(!storyProgress[p.path_id] || p.chapter_num > storyProgress[p.path_id]) {
+            storyProgress[p.path_id] = p.chapter_num;
+          }
+          // Track stars per chapter
+          if(p.stars) {
+            storyProgress[`stars_${p.path_id}_${p.chapter_num}`] = p.stars;
+          }
+        });
       } catch(e) {}
     }
 
