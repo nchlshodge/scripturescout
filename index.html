@@ -4693,7 +4693,7 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
         completed: isCompleted
       })
     });
-    console.log('[Story] Save response:', res.status, 'stars:', stars);
+    
   } catch(e) { console.error('Story save error:', e); }
 }
 
