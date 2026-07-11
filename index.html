@@ -4526,8 +4526,9 @@ async function completeStoryRound() {
   const newStars = Math.max(s.stars, s.round);
   storyProgress[`stars_${s.pathId}_${s.chapter.chapter_num}`] = newStars;
   const currentCompleted = storyProgress[s.pathId] || 0;
+  // Always save stars — even on replay to update star count
+  await completeStoryChapter(s.pathId, s.chapter.chapter_num, newStars);
   if(s.chapter.chapter_num > currentCompleted) {
-    await completeStoryChapter(s.pathId, s.chapter.chapter_num, newStars);
   }
   setTimeout(() => renderStoryRoundComplete(newStars), 1200);
 }
