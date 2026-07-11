@@ -3716,15 +3716,16 @@ async function renderStoryMode() {
     // Load user progress if logged in
     if(currentUser) {
       try {
-        const progress = await sbFetch(`story_progress?user_id=eq.${currentUser.id}&select=*`);
+        const progress = await sbFetch(`story_progress?user_id=eq.${currentUser.id}&select=*&order=stars.desc`);
         progress.forEach(p => {
           // Track highest chapter completed per path
           if(!storyProgress[p.path_id] || p.chapter_num > storyProgress[p.path_id]) {
             storyProgress[p.path_id] = p.chapter_num;
           }
-          // Track stars per chapter
-          if(p.stars) {
-            storyProgress[`stars_${p.path_id}_${p.chapter_num}`] = p.stars;
+          // Track MAX stars per chapter — since we allow multiple rows, highest wins
+          const key = `stars_${p.path_id}_${p.chapter_num}`;
+          if(!storyProgress[key] || p.stars > storyProgress[key]) {
+            storyProgress[key] = p.stars;
           }
         });
       } catch(e) {}
@@ -4675,30 +4676,21 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
     const pathChapters = await sbFetch(`story_chapters?path_id=eq.${pathId}&select=chapter_num&order=chapter_num.desc&limit=1`);
     const totalChapters = pathChapters.length ? pathChapters[0].chapter_num : 10;
     const isCompleted = chapterNum >= totalChapters;
-    const headers = {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${authToken}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    };
 
-    // Delete existing row first then insert fresh
-    await fetch(`${SUPABASE_URL}/rest/v1/story_progress?user_id=eq.${currentUser.id}&path_id=eq.${pathId}&chapter_num=eq.${chapterNum}`, {
-      method: 'DELETE',
-      headers
-    });
-
-    // Now insert clean
     const res = await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
       method: 'POST',
-      headers,
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
       body: JSON.stringify({
         user_id: currentUser.id,
         path_id: pathId,
         chapter_num: chapterNum,
         stars,
-        completed: isCompleted,
-        updated_at: new Date().toISOString()
+        completed: isCompleted
       })
     });
     console.log('[Story] Save response:', res.status, 'stars:', stars);
