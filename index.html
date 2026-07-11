@@ -19,13 +19,13 @@
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:ital@0;1&display=swap');
 
   :root {
-    --bg:         #0E1410;
-    --surface:    #151D17;
-    --surface-2:  #1C2820;
-    --border:     #2A3D2F;
-    --border-hi:  #3D5C44;
-    --text:       #DFF0E3;
-    --text-muted: #6E8F74;
+    --bg:         #f4ede0;
+    --surface:    #fffbf0;
+    --surface-2:  #fdf5e4;
+    --border:     #d4b87a;
+    --border-hi:  #c4a97a;
+    --text:       #3a2800;
+    --text-muted: #8b6914;
     --moss:       #4A7C59;
     --fern:       #6BAF7A;
     --fern-glow:  rgba(107,175,122,0.2);
@@ -37,22 +37,23 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  .light-mode {
-    --bg:         #F0F4F1;
-    --surface:    #FFFFFF;
-    --surface-2:  #E8F0EA;
-    --border:     #C8D8CC;
-    --border-hi:  #A0BCA8;
-    --text:       #1A2E1F;
-    --text-muted: #5A7A62;
-    --teal:       #0F6E56;
-    --teal-dim:   rgba(15,110,86,0.1);
-    --earth:      #9B5E1A;
-    --earth-dim:  rgba(155,94,26,0.1);
+  .dark-mode {
+    --bg:         #0E1410;
+    --surface:    #151D17;
+    --surface-2:  #1C2820;
+    --border:     #2A3D2F;
+    --border-hi:  #3D5C44;
+    --text:       #DFF0E3;
+    --text-muted: #6E8F74;
+    --teal:       #3BBFA0;
+    --teal-dim:   rgba(59,191,160,0.15);
+    --earth:      #C8783A;
+    --earth-dim:  rgba(200,120,58,0.15);
   }
 
   body {
     background: var(--bg);
+    transition: background 0.3s ease, color 0.3s ease;
     background-image:
       radial-gradient(ellipse 70% 50% at 15% 5%,  rgba(74,124,89,0.15) 0%, transparent 65%),
       radial-gradient(ellipse 50% 40% at 85% 95%, rgba(59,191,160,0.08) 0%, transparent 60%);
@@ -933,6 +934,14 @@ async function showHome() {
 
       <div class="home-section-label">👤 Your Account</div>
       ${currentUser ? `
+      <div style="background:linear-gradient(135deg,#8b4513,#6b3410);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+        ${getRandySVG(80)}
+        <div style="flex:1;">
+          <div style="color:#f4b942;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Welcome back, Scout</div>
+          <div style="color:#fff8f0;font-size:1.1rem;font-weight:700;margin:3px 0;font-family:Georgia,serif;">Hey ${currentUsername || 'Scout'}! 👋</div>
+          <div style="color:#d4a87a;font-size:0.78rem;">Ready for today's expedition?</div>
+        </div>
+      </div>
       <div class="home-stats">
         <div id="homeStreakDisplay">${currentStreak ? getStreakDisplay() : '<div class="streak-bar"><div class="streak-fire">🔥</div><div class="streak-info"><div class="streak-count" style="color:var(--text-muted);">—</div><div class="streak-label">Loading streak…</div></div></div>'}</div>
         <div class="home-stats-row" style="margin-top:8px;">
@@ -6840,6 +6849,61 @@ function getAudioCtx() {
   return _audioCtx;
 }
 
+function getRandySVG(size=80) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <!-- Mane -->
+    <ellipse cx="60" cy="72" rx="44" ry="42" fill="#c8841a"/>
+    <circle cx="28" cy="50" r="18" fill="#c8841a"/>
+    <circle cx="92" cy="50" r="18" fill="#c8841a"/>
+    <circle cx="22" cy="70" r="14" fill="#b87518"/>
+    <circle cx="98" cy="70" r="14" fill="#b87518"/>
+    <circle cx="30" cy="90" r="12" fill="#a06010"/>
+    <circle cx="90" cy="90" r="12" fill="#a06010"/>
+    <!-- Face -->
+    <ellipse cx="60" cy="72" rx="35" ry="33" fill="#e8b45a"/>
+    <!-- Hat brim -->
+    <ellipse cx="60" cy="42" rx="40" ry="11" fill="#6b4c20"/>
+    <!-- Hat crown -->
+    <path d="M28 42 Q34 14 60 10 Q86 14 92 42 Z" fill="#7d5a28"/>
+    <path d="M38 14 Q60 22 82 14" stroke="#5a3e18" stroke-width="2" fill="none"/>
+    <!-- Hat band -->
+    <rect x="28" y="36" width="64" height="8" rx="3" fill="#4a3010"/>
+    <!-- Hat badge -->
+    <circle cx="60" cy="40" r="7" fill="#c8a84b" stroke="#8b6914" stroke-width="1"/>
+    <text x="60" y="44" text-anchor="middle" font-size="7" font-weight="700" fill="#3a2800">S</text>
+    <!-- Ears -->
+    <circle cx="30" cy="62" r="11" fill="#e8b45a"/>
+    <circle cx="30" cy="62" r="7" fill="#d4845a"/>
+    <circle cx="90" cy="62" r="11" fill="#e8b45a"/>
+    <circle cx="90" cy="62" r="7" fill="#d4845a"/>
+    <!-- Eyes -->
+    <ellipse cx="44" cy="70" rx="11" ry="12" fill="white"/>
+    <ellipse cx="76" cy="70" rx="11" ry="12" fill="white"/>
+    <circle cx="46" cy="72" r="7" fill="#3a2800"/>
+    <circle cx="78" cy="72" r="7" fill="#3a2800"/>
+    <circle cx="48" cy="69" r="3" fill="white"/>
+    <circle cx="80" cy="69" r="3" fill="white"/>
+    <!-- Eyebrows raised friendly -->
+    <path d="M32 52 Q44 44 56 50" stroke="#b07018" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M64 50 Q76 44 88 52" stroke="#b07018" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Nose -->
+    <ellipse cx="60" cy="84" rx="9" ry="6" fill="#c8641a"/>
+    <ellipse cx="60" cy="81" rx="6" ry="4" fill="#e0784a"/>
+    <!-- Big smile -->
+    <path d="M40 96 Q60 112 80 96" stroke="#8b4513" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Cheeks -->
+    <ellipse cx="36" cy="90" rx="10" ry="5" fill="#e09040" opacity="0.35"/>
+    <ellipse cx="84" cy="90" rx="10" ry="5" fill="#e09040" opacity="0.35"/>
+    <!-- Waving paw (right arm raised) -->
+    <ellipse cx="100" cy="58" rx="10" ry="8" fill="#e8b45a" transform="rotate(-40 100 58)"/>
+    <circle cx="106" cy="46" r="11" fill="#d4a040"/>
+    <!-- Paw toe details -->
+    <circle cx="101" cy="38" r="4" fill="#c8841a"/>
+    <circle cx="111" cy="40" r="4" fill="#c8841a"/>
+    <circle cx="106" cy="35" r="4" fill="#c8841a"/>
+  </svg>`;
+}
+
 function toggleSound() {
   _soundEnabled = !_soundEnabled;
   localStorage.setItem('ss_sound', _soundEnabled ? '1' : '0');
@@ -6953,47 +7017,38 @@ function updateVOTD(v) {
 }
 
 function toggleTheme() {
-  const isLight = document.body.classList.toggle('light-mode');
-  localStorage.setItem('ss_theme', isLight ? 'light' : 'dark');
+  const isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('ss_theme', isDark ? 'dark' : 'light');
   const btn = document.getElementById('themeToggleBtn');
-  if(btn) btn.textContent = isLight ? '☀️' : '🌙';
-  showStreakToast(isLight ? '☀️ Light mode' : '🌙 Dark mode');
+  if(btn) btn.textContent = isDark ? '☀️' : '🌙';
+  showStreakToast(isDark ? '🌙 Dark mode' : '☀️ Light mode');
 }
 
 function initTheme() {
   const saved = localStorage.getItem('ss_theme');
-  // If user has manually chosen a theme use that
-  // Otherwise follow system preference
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const isLight = saved === 'light' || (saved === null && !prefersDark);
+  const isDark = saved === 'dark' || (saved === null && prefersDark);
 
-  if(isLight) {
-    document.body.classList.add('light-mode');
+  if(isDark) {
+    document.body.classList.add('dark-mode');
   } else {
-    document.body.classList.remove('light-mode');
+    document.body.classList.remove('dark-mode');
   }
   const btn = document.getElementById('themeToggleBtn');
-  if(btn) btn.textContent = isLight ? '☀️' : '🌙';
+  if(btn) btn.textContent = isDark ? '☀️' : '🌙';
 
-  // Listen for system theme changes (if user hasn't manually set a preference)
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-    if(localStorage.getItem('ss_theme') !== null) return; // respect manual choice
+    if(localStorage.getItem('ss_theme') !== null) return;
     if(e.matches) {
-      document.body.classList.remove('light-mode');
-      const btn = document.getElementById('themeToggleBtn');
-      if(btn) btn.textContent = '🌙';
-    } else {
-      document.body.classList.add('light-mode');
+      document.body.classList.add('dark-mode');
       const btn = document.getElementById('themeToggleBtn');
       if(btn) btn.textContent = '☀️';
+    } else {
+      document.body.classList.remove('dark-mode');
+      const btn = document.getElementById('themeToggleBtn');
+      if(btn) btn.textContent = '🌙';
     }
   });
-}
-
-function resetThemeToSystem() {
-  localStorage.removeItem('ss_theme');
-  initTheme();
-  showStreakToast('Theme reset to system default');
 }
 
 function showStreakToast(msg) {
