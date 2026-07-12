@@ -2320,8 +2320,17 @@ function awardAndAdvance(correct,pts,reveal,nextPhase){
   updateHUD();
   const fb=document.getElementById('feedback');
   if(fb){
-    if(correct){fb.className='feedback correct';fb.innerHTML=`✓ Correct! <span class="points-pop">+${pts}</span>${streak>1?` 🔥 ×${streak} streak`:''}` ;}
-    else{fb.className='feedback wrong';fb.innerHTML=`✗ Not quite${reveal?` — it's <strong>${reveal}</strong>`:''}`;}
+    if(correct){
+      fb.className='feedback correct';
+      fb.innerHTML=`✓ Correct! <span class="points-pop">+${pts}</span>${streak>1?` 🔥 ×${streak} streak`:''}`;
+      showRandyReaction(streak >= 3 ? 'happy' : 'happy');
+      if(streak >= 3) playStreak(); else playCorrect();
+    } else {
+      fb.className='feedback wrong';
+      fb.innerHTML=`✗ Not quite${reveal?` — it's <strong>${reveal}</strong>`:''}`;
+      showRandyReaction('sad');
+      playWrong();
+    }
   }
   phase=nextPhase;
   hintUsed=false;
@@ -6851,59 +6860,40 @@ function getAudioCtx() {
   return _audioCtx;
 }
 
+function showRandyReaction(expression, duration=1800) {
+  // Remove any existing reaction
+  document.getElementById('randyReaction')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'randyReaction';
+  overlay.style.cssText = `position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;animation:randyPop 0.3s ease;`;
+  overlay.innerHTML = getRandyImg(expression, 100);
+  document.body.appendChild(overlay);
+
+  // Add animation style if not present
+  if(!document.getElementById('randyStyle')) {
+    const style = document.createElement('style');
+    style.id = 'randyStyle';
+    style.textContent = `@keyframes randyPop { from { transform:translateX(-50%) scale(0.5); opacity:0; } to { transform:translateX(-50%) scale(1); opacity:1; } }`;
+    document.head.appendChild(style);
+  }
+
+  setTimeout(() => overlay.remove(), duration);
+}
+
+function getRandyImg(expression='default', size=80) {
+  const imgs = {
+    default:  '/randy-default.png',
+    happy:    '/randy-happy.png',
+    sad:      '/randy-sad.png',
+    thinking: '/randy-thinking.png'
+  };
+  const src = imgs[expression] || imgs.default;
+  return `<img src="${src}" width="${size}" height="${size}" style="object-fit:contain;flex-shrink:0;" alt="Randy the Ranger" onerror="this.style.display='none'">`;
+}
+
 function getRandySVG(size=80) {
-  return `<svg width="${size}" height="${size}" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-    <!-- Mane -->
-    <ellipse cx="60" cy="72" rx="44" ry="42" fill="#c8841a"/>
-    <circle cx="28" cy="50" r="18" fill="#c8841a"/>
-    <circle cx="92" cy="50" r="18" fill="#c8841a"/>
-    <circle cx="22" cy="70" r="14" fill="#b87518"/>
-    <circle cx="98" cy="70" r="14" fill="#b87518"/>
-    <circle cx="30" cy="90" r="12" fill="#a06010"/>
-    <circle cx="90" cy="90" r="12" fill="#a06010"/>
-    <!-- Face -->
-    <ellipse cx="60" cy="72" rx="35" ry="33" fill="#e8b45a"/>
-    <!-- Hat brim -->
-    <ellipse cx="60" cy="42" rx="40" ry="11" fill="#6b4c20"/>
-    <!-- Hat crown -->
-    <path d="M28 42 Q34 14 60 10 Q86 14 92 42 Z" fill="#7d5a28"/>
-    <path d="M38 14 Q60 22 82 14" stroke="#5a3e18" stroke-width="2" fill="none"/>
-    <!-- Hat band -->
-    <rect x="28" y="36" width="64" height="8" rx="3" fill="#4a3010"/>
-    <!-- Hat badge -->
-    <circle cx="60" cy="40" r="7" fill="#c8a84b" stroke="#8b6914" stroke-width="1"/>
-    <text x="60" y="44" text-anchor="middle" font-size="7" font-weight="700" fill="#3a2800">S</text>
-    <!-- Ears -->
-    <circle cx="30" cy="62" r="11" fill="#e8b45a"/>
-    <circle cx="30" cy="62" r="7" fill="#d4845a"/>
-    <circle cx="90" cy="62" r="11" fill="#e8b45a"/>
-    <circle cx="90" cy="62" r="7" fill="#d4845a"/>
-    <!-- Eyes -->
-    <ellipse cx="44" cy="70" rx="11" ry="12" fill="white"/>
-    <ellipse cx="76" cy="70" rx="11" ry="12" fill="white"/>
-    <circle cx="46" cy="72" r="7" fill="#3a2800"/>
-    <circle cx="78" cy="72" r="7" fill="#3a2800"/>
-    <circle cx="48" cy="69" r="3" fill="white"/>
-    <circle cx="80" cy="69" r="3" fill="white"/>
-    <!-- Eyebrows raised friendly -->
-    <path d="M32 52 Q44 44 56 50" stroke="#b07018" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <path d="M64 50 Q76 44 88 52" stroke="#b07018" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <!-- Nose -->
-    <ellipse cx="60" cy="84" rx="9" ry="6" fill="#c8641a"/>
-    <ellipse cx="60" cy="81" rx="6" ry="4" fill="#e0784a"/>
-    <!-- Big smile -->
-    <path d="M40 96 Q60 112 80 96" stroke="#8b4513" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <!-- Cheeks -->
-    <ellipse cx="36" cy="90" rx="10" ry="5" fill="#e09040" opacity="0.35"/>
-    <ellipse cx="84" cy="90" rx="10" ry="5" fill="#e09040" opacity="0.35"/>
-    <!-- Waving paw (right arm raised) -->
-    <ellipse cx="100" cy="58" rx="10" ry="8" fill="#e8b45a" transform="rotate(-40 100 58)"/>
-    <circle cx="106" cy="46" r="11" fill="#d4a040"/>
-    <!-- Paw toe details -->
-    <circle cx="101" cy="38" r="4" fill="#c8841a"/>
-    <circle cx="111" cy="40" r="4" fill="#c8841a"/>
-    <circle cx="106" cy="35" r="4" fill="#c8841a"/>
-  </svg>`;
+  return getRandyImg('default', size);
 }
 
 function toggleSound() {
