@@ -38,17 +38,17 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   .dark-mode {
-    --bg:         #0E1410;
-    --surface:    #151D17;
-    --surface-2:  #1C2820;
-    --border:     #2A3D2F;
-    --border-hi:  #3D5C44;
-    --text:       #DFF0E3;
-    --text-muted: #6E8F74;
-    --teal:       #3BBFA0;
-    --teal-dim:   rgba(59,191,160,0.15);
-    --earth:      #C8783A;
-    --earth-dim:  rgba(200,120,58,0.15);
+    --bg:         #1a1208;
+    --surface:    #231a0a;
+    --surface-2:  #2e2210;
+    --border:     #5a4020;
+    --border-hi:  #7a5a2a;
+    --text:       #f0deb8;
+    --text-muted: #9a7a48;
+    --teal:       #2d6e3e;
+    --teal-dim:   rgba(45,110,62,0.15);
+    --earth:      #c8641a;
+    --earth-dim:  rgba(200,100,26,0.15);
   }
 
   body {
@@ -66,7 +66,7 @@
     color: var(--text);
   }
 
-  .masthead { text-align: center; margin-bottom: 24px; width: 100%; max-width: 560px; }
+  .masthead { text-align: center; margin-bottom: 24px; width: 100%; max-width: 560px; display:none; }
   .masthead h1 {
     font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 700;
     background: linear-gradient(135deg, #8FD9A8 0%, #3BBFA0 100%);
@@ -1183,8 +1183,11 @@ function getAuthHeaders() {
 function renderAuthScreen(mode='login') {
   const topBar = document.getElementById('topBar');
   if(topBar) topBar.style.display = 'none';
+  // Hide masthead on login screen
+  const masthead = document.querySelector('.masthead');
+  if(masthead) masthead.style.display = 'none';
   document.getElementById('root').innerHTML = `
-    <div class="auth-screen">
+    <div class="auth-screen" style="background:var(--bg);min-height:100vh;padding:20px 0;">
 
       <!-- Randy + App Name -->
       <div style="text-align:center;margin-bottom:20px;">
