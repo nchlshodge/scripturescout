@@ -6803,11 +6803,11 @@ async function loadStreak() {
     if(rows.length) {
       currentStreak = rows[0];
     } else {
-      // Create new streak record
-      const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' };
+      // Create new streak record using upsert to prevent duplicates
+      const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'resolution=ignore-duplicates,return=representation' };
       const res = await fetch(`${SUPABASE_URL}/rest/v1/streaks`, { method:'POST', headers, body: JSON.stringify({ user_id: currentUser.id, current_streak:0, longest_streak:0, freeze_tokens:0, total_days_played:0 }) });
       const data = await res.json();
-      currentStreak = Array.isArray(data) ? data[0] : data;
+      currentStreak = Array.isArray(data) && data[0] ? data[0] : { user_id: currentUser.id, current_streak:0, longest_streak:0, freeze_tokens:0, total_days_played:0 };
     }
     return currentStreak;
   } catch(e) { console.error('Load streak failed:', e); return null; }
