@@ -223,20 +223,21 @@
   .submitting { text-align:center; color:var(--text-muted); font-size:0.85rem; padding:8px 0; }
 
   /* Auth */
-  .auth-screen { width:100%; max-width:560px; }
-  .auth-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:32px 28px; }
-  .auth-tabs { display:flex; gap:0; background:var(--surface-2); border-radius:10px; overflow:hidden; margin-bottom:24px; }
-  .auth-tab { flex:1; padding:10px; text-align:center; font-size:0.85rem; font-weight:600; color:var(--text-muted); cursor:pointer; border:none; background:transparent; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
-  .auth-tab.active { background:var(--surface); color:var(--teal); border-radius:10px; }
-  .auth-field { margin-bottom:16px; }
-  .auth-field label { display:block; font-size:0.75rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
-  .auth-input { width:100%; padding:12px 14px; background:var(--surface-2); border:1.5px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; color:var(--text); outline:none; transition:border-color 0.15s; }
-  .auth-input:focus { border-color:var(--fern); }
-  .auth-input::placeholder { color:var(--text-muted); }
-  .auth-error { background:var(--earth-dim); border:1px solid var(--earth); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--earth); margin-bottom:14px; display:none; }
+  .auth-screen { width:100%; max-width:560px; padding:20px 0; }
+  .auth-card { background:var(--surface); border:1.5px solid var(--border); border-radius:18px; padding:20px; }
+  .auth-tabs { display:flex; gap:0; background:var(--surface-2); border-radius:10px; padding:3px; margin-bottom:16px; }
+  .auth-tab { flex:1; padding:9px; text-align:center; font-size:0.85rem; font-weight:600; color:var(--text-muted); cursor:pointer; border:none; background:transparent; font-family:'DM Sans',sans-serif; border-radius:8px; transition:all 0.15s; }
+  .auth-tab.active { background:#8b4513; color:#f4b942; }
+  .auth-field { margin-bottom:12px; }
+  .auth-field label { display:block; font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:5px; }
+  .auth-input { width:100%; padding:11px 14px; background:var(--surface-2); border:1.5px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; color:var(--text); outline:none; transition:border-color 0.15s; box-sizing:border-box; }
+  .auth-input:focus { border-color:#8b4513; }
+  .auth-input::placeholder { color:var(--text-muted); opacity:0.7; }
+  .auth-error { background:rgba(200,64,26,0.1); border:1px solid #c8401a; border-radius:8px; padding:10px 14px; font-size:0.82rem; color:#c8401a; margin-bottom:14px; display:none; }
+  .auth-success { background:rgba(45,110,62,0.1); border:1px solid #2d6e3e; border-radius:8px; padding:10px 14px; font-size:0.82rem; color:#2d6e3e; margin-bottom:14px; display:none; }
   .auth-success { background:var(--teal-dim); border:1px solid var(--teal); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--teal); margin-bottom:14px; display:none; }
-  .auth-footer { text-align:center; margin-top:14px; font-size:0.8rem; color:var(--text-muted); }
-  .auth-link { color:var(--teal); cursor:pointer; text-decoration:underline; background:none; border:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; }
+  .auth-footer { text-align:center; margin-top:10px; font-size:0.8rem; color:var(--text-muted); }
+  .auth-link { color:#8b4513; cursor:pointer; text-decoration:underline; background:none; border:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; }
 
   /* User profile bar */
   .user-bar { display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 16px; margin-bottom:16px; width:100%; max-width:560px; }
@@ -286,9 +287,9 @@
   .social-divider { display:flex; align-items:center; gap:10px; margin:14px 0; }
   .social-divider span { font-size:0.75rem; color:var(--text-muted); white-space:nowrap; }
   .social-divider::before, .social-divider::after { content:''; flex:1; height:1px; background:var(--border); }
-  .btn-google { width:100%; padding:12px 14px; background:var(--surface-2); border:1.5px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:all 0.15s; margin-bottom:8px; }
-  .btn-google:hover { border-color:var(--fern); background:rgba(107,175,122,0.07); }
-  .btn-google:active { background:rgba(107,175,122,0.12); }
+  .btn-google { width:100%; padding:11px 14px; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:all 0.15s; margin-bottom:8px; }
+  .btn-google:hover { border-color:#8b4513; }
+  .btn-google:active { background:var(--surface-2); }
   .google-icon { width:18px; height:18px; flex-shrink:0; }
 
   /* Home screen */
@@ -993,6 +994,9 @@ async function showHome() {
 
     </div>`;
 
+  // Load verse of day after DOM is ready
+  fetchVerseOfDay();
+
   // Wire up buttons
   document.getElementById('homePlayBtn').onclick = () => { showBackBtn(true); renderDiffScreen(); };
   document.getElementById('homeDailyBtn').onclick = () => { showBackBtn(true); renderDailyChallenge(); };
@@ -1181,41 +1185,71 @@ function renderAuthScreen(mode='login') {
   if(topBar) topBar.style.display = 'none';
   document.getElementById('root').innerHTML = `
     <div class="auth-screen">
-      <div class="auth-card">
-        <div class="auth-tabs">
-          <button class="auth-tab ${mode==='login'?'active':''}" id="authTabLogin" onclick="renderAuthScreen('login')">Sign In</button>
-          <button class="auth-tab ${mode==='signup'?'active':''}" id="authTabSignup" onclick="renderAuthScreen('signup')">Create Account</button>
+
+      <!-- Randy + App Name -->
+      <div style="text-align:center;margin-bottom:20px;">
+        <img src="/randy-default-transparent.png" width="110" height="110" style="object-fit:contain;margin:0 auto 8px;display:block;" alt="Randy the Ranger" onerror="this.style.display='none'"/>
+        <div style="font-family:Georgia,serif;font-size:24px;font-weight:700;color:var(--text);">Scripture Scout</div>
+        <div style="color:var(--text-muted);font-size:12px;margin-top:3px;">Scout the Scriptures. Every day.</div>
+      </div>
+
+      <!-- Auth Card -->
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:20px;">
+
+        <!-- Tabs -->
+        <div style="display:flex;background:var(--surface-2);border-radius:10px;padding:3px;margin-bottom:16px;">
+          <button onclick="renderAuthScreen('login')" style="flex:1;padding:8px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:${mode==='login'?'#8b4513':'transparent'};color:${mode==='login'?'#f4b942':'var(--text-muted)'};">Sign In</button>
+          <button onclick="renderAuthScreen('signup')" style="flex:1;padding:8px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:${mode==='signup'?'#8b4513':'transparent'};color:${mode==='signup'?'#f4b942':'var(--text-muted)'};">Create Account</button>
         </div>
+
         <div class="auth-error" id="authError"></div>
         <div class="auth-success" id="authSuccess"></div>
-        <div class="auth-field">
-          <label>Email</label>
-          <input class="auth-input" id="authEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+
+        <!-- Email -->
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">Email</label>
+          <input class="auth-input" id="authEmail" type="email" placeholder="your@email.com" autocomplete="email" style="width:100%;padding:11px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;"/>
         </div>
+
         ${mode==='signup'?`
-        <div class="auth-field">
-          <label>Username</label>
-          <input class="auth-input" id="authUsername" type="text" maxlength="20" placeholder="Choose a username…" autocomplete="username"/>
+        <!-- Username -->
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">Username</label>
+          <input class="auth-input" id="authUsername" type="text" maxlength="20" placeholder="Choose a username…" autocomplete="username" style="width:100%;padding:11px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;"/>
           <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;">This is how you'll appear on the leaderboard</div>
         </div>`:''}
-        <div class="auth-field">
-          <label>Password</label>
-          <input class="auth-input" id="authPassword" type="password" placeholder="••••••••" autocomplete="${mode==='login'?'current-password':'new-password'}"/>
+
+        <!-- Password -->
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">Password</label>
+          <input class="auth-input" id="authPassword" type="password" placeholder="••••••••" autocomplete="${mode==='login'?'current-password':'new-password'}" style="width:100%;padding:11px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;"/>
         </div>
-        <button class="btn-next" id="authSubmitBtn" onclick="handleAuth('${mode}')">
+
+        <!-- Submit -->
+        <button id="authSubmitBtn" onclick="handleAuth('${mode}')" style="width:100%;padding:13px;background:linear-gradient(135deg,#8b4513,#6b3410);border:none;border-radius:12px;color:#f4b942;font-family:Georgia,serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">
           ${mode==='login'?'Sign In →':'Create Account →'}
         </button>
-        <div class="auth-footer">
+
+        <!-- Footer links -->
+        <div style="text-align:center;font-size:12px;color:var(--text-muted);margin-bottom:4px;">
           ${mode==='login'
             ? `Don't have an account? <button class="auth-link" onclick="renderAuthScreen('signup')">Sign up free</button>`
             : `Already have an account? <button class="auth-link" onclick="renderAuthScreen('login')">Sign in</button>`}
         </div>
         ${mode==='login' ? `
-        <div class="auth-footer" style="margin-top:8px;">
+        <div style="text-align:center;margin-bottom:8px;">
           <button class="auth-link" onclick="renderForgotPassword()">Forgot your password?</button>
         </div>` : ''}
-        <div class="social-divider"><span>or</span></div>
-        <button class="btn-google" onclick="signInWithGoogle()">
+
+        <!-- Divider -->
+        <div style="display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--text-muted);font-size:12px;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          or
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+
+        <!-- Google -->
+        <button class="btn-google" onclick="signInWithGoogle()" style="margin-bottom:8px;">
           <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -1224,9 +1258,12 @@ function renderAuthScreen(mode='login') {
           </svg>
           Continue with Google
         </button>
-        <div class="auth-footer" style="margin-top:12px;padding-top:16px;border-top:1px solid var(--border);">
+
+        <!-- Skip -->
+        <div style="text-align:center;padding-top:10px;border-top:1px solid var(--border);">
           <button class="auth-link" onclick="skipAuth()">Continue without account →</button>
         </div>
+
       </div>
     </div>`;
 
@@ -1407,7 +1444,6 @@ function showApp() {
   if(currentUser && !currentUsername) setTimeout(showUsernamePrompt, 500);
   if(currentUser) setTimeout(checkMonthlyChampion, 2000);
   prefetchDailyChallenge();
-  fetchVerseOfDay();
 
   // Load streak in background and update display when ready
   if(currentUser) {
@@ -6883,10 +6919,10 @@ function showRandyReaction(expression, duration=1800) {
 
 function getRandyImg(expression='default', size=80) {
   const imgs = {
-    default:  '/randy-default.png',
-    happy:    '/randy-happy.png',
-    sad:      '/randy-sad.png',
-    thinking: '/randy-thinking.png'
+    default:  '/randy-default-transparent.png',
+    happy:    '/randy-happy-transparent.png',
+    sad:      '/randy-sad-transparent.png',
+    thinking: '/randy-thinking-transparent.png'
   };
   const src = imgs[expression] || imgs.default;
   return `<img src="${src}" width="${size}" height="${size}" style="object-fit:contain;flex-shrink:0;" alt="Randy the Ranger" onerror="this.style.display='none'">`;
