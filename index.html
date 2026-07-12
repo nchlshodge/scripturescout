@@ -223,7 +223,7 @@
   .submitting { text-align:center; color:var(--text-muted); font-size:0.85rem; padding:8px 0; }
 
   /* Auth */
-  .auth-screen { width:100%; max-width:560px; padding:20px 0; }
+  .auth-screen { width:100%; max-width:560px; padding:16px 0; }
   .auth-card { background:var(--surface); border:1.5px solid var(--border); border-radius:18px; padding:20px; }
   .auth-tabs { display:flex; gap:0; background:var(--surface-2); border-radius:10px; padding:3px; margin-bottom:16px; }
   .auth-tab { flex:1; padding:9px; text-align:center; font-size:0.85rem; font-weight:600; color:var(--text-muted); cursor:pointer; border:none; background:transparent; font-family:'DM Sans',sans-serif; border-radius:8px; transition:all 0.15s; }
@@ -1187,7 +1187,7 @@ function renderAuthScreen(mode='login') {
   const masthead = document.querySelector('.masthead');
   if(masthead) masthead.style.display = 'none';
   document.getElementById('root').innerHTML = `
-    <div class="auth-screen" style="background:var(--bg);min-height:100vh;padding:20px 0;">
+    <div class="auth-screen">
 
       <!-- Randy + App Name -->
       <div style="text-align:center;margin-bottom:20px;">
@@ -7017,23 +7017,35 @@ function playFlip() {
 async function fetchVerseOfDay() {
   const today = getDailyKey();
   const cacheKey = `ss_votd_${today}`;
-  const cached = localStorage.getItem(cacheKey);
 
+  // Clear any stale cache from previous days
+  Object.keys(localStorage).forEach(k => {
+    if(k.startsWith('ss_votd_') && k !== cacheKey) localStorage.removeItem(k);
+  });
+
+  const cached = localStorage.getItem(cacheKey);
   if(cached) {
-    try { updateVOTD(JSON.parse(cached)); return; } catch(e) {}
+    try {
+      const v = JSON.parse(cached);
+      if(v && v.text) { updateVOTD(v); return; }
+    } catch(e) { localStorage.removeItem(cacheKey); }
   }
 
   try {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
     const dayOfYear = Math.floor((now - start) / 86400000);
-    // Use a fixed pool size so it works before DIFF_COUNTS loads
-    const total = 5000;
-    const offset = (dayOfYear * 137) % total;
-    const rows = await sbFetch(`verses?translation=eq.WEB&difficulty=eq.easy&select=book,chapter,verse,text&limit=1&offset=${offset}`);
-    if(rows.length) {
-      localStorage.setItem(cacheKey, JSON.stringify(rows[0]));
-      updateVOTD(rows[0]);
+    const offset = (dayOfYear * 137) % 5000;
+    // Use anon key directly so it works even before login
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/verses?translation=eq.WEB&difficulty=eq.easy&select=book,chapter,verse,text&limit=1&offset=${offset}`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    if(res.ok) {
+      const rows = await res.json();
+      if(rows.length) {
+        localStorage.setItem(cacheKey, JSON.stringify(rows[0]));
+        updateVOTD(rows[0]);
+      }
     }
   } catch(e) { console.log('VOTD error:', e); }
 }
@@ -7041,7 +7053,8 @@ async function fetchVerseOfDay() {
 function updateVOTD(v) {
   const textEl = document.getElementById('votdText');
   const refEl = document.getElementById('votdRef');
-  if(textEl) textEl.textContent = `"${v.text}"`;
+  if(!textEl || !v || !v.text) return;
+  textEl.textContent = `"${v.text}"`;
   if(refEl) refEl.textContent = `— ${v.book} ${v.chapter}:${v.verse}`;
 }
 
