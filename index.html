@@ -946,10 +946,10 @@ async function showHome() {
             <div class="home-game-desc">19 paths · 212 chapters</div>
           </div>
         </div>
-        <div class="home-game-card" id="homeMemoryBtn" onclick="showBackBtn(true);renderFlashcardSetup();">
-          <div class="home-game-icon small">🗂️</div>
-          <div class="home-game-name">Memory Trail</div>
-          <div class="home-game-desc">Quiz or study mode</div>
+        <div class="home-game-card" id="homeMemoryBtn" onclick="showBackBtn(true);renderTriviaSetup();">
+          <div class="home-game-icon small">🧠</div>
+          <div class="home-game-name">Bible Trivia</div>
+          <div class="home-game-desc">Test your Bible knowledge</div>
         </div>
         <div class="home-game-card" id="homeMiaBtn" onclick="showBackBtn(true);renderFillBlankSetup();">
           <div class="home-game-icon small">✏️</div>
@@ -1000,7 +1000,7 @@ async function showHome() {
   // Wire up buttons
   document.getElementById('homePlayBtn').onclick = () => { showBackBtn(true); renderDiffScreen(); };
   document.getElementById('homeDailyBtn').onclick = () => { showBackBtn(true); renderDailyChallenge(); };
-  document.getElementById('homeMemoryBtn').onclick = () => { showBackBtn(true); renderFlashcardSetup(); };
+  document.getElementById('homeMemoryBtn').onclick = () => { showBackBtn(true); renderTriviaSetup(); };
   document.getElementById('homeMiaBtn').onclick = () => { showBackBtn(true); renderFillBlankSetup(); };
   document.getElementById('homeTrackBtn').onclick = () => { showBackBtn(true); renderRefChallengeSetup(); };
   document.getElementById('homeLeaderboardBtn').onclick = () => { showBackBtn(true); renderLeaderboardHub(); };
