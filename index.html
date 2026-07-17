@@ -4903,10 +4903,218 @@ function checkHeartsBeforeRound(onProceed, onBack) {
   }
 }
 
-// Initialize Supabase JS client for OAuth session handling
+
+// ═══════════════════════════════════════
+// BIBLE TRIVIA
+// ═══════════════════════════════════════
+const BIBLE_TRIVIA = [
+  { q:"How many days did God take to create the world?", a:"6", choices:["5","6","7","8"], diff:"easy", ref:"Genesis 1" },
+  { q:"What was the name of the garden where Adam and Eve lived?", a:"Eden", choices:["Eden","Canaan","Galilee","Sinai"], diff:"easy", ref:"Genesis 2" },
+  { q:"How many animals of each kind did Noah take on the ark?", a:"2", choices:["1","2","7","10"], diff:"easy", ref:"Genesis 6" },
+  { q:"What food did God send from heaven in the wilderness?", a:"Manna", choices:["Bread","Manna","Quail","Fish"], diff:"easy", ref:"Exodus 16" },
+  { q:"How many commandments did God give Moses on Mount Sinai?", a:"10", choices:["7","10","12","15"], diff:"easy", ref:"Exodus 20" },
+  { q:"What giant did David defeat with a sling and stone?", a:"Goliath", choices:["Goliath","Samson","Og","Lahmi"], diff:"easy", ref:"1 Samuel 17" },
+  { q:"Who was swallowed by a great fish?", a:"Jonah", choices:["Jonah","Elijah","Moses","Paul"], diff:"easy", ref:"Jonah 1" },
+  { q:"In what city was Jesus born?", a:"Bethlehem", choices:["Jerusalem","Nazareth","Bethlehem","Jericho"], diff:"easy", ref:"Luke 2" },
+  { q:"How many disciples did Jesus choose?", a:"12", choices:["10","11","12","13"], diff:"easy", ref:"Mark 3" },
+  { q:"What did Jesus turn water into at the wedding in Cana?", a:"Wine", choices:["Wine","Milk","Juice","Oil"], diff:"easy", ref:"John 2" },
+  { q:"Who betrayed Jesus for 30 pieces of silver?", a:"Judas", choices:["Judas","Peter","Thomas","Pilate"], diff:"easy", ref:"Matthew 26" },
+  { q:"On what day did Jesus rise from the dead?", a:"The third day", choices:["The first day","The second day","The third day","The seventh day"], diff:"easy", ref:"Luke 24" },
+  { q:"What is the shortest verse in the Bible?", a:"Jesus wept", choices:["Amen","God is love","Jesus wept","Be still"], diff:"easy", ref:"John 11:35" },
+  { q:"What was the name of the first man God created?", a:"Adam", choices:["Adam","Noah","Abraham","Moses"], diff:"easy", ref:"Genesis 2" },
+  { q:"What river was Jesus baptized in?", a:"Jordan", choices:["Nile","Jordan","Euphrates","Galilee"], diff:"easy", ref:"Matthew 3" },
+  { q:"How many books are in the Bible?", a:"66", choices:["39","52","66","73"], diff:"easy", ref:"Bible" },
+  { q:"Who wrote most of the Psalms?", a:"David", choices:["Solomon","Moses","David","Asaph"], diff:"easy", ref:"Psalms" },
+  { q:"What did God create on the first day?", a:"Light", choices:["Light","Sky","Land","Sun"], diff:"easy", ref:"Genesis 1" },
+  { q:"What animal did Satan use to tempt Eve?", a:"Serpent", choices:["Serpent","Raven","Lion","Fox"], diff:"easy", ref:"Genesis 3" },
+  { q:"Who was the mother of Jesus?", a:"Mary", choices:["Mary","Martha","Elizabeth","Anna"], diff:"easy", ref:"Luke 1" },
+
+  { q:"What were the names of Noah's three sons?", a:"Shem, Ham, Japheth", choices:["Shem, Ham, Japheth","Cain, Abel, Seth","James, John, Peter","Shadrach, Meshach, Abednego"], diff:"medium", ref:"Genesis 6" },
+  { q:"How old was Methuselah when he died?", a:"969", choices:["777","900","969","120"], diff:"medium", ref:"Genesis 5" },
+  { q:"What was Paul's name before his conversion?", a:"Saul", choices:["Simon","Saul","Silas","Samuel"], diff:"medium", ref:"Acts 9" },
+  { q:"Which tribe of Israel did King David come from?", a:"Judah", choices:["Benjamin","Levi","Judah","Ephraim"], diff:"medium", ref:"1 Samuel 17" },
+  { q:"What prophet confronted King David about his sin with Bathsheba?", a:"Nathan", choices:["Elijah","Nathan","Isaiah","Samuel"], diff:"medium", ref:"2 Samuel 12" },
+  { q:"How many years did Israel wander in the wilderness?", a:"40", choices:["20","30","40","50"], diff:"medium", ref:"Numbers 14" },
+  { q:"Who was the first king of Israel?", a:"Saul", choices:["David","Saul","Solomon","Samuel"], diff:"medium", ref:"1 Samuel 10" },
+  { q:"What did Samson use to kill 1000 Philistines?", a:"Jawbone of a donkey", choices:["Sword","Jawbone of a donkey","Spear","Stone"], diff:"medium", ref:"Judges 15" },
+  { q:"Which woman hid the two spies Joshua sent to Jericho?", a:"Rahab", choices:["Rahab","Deborah","Ruth","Tamar"], diff:"medium", ref:"Joshua 2" },
+  { q:"What was the name of Abraham's wife?", a:"Sarah", choices:["Sarah","Rebekah","Leah","Rachel"], diff:"medium", ref:"Genesis 17" },
+  { q:"How many plagues did God send on Egypt?", a:"10", choices:["7","9","10","12"], diff:"medium", ref:"Exodus 7-12" },
+  { q:"Who interpreted Pharaoh's dream about 7 fat and 7 thin cows?", a:"Joseph", choices:["Joseph","Moses","Daniel","Solomon"], diff:"medium", ref:"Genesis 41" },
+  { q:"What book contains the Sermon on the Mount?", a:"Matthew", choices:["Luke","John","Matthew","Mark"], diff:"medium", ref:"Matthew 5-7" },
+  { q:"How many days and nights did Elijah travel to reach Horeb?", a:"40", choices:["3","7","40","100"], diff:"medium", ref:"1 Kings 19" },
+  { q:"Who was Timothy's mother?", a:"Eunice", choices:["Eunice","Lois","Priscilla","Lydia"], diff:"medium", ref:"2 Timothy 1" },
+  { q:"What city's walls fell after Israel marched around them?", a:"Jericho", choices:["Jericho","Ai","Hebron","Bethel"], diff:"medium", ref:"Joshua 6" },
+  { q:"Which of Job's friends spoke first?", a:"Eliphaz", choices:["Bildad","Zophar","Eliphaz","Elihu"], diff:"medium", ref:"Job 4" },
+  { q:"How many letters did Paul write to the Corinthians?", a:"2", choices:["1","2","3","4"], diff:"medium", ref:"NT" },
+  { q:"What was the valley where David fought Goliath?", a:"Elah", choices:["Elah","Jezreel","Kidron","Hinnom"], diff:"medium", ref:"1 Samuel 17" },
+  { q:"Who replaced Judas as the 12th apostle?", a:"Matthias", choices:["Matthias","Barnabas","Stephen","Philip"], diff:"medium", ref:"Acts 1" },
+
+  { q:"What was the name of Moses' father-in-law?", a:"Jethro", choices:["Jethro","Hobab","Reuel","Korah"], diff:"hard", ref:"Exodus 3" },
+  { q:"How many years did the temple take to build under Solomon?", a:"7", choices:["3","7","10","20"], diff:"hard", ref:"1 Kings 6" },
+  { q:"Who was the high priest when Jesus was arrested?", a:"Caiaphas", choices:["Caiaphas","Annas","Eli","Abiathar"], diff:"hard", ref:"Matthew 26" },
+  { q:"What king threw Daniel into the lion's den?", a:"Darius", choices:["Nebuchadnezzar","Cyrus","Darius","Belshazzar"], diff:"hard", ref:"Daniel 6" },
+  { q:"Which prophet saw the valley of dry bones?", a:"Ezekiel", choices:["Ezekiel","Isaiah","Jeremiah","Daniel"], diff:"hard", ref:"Ezekiel 37" },
+  { q:"What is the name of the hill where Jesus was crucified?", a:"Golgotha", choices:["Golgotha","Gethsemane","Zion","Moriah"], diff:"hard", ref:"John 19" },
+  { q:"How many elders surround the throne in Revelation?", a:"24", choices:["12","24","70","144"], diff:"hard", ref:"Revelation 4" },
+  { q:"What was Abraham's second wife after Sarah died?", a:"Keturah", choices:["Hagar","Keturah","Bilhah","Zilpah"], diff:"hard", ref:"Genesis 25" },
+  { q:"Which king of Judah was 8 years old when he became king?", a:"Josiah", choices:["Josiah","Joash","Jehoshaphat","Jotham"], diff:"hard", ref:"2 Kings 22" },
+  { q:"How many sons did Jacob have?", a:"12", choices:["10","11","12","13"], diff:"hard", ref:"Genesis 35" },
+  { q:"Who was the first martyr of the Christian church?", a:"Stephen", choices:["Stephen","James","Peter","Paul"], diff:"hard", ref:"Acts 7" },
+  { q:"How many chapters are in the book of Psalms?", a:"150", choices:["100","117","150","176"], diff:"hard", ref:"Psalms" },
+  { q:"What Roman governor sentenced Jesus?", a:"Pontius Pilate", choices:["Pontius Pilate","Felix","Festus","Herod"], diff:"hard", ref:"Matthew 27" },
+  { q:"Which letter of Paul was written to a runaway slave's owner?", a:"Philemon", choices:["Philemon","Titus","Galatians","Colossians"], diff:"hard", ref:"Philemon" },
+  { q:"How many times did Peter deny Jesus?", a:"3", choices:["2","3","4","7"], diff:"hard", ref:"Luke 22" },
+  { q:"Where did Jesus speak to the Samaritan woman?", a:"Jacob's Well", choices:["Jacob's Well","Beersheba","En Gedi","Siloam"], diff:"hard", ref:"John 4" },
+  { q:"How many cities of refuge were there in Israel?", a:"6", choices:["3","6","9","12"], diff:"hard", ref:"Numbers 35" },
+  { q:"Who was the father of John the Baptist?", a:"Zechariah", choices:["Zechariah","Joseph","Simeon","Eli"], diff:"hard", ref:"Luke 1" },
+  { q:"What book comes after Obadiah in the Old Testament?", a:"Jonah", choices:["Jonah","Micah","Nahum","Amos"], diff:"hard", ref:"OT" },
+];
+
+let triviaSession = { difficulty:'easy', questions:[], current:0, score:0, correct:0, wrong:0, startTime:null, mode:'normal', _scoreSubmitted:false, _questionStart:null };
+
+function renderTriviaSetup() {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px;">
+      ${getRandyImg('thinking', 90)}
+      <div style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;color:var(--text);margin-top:8px;">Bible Trivia</div>
+      <div style="color:var(--text-muted);font-size:0.82rem;">Test your Bible knowledge!</div>
+    </div>
+    <div class="setup-section">
+      <div class="setup-label">Difficulty</div>
+      <div class="setup-options" id="triviaDiff">
+        <button class="setup-btn selected" data-diff="easy">🌱 Easy</button>
+        <button class="setup-btn" data-diff="medium">🌿 Medium</button>
+        <button class="setup-btn" data-diff="hard">🪨 Hard</button>
+        <button class="setup-btn" data-diff="endless">♾️ Endless</button>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:0.8rem;color:var(--text-muted);line-height:1.6;">
+      <strong style="color:var(--text);">How it works:</strong> 10 multiple choice questions per round. Answer quickly for bonus points. Endless mode keeps going until you get one wrong!
+    </div>
+    <button class="btn-next" id="startTriviaBtn">Start Trivia →</button>
+    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('🧠 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy')">🏆 View Leaderboard</button>`;
+
+  let selectedDiff = 'easy';
+  document.querySelectorAll('#triviaDiff .setup-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#triviaDiff .setup-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedDiff = btn.dataset.diff;
+    });
+  });
+  document.getElementById('startTriviaBtn').onclick = () => startTrivia(selectedDiff);
+}
+
+function startTrivia(diff) {
+  const isEndless = diff === 'endless';
+  const pool = isEndless ? BIBLE_TRIVIA : BIBLE_TRIVIA.filter(q => q.diff === diff);
+  const questions = shuffleTrivia(pool).slice(0, isEndless ? pool.length : 10);
+  triviaSession = { difficulty:diff, questions, current:0, score:0, correct:0, wrong:0, startTime:Date.now(), mode:isEndless?'endless':'normal', _scoreSubmitted:false, _questionStart:Date.now() };
+  renderTriviaQuestion();
+}
+
+function shuffleTrivia(arr) {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function renderTriviaQuestion() {
+  const s = triviaSession;
+  const root = document.getElementById('root');
+  if((s.mode==='normal' && s.current>=10)||(s.mode==='endless' && s.current>=s.questions.length)){renderTriviaComplete();return;}
+  const q = s.questions[s.current];
+  const progress = s.mode==='normal' ? (s.current/10*100) : 100;
+  const pts = q.diff==='easy'?100:q.diff==='medium'?200:300;
+  const shuffledChoices = shuffleTrivia(q.choices);
+  s._questionStart = Date.now();
+
+  root.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-size:0.78rem;color:var(--text-muted);">Q ${s.current+1}${s.mode==='normal'?' / 10':''}</div>
+      <div style="font-size:0.88rem;font-weight:700;color:var(--teal);">${s.score.toLocaleString()} pts</div>
+    </div>
+    <div style="height:6px;background:var(--surface-2);border-radius:3px;margin-bottom:16px;overflow:hidden;">
+      <div style="height:100%;background:var(--teal);border-radius:3px;width:${progress}%;transition:width 0.3s;"></div>
+    </div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;">
+      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:700;margin-bottom:8px;">
+        ${q.diff==='easy'?'🌱 Easy · +100pts':q.diff==='medium'?'🌿 Medium · +200pts':'🪨 Hard · +300pts'}
+      </div>
+      <div style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.5;font-family:Georgia,serif;">${q.q}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;" id="triviaChoices">
+      ${shuffledChoices.map(c=>`
+        <button onclick="checkTriviaAnswer(this,'${c.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${pts})"
+          style="width:100%;padding:14px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;color:var(--text);cursor:pointer;text-align:left;">
+          ${c}
+        </button>`).join('')}
+    </div>
+    <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:10px;">📖 ${q.ref}</div>`;
+}
+
+function checkTriviaAnswer(btn, chosen, pts) {
+  const s = triviaSession;
+  const q = s.questions[s.current];
+  const correct = chosen === q.a;
+  document.querySelectorAll('#triviaChoices button').forEach(b => {
+    b.disabled = true;
+    const bText = b.textContent.trim();
+    if(bText === q.a){ b.style.background='rgba(45,110,62,0.2)';b.style.borderColor='#2d6e3e';b.style.color='#2d6e3e'; }
+    else if(bText === chosen && !correct){ b.style.background='rgba(200,64,26,0.2)';b.style.borderColor='#c8401a';b.style.color='#c8401a'; }
+    else { b.style.opacity='0.4'; }
+  });
+  if(correct){
+    const elapsed=(Date.now()-s._questionStart)/1000;
+    const speedBonus=Math.max(0,Math.floor((5-Math.min(elapsed,5))/5*50));
+    s.score+=pts+speedBonus; s.correct++;
+    playCorrect(); showRandyReaction('happy');
+  } else {
+    s.wrong++; playWrong(); showRandyReaction('sad');
+    if(s.mode==='endless'){setTimeout(()=>renderTriviaComplete(),1500);return;}
+  }
+  s.current++;
+  setTimeout(()=>renderTriviaQuestion(),1200);
+}
+
+async function renderTriviaComplete() {
+  const s = triviaSession;
+  if(s._scoreSubmitted) return;
+  s._scoreSubmitted = true;
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  const total = s.correct + s.wrong;
+  const pct = total > 0 ? Math.round((s.correct/total)*100) : 0;
+  const randy = pct>=80?'happy':pct>=50?'default':'sad';
+  root.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px;">
+      ${getRandyImg(randy,90)}
+      <div style="font-family:Georgia,serif;font-size:1.4rem;font-weight:700;color:var(--text);margin-top:8px;">
+        ${pct>=80?'Outstanding!':pct>=60?'Well Done!':pct>=40?'Keep Studying!':'Keep at it!'}
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;">
+        <div><div style="font-size:1.6rem;font-weight:700;color:var(--teal);font-family:Georgia,serif;">${s.score.toLocaleString()}</div><div style="font-size:0.72rem;color:var(--text-muted);">Score</div></div>
+        <div><div style="font-size:1.6rem;font-weight:700;color:#2d6e3e;font-family:Georgia,serif;">${s.correct}</div><div style="font-size:0.72rem;color:var(--text-muted);">Correct</div></div>
+        <div><div style="font-size:1.6rem;font-weight:700;color:#c8401a;font-family:Georgia,serif;">${s.wrong}</div><div style="font-size:0.72rem;color:var(--text-muted);">Wrong</div></div>
+      </div>
+    </div>
+    <button class="btn-next" onclick="startTrivia('${s.difficulty}')">Play Again →</button>
+    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="renderTriviaSetup()">← Change Difficulty</button>
+    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('🧠 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.difficulty==='endless'?'easy':s.difficulty}')">🏆 View Leaderboard →</button>`;
+
+  if(currentUser && s.score>0 && s.difficulty!=='endless') {
+    await submitGameScore('leaderboard_trivia',{user_id:currentUser.id,username:currentUsername,score:s.score,difficulty:s.difficulty,correct:s.correct});
+  }
+  updateStreak();
+}
+
 // ═══════════════════════════════════════
 // ENDLESS MEMORY TRAIL
-// ═══════════════════════════════════════
 let memoryEndlessState = { streak: 0, missCount: 0, score: 0 };
 
 async function startMemoryEndless() {
