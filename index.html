@@ -5072,10 +5072,32 @@ function renderTriviaSetup() {
   document.getElementById('startTriviaBtn').onclick = () => startTrivia(selectedDiff);
 }
 
-function startTrivia(diff) {
+async function startTrivia(diff) {
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading questions…</div></div>`;
+
   const isEndless = diff === 'endless';
-  const pool = isEndless ? BIBLE_TRIVIA : BIBLE_TRIVIA.filter(q => q.diff === diff);
-  const questions = shuffleTrivia(pool).slice(0, isEndless ? pool.length : 10);
+  let questions = [];
+
+  try {
+    // Try to fetch from Supabase first
+    const dbDiff = isEndless ? '' : `&difficulty=eq.${diff}`;
+    const rows = await sbFetch(`bible_trivia_questions?select=*${dbDiff}&order=random()&limit=${isEndless ? 60 : 20}`);
+    if(rows && rows.length >= 10) {
+      questions = shuffleTrivia(rows).slice(0, isEndless ? rows.length : 10).map(r => ({
+        q: r.question, a: r.answer,
+        choices: typeof r.choices === 'string' ? JSON.parse(r.choices) : r.choices,
+        diff: r.difficulty, ref: r.reference || ''
+      }));
+    }
+  } catch(e) { console.log('DB trivia fetch failed, using local:', e); }
+
+  // Fallback to local questions if DB fails or not enough questions
+  if(questions.length < 10) {
+    const pool = isEndless ? BIBLE_TRIVIA : BIBLE_TRIVIA.filter(q => q.diff === diff);
+    questions = shuffleTrivia(pool).slice(0, isEndless ? pool.length : 10);
+  }
+
   triviaSession = { difficulty:diff, questions, current:0, score:0, correct:0, wrong:0, startTime:Date.now(), mode:isEndless?'endless':'normal', _scoreSubmitted:false, _questionStart:Date.now() };
   renderTriviaQuestion();
 }
