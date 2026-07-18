@@ -931,26 +931,33 @@ async function showHome() {
       <!-- 5. Games Grid -->
       <div class="home-section-label">🎮 Game Modes</div>
       <div class="home-game-grid">
-        <div class="home-game-card featured" id="homePlayBtn" style="grid-column:1/-1;">
+        <!-- Scripture Scout — flagship full width -->
+        <div class="home-game-card featured" id="homePlayBtn" style="grid-column:1/-1;background:linear-gradient(135deg,#fffbf0,#fdf0d8);border-color:#c4a97a;border-width:2px;">
           <div class="home-game-icon">📖</div>
           <div style="flex:1;">
             <div style="font-size:0.65rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">FLAGSHIP</div>
             <div class="home-game-name">Scripture Scout</div>
-            <div class="home-game-desc">Guess the verse — Easy to Endless</div>
+            <div class="home-game-desc">Guess Testament, Book & Chapter — Easy to Endless</div>
           </div>
         </div>
+        <!-- Bible Trivia — featured full width -->
+        <div class="home-game-card featured" id="homeMemoryBtn" onclick="showBackBtn(true);renderTriviaSetup();" style="grid-column:1/-1;background:linear-gradient(135deg,#fff8f0,#fde8d0);border-color:#8b4513;border-width:2px;">
+          <div class="home-game-icon">🧠</div>
+          <div style="flex:1;">
+            <div style="font-size:0.65rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">NEW</div>
+            <div class="home-game-name">Bible Trivia</div>
+            <div class="home-game-desc">150+ questions · Easy, Medium, Hard & Endless</div>
+          </div>
+        </div>
+        <!-- Story Mode — full width -->
         <div class="home-game-card featured" id="homeStoryBtn" style="grid-column:1/-1;border-color:#8b6914;background:rgba(139,105,20,0.05);">
           <div class="home-game-icon">📜</div>
           <div style="flex:1;">
             <div class="home-game-name">Story Mode</div>
-            <div class="home-game-desc">19 paths · 212 chapters</div>
+            <div class="home-game-desc">20 paths · 212 chapters</div>
           </div>
         </div>
-        <div class="home-game-card" id="homeMemoryBtn" onclick="showBackBtn(true);renderTriviaSetup();">
-          <div class="home-game-icon small">🧠</div>
-          <div class="home-game-name">Bible Trivia</div>
-          <div class="home-game-desc">Test your Bible knowledge</div>
-        </div>
+        <!-- Small game cards -->
         <div class="home-game-card" id="homeMiaBtn" onclick="showBackBtn(true);renderFillBlankSetup();">
           <div class="home-game-icon small">✏️</div>
           <div class="home-game-name">Missing in Action</div>
@@ -1004,7 +1011,7 @@ async function showHome() {
   document.getElementById('homeMiaBtn').onclick = () => { showBackBtn(true); renderFillBlankSetup(); };
   document.getElementById('homeTrackBtn').onclick = () => { showBackBtn(true); renderRefChallengeSetup(); };
   document.getElementById('homeLeaderboardBtn').onclick = () => { showBackBtn(true); renderLeaderboardHub(); };
-  document.getElementById('homeStoryBtn').onclick = () => { showBackBtn(true); renderStoryMode(); };
+  document.getElementById('homeStoryBtn').onclick = () => { showBackBtn(true); renderStoryModeV2(); };
 
   if(completedCount === 4) updateStreak(true);
 
@@ -4903,6 +4910,581 @@ function checkHeartsBeforeRound(onProceed, onBack) {
   }
 }
 
+
+
+// ═══════════════════════════════════════
+// STORY MODE V2 — Rich Narrative
+// ═══════════════════════════════════════
+
+const STORY_PATHS_V2 = [
+  {
+    id: 1,
+    title: "The Gospel Story",
+    subtitle: "From Creation to the Cross",
+    testament: "NT",
+    is_free: true,
+    color: "#1a3d6e",
+    accent: "#4a9eda",
+    icon: "✝️",
+    description: "Follow the greatest story ever told — from the first words of creation to the empty tomb that changed everything.",
+    chapters: [
+      {
+        num: 1,
+        title: "In The Beginning",
+        scene: "creation",
+        narrative: "Before time itself existed, there was only God. Then with a word — just a word — light exploded into the void and creation began. Over six breathtaking days, God shaped the heavens and the seas, the mountains and the valleys, the creatures of the deep and the birds of the air. On the sixth day He stooped to the earth, formed man from the dust, and breathed His own life into him. He stepped back and called it very good. The universe was born from the overflow of His love.",
+        verse: "In the beginning God created the heavens and the earth.",
+        reference: "Genesis 1:1",
+        questions: [
+          { q: "What did God create on the very first day?", a: "Light", choices: ["Light","Sky","Land","Animals"] },
+          { q: "What did God use to form the first man?", a: "Dust from the ground", choices: ["Dust from the ground","Clay from the river","Stone from the mountain","Water from the sea"] },
+          { q: "What did God say about everything He had made?", a: "It was very good", choices: ["It was very good","It was finished","It was perfect","It was beautiful"] }
+        ]
+      },
+      {
+        num: 2,
+        title: "The Fall",
+        scene: "garden",
+        narrative: "The garden was paradise — every tree beautiful, every fruit good, and God Himself walking among them in the cool of the day. But into this perfection slithered a serpent with a question designed to plant doubt: Did God really say? Eve reached for the fruit. Adam followed. In a single moment, something irreversible happened — shame entered the world, and the gap between God and His children began. But even in judgment, God made them coverings. Even then, He promised that one day a seed of the woman would crush the serpent's head.",
+        verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
+        reference: "John 3:16",
+        questions: [
+          { q: "What did the serpent question in the garden?", a: "What God had said", choices: ["What God had said","God's existence","God's power","God's love"] },
+          { q: "What entered the world after Adam and Eve sinned?", a: "Shame and death", choices: ["Shame and death","Sickness","War","Darkness"] },
+          { q: "What did God promise even in the moment of judgment?", a: "That a seed would crush the serpent", choices: ["That a seed would crush the serpent","That He would destroy the serpent","That they could return to Eden","That He would forgive them immediately"] }
+        ]
+      },
+      {
+        num: 3,
+        title: "A Promise to Abraham",
+        scene: "stars",
+        narrative: "Thousands of years after Eden, God chose one man from among all the nations. His name was Abram — later Abraham — and God made him an extraordinary promise: through his descendants, all the nations of the earth would be blessed. Abraham was old. His wife Sarah was barren. The odds were impossible. But God specializes in the impossible. He took Abraham outside and said count the stars if you can — so shall your offspring be. Abraham believed God, and it was credited to him as righteousness. The plan of redemption was unfolding.",
+        verse: "Abraham believed God, and it was credited to him as righteousness.",
+        reference: "Romans 4:3",
+        questions: [
+          { q: "What did God use to illustrate how many descendants Abraham would have?", a: "The stars", choices: ["The stars","The sand","The dust","The leaves"] },
+          { q: "What was unusual about Abraham and Sarah when God promised them a son?", a: "They were very old and Sarah was barren", choices: ["They were very old and Sarah was barren","They were too young","They already had many children","They lived in the wrong land"] },
+          { q: "What was credited to Abraham as righteousness?", a: "His faith", choices: ["His faith","His obedience","His sacrifice","His prayer"] }
+        ]
+      },
+      {
+        num: 4,
+        title: "The Passover",
+        scene: "passover",
+        narrative: "Four hundred years of slavery. Four hundred years of groaning under the whip of Egypt. Then God raised up Moses and sent plague after plague until Pharaoh's pride finally broke. The final plague was the most terrible — the death of every firstborn. But God made a way of escape. Each Israelite family was to slaughter a lamb without blemish, paint its blood on their doorposts, and eat in haste, ready to leave. When the angel of death passed through Egypt that night, every door marked with blood was passed over. The lamb died so the firstborn could live. It was a picture of something greater still to come.",
+        verse: "For Christ, our Passover lamb, has been sacrificed.",
+        reference: "1 Corinthians 5:7",
+        questions: [
+          { q: "How long had the Israelites been enslaved in Egypt?", a: "400 years", choices: ["400 years","200 years","100 years","40 years"] },
+          { q: "What did the Israelites paint on their doorposts?", a: "The blood of a lamb", choices: ["The blood of a lamb","Oil","Water","Ashes"] },
+          { q: "What happened to every home marked with the blood?", a: "The angel of death passed over it", choices: ["The angel of death passed over it","It was protected by fire","It glowed in the night","An angel stood guard"] }
+        ]
+      },
+      {
+        num: 5,
+        title: "The Prophet's Promise",
+        scene: "prophecy",
+        narrative: "Seven hundred years before Jesus was born, a prophet named Isaiah wrote words so precise they sound like eyewitness testimony. He wrote of a servant who would be despised and rejected, a man of sorrows, acquainted with grief. He would be pierced for our transgressions, crushed for our iniquities — and by his wounds we would be healed. Isaiah couldn't have known the details. He was writing about a Messiah who hadn't yet come, describing a crucifixion that hadn't yet been invented. But God knew. Every word was a thread being woven into the tapestry of the greatest story ever told.",
+        verse: "But he was pierced for our transgressions, he was crushed for our iniquities; the punishment that brought us peace was on him, and by his wounds we are healed.",
+        reference: "Isaiah 53:5",
+        questions: [
+          { q: "How many years before Jesus was Isaiah 53 written?", a: "700 years", choices: ["700 years","300 years","100 years","1000 years"] },
+          { q: "Isaiah 53 describes the Messiah as a man of what?", a: "Sorrows", choices: ["Sorrows","Strength","Wisdom","Power"] },
+          { q: "According to Isaiah 53, what brings us healing?", a: "His wounds", choices: ["His wounds","His words","His miracles","His prayers"] }
+        ]
+      },
+      {
+        num: 6,
+        title: "A Child Is Born",
+        scene: "nativity",
+        narrative: "The Creator of the universe chose to enter His creation as a baby. Not in a palace but in a stable. Not announced to kings but to shepherds keeping watch by night. An angel split the darkness with glory and said fear not — for unto you is born this day a Savior. The wise men followed a star across the desert, carrying gold, frankincense, and myrrh — gifts fit for a king, a priest, and a burial. Heaven had come to earth. The Word had become flesh and moved into the neighborhood. Immanuel — God with us.",
+        verse: "The Word became flesh and made his dwelling among us.",
+        reference: "John 1:14",
+        questions: [
+          { q: "To whom did the angel first announce the birth of Jesus?", a: "Shepherds", choices: ["Shepherds","Wise men","Kings","Priests"] },
+          { q: "What does Immanuel mean?", a: "God with us", choices: ["God with us","God saves","God is good","God is king"] },
+          { q: "What gifts did the wise men bring?", a: "Gold, frankincense, and myrrh", choices: ["Gold, frankincense, and myrrh","Gold, silver, and spices","Bread, wine, and oil","Jewels, silks, and perfumes"] }
+        ]
+      },
+      {
+        num: 7,
+        title: "The Servant King",
+        scene: "ministry",
+        narrative: "For three years, Jesus turned the world upside down. He touched lepers that no one else would touch. He stopped and saw the invisible — the widow, the outcast, the child. He spoke with authority that left crowds breathless, teaching that the kingdom of God belonged to the poor in spirit, the meek, the merciful. He healed the blind, calmed storms with a word, fed thousands with a boy's lunch. But more than the miracles, it was the love. He washed his disciples' feet. He ate with sinners. He said the greatest among you must be the servant of all.",
+        verse: "For even the Son of Man did not come to be served, but to serve, and to give his life as a ransom for many.",
+        reference: "Mark 10:45",
+        questions: [
+          { q: "How long did Jesus' public ministry last?", a: "3 years", choices: ["3 years","1 year","7 years","40 days"] },
+          { q: "What did Jesus say about the greatest person among his followers?", a: "They must be a servant", choices: ["They must be a servant","They must be the wisest","They must pray the most","They must fast often"] },
+          { q: "What did Jesus do at the Last Supper that shocked the disciples?", a: "Washed their feet", choices: ["Washed their feet","Wept for them","Sang a hymn","Prayed all night"] }
+        ]
+      },
+      {
+        num: 8,
+        title: "The Cross",
+        scene: "cross",
+        narrative: "They came for him in the night. By morning, after a mockery of a trial, they were nailing him to a cross on a hill called Golgotha — the Place of the Skull. The crowds mocked. The soldiers gambled for his clothes. Even one of the thieves crucified beside him hurled insults. But Jesus prayed: Father, forgive them, for they do not know what they are doing. At noon, darkness fell across the land for three hours. Then Jesus cried out in a loud voice and breathed his last. The curtain of the temple tore in two from top to bottom. The way into God's presence — once blocked — was now open to all.",
+        verse: "God demonstrates his own love for us in this: While we were still sinners, Christ died for us.",
+        reference: "Romans 5:8",
+        questions: [
+          { q: "What was the name of the hill where Jesus was crucified?", a: "Golgotha", choices: ["Golgotha","Gethsemane","Zion","Moriah"] },
+          { q: "What happened to the temple curtain when Jesus died?", a: "It tore in two from top to bottom", choices: ["It tore in two from top to bottom","It caught fire","It turned black","It fell to the ground"] },
+          { q: "What did Jesus pray for those who crucified him?", a: "Father forgive them", choices: ["Father forgive them","Father destroy them","Father judge them","Father help them"] }
+        ]
+      },
+      {
+        num: 9,
+        title: "The Empty Tomb",
+        scene: "resurrection",
+        narrative: "They sealed the tomb with a stone and set a guard. It was over — or so they thought. On the third day, Mary Magdalene came to the tomb while it was still dark. The stone was rolled away. Two angels sat where Jesus had been laid. Mary turned and saw a man she thought was the gardener, and through her tears she asked where they had taken him. Then he said her name — Mary — and in that one word, everything changed. He was alive. Death itself had been defeated. The resurrection wasn't just a miracle. It was the declaration that the grave does not have the final word.",
+        verse: "He is not here; he has risen, just as he said.",
+        reference: "Matthew 28:6",
+        questions: [
+          { q: "Who was the first person to see Jesus after his resurrection?", a: "Mary Magdalene", choices: ["Mary Magdalene","Peter","John","Mary the mother of Jesus"] },
+          { q: "What did Jesus say to Mary that caused her to recognize him?", a: "Her name", choices: ["Her name","Peace be with you","Do not be afraid","I am the resurrection"] },
+          { q: "On what day did Jesus rise from the dead?", a: "The third day", choices: ["The third day","The first day","The seventh day","After 40 days"] }
+        ]
+      },
+      {
+        num: 10,
+        title: "The Great Commission",
+        scene: "commission",
+        narrative: "For forty days after the resurrection, Jesus appeared to his disciples — sometimes to one, sometimes to twelve, once to more than five hundred people at the same time. He opened their minds to understand the Scriptures and showed them how everything had been pointing to him all along. Then he gathered them on a hillside and gave them their mission. Not a suggestion. A commission. Go into all the world and make disciples of all nations. And then — the promise that makes it possible: I am with you always, to the very end of the age. The story wasn't ending. It was just beginning.",
+        verse: "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.",
+        reference: "Matthew 28:19",
+        questions: [
+          { q: "How many days did Jesus appear to his disciples after the resurrection?", a: "40 days", choices: ["40 days","3 days","7 days","30 days"] },
+          { q: "To how many people did Jesus appear at one time according to Paul?", a: "More than 500", choices: ["More than 500","12","70","120"] },
+          { q: "What promise did Jesus give his disciples at the Great Commission?", a: "I am with you always", choices: ["I am with you always","You will never fail","All nations will hear","The Spirit will speak for you"] }
+        ]
+      }
+    ]
+  }
+];
+
+let storyV2Session = {
+  pathId: null,
+  chapterNum: 0,
+  questionIndex: 0,
+  answers: [],
+  stars: 0,
+  phase: 'narrative' // narrative, questions, complete
+};
+
+// SVG scenes for story chapters
+function getSceneSVG(scene) {
+  const scenes = {
+    creation: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f4d03f"/><stop offset="100%" stop-color="#e67e22" stop-opacity="0"/></radialGradient></defs>
+      <rect width="320" height="160" fill="#0a1628"/>
+      <circle cx="160" cy="80" r="60" fill="url(#sun)" opacity="0.6"/>
+      <circle cx="160" cy="80" r="35" fill="#f9e04b" opacity="0.9"/>
+      <circle cx="60" cy="30" r="3" fill="white" opacity="0.8"/>
+      <circle cx="90" cy="15" r="2" fill="white" opacity="0.6"/>
+      <circle cx="240" cy="25" r="3" fill="white" opacity="0.8"/>
+      <circle cx="280" cy="40" r="2" fill="white" opacity="0.6"/>
+      <circle cx="30" cy="50" r="2" fill="white" opacity="0.7"/>
+      <circle cx="200" cy="10" r="2" fill="white" opacity="0.5"/>
+      <rect x="0" y="120" width="320" height="40" fill="#1a3d1a"/>
+      <ellipse cx="160" cy="120" rx="80" ry="20" fill="#2d5a2d"/>
+    </svg>`,
+    garden: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a3d0a"/>
+      <rect x="0" y="100" width="320" height="60" fill="#2d5a1a"/>
+      <ellipse cx="80" cy="90" rx="50" ry="60" fill="#3a7a20"/>
+      <ellipse cx="240" cy="85" rx="55" ry="65" fill="#3a7a20"/>
+      <ellipse cx="160" cy="80" rx="45" ry="55" fill="#4a9a30"/>
+      <rect x="155" y="80" width="10" height="40" fill="#8b4513"/>
+      <circle cx="170" cy="75" r="12" fill="#e74c3c"/>
+      <path d="M155 95 Q140 80 150 70" stroke="#4a9a30" stroke-width="3" fill="none"/>
+      <circle cx="50" cy="120" r="8" fill="#f39c12" opacity="0.8"/>
+      <circle cx="270" cy="115" r="6" fill="#e74c3c" opacity="0.8"/>
+    </svg>`,
+    stars: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a0a2e"/>
+      <circle cx="40" cy="20" r="2" fill="white"/>
+      <circle cx="80" cy="35" r="3" fill="white" opacity="0.9"/>
+      <circle cx="120" cy="15" r="2" fill="white"/>
+      <circle cx="160" cy="25" r="4" fill="#f9e04b"/>
+      <circle cx="200" cy="10" r="2" fill="white"/>
+      <circle cx="240" cy="30" r="3" fill="white" opacity="0.8"/>
+      <circle cx="280" cy="20" r="2" fill="white"/>
+      <circle cx="60" cy="55" r="2" fill="white" opacity="0.6"/>
+      <circle cx="100" cy="45" r="3" fill="white" opacity="0.9"/>
+      <circle cx="140" cy="60" r="2" fill="white"/>
+      <circle cx="180" cy="40" r="2" fill="white" opacity="0.7"/>
+      <circle cx="220" cy="55" r="3" fill="white" opacity="0.8"/>
+      <circle cx="260" cy="45" r="2" fill="white"/>
+      <circle cx="300" cy="35" r="2" fill="white" opacity="0.6"/>
+      <circle cx="20" cy="70" r="2" fill="white" opacity="0.5"/>
+      <circle cx="320" cy="60" r="2" fill="white" opacity="0.7"/>
+      <rect x="0" y="120" width="320" height="40" fill="#1a1a3a"/>
+      <path d="M100 120 Q160 100 220 120" fill="#2a2a5a"/>
+      <text x="160" y="145" text-anchor="middle" fill="#f9e04b" font-size="12" opacity="0.8">✦ Count them if you can ✦</text>
+    </svg>`,
+    passover: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a0a00"/>
+      <rect x="0" y="100" width="320" height="60" fill="#2d1a00"/>
+      <rect x="60" y="40" width="60" height="80" fill="#8b6914"/>
+      <rect x="80" y="60" width="20" height="60" fill="#a07820"/>
+      <rect x="60" y="40" width="60" height="10" fill="#6b4e10"/>
+      <rect x="200" y="40" width="60" height="80" fill="#8b6914"/>
+      <rect x="220" y="60" width="20" height="60" fill="#a07820"/>
+      <rect x="200" y="40" width="60" height="10" fill="#6b4e10"/>
+      <rect x="58" y="38" width="8" height="40" fill="#c8401a" rx="2"/>
+      <rect x="198" y="38" width="8" height="40" fill="#c8401a" rx="2"/>
+      <circle cx="62" cy="38" r="6" fill="#f4b942" opacity="0.9"/>
+      <circle cx="202" cy="38" r="6" fill="#f4b942" opacity="0.9"/>
+      <ellipse cx="62" cy="32" rx="4" ry="8" fill="#f9e04b" opacity="0.6"/>
+      <ellipse cx="202" cy="32" rx="4" ry="8" fill="#f9e04b" opacity="0.6"/>
+      <text x="160" y="90" text-anchor="middle" fill="#f4b942" font-size="11" opacity="0.9">The blood is the sign</text>
+    </svg>`,
+    prophecy: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a1428"/>
+      <rect x="100" y="20" width="120" height="110" fill="#f5e6c8" rx="4"/>
+      <rect x="100" y="20" width="10" height="110" fill="#d4b87a" rx="2"/>
+      <line x1="115" y1="40" x2="210" y2="40" stroke="#8b6914" stroke-width="1.5"/>
+      <line x1="115" y1="52" x2="210" y2="52" stroke="#8b6914" stroke-width="1.5"/>
+      <line x1="115" y1="64" x2="210" y2="64" stroke="#8b6914" stroke-width="1.5"/>
+      <line x1="115" y1="76" x2="210" y2="76" stroke="#8b6914" stroke-width="1.5"/>
+      <line x1="115" y1="88" x2="195" y2="88" stroke="#c8401a" stroke-width="2"/>
+      <line x1="115" y1="100" x2="210" y2="100" stroke="#8b6914" stroke-width="1.5"/>
+      <line x1="115" y1="112" x2="185" y2="112" stroke="#8b6914" stroke-width="1.5"/>
+      <text x="162" y="88" text-anchor="middle" fill="#c8401a" font-size="7">He was pierced for our sins</text>
+      <circle cx="50" cy="60" r="20" fill="#f4b942" opacity="0.3"/>
+      <circle cx="50" cy="60" r="12" fill="#f4b942" opacity="0.5"/>
+      <text x="50" y="115" text-anchor="middle" fill="#f4b942" font-size="9">Isaiah</text>
+      <text x="50" y="126" text-anchor="middle" fill="#f4b942" font-size="8">700 BC</text>
+    </svg>`,
+    nativity: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a1628"/>
+      <polygon points="160,5 175,5 160,80 145,80" fill="#f9e04b" opacity="0.9"/>
+      <circle cx="160" cy="5" r="6" fill="#f9e04b"/>
+      <polygon points="100,70 220,70 240,130 80,130" fill="#8b6914"/>
+      <polygon points="100,70 220,70 160,40" fill="#a07820"/>
+      <rect x="130" y="95" width="60" height="35" fill="#6b4e10"/>
+      <rect x="140" y="105" width="40" height="25" fill="#8b6914"/>
+      <ellipse cx="160" cy="108" rx="15" ry="10" fill="#f5e6c8"/>
+      <circle cx="160" cy="103" r="7" fill="#f5e6c8"/>
+      <circle cx="160" cy="108" r="5" fill="#f4b942" opacity="0.5"/>
+      <ellipse cx="100" cy="125" rx="18" ry="12" fill="#6b4e10"/>
+      <ellipse cx="220" cy="125" rx="18" ry="12" fill="#6b4e10"/>
+      <circle cx="40" cy="30" r="2" fill="white"/>
+      <circle cx="280" cy="25" r="2" fill="white"/>
+      <circle cx="60" cy="50" r="2" fill="white" opacity="0.7"/>
+      <circle cx="260" cy="45" r="2" fill="white" opacity="0.7"/>
+    </svg>`,
+    ministry: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#87CEEB"/>
+      <rect x="0" y="110" width="320" height="50" fill="#4a7a30"/>
+      <ellipse cx="60" cy="110" rx="40" ry="15" fill="#3a6a20"/>
+      <ellipse cx="260" cy="110" rx="40" ry="15" fill="#3a6a20"/>
+      <circle cx="160" cy="70" r="25" fill="#f5e6c8"/>
+      <circle cx="160" cy="58" r="14" fill="#f5e6c8"/>
+      <rect x="148" y="72" width="24" height="30" fill="#6b4e10"/>
+      <ellipse cx="140" cy="75" rx="12" ry="8" fill="#f5e6c8" transform="rotate(-20 140 75)"/>
+      <ellipse cx="180" cy="75" rx="12" ry="8" fill="#f5e6c8" transform="rotate(20 180 75)"/>
+      <circle cx="110" cy="90" r="10" fill="#f5e6c8"/>
+      <circle cx="210" cy="90" r="10" fill="#f5e6c8"/>
+      <circle cx="90" cy="100" r="8" fill="#f5e6c8"/>
+      <circle cx="230" cy="100" r="8" fill="#f5e6c8"/>
+      <circle cx="70" cy="108" r="7" fill="#f5e6c8"/>
+      <circle cx="250" cy="108" r="7" fill="#f5e6c8"/>
+    </svg>`,
+    cross: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="darksky" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#2c1810"/><stop offset="100%" stop-color="#0a0a0a"/></radialGradient></defs>
+      <rect width="320" height="160" fill="url(#darksky)"/>
+      <rect x="0" y="100" width="320" height="60" fill="#1a0a00"/>
+      <rect x="152" y="20" width="16" height="100" fill="#5a3010"/>
+      <rect x="120" y="45" width="80" height="14" fill="#5a3010"/>
+      <rect x="154" y="22" width="12" height="96" fill="#6b3810"/>
+      <rect x="122" y="47" width="76" height="10" fill="#6b3810"/>
+      <ellipse cx="160" cy="155" rx="100" ry="15" fill="#2d1a00" opacity="0.5"/>
+      <circle cx="50" cy="40" r="15" fill="#f4b942" opacity="0.15"/>
+      <circle cx="270" cy="40" r="15" fill="#f4b942" opacity="0.15"/>
+    </svg>`,
+    resurrection: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="dawn" cx="50%" cy="60%" r="60%"><stop offset="0%" stop-color="#f9e04b" stop-opacity="0.8"/><stop offset="100%" stop-color="#87CEEB" stop-opacity="0.3"/></radialGradient></defs>
+      <rect width="320" height="160" fill="#e8f4fd"/>
+      <ellipse cx="160" cy="160" rx="200" ry="80" fill="url(#dawn)"/>
+      <ellipse cx="80" cy="120" rx="60" ry="30" fill="#8b8b6b"/>
+      <ellipse cx="240" cy="125" rx="50" ry="25" fill="#8b8b6b"/>
+      <ellipse cx="160" cy="110" rx="50" ry="40" fill="#9b9b7b"/>
+      <ellipse cx="185" cy="115" rx="25" ry="30" fill="#7b7b5b"/>
+      <ellipse cx="235" cy="125" rx="30" ry="22" fill="#9b9b7b" opacity="0.7"/>
+      <circle cx="160" cy="45" r="30" fill="#f9e04b" opacity="0.6"/>
+      <circle cx="160" cy="45" r="18" fill="#f9e04b" opacity="0.9"/>
+      <text x="160" y="152" text-anchor="middle" fill="#8b4513" font-size="10" font-weight="bold">He is risen!</text>
+    </svg>`,
+    commission: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#87CEEB"/>
+      <rect x="0" y="110" width="320" height="50" fill="#4a7a30"/>
+      <ellipse cx="160" cy="110" rx="120" ry="20" fill="#3a6a20"/>
+      <circle cx="160" cy="65" r="22" fill="#f5e6c8"/>
+      <circle cx="160" cy="53" r="13" fill="#f5e6c8"/>
+      <rect x="150" y="67" width="20" height="28" fill="#ffffff" opacity="0.9"/>
+      <ellipse cx="144" cy="70" rx="10" ry="7" fill="#f5e6c8" transform="rotate(-30 144 70)"/>
+      <ellipse cx="176" cy="70" rx="10" ry="7" fill="#f5e6c8" transform="rotate(30 176 70)"/>
+      <circle cx="80" cy="95" r="10" fill="#f5e6c8"/>
+      <circle cx="240" cy="95" r="10" fill="#f5e6c8"/>
+      <circle cx="55" cy="100" r="9" fill="#f5e6c8"/>
+      <circle cx="265" cy="100" r="9" fill="#f5e6c8"/>
+      <circle cx="110" cy="88" r="9" fill="#f5e6c8"/>
+      <circle cx="210" cy="88" r="9" fill="#f5e6c8"/>
+      <circle cx="130" cy="82" r="9" fill="#f5e6c8"/>
+      <circle cx="190" cy="82" r="9" fill="#f5e6c8"/>
+      <path d="M120 50 Q160 30 200 50" stroke="#f4b942" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+      <text x="160" y="25" text-anchor="middle" fill="#f4b942" font-size="10">Go into all the world</text>
+    </svg>`
+  };
+  return scenes[scene] || scenes.creation;
+}
+
+function renderStoryModeV2() {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+
+  root.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px;">
+      ${getRandyImg('default', 80)}
+      <div style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;color:var(--text);margin-top:8px;">Story Mode</div>
+      <div style="color:var(--text-muted);font-size:0.82rem;">Journey through the greatest stories ever told</div>
+    </div>
+
+    ${STORY_PATHS_V2.map(path => {
+      const progress = getStoryV2Progress(path.id);
+      const completed = progress.filter(p => p.stars > 0).length;
+      const pct = Math.round((completed / path.chapters.length) * 100);
+      return `
+      <div onclick="renderStoryPathV2(${path.id})" style="background:var(--surface);border:1.5px solid ${path.accent};border-radius:18px;padding:16px;margin-bottom:10px;cursor:pointer;overflow:hidden;position:relative;">
+        <div style="position:absolute;top:0;right:0;bottom:0;width:40%;background:linear-gradient(to left,${path.color}33,transparent);border-radius:0 18px 18px 0;"></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-size:2.5rem;">${path.icon}</div>
+          <div style="flex:1;">
+            <div style="font-family:Georgia,serif;font-size:1rem;font-weight:700;color:var(--text);">${path.title}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${path.subtitle}</div>
+            <div style="margin-top:8px;height:4px;background:var(--surface-2);border-radius:2px;overflow:hidden;">
+              <div style="height:100%;background:${path.accent};border-radius:2px;width:${pct}%;transition:width 0.5s;"></div>
+            </div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;">${completed}/${path.chapters.length} chapters · ${pct}% complete</div>
+          </div>
+        </div>
+      </div>`
+    }).join('')}`;
+}
+
+function getStoryV2Progress(pathId) {
+  try {
+    return JSON.parse(localStorage.getItem(`sv2_${pathId}`) || '[]');
+  } catch(e) { return []; }
+}
+
+function saveStoryV2Progress(pathId, chapterNum, stars) {
+  const progress = getStoryV2Progress(pathId);
+  const idx = progress.findIndex(p => p.chapter === chapterNum);
+  if(idx >= 0) {
+    progress[idx].stars = Math.max(progress[idx].stars, stars);
+  } else {
+    progress.push({ chapter: chapterNum, stars });
+  }
+  localStorage.setItem(`sv2_${pathId}`, JSON.stringify(progress));
+
+  // Also save to Supabase if logged in
+  if(currentUser && authToken) {
+    fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ user_id: currentUser.id, path_id: pathId, chapter_num: chapterNum, stars, completed: false })
+    }).catch(()=>{});
+  }
+}
+
+function renderStoryPathV2(pathId) {
+  showBackBtn(true);
+  const path = STORY_PATHS_V2.find(p => p.id === pathId);
+  if(!path) return;
+  const progress = getStoryV2Progress(pathId);
+  const root = document.getElementById('root');
+
+  root.innerHTML = `
+    <div style="background:linear-gradient(135deg,${path.color},${path.color}cc);border-radius:18px;padding:20px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:8px;">${path.icon}</div>
+      <div style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;color:white;">${path.title}</div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.7);margin-top:4px;">${path.description}</div>
+    </div>
+
+    ${path.chapters.map((ch, idx) => {
+      const chProgress = progress.find(p => p.chapter === ch.num);
+      const stars = chProgress ? chProgress.stars : 0;
+      const isLocked = idx > 0 && !progress.find(p => p.chapter === idx);
+      const starDisplay = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+
+      return `
+      <div onclick="${isLocked ? '' : `startStoryChapterV2(${pathId}, ${ch.num})`}"
+        style="background:var(--surface);border:1.5px solid ${stars > 0 ? path.accent : 'var(--border)'};border-radius:14px;padding:14px;margin-bottom:8px;cursor:${isLocked ? 'default' : 'pointer'};opacity:${isLocked ? '0.4' : '1'};display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:${stars > 0 ? path.accent : 'var(--surface-2)'};display:flex;align-items:center;justify-content:center;font-weight:700;color:${stars > 0 ? 'white' : 'var(--text-muted)'};flex-shrink:0;">${ch.num}</div>
+        <div style="flex:1;">
+          <div style="font-size:0.9rem;font-weight:600;color:var(--text);">${ch.title}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${isLocked ? '🔒 Complete previous chapter' : stars > 0 ? starDisplay : '3 questions · tap to begin'}</div>
+        </div>
+        ${stars > 0 ? `<div style="font-size:1.1rem;">${starDisplay}</div>` : ''}
+      </div>`
+    }).join('')}`;
+}
+
+function startStoryChapterV2(pathId, chapterNum) {
+  const path = STORY_PATHS_V2.find(p => p.id === pathId);
+  const chapter = path.chapters.find(c => c.num === chapterNum);
+  if(!path || !chapter) return;
+
+  storyV2Session = { pathId, chapterNum, questionIndex: 0, answers: [], stars: 0, phase: 'narrative', path, chapter };
+  renderStoryNarrative();
+}
+
+function renderStoryNarrative() {
+  const { path, chapter } = storyV2Session;
+  showBackBtn(true);
+  const root = document.getElementById('root');
+
+  root.innerHTML = `
+    <!-- Scene illustration -->
+    <div style="border-radius:16px;overflow:hidden;margin-bottom:14px;border:1.5px solid ${path.accent};">
+      ${getSceneSVG(chapter.scene)}
+    </div>
+
+    <!-- Chapter header -->
+    <div style="margin-bottom:12px;">
+      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:${path.accent};font-weight:700;margin-bottom:4px;">${path.title} · Chapter ${chapter.num}</div>
+      <div style="font-family:Georgia,serif;font-size:1.2rem;font-weight:700;color:var(--text);">${chapter.title}</div>
+    </div>
+
+    <!-- Narrative -->
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;">
+      <div style="font-size:0.88rem;color:var(--text);line-height:1.8;font-family:Georgia,serif;">${chapter.narrative}</div>
+    </div>
+
+    <!-- Key verse -->
+    <div style="background:linear-gradient(135deg,${path.color}22,${path.color}11);border:1.5px solid ${path.accent};border-radius:14px;padding:16px;margin-bottom:16px;position:relative;">
+      <div style="position:absolute;top:8px;left:12px;font-size:32px;color:${path.accent};font-family:Georgia,serif;opacity:0.4;">"</div>
+      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:${path.accent};font-weight:700;margin-bottom:8px;">📖 Key Verse</div>
+      <div style="font-size:0.92rem;color:var(--text);line-height:1.7;font-style:italic;font-family:Georgia,serif;">"${chapter.verse}"</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;font-weight:600;text-align:right;">— ${chapter.reference}</div>
+    </div>
+
+    <!-- Continue button -->
+    <button class="btn-next" onclick="renderStoryQuestions()">
+      Continue to Questions →
+    </button>`;
+}
+
+function renderStoryQuestions() {
+  const { path, chapter, questionIndex } = storyV2Session;
+
+  if(questionIndex >= chapter.questions.length) {
+    renderStoryChapterComplete();
+    return;
+  }
+
+  const q = chapter.questions[questionIndex];
+  const shuffled = [...q.choices].sort(() => Math.random() - 0.5);
+  showBackBtn(true);
+  const root = document.getElementById('root');
+
+  root.innerHTML = `
+    <!-- Progress -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:0.78rem;color:var(--text-muted);">Question ${questionIndex + 1} of ${chapter.questions.length}</div>
+      <div style="font-size:0.88rem;">
+        ${'⭐'.repeat(storyV2Session.answers.filter(a=>a).length)}${'☆'.repeat(questionIndex - storyV2Session.answers.filter(a=>a).length)}
+      </div>
+    </div>
+    <div style="height:6px;background:var(--surface-2);border-radius:3px;margin-bottom:16px;overflow:hidden;">
+      <div style="height:100%;background:${path.accent};border-radius:3px;width:${(questionIndex/chapter.questions.length)*100}%;"></div>
+    </div>
+
+    <!-- Question -->
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;">
+      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:${path.accent};font-weight:700;margin-bottom:8px;">📖 ${chapter.title}</div>
+      <div style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.5;font-family:Georgia,serif;">${q.q}</div>
+    </div>
+
+    <!-- Choices -->
+    <div style="display:flex;flex-direction:column;gap:8px;" id="storyChoices">
+      ${shuffled.map(c => `
+        <button onclick="checkStoryAnswerV2(this, '${c.replace(/'/g, "\'")}')"
+          style="width:100%;padding:14px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;color:var(--text);cursor:pointer;text-align:left;">
+          ${c}
+        </button>`).join('')}
+    </div>`;
+}
+
+function checkStoryAnswerV2(btn, chosen) {
+  const { chapter, questionIndex } = storyV2Session;
+  const q = chapter.questions[questionIndex];
+  const correct = chosen === q.a;
+
+  document.querySelectorAll('#storyChoices button').forEach(b => {
+    b.disabled = true;
+    const bText = b.textContent.trim();
+    if(bText === q.a) { b.style.background='rgba(45,110,62,0.2)'; b.style.borderColor='#2d6e3e'; b.style.color='#2d6e3e'; }
+    else if(bText === chosen && !correct) { b.style.background='rgba(200,64,26,0.2)'; b.style.borderColor='#c8401a'; b.style.color='#c8401a'; }
+    else { b.style.opacity='0.4'; }
+  });
+
+  storyV2Session.answers.push(correct);
+  if(correct) { playCorrect(); showRandyReaction('happy'); }
+  else { playWrong(); showRandyReaction('sad'); }
+
+  storyV2Session.questionIndex++;
+  setTimeout(() => renderStoryQuestions(), 1200);
+}
+
+function renderStoryChapterComplete() {
+  const { path, chapter, answers, pathId, chapterNum } = storyV2Session;
+  const correct = answers.filter(a => a).length;
+  const stars = correct;
+  storyV2Session.stars = stars;
+
+  saveStoryV2Progress(pathId, chapterNum, stars);
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  const randy = stars === 3 ? 'happy' : stars >= 1 ? 'default' : 'sad';
+  const path_obj = STORY_PATHS_V2.find(p => p.id === pathId);
+  const nextChapter = path_obj.chapters.find(c => c.num === chapterNum + 1);
+
+  root.innerHTML = `
+    <div style="text-align:center;margin-bottom:16px;">
+      ${getRandyImg(randy, 90)}
+      <div style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;color:var(--text);margin-top:8px;">
+        ${stars === 3 ? 'Perfect!' : stars === 2 ? 'Well done!' : stars === 1 ? 'Good effort!' : 'Keep trying!'}
+      </div>
+      <div style="font-size:1.8rem;margin-top:6px;">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+    </div>
+
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;">
+      <div style="font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:4px;">${chapter.title}</div>
+      <div style="font-size:0.8rem;color:var(--text-muted);">${correct} of 3 questions correct</div>
+    </div>
+
+    <!-- Review key verse again -->
+    <div style="background:linear-gradient(135deg,${path.color}22,${path.color}11);border:1.5px solid ${path.accent};border-radius:14px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:${path.accent};font-weight:700;margin-bottom:6px;">📖 Remember This</div>
+      <div style="font-size:0.85rem;color:var(--text);line-height:1.6;font-style:italic;font-family:Georgia,serif;">"${chapter.verse}"</div>
+      <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;font-weight:600;text-align:right;">— ${chapter.reference}</div>
+    </div>
+
+    ${nextChapter ? `
+    <button class="btn-next" onclick="startStoryChapterV2(${pathId}, ${nextChapter.num})">
+      Next: ${nextChapter.title} →
+    </button>` : `
+    <div style="background:linear-gradient(135deg,${path.color},${path.color}cc);border-radius:14px;padding:16px;text-align:center;margin-bottom:10px;">
+      <div style="font-size:1.5rem;margin-bottom:4px;">🎉</div>
+      <div style="font-family:Georgia,serif;font-size:1rem;font-weight:700;color:white;">Path Complete!</div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.8);margin-top:4px;">You finished ${path.title}</div>
+    </div>`}
+    ${stars < 3 ? `<button class="btn-change-diff" style="width:100%;margin-top:8px;" onclick="startStoryChapterV2(${pathId}, ${chapterNum})">Try Again for ⭐⭐⭐</button>` : ''}
+    <button class="btn-change-diff" style="width:100%;margin-top:8px;" onclick="renderStoryPathV2(${pathId})">← Back to Path</button>`;
+}
 
 // ═══════════════════════════════════════
 // BIBLE TRIVIA
