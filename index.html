@@ -19,13 +19,15 @@
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:ital@0;1&display=swap');
 
   :root {
-    --bg:         #f4ede0;
-    --surface:    #fffbf0;
+    --bg:         #ede3cf;
+    --surface:    #fffdf5;
     --surface-2:  #fdf5e4;
-    --border:     #d4b87a;
-    --border-hi:  #c4a97a;
-    --text:       #3a2800;
-    --text-muted: #8b6914;
+    --border:     #d4aa50;
+    --border-hi:  #c4a030;
+    --text:       #2e1c00;
+    --text-muted: #7a5010;
+    --rope:       repeating-linear-gradient(45deg,#9b7520 0,#9b7520 4px,#d4aa50 4px,#d4aa50 8px,#b08830 8px,#b08830 12px,#d4aa50 12px,#d4aa50 16px);
+    --rope-dark:  repeating-linear-gradient(45deg,#6a5808 0,#6a5808 4px,#a89028 4px,#a89028 8px,#6a5808 8px,#6a5808 12px,#a89028 12px,#a89028 16px);
     --moss:       #4A7C59;
     --fern:       #6BAF7A;
     --fern-glow:  rgba(107,175,122,0.2);
@@ -49,11 +51,14 @@
     --teal-dim:   rgba(45,110,62,0.15);
     --earth:      #c8641a;
     --earth-dim:  rgba(200,100,26,0.15);
+    --rope:       repeating-linear-gradient(45deg,#5a4010 0,#5a4010 4px,#8a6828 4px,#8a6828 8px,#6a5018 8px,#6a5018 12px,#8a6828 12px,#8a6828 16px);
   }
+  .dark-mode #leafBg { opacity: 0.5; }
 
   body {
     background: var(--bg);
     transition: background 0.3s ease, color 0.3s ease;
+    position: relative;
     background-image:
       radial-gradient(ellipse 70% 50% at 15% 5%,  rgba(74,124,89,0.15) 0%, transparent 65%),
       radial-gradient(ellipse 50% 40% at 85% 95%, rgba(59,191,160,0.08) 0%, transparent 60%);
@@ -115,6 +120,10 @@
 
   /* Card */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 0 0 1px rgba(74,124,89,0.06), 0 20px 40px rgba(0,0,0,0.5); width: 100%; max-width: 560px; padding: 28px 24px 22px; }
+  .rope-card { border-radius:16px; background:var(--surface) padding-box, repeating-linear-gradient(45deg,#9b7520 0,#9b7520 4px,#d4aa50 4px,#d4aa50 8px,#b08830 8px,#b08830 12px,#d4aa50 12px,#d4aa50 16px) border-box; border:3px solid transparent; padding:14px 16px; margin-bottom:12px; }
+  .rope-card-green { border-radius:18px; background:#1c3d12 padding-box, repeating-linear-gradient(45deg,#c4a030 0,#c4a030 4px,#f0c850 4px,#f0c850 8px,#c4a030 8px,#c4a030 12px,#f0c850 12px,#f0c850 16px) border-box; border:4px solid transparent; padding:18px; margin-bottom:12px; position:relative; overflow:hidden; }
+  .rope-divider { display:flex; align-items:center; gap:10px; margin:14px 0 10px; color:#6b4a10; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.14em; }
+  .rope-divider-line { flex:1; height:6px; background:repeating-linear-gradient(90deg,#9b7520 0,#9b7520 4px,#d4aa50 4px,#d4aa50 8px,#b08830 8px,#b08830 12px,#d4aa50 12px,#d4aa50 16px); border-radius:3px; opacity:0.6; }
 
   .verse-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
   .verse-label::after { content:''; flex:1; height:1px; background:var(--border); }
@@ -738,7 +747,39 @@
   <p>How well do you know the Word?</p>
 </div>
 
-<div id="topBar" style="display:none;width:100%;max-width:560px;display:none;">
+<!-- Leaf background -->
+<div id="leafBg" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;">
+  <svg width="100%" height="100%" viewBox="0 0 390 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <g opacity="0.07" fill="#3a6820">
+      <ellipse cx="-5" cy="100" rx="60" ry="24" transform="rotate(-32 -5 100)"/>
+      <ellipse cx="385" cy="50" rx="65" ry="26" transform="rotate(28 385 50)"/>
+      <ellipse cx="392" cy="220" rx="55" ry="22" transform="rotate(-48 392 220)"/>
+      <ellipse cx="-8" cy="300" rx="68" ry="27" transform="rotate(20 -8 300)"/>
+      <ellipse cx="388" cy="390" rx="58" ry="23" transform="rotate(-36 388 390)"/>
+      <ellipse cx="-5" cy="490" rx="62" ry="25" transform="rotate(16 -5 490)"/>
+      <ellipse cx="390" cy="570" rx="55" ry="22" transform="rotate(-26 390 570)"/>
+      <ellipse cx="-2" cy="660" rx="60" ry="24" transform="rotate(38 -2 660)"/>
+      <ellipse cx="385" cy="740" rx="56" ry="23" transform="rotate(-20 385 740)"/>
+      <ellipse cx="10" cy="820" rx="65" ry="26" transform="rotate(30 10 820)"/>
+      <ellipse cx="375" cy="880" rx="58" ry="23" transform="rotate(-40 375 880)"/>
+      <ellipse cx="195" cy="0" rx="75" ry="15" transform="rotate(4 195 0)"/>
+      <ellipse cx="130" cy="895" rx="68" ry="16" transform="rotate(-7 130 895)"/>
+      <ellipse cx="55" cy="175" rx="38" ry="15" transform="rotate(-58 55 175)"/>
+      <ellipse cx="330" cy="260" rx="40" ry="16" transform="rotate(52 330 260)"/>
+      <ellipse cx="35" cy="370" rx="36" ry="14" transform="rotate(-46 35 370)"/>
+      <ellipse cx="352" cy="460" rx="38" ry="15" transform="rotate(44 352 460)"/>
+      <ellipse cx="30" cy="558" rx="36" ry="14" transform="rotate(-52 30 558)"/>
+      <ellipse cx="356" cy="645" rx="40" ry="16" transform="rotate(38 356 645)"/>
+      <ellipse cx="28" cy="748" rx="36" ry="14" transform="rotate(-48 28 748)"/>
+    </g>
+    <g opacity="0.04" fill="none" stroke="#3a6820" stroke-width="2.5">
+      <path d="M0 190 Q50 165 38 215 Q26 265 72 238 Q118 211 98 266"/>
+      <path d="M390 450 Q340 428 352 478 Q364 528 318 500 Q272 472 290 528"/>
+      <path d="M0 668 Q58 638 44 694 Q30 750 80 718 Q130 686 108 744"/>
+    </g>
+  </svg>
+</div>
+<div id="topBar" style="display:none;width:100%;max-width:560px;display:none;position:relative;z-index:1;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
     <div id="userBar" style="flex:1;"></div>
     <div style="display:flex;align-items:center;gap:4px;">
@@ -895,7 +936,7 @@ async function showHome() {
 
       <!-- 2. Streak -->
       ${currentUser ? `
-      <div id="homeStreakDisplay">${getStreakDisplay()}</div>` : ''}
+      <div id="homeStreakDisplay" style="margin-bottom:12px;">${getStreakDisplay()}</div>` : ''}
 
       <!-- 3. Verse of the Day -->
       <div id="verseOfDayCard" style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;position:relative;">
@@ -906,30 +947,34 @@ async function showHome() {
       </div>
 
       <!-- 4. Daily Challenge Hero -->
-      <div style="background:#2d4a1e;border-radius:18px;padding:14px 16px;margin-bottom:10px;cursor:pointer;" id="homeDailyBtn">
-        <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:#a8d878;font-weight:700;margin-bottom:2px;">⚡ Daily Challenge</div>
-        <div id="homeDailyTheme" style="color:#fff8f0;font-size:1.05rem;font-weight:700;margin-bottom:10px;font-family:Georgia,serif;">Today's Challenge</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <div style="flex:1;height:6px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden;">
-            <div style="height:100%;background:#a8d878;border-radius:3px;width:${dailyPct}%;"></div>
+      <div class="rope-card-green" id="homeDailyBtn" style="cursor:pointer;">
+        <div style="position:absolute;right:12px;top:10px;font-size:48px;opacity:0.08;">🧭</div>
+        <div style="color:#90d060;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:3px;">⚡ Daily Challenge</div>
+        <div id="homeDailyTheme" style="color:#fffaee;font-size:1.15rem;font-weight:700;font-family:Georgia,serif;margin-bottom:12px;">Today's Challenge</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="flex:1;height:7px;background:rgba(255,255,255,0.12);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;background:#90d060;border-radius:4px;width:${dailyPct}%;"></div>
           </div>
-          <div style="color:#a8d878;font-size:0.75rem;font-weight:600;">${completedCount} of 4</div>
+          <div style="color:#90d060;font-size:0.78rem;font-weight:700;">${completedCount} of 4</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           ${gameInfo.map(g => {
             const done = isDailyCompleted(g.id);
-            return `<div style="background:${done ? 'rgba(168,216,120,0.15)' : 'rgba(255,255,255,0.08)'};border:1px solid ${done ? 'rgba(168,216,120,0.4)' : 'rgba(255,255,255,0.1)'};border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:15px;">${g.icon}</span>
-              <span style="color:#d4e8c4;font-size:0.75rem;font-weight:600;flex:1;">${g.name}</span>
-              ${done ? '<span style="color:#a8d878;font-size:13px;">✓</span>' : ''}
+            return `<div style="border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;background:${done ? 'rgba(160,220,100,0.18)' : 'rgba(255,255,255,0.07)'};border:1px solid ${done ? 'rgba(160,220,100,0.45)' : 'rgba(255,255,255,0.12)'};cursor:pointer;">
+              <span style="font-size:22px;">${g.icon}</span>
+              <div style="flex:1;">
+                <div style="color:${done ? '#d8ecc8' : '#a0b890'};font-size:0.82rem;font-weight:700;">${g.name}</div>
+                <div style="color:${done ? '#7ab860' : '#607858'};font-size:0.68rem;margin-top:1px;">${done ? 'Complete' : 'Tap to play'}</div>
+              </div>
+              ${done ? '<span style="color:#90d060;font-size:16px;">✓</span>' : ''}
             </div>`;
           }).join('')}
         </div>
-        <div style="color:#7a9a6a;font-size:0.72rem;margin-top:8px;text-align:center;">⏰ Resets in ${hLeft}h ${mLeft}m</div>
+        <div style="color:#6a8850;font-size:0.7rem;margin-top:12px;text-align:center;">⏰ Resets in ${hLeft}h ${mLeft}m</div>
       </div>
 
       <!-- 5. Games Grid -->
-      <div class="home-section-label">🎮 Game Modes</div>
+      <div class="rope-divider"><div class="rope-divider-line"></div><span>🌾 Game Modes 🌾</span><div class="rope-divider-line"></div></div>
       <div class="home-game-grid">
         <!-- Scripture Scout — flagship full width -->
         <div class="home-game-card featured" id="homePlayBtn" style="grid-column:1/-1;background:linear-gradient(135deg,#fffbf0,#fdf0d8);border-color:#c4a97a;border-width:2px;">
@@ -942,7 +987,7 @@ async function showHome() {
         </div>
         <!-- Bible Trivia — featured full width -->
         <div class="home-game-card featured" id="homeMemoryBtn" onclick="showBackBtn(true);renderTriviaSetup();" style="grid-column:1/-1;background:linear-gradient(135deg,#fff8f0,#fde8d0);border-color:#8b4513;border-width:2px;">
-          <div class="home-game-icon">🧠</div>
+          <div class="home-game-icon">📚</div>
           <div style="flex:1;">
             <div style="font-size:0.65rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">NEW</div>
             <div class="home-game-name">Bible Trivia</div>
@@ -977,7 +1022,7 @@ async function showHome() {
 
       <!-- 6. Account strip -->
       ${currentUser ? `
-      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-top:4px;">
+      <div style="border-radius:14px;background:var(--surface) padding-box,var(--rope) border-box;border:3px solid transparent;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-top:4px;">
         <div style="width:38px;height:38px;border-radius:50%;background:#8b4513;display:flex;align-items:center;justify-content:center;color:#f4b942;font-weight:700;font-size:14px;flex-shrink:0;">${(currentUsername||'S')[0].toUpperCase()}</div>
         <div style="flex:1;">
           <div style="font-size:0.88rem;font-weight:700;color:var(--text);">${currentUsername || 'Scout'}</div>
@@ -995,7 +1040,7 @@ async function showHome() {
         <button class="btn-next" onclick="renderAuthScreen()">Sign In / Create Account</button>
       </div>`}
 
-      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:10px;background:rgba(139,69,19,0.08);border:1px solid rgba(139,69,19,0.2);border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:#8b4513;">
+      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:11px;background:rgba(122,58,16,0.07);border:2px dashed rgba(122,58,16,0.28);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:600;color:#7a3a10;">
         ☕ Support Scripture Scout
       </a>
 
@@ -5300,6 +5345,7 @@ function saveStoryV2Progress(pathId, chapterNum, stars) {
 }
 
 function renderStoryPathV2(pathId) {
+  stopSpeech();
   showBackBtn(true);
   const path = STORY_PATHS_V2.find(p => p.id === pathId);
   if(!path) return;
@@ -5641,7 +5687,7 @@ function renderTriviaSetup() {
       <strong style="color:var(--text);">How it works:</strong> 10 multiple choice questions per round. Answer quickly for bonus points. Endless mode keeps going until you get one wrong!
     </div>
     <button class="btn-next" id="startTriviaBtn">Start Trivia →</button>
-    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('🧠 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy')">🏆 View Leaderboard</button>`;
+    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('📚 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy')">🏆 View Leaderboard</button>`;
 
   let selectedDiff = 'easy';
   document.querySelectorAll('#triviaDiff .setup-btn').forEach(btn => {
@@ -5773,7 +5819,7 @@ async function renderTriviaComplete() {
     </div>
     <button class="btn-next" onclick="startTrivia('${s.difficulty}')">Play Again →</button>
     <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="renderTriviaSetup()">← Change Difficulty</button>
-    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('🧠 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.difficulty==='endless'?'easy':s.difficulty}')">🏆 View Leaderboard →</button>`;
+    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('📚 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.difficulty==='endless'?'easy':s.difficulty}')">🏆 View Leaderboard →</button>`;
 
   if(currentUser && s.score>0 && s.difficulty!=='endless') {
     await submitGameScore('leaderboard_trivia',{user_id:currentUser.id,player_name:currentUsername||playerName,score:s.score,difficulty:s.difficulty,correct:s.correct});
@@ -7797,6 +7843,58 @@ function showRandyReaction(expression, duration=1800) {
   }
 
   setTimeout(() => overlay.remove(), duration);
+}
+
+// ═══════════════════════════════════════
+// TEXT TO SPEECH SYSTEM
+// ═══════════════════════════════════════
+let _ttsEnabled = localStorage.getItem('ss_tts') === '1';
+let _ttsSpeaking = false;
+let _ttsUtterance = null;
+
+function isTTSSupported() {
+  return 'speechSynthesis' in window;
+}
+
+function toggleTTS() {
+  _ttsEnabled = !_ttsEnabled;
+  localStorage.setItem('ss_tts', _ttsEnabled ? '1' : '0');
+  if(!_ttsEnabled) stopSpeech();
+  updateTTSBtn();
+}
+
+function updateTTSBtn() {
+  const btn = document.getElementById('ttsToggleBtn');
+  if(btn) btn.textContent = _ttsEnabled ? '🔈' : '🔇';
+  btn && (btn.title = _ttsEnabled ? 'Tap to mute narration' : 'Tap to enable narration');
+}
+
+function speakText(text, onEnd) {
+  if(!_ttsEnabled || !isTTSSupported()) { onEnd && onEnd(); return; }
+  stopSpeech();
+  _ttsUtterance = new SpeechSynthesisUtterance(text);
+  _ttsUtterance.rate = 0.92;
+  _ttsUtterance.pitch = 1.0;
+  _ttsUtterance.volume = 1.0;
+
+  // Try to find a good voice
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v =>
+    v.name.includes('Daniel') || v.name.includes('Aaron') ||
+    v.name.includes('Tom') || v.name.includes('Alex') ||
+    (v.lang === 'en-US' && v.localService)
+  ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+  if(preferred) _ttsUtterance.voice = preferred;
+
+  _ttsUtterance.onend = () => { _ttsSpeaking = false; onEnd && onEnd(); };
+  _ttsUtterance.onerror = () => { _ttsSpeaking = false; onEnd && onEnd(); };
+  _ttsSpeaking = true;
+  window.speechSynthesis.speak(_ttsUtterance);
+}
+
+function stopSpeech() {
+  if(isTTSSupported()) window.speechSynthesis.cancel();
+  _ttsSpeaking = false;
 }
 
 function getRandyImg(expression='default', size=80) {
