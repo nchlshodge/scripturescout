@@ -4619,7 +4619,7 @@ async function renderGameLeaderboard(title, table, difficulties, diffLabels, cur
             <div class="game-lb-row">
               <span class="game-lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
               <div style="flex:1;">
-                <div class="game-lb-name">${r.name}</div>
+                <div class="game-lb-name">${r.name||r.player_name||r.username||'Scout'}</div>
                 ${r.streak ? `<div class="game-lb-diff">Streak: ${r.streak}</div>` : `<div class="game-lb-diff">${r.correct ? r.correct+' correct' : ''}</div>`}
               </div>
               <span class="game-lb-score">${r.score.toLocaleString()}</span>
@@ -4908,6 +4908,7 @@ function checkHeartsBeforeRound(onProceed, onBack) {
 // BIBLE TRIVIA
 // ═══════════════════════════════════════
 const BIBLE_TRIVIA = [
+  // ── EASY ──
   { q:"How many days did God take to create the world?", a:"6", choices:["5","6","7","8"], diff:"easy", ref:"Genesis 1" },
   { q:"What was the name of the garden where Adam and Eve lived?", a:"Eden", choices:["Eden","Canaan","Galilee","Sinai"], diff:"easy", ref:"Genesis 2" },
   { q:"How many animals of each kind did Noah take on the ark?", a:"2", choices:["1","2","7","10"], diff:"easy", ref:"Genesis 6" },
@@ -4928,7 +4929,28 @@ const BIBLE_TRIVIA = [
   { q:"What did God create on the first day?", a:"Light", choices:["Light","Sky","Land","Sun"], diff:"easy", ref:"Genesis 1" },
   { q:"What animal did Satan use to tempt Eve?", a:"Serpent", choices:["Serpent","Raven","Lion","Fox"], diff:"easy", ref:"Genesis 3" },
   { q:"Who was the mother of Jesus?", a:"Mary", choices:["Mary","Martha","Elizabeth","Anna"], diff:"easy", ref:"Luke 1" },
+  { q:"What did God rest on after creating the world?", a:"The seventh day", choices:["The sixth day","The seventh day","The eighth day","He did not rest"], diff:"easy", ref:"Genesis 2" },
+  { q:"Who built the ark?", a:"Noah", choices:["Noah","Abraham","Moses","Elijah"], diff:"easy", ref:"Genesis 6" },
+  { q:"What did the wise men follow to find Jesus?", a:"A star", choices:["A star","An angel","A pillar of fire","A rainbow"], diff:"easy", ref:"Matthew 2" },
+  { q:"How many loaves of bread did Jesus use to feed 5000 people?", a:"5", choices:["2","5","7","12"], diff:"easy", ref:"John 6" },
+  { q:"Who was the first woman God created?", a:"Eve", choices:["Eve","Mary","Sarah","Ruth"], diff:"easy", ref:"Genesis 2" },
+  { q:"What is the first book of the Bible?", a:"Genesis", choices:["Genesis","Exodus","Psalms","Matthew"], diff:"easy", ref:"Bible" },
+  { q:"What is the last book of the Bible?", a:"Revelation", choices:["Malachi","Jude","Acts","Revelation"], diff:"easy", ref:"Bible" },
+  { q:"Who was thrown into a den of lions?", a:"Daniel", choices:["Daniel","Paul","Jeremiah","Ezekiel"], diff:"easy", ref:"Daniel 6" },
+  { q:"What did Elijah call down from heaven to defeat the prophets of Baal?", a:"Fire", choices:["Fire","Rain","Lightning","Wind"], diff:"easy", ref:"1 Kings 18" },
+  { q:"What is the name of the sea Jesus walked on?", a:"Sea of Galilee", choices:["Sea of Galilee","Red Sea","Dead Sea","Mediterranean Sea"], diff:"easy", ref:"Matthew 14" },
+  { q:"How many fish were caught after Jesus told the disciples to cast their net on the right side?", a:"153", choices:["100","144","153","200"], diff:"easy", ref:"John 21" },
+  { q:"Who was the older brother of Moses?", a:"Aaron", choices:["Aaron","Caleb","Joshua","Miriam"], diff:"easy", ref:"Exodus 4" },
+  { q:"What did God use to part the Red Sea for Moses?", a:"A strong east wind", choices:["A strong east wind","Moses' rod","An earthquake","An angel"], diff:"easy", ref:"Exodus 14" },
+  { q:"What is the longest book in the Bible?", a:"Psalms", choices:["Isaiah","Psalms","Jeremiah","Genesis"], diff:"easy", ref:"Bible" },
+  { q:"Who was swallowed by a whale after running from God?", a:"Jonah", choices:["Jonah","Elijah","Moses","Ezekiel"], diff:"easy", ref:"Jonah 1" },
+  { q:"What were the names of the first two brothers in the Bible?", a:"Cain and Abel", choices:["Cain and Abel","Jacob and Esau","James and John","Moses and Aaron"], diff:"easy", ref:"Genesis 4" },
+  { q:"Who led the Israelites into the Promised Land after Moses died?", a:"Joshua", choices:["Joshua","Caleb","Samuel","Gideon"], diff:"easy", ref:"Joshua 1" },
+  { q:"What was Jesus' job before he began his ministry?", a:"Carpenter", choices:["Carpenter","Fisherman","Tax collector","Shepherd"], diff:"easy", ref:"Mark 6" },
+  { q:"How many sons did Joseph's father Jacob have?", a:"12", choices:["10","11","12","13"], diff:"easy", ref:"Genesis 35" },
+  { q:"Who was the friend of Job who spoke first in the book of Job?", a:"Eliphaz", choices:["Eliphaz","Bildad","Zophar","Elihu"], diff:"easy", ref:"Job 4" },
 
+  // ── MEDIUM ──
   { q:"What were the names of Noah's three sons?", a:"Shem, Ham, Japheth", choices:["Shem, Ham, Japheth","Cain, Abel, Seth","James, John, Peter","Shadrach, Meshach, Abednego"], diff:"medium", ref:"Genesis 6" },
   { q:"How old was Methuselah when he died?", a:"969", choices:["777","900","969","120"], diff:"medium", ref:"Genesis 5" },
   { q:"What was Paul's name before his conversion?", a:"Saul", choices:["Simon","Saul","Silas","Samuel"], diff:"medium", ref:"Acts 9" },
@@ -4945,11 +4967,32 @@ const BIBLE_TRIVIA = [
   { q:"How many days and nights did Elijah travel to reach Horeb?", a:"40", choices:["3","7","40","100"], diff:"medium", ref:"1 Kings 19" },
   { q:"Who was Timothy's mother?", a:"Eunice", choices:["Eunice","Lois","Priscilla","Lydia"], diff:"medium", ref:"2 Timothy 1" },
   { q:"What city's walls fell after Israel marched around them?", a:"Jericho", choices:["Jericho","Ai","Hebron","Bethel"], diff:"medium", ref:"Joshua 6" },
-  { q:"Which of Job's friends spoke first?", a:"Eliphaz", choices:["Bildad","Zophar","Eliphaz","Elihu"], diff:"medium", ref:"Job 4" },
   { q:"How many letters did Paul write to the Corinthians?", a:"2", choices:["1","2","3","4"], diff:"medium", ref:"NT" },
   { q:"What was the valley where David fought Goliath?", a:"Elah", choices:["Elah","Jezreel","Kidron","Hinnom"], diff:"medium", ref:"1 Samuel 17" },
   { q:"Who replaced Judas as the 12th apostle?", a:"Matthias", choices:["Matthias","Barnabas","Stephen","Philip"], diff:"medium", ref:"Acts 1" },
+  { q:"What was the occupation of Matthew before following Jesus?", a:"Tax collector", choices:["Tax collector","Fisherman","Carpenter","Shepherd"], diff:"medium", ref:"Matthew 9" },
+  { q:"How many people were in the upper room on Pentecost?", a:"120", choices:["12","70","120","500"], diff:"medium", ref:"Acts 1" },
+  { q:"What was the name of the city where Paul and Silas were imprisoned and an earthquake freed them?", a:"Philippi", choices:["Philippi","Corinth","Ephesus","Athens"], diff:"medium", ref:"Acts 16" },
+  { q:"Who was the judge of Israel who used a fleece to test God?", a:"Gideon", choices:["Gideon","Samson","Jephthah","Deborah"], diff:"medium", ref:"Judges 6" },
+  { q:"What was the name of Elijah's successor?", a:"Elisha", choices:["Elisha","Eliezer","Elihu","Eleazar"], diff:"medium", ref:"1 Kings 19" },
+  { q:"How many books are in the Old Testament?", a:"39", choices:["33","39","42","46"], diff:"medium", ref:"Bible" },
+  { q:"Who was the queen who came to test Solomon's wisdom?", a:"Queen of Sheba", choices:["Queen of Sheba","Jezebel","Esther","Deborah"], diff:"medium", ref:"1 Kings 10" },
+  { q:"What miraculous sign did God give to Hezekiah through Isaiah?", a:"The shadow went back 10 steps", choices:["The shadow went back 10 steps","Fire from heaven","A still small voice","An earthquake"], diff:"medium", ref:"Isaiah 38" },
+  { q:"Which apostle walked on water with Jesus?", a:"Peter", choices:["Peter","John","James","Andrew"], diff:"medium", ref:"Matthew 14" },
+  { q:"How many days was Lazarus in the tomb before Jesus raised him?", a:"4", choices:["1","2","3","4"], diff:"medium", ref:"John 11" },
+  { q:"What was the name of the Roman governor who sent Jesus to Herod?", a:"Pontius Pilate", choices:["Pontius Pilate","Felix","Festus","Gallio"], diff:"medium", ref:"Luke 23" },
+  { q:"Who was the mother of John the Baptist?", a:"Elizabeth", choices:["Elizabeth","Mary","Anna","Salome"], diff:"medium", ref:"Luke 1" },
+  { q:"What was the name of the man whose ear Peter cut off in Gethsemane?", a:"Malchus", choices:["Malchus","Marcus","Matthias","Mnason"], diff:"medium", ref:"John 18" },
+  { q:"What Psalm begins with My God, my God, why have you forsaken me?", a:"Psalm 22", choices:["Psalm 22","Psalm 23","Psalm 51","Psalm 91"], diff:"medium", ref:"Psalm 22" },
+  { q:"Who was the first judge of Israel mentioned in the book of Judges?", a:"Othniel", choices:["Othniel","Ehud","Deborah","Gideon"], diff:"medium", ref:"Judges 3" },
+  { q:"What was the sign God gave Noah that He would never flood the earth again?", a:"A rainbow", choices:["A rainbow","A dove","An olive branch","A pillar of fire"], diff:"medium", ref:"Genesis 9" },
+  { q:"How many times did Joshua and the Israelites march around Jericho on the final day?", a:"7", choices:["1","3","7","12"], diff:"medium", ref:"Joshua 6" },
+  { q:"Who was Boaz's kinsman-redeemer who refused to marry Ruth?", a:"Peloni Almoni", choices:["Peloni Almoni","Elimelech","Mahlon","Chilion"], diff:"medium", ref:"Ruth 4" },
+  { q:"What was the name of the high priest's servant whose ear Peter cut off?", a:"Malchus", choices:["Malchus","Marcus","Matthias","Mnason"], diff:"medium", ref:"John 18" },
+  { q:"Which prophet did not die but was taken to heaven in a chariot of fire?", a:"Elijah", choices:["Elijah","Elisha","Moses","Enoch"], diff:"medium", ref:"2 Kings 2" },
+  { q:"What did the Israelites eat for 40 years in the wilderness besides manna?", a:"Quail", choices:["Quail","Fish","Locusts","Figs"], diff:"medium", ref:"Numbers 11" },
 
+  // ── HARD ──
   { q:"What was the name of Moses' father-in-law?", a:"Jethro", choices:["Jethro","Hobab","Reuel","Korah"], diff:"hard", ref:"Exodus 3" },
   { q:"How many years did the temple take to build under Solomon?", a:"7", choices:["3","7","10","20"], diff:"hard", ref:"1 Kings 6" },
   { q:"Who was the high priest when Jesus was arrested?", a:"Caiaphas", choices:["Caiaphas","Annas","Eli","Abiathar"], diff:"hard", ref:"Matthew 26" },
@@ -4959,16 +5002,37 @@ const BIBLE_TRIVIA = [
   { q:"How many elders surround the throne in Revelation?", a:"24", choices:["12","24","70","144"], diff:"hard", ref:"Revelation 4" },
   { q:"What was Abraham's second wife after Sarah died?", a:"Keturah", choices:["Hagar","Keturah","Bilhah","Zilpah"], diff:"hard", ref:"Genesis 25" },
   { q:"Which king of Judah was 8 years old when he became king?", a:"Josiah", choices:["Josiah","Joash","Jehoshaphat","Jotham"], diff:"hard", ref:"2 Kings 22" },
-  { q:"How many sons did Jacob have?", a:"12", choices:["10","11","12","13"], diff:"hard", ref:"Genesis 35" },
   { q:"Who was the first martyr of the Christian church?", a:"Stephen", choices:["Stephen","James","Peter","Paul"], diff:"hard", ref:"Acts 7" },
   { q:"How many chapters are in the book of Psalms?", a:"150", choices:["100","117","150","176"], diff:"hard", ref:"Psalms" },
-  { q:"What Roman governor sentenced Jesus?", a:"Pontius Pilate", choices:["Pontius Pilate","Felix","Festus","Herod"], diff:"hard", ref:"Matthew 27" },
   { q:"Which letter of Paul was written to a runaway slave's owner?", a:"Philemon", choices:["Philemon","Titus","Galatians","Colossians"], diff:"hard", ref:"Philemon" },
   { q:"How many times did Peter deny Jesus?", a:"3", choices:["2","3","4","7"], diff:"hard", ref:"Luke 22" },
   { q:"Where did Jesus speak to the Samaritan woman?", a:"Jacob's Well", choices:["Jacob's Well","Beersheba","En Gedi","Siloam"], diff:"hard", ref:"John 4" },
   { q:"How many cities of refuge were there in Israel?", a:"6", choices:["3","6","9","12"], diff:"hard", ref:"Numbers 35" },
   { q:"Who was the father of John the Baptist?", a:"Zechariah", choices:["Zechariah","Joseph","Simeon","Eli"], diff:"hard", ref:"Luke 1" },
   { q:"What book comes after Obadiah in the Old Testament?", a:"Jonah", choices:["Jonah","Micah","Nahum","Amos"], diff:"hard", ref:"OT" },
+  { q:"What was the name of the Philistine woman who betrayed Samson?", a:"Delilah", choices:["Delilah","Jezebel","Athaliah","Peninnah"], diff:"hard", ref:"Judges 16" },
+  { q:"How many pieces of silver was Joseph sold for by his brothers?", a:"20", choices:["10","20","30","50"], diff:"hard", ref:"Genesis 37" },
+  { q:"What was the name of the first city Joshua conquered in Canaan?", a:"Jericho", choices:["Jericho","Ai","Bethel","Hazor"], diff:"hard", ref:"Joshua 6" },
+  { q:"Who was the mother of Kings Manasseh?", a:"Hephzibah", choices:["Hephzibah","Abijah","Meshullemeth","Jedidah"], diff:"hard", ref:"2 Kings 21" },
+  { q:"How many years did Solomon reign over Israel?", a:"40", choices:["20","30","40","60"], diff:"hard", ref:"1 Kings 11" },
+  { q:"What was the name of the pool where Jesus healed a man who had been ill for 38 years?", a:"Bethesda", choices:["Bethesda","Siloam","Gihon","En Gedi"], diff:"hard", ref:"John 5" },
+  { q:"Who was the king of Babylon who had the famous dream of a statue?", a:"Nebuchadnezzar", choices:["Nebuchadnezzar","Belshazzar","Darius","Cyrus"], diff:"hard", ref:"Daniel 2" },
+  { q:"How many stones did David pick up before fighting Goliath?", a:"5", choices:["1","3","5","7"], diff:"hard", ref:"1 Samuel 17" },
+  { q:"What was the name of the Ethiopian eunuch who was baptized by Philip?", a:"He is unnamed", choices:["He is unnamed","Simeon","Cornelius","Onesimus"], diff:"hard", ref:"Acts 8" },
+  { q:"Which two books of the Bible do not mention God by name?", a:"Esther and Song of Solomon", choices:["Esther and Song of Solomon","Ruth and Esther","Obadiah and Nahum","Philemon and Jude"], diff:"hard", ref:"Bible" },
+  { q:"How many years did the Israelites serve in Egypt before the Exodus?", a:"430", choices:["40","400","430","480"], diff:"hard", ref:"Exodus 12" },
+  { q:"What was the name of the man who carried Jesus' cross?", a:"Simon of Cyrene", choices:["Simon of Cyrene","Simon Peter","Joseph of Arimathea","Nicodemus"], diff:"hard", ref:"Mark 15" },
+  { q:"How many times did God call Samuel in the night?", a:"3", choices:["1","2","3","4"], diff:"hard", ref:"1 Samuel 3" },
+  { q:"What was the name of the woman who judged Israel and led them to victory?", a:"Deborah", choices:["Deborah","Miriam","Huldah","Jael"], diff:"hard", ref:"Judges 4" },
+  { q:"What was the name of Abraham's nephew who lived in Sodom?", a:"Lot", choices:["Lot","Haran","Nahor","Terah"], diff:"hard", ref:"Genesis 13" },
+  { q:"How many times did Paul receive 39 lashes from the Jews?", a:"5", choices:["3","4","5","7"], diff:"hard", ref:"2 Corinthians 11" },
+  { q:"What was the name of the Roman centurion who was the first Gentile convert?", a:"Cornelius", choices:["Cornelius","Julius","Claudius","Sergius"], diff:"hard", ref:"Acts 10" },
+  { q:"In what city did Paul preach at the Areopagus?", a:"Athens", choices:["Athens","Corinth","Ephesus","Rome"], diff:"hard", ref:"Acts 17" },
+  { q:"What prophet confronted Ahab about the murder of Naboth?", a:"Elijah", choices:["Elijah","Elisha","Micaiah","Amos"], diff:"hard", ref:"1 Kings 21" },
+  { q:"How many years did Methuselah live?", a:"969", choices:["777","900","930","969"], diff:"hard", ref:"Genesis 5" },
+  { q:"What was the name of the king who tried to kill the baby Jesus?", a:"Herod the Great", choices:["Herod the Great","Herod Antipas","Herod Agrippa","Archelaus"], diff:"hard", ref:"Matthew 2" },
+  { q:"Who was the author of the book of Hebrews?", a:"Unknown", choices:["Unknown","Paul","Barnabas","Luke"], diff:"hard", ref:"Hebrews" },
+  { q:"What was the name of the woman who anointed Jesus' feet with expensive perfume?", a:"Mary of Bethany", choices:["Mary of Bethany","Mary Magdalene","Martha","Salome"], diff:"hard", ref:"John 12" },
 ];
 
 let triviaSession = { difficulty:'easy', questions:[], current:0, score:0, correct:0, wrong:0, startTime:null, mode:'normal', _scoreSubmitted:false, _questionStart:null };
@@ -5108,7 +5172,7 @@ async function renderTriviaComplete() {
     <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('🧠 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.difficulty==='endless'?'easy':s.difficulty}')">🏆 View Leaderboard →</button>`;
 
   if(currentUser && s.score>0 && s.difficulty!=='endless') {
-    await submitGameScore('leaderboard_trivia',{user_id:currentUser.id,username:currentUsername,score:s.score,difficulty:s.difficulty,correct:s.correct});
+    await submitGameScore('leaderboard_trivia',{user_id:currentUser.id,player_name:currentUsername||playerName,score:s.score,difficulty:s.difficulty,correct:s.correct});
   }
   updateStreak();
 }
