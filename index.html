@@ -4963,7 +4963,149 @@ function checkHeartsBeforeRound(onProceed, onBack) {
 
 const STORY_PATHS_V2 = [
   {
-    id: 3,
+    id: 1,
+    title: "In The Beginning",
+    subtitle: "From Creation to the Call of Abram",
+    testament: "OT",
+    is_free: true,
+    color: "#1a4a2e",
+    accent: "#4ab870",
+    icon: "🌍",
+    description: "Before anything existed, God spoke. From the first word of creation to the moment He called one man to change everything — this is where the greatest story begins.",
+    chapters: [
+      {
+        num: 1,
+        title: "Let There Be Light",
+        scene: "creation_light",
+        narrative: "In the beginning, there was nothing. No matter, no energy, no time, no space. Only God. Then He spoke — and everything that exists exploded into being. Let there be light. And there was light. On the first day, God separated light from darkness, day from night. He looked at what He had made and called it good. This was not the sun — that would come later. This was something more fundamental, a declaration that the God who is Himself light was filling His creation with the very nature of who He is. Every sunrise since that first moment has been an echo of those first words. Before science, before history, before everything — there was the voice of God.",
+        verse: "In the beginning God created the heavens and the earth. And God said, Let there be light, and there was light.",
+        reference: "Genesis 1:1,3",
+        questions: [
+          { q: "What did God create on the very first day?", a: "Light", choices: ["Light","The sun","The sky","Plants"] },
+          { q: "What did God call the light?", a: "Day", choices: ["Day","Morning","Dawn","Brightness"] },
+          { q: "What phrase did God use to evaluate what He had made?", a: "It was good", choices: ["It was good","It was perfect","It was finished","It was beautiful"] }
+        ]
+      },
+      {
+        num: 2,
+        title: "The World Takes Shape",
+        scene: "creation_world",
+        narrative: "Over five more days, God filled His creation with breathtaking variety. He separated the waters and called the sky into being. He gathered the seas and raised dry land. He filled the earth with vegetation — every seed bearing plant, every fruit tree. He set the sun to rule the day and the moon to rule the night, placing the stars like lamps across the heavens. He filled the seas with creatures and the sky with birds. He covered the land with every living thing — cattle, creatures that move along the ground, wild animals of every kind. Each day He looked at what He had made and said the same thing: it is good. The universe was not an accident. It was a work of art, spoken into existence by a Creator who delighted in every detail.",
+        verse: "God saw all that he had made, and it was very good.",
+        reference: "Genesis 1:31",
+        questions: [
+          { q: "What did God create on the fourth day?", a: "The sun, moon and stars", choices: ["The sun, moon and stars","Fish and birds","Land animals","Plants and trees"] },
+          { q: "How many days did God take to create everything?", a: "6", choices: ["5","6","7","8"] },
+          { q: "What did God say about everything He had made at the end?", a: "It was very good", choices: ["It was very good","It was good","It was finished","It was perfect"] }
+        ]
+      },
+      {
+        num: 3,
+        title: "Made in His Image",
+        scene: "creation_human",
+        narrative: "On the sixth day, something different happened. God paused and said: Let us make mankind in our image, in our likeness. Every other act of creation had been spoken into existence from a distance. But when God made humanity, He got close. He formed the man from the dust of the ground — shaped him with intention, like a potter with clay. Then He breathed into his nostrils the breath of life, and the man became a living being. He placed the man in a garden called Eden — a word that means delight. He brought the animals to the man to be named, and gave him the woman to be his companion and equal partner. He blessed them and gave them a mandate: fill the earth, care for it, rule over it. They were made for relationship — with each other and with God.",
+        verse: "So God created mankind in his own image, in the image of God he created them; male and female he created them.",
+        reference: "Genesis 1:27",
+        questions: [
+          { q: "What did God use to form the first man?", a: "Dust from the ground", choices: ["Dust from the ground","Clay from the river","Stone","Water"] },
+          { q: "What does the name Eden mean?", a: "Delight", choices: ["Delight","Paradise","Garden","Beginning"] },
+          { q: "What was unique about how God created humans compared to everything else?", a: "He made them in His own image", choices: ["He made them in His own image","He spoke them into existence","He formed them from water","He created them last"] }
+        ]
+      },
+      {
+        num: 4,
+        title: "The Fall",
+        scene: "garden",
+        narrative: "Everything was perfect. God walked with Adam and Eve in the garden in the cool of the day. There was no shame, no fear, no hiding. Only one boundary existed — one tree whose fruit they were not to eat. Then came the serpent — subtle, patient, and dangerous. Did God really say? The question was designed not to get information but to plant doubt. He told them the fruit would make them like God, knowing good and evil. Eve looked. The fruit was beautiful. It seemed good for food. She took it. Adam was with her and said nothing. He took it too. Immediately their eyes were opened — but not in the way they had hoped. They felt shame for the first time. They hid. And when God called out Where are you? the question echoed with heartbreak. Something irreversible had happened. The world would never be the same.",
+        verse: "Where are you? God called to the man.",
+        reference: "Genesis 3:9",
+        questions: [
+          { q: "What did the serpent question to begin the temptation?", a: "What God had said", choices: ["What God had said","God's existence","God's power","God's love for them"] },
+          { q: "What was the immediate result when Adam and Eve ate the fruit?", a: "They felt shame and hid from God", choices: ["They felt shame and hid from God","They became wise immediately","They gained great power","They were struck with sickness"] },
+          { q: "Even in judgment what did God promise about the serpent?", a: "The woman's offspring would crush his head", choices: ["The woman's offspring would crush his head","He would be destroyed immediately","He would be cast into the sea","He would lose his ability to speak"] }
+        ]
+      },
+      {
+        num: 5,
+        title: "Cain and Abel",
+        scene: "cain_abel",
+        narrative: "Adam and Eve left the garden and began a family. Their first son was Cain. Their second was Abel. Cain worked the soil. Abel kept flocks. In time both brought offerings to God. God accepted Abel's offering — he had brought the firstborn of his flock, the best he had. He did not accept Cain's. Why? Not because crops are inferior to animals — but because of the heart behind the gift. Cain was furious. His face fell. God warned him: sin is crouching at your door, it desires to have you, but you must rule over it. Cain did not listen. He invited his brother into the field and killed him. Then came one of the most chilling exchanges in all of Scripture. God: Where is your brother Abel? Cain: I don't know. Am I my brother's keeper? The answer God's whole story would eventually answer — yes. We are our brother's keeper.",
+        verse: "Then the Lord said to Cain, Where is your brother Abel? I don't know, he replied. Am I my brother's keeper?",
+        reference: "Genesis 4:9",
+        questions: [
+          { q: "What was Cain's occupation?", a: "He worked the soil", choices: ["He worked the soil","He kept flocks","He was a hunter","He built cities"] },
+          { q: "Why did God not accept Cain's offering?", a: "Because of the attitude of Cain's heart", choices: ["Because of the attitude of Cain's heart","Because crops were unacceptable","Because Abel offered first","Because Cain offered too little"] },
+          { q: "What did God say was crouching at Cain's door?", a: "Sin", choices: ["Sin","Death","Jealousy","The serpent"] }
+        ]
+      },
+      {
+        num: 6,
+        title: "Noah and the Flood",
+        scene: "noah_flood",
+        narrative: "Generations passed and the earth filled with people — and with violence. Every inclination of the thoughts of the human heart was only evil all the time. God grieved that He had made them. But one man stood apart. Noah was righteous, blameless among the people of his time, and he walked faithfully with God. God warned Noah of a coming flood and gave him precise instructions for building a massive ark. Noah believed God and built it — on dry land, far from any sea, surrounded by people who thought he was insane. He preached righteousness for a hundred years while he built. Then the animals came in pairs. Noah's family entered. God shut the door. The rain fell for forty days and nights. The waters rose until even the mountains were covered. Everything that breathed on land perished — except those in the ark.",
+        verse: "Noah was a righteous man, blameless among the people of his time, and he walked faithfully with God.",
+        reference: "Genesis 6:9",
+        questions: [
+          { q: "Why did God decide to send the flood?", a: "Every inclination of humanity's heart was only evil", choices: ["Every inclination of humanity's heart was only evil","The earth was overpopulated","People had forgotten how to worship","A great war had destroyed the land"] },
+          { q: "How long did the rain fall during the flood?", a: "40 days and nights", choices: ["7 days and nights","40 days and nights","150 days","A full year"] },
+          { q: "How is Noah described in Genesis 6?", a: "Righteous, blameless, walking with God", choices: ["Righteous, blameless, walking with God","A prophet and priest","The wisest man of his age","Chosen from birth"] }
+        ]
+      },
+      {
+        num: 7,
+        title: "The Rainbow Covenant",
+        scene: "noah_rainbow",
+        narrative: "The waters receded. The ark came to rest on the mountains of Ararat. Noah sent out a raven and then a dove. When the dove returned with an olive leaf, Noah knew the earth was recovering. When she didn't return at all, he opened the door. The first thing Noah did when he stepped onto dry ground was build an altar and offer burnt offerings to God. The aroma was pleasing to the Lord. God made a covenant — a binding promise — with Noah and with every living creature on earth: never again would a flood destroy all life. And He set a sign in the clouds — a rainbow. Every time clouds gathered and the bow appeared, it would be God's reminder of His promise. The judgment was over. A new beginning had come.",
+        verse: "I have set my rainbow in the clouds, and it will be the sign of the covenant between me and the earth.",
+        reference: "Genesis 9:13",
+        questions: [
+          { q: "What did Noah do first when he left the ark?", a: "Built an altar and offered burnt offerings", choices: ["Built an altar and offered burnt offerings","Planted a vineyard","Gave thanks and rested","Built a shelter for his family"] },
+          { q: "What was the sign of God's covenant with Noah?", a: "A rainbow", choices: ["A rainbow","A dove","An olive branch","Fire from heaven"] },
+          { q: "What did God promise in the Noahic covenant?", a: "Never again to flood all the earth", choices: ["Never again to flood all the earth","To protect Noah's descendants forever","To give humanity a second chance","To destroy evil from the earth"] }
+        ]
+      },
+      {
+        num: 8,
+        title: "The Tower of Babel",
+        scene: "babel",
+        narrative: "After the flood, Noah's descendants multiplied and spread across the earth. They all spoke one language. They settled on a plain in Shinar and made a decision that revealed the same old problem — human pride. Come, they said, let us build a city with a tower that reaches to the heavens. Let us make a name for ourselves. God came down to see the city and the tower. He was not threatened. He was grieved. The very unity He had given them was being used to exalt themselves rather than to worship Him. So God confused their language. Suddenly neighbors couldn't understand each other. Construction stopped. The people scattered across the earth — which was exactly what God had told them to do in the first place. The place was called Babel — because there God confused the language of the whole world.",
+        verse: "Come, let us go down and confuse their language so they will not understand each other.",
+        reference: "Genesis 11:7",
+        questions: [
+          { q: "What was the stated purpose of the Tower of Babel?", a: "To make a name for themselves and reach the heavens", choices: ["To make a name for themselves and reach the heavens","To worship God from a high place","To protect themselves from another flood","To store grain for famine"] },
+          { q: "What did God do to stop the tower's construction?", a: "Confused their language", choices: ["Confused their language","Destroyed the tower","Scattered them by force","Sent a plague"] },
+          { q: "What does the name Babel mean?", a: "Confused", choices: ["Confused","Great tower","Pride","Scattered"] }
+        ]
+      },
+      {
+        num: 9,
+        title: "From Babel to Ur",
+        scene: "babel_to_ur",
+        narrative: "After Babel, Genesis gives us a genealogy — a list of names that might seem like a detour but is actually a bridge. God scattered the nations, and they spread across the known world, each developing their own languages, cultures, and eventually their own gods. Humanity had walked away from the one true God. But God had not given up on humanity. He was looking for someone. Through ten generations from Noah's son Shem, we arrive at a man named Terah who lived in Ur of the Chaldeans — one of the most sophisticated cities in the ancient world, full of wealth, temples, and idol worship. Terah had three sons: Abram, Nahor, and Haran. Terah set out with his family toward the land of Canaan, but they stopped and settled in Haran. The stage was being set for the most important conversation since Eden.",
+        verse: "This is the account of Shem's family line... the father of Abram.",
+        reference: "Genesis 11:10,27",
+        questions: [
+          { q: "In what city did Abram grow up?", a: "Ur of the Chaldeans", choices: ["Ur of the Chaldeans","Haran","Babel","Canaan"] },
+          { q: "What was Terah's original destination when he left Ur?", a: "The land of Canaan", choices: ["The land of Canaan","Egypt","Haran","The mountains of Ararat"] },
+          { q: "How many generations separated Noah's son Shem from Abram?", a: "10 generations", choices: ["3 generations","5 generations","10 generations","20 generations"] }
+        ]
+      },
+      {
+        num: 10,
+        title: "The Call of Abram",
+        scene: "abram_call",
+        narrative: "Abram was seventy-five years old, settled in Haran, when God spoke to him. It was an extraordinary command with an extraordinary promise. Leave your country, your people and your father's household and go to the land I will show you. No map. No destination given. Just — go. And with the command came a promise that would echo through all of history: I will make you into a great nation. I will bless you. I will make your name great. All peoples on earth will be blessed through you. Abram went. The text is almost breathtaking in its brevity. God said go. Abram went. He took his wife Sarai, his nephew Lot, all their possessions and the people they had acquired in Haran, and he left. He didn't know where he was going. He only knew who was leading him. And that was enough. The history of redemption had begun.",
+        verse: "The Lord had said to Abram, Go from your country, your people and your father's household to the land I will show you.",
+        reference: "Genesis 12:1",
+        questions: [
+          { q: "How old was Abram when God called him to leave Haran?", a: "75", choices: ["50","60","75","100"] },
+          { q: "What did God promise would happen through Abram's offspring?", a: "All peoples on earth would be blessed", choices: ["All peoples on earth would be blessed","A great empire would be built","The flood would never return","The nations would worship one God"] },
+          { q: "What did Abram do when God called him to go?", a: "He went, not knowing where he was going", choices: ["He went, not knowing where he was going","He asked God for a sign first","He waited until the next year","He sent scouts ahead"] }
+        ]
+      }
+    ]
+  },  {
+    id: 4,
     title: "The Life of David",
     subtitle: "From Shepherd Boy to King of Israel",
     testament: "OT",
@@ -5106,7 +5248,7 @@ const STORY_PATHS_V2 = [
     ]
   },
   {
-    id: 2,
+    id: 3,
     title: "The Story of Moses",
     subtitle: "From the Nile to the Promised Land",
     testament: "OT",
@@ -5249,7 +5391,7 @@ const STORY_PATHS_V2 = [
     ]
   },
   {
-    id: 1,
+    id: 2,
     title: "The Gospel Story",
     subtitle: "From Creation to the Cross",
     testament: "NT",
@@ -5546,6 +5688,328 @@ function getSceneSVG(scene) {
       <circle cx="160" cy="45" r="30" fill="#f9e04b" opacity="0.6"/>
       <circle cx="160" cy="45" r="18" fill="#f9e04b" opacity="0.9"/>
       <text x="160" y="152" text-anchor="middle" fill="#8b4513" font-size="10" font-weight="bold">He is risen!</text>
+    </svg>`,
+    creation_light: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="lightburst" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff8d0" stop-opacity="1"/><stop offset="40%" stop-color="#f4d050" stop-opacity="0.8"/><stop offset="100%" stop-color="#0a0a1e" stop-opacity="1"/></radialGradient></defs>
+      <rect width="320" height="160" fill="#0a0a1e"/>
+      <circle cx="160" cy="80" r="120" fill="url(#lightburst)"/>
+      <circle cx="160" cy="80" r="30" fill="#fff8d0" opacity="0.95"/>
+      <circle cx="160" cy="80" r="15" fill="white"/>
+      <line x1="160" y1="10" x2="160" y2="30" stroke="#f4d050" stroke-width="2" opacity="0.8"/>
+      <line x1="160" y1="130" x2="160" y2="150" stroke="#f4d050" stroke-width="2" opacity="0.8"/>
+      <line x1="90" y1="80" x2="110" y2="80" stroke="#f4d050" stroke-width="2" opacity="0.8"/>
+      <line x1="210" y1="80" x2="230" y2="80" stroke="#f4d050" stroke-width="2" opacity="0.8"/>
+      <line x1="107" y1="27" x2="121" y2="41" stroke="#f4d050" stroke-width="2" opacity="0.6"/>
+      <line x1="199" y1="119" x2="213" y2="133" stroke="#f4d050" stroke-width="2" opacity="0.6"/>
+      <line x1="213" y1="27" x2="199" y2="41" stroke="#f4d050" stroke-width="2" opacity="0.6"/>
+      <line x1="107" y1="119" x2="121" y2="105" stroke="#f4d050" stroke-width="2" opacity="0.6"/>
+      <rect x="0" y="0" width="160" height="160" fill="#0a0a1e" opacity="0.5"/>
+    </svg>`,
+    creation_world: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#4a9aee"/>
+      <rect x="0" y="100" width="320" height="60" fill="#3a7a30"/>
+      <ellipse cx="160" cy="100" rx="180" ry="25" fill="#4a9a38"/>
+      <circle cx="260" cy="35" r="28" fill="#f9e04b" opacity="0.9"/>
+      <ellipse cx="60" cy="40" rx="40" ry="20" fill="white" opacity="0.7"/>
+      <ellipse cx="200" cy="25" rx="50" ry="22" fill="white" opacity="0.6"/>
+      <ellipse cx="120" cy="55" rx="35" ry="15" fill="white" opacity="0.5"/>
+      <ellipse cx="60" cy="115" rx="30" ry="20" fill="#2d6a20"/>
+      <ellipse cx="260" cy="118" rx="35" ry="18" fill="#2d6a20"/>
+      <rect x="150" y="75" width="6" height="30" fill="#5a3a10"/>
+      <ellipse cx="153" cy="72" rx="14" ry="16" fill="#3a7a20"/>
+      <rect x="180" y="80" width="5" height="25" fill="#5a3a10"/>
+      <ellipse cx="182" cy="77" rx="11" ry="13" fill="#4a8a28"/>
+      <circle cx="80" cy="118" r="8" fill="#f5f5f5"/>
+      <circle cx="95" cy="120" r="7" fill="#f5f5f5"/>
+      <circle cx="240" cy="120" r="8" fill="#8b4513"/>
+      <circle cx="255" cy="118" r="6" fill="#a05a20"/>
+    </svg>`,
+    creation_human: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#87ceeb"/>
+      <rect x="0" y="110" width="320" height="50" fill="#4a8a30"/>
+      <ellipse cx="160" cy="110" rx="150" ry="25" fill="#5a9a38"/>
+      <circle cx="240" cy="40" r="20" fill="#f9e04b" opacity="0.8"/>
+      <ellipse cx="80" cy="50" rx="35" ry="15" fill="white" opacity="0.6"/>
+      <ellipse cx="200" cy="30" rx="40" ry="18" fill="white" opacity="0.5"/>
+      <rect x="148" y="75" width="6" height="28" fill="#5a3a10"/>
+      <ellipse cx="151" cy="72" rx="12" ry="14" fill="#3a7a20"/>
+      <rect x="168" y="78" width="5" height="24" fill="#5a3a10"/>
+      <ellipse cx="170" cy="76" rx="10" ry="12" fill="#4a8a28"/>
+      <circle cx="120" cy="88" r="9" fill="#e8b45a"/>
+      <rect x="115" y="97" width="10" height="22" fill="#c8901a"/>
+      <circle cx="200" cy="90" r="9" fill="#f5e6c8"/>
+      <rect x="195" y="99" width="10" height="22" fill="#d4a870"/>
+      <ellipse cx="160" cy="125" rx="30" ry="8" fill="#f4b942" opacity="0.15"/>
+      <text x="160" y="150" text-anchor="middle" fill="#2d5a10" font-size="9" opacity="0.7">Made in His Image</text>
+    </svg>`,
+    cain_abel: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#c8a860"/>
+      <rect x="0" y="110" width="320" height="50" fill="#8b7040"/>
+      <ellipse cx="80" cy="110" rx="60" ry="20" fill="#7a6030"/>
+      <ellipse cx="240" cy="115" rx="60" ry="18" fill="#7a6030"/>
+      <rect x="60" y="60" width="80" height="50" fill="#6a4a20" opacity="0.3"/>
+      <polygon points="60,60 100,35 140,60" fill="#5a3a18" opacity="0.4"/>
+      <circle cx="100" cy="75" r="8" fill="#f4b942" opacity="0.6"/>
+      <ellipse cx="100" cy="80" rx="15" ry="8" fill="#f4b942" opacity="0.3"/>
+      <circle cx="200" cy="80" r="9" fill="#e8b45a"/>
+      <rect x="195" y="89" width="10" height="28" fill="#8b6914"/>
+      <circle cx="240" cy="78" r="9" fill="#f5e6c8"/>
+      <rect x="235" y="87" width="10" height="28" fill="#a07820"/>
+      <path d="M220 85 Q230 75 238 82" stroke="#c8401a" stroke-width="2" fill="none" opacity="0.6"/>
+      <circle cx="80" cy="115" r="6" fill="#8b5a20" opacity="0.8"/>
+      <circle cx="95" cy="118" r="5" fill="#7a4a18" opacity="0.8"/>
+    </svg>`,
+    noah_flood: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a2a4a"/>
+      <rect x="0" y="90" width="320" height="70" fill="#1a3a6e"/>
+      <path d="M0 95 Q40 85 80 95 Q120 105 160 95 Q200 85 240 95 Q280 105 320 95" fill="none" stroke="#3a6aae" stroke-width="2" opacity="0.6"/>
+      <path d="M0 110 Q40 100 80 110 Q120 120 160 110 Q200 100 240 110 Q280 120 320 110" fill="none" stroke="#2a5a9e" stroke-width="1.5" opacity="0.4"/>
+      <rect x="110" y="55" width="100" height="40" fill="#8b6914" rx="3"/>
+      <rect x="105" y="88" width="110" height="12" fill="#a07820" rx="2"/>
+      <polygon points="110,55 160,25 210,55" fill="#7a5a10"/>
+      <rect x="145" y="30" width="30" height="25" fill="#8b6914"/>
+      <rect x="155" y="35" width="10" height="15" fill="#6b4e10"/>
+      <line x1="80" y1="0" x2="60" y2="50" stroke="#3a5a8e" stroke-width="1.5" opacity="0.6"/>
+      <line x1="120" y1="0" x2="100" y2="45" stroke="#3a5a8e" stroke-width="1.5" opacity="0.5"/>
+      <line x1="200" y1="0" x2="220" y2="45" stroke="#3a5a8e" stroke-width="1.5" opacity="0.6"/>
+      <line x1="250" y1="0" x2="270" y2="40" stroke="#3a5a8e" stroke-width="1.5" opacity="0.5"/>
+      <circle cx="40" cy="15" r="15" fill="#2a4a7e" opacity="0.4"/>
+      <circle cx="280" cy="20" r="18" fill="#2a4a7e" opacity="0.4"/>
+    </svg>`,
+    noah_rainbow: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#87ceeb"/>
+      <rect x="0" y="115" width="320" height="45" fill="#3a7a30"/>
+      <ellipse cx="160" cy="115" rx="180" ry="20" fill="#4a8a38"/>
+      <path d="M20 130 Q160 20 300 130" fill="none" stroke="#e84040" stroke-width="4" opacity="0.8"/>
+      <path d="M30 132 Q160 30 290 132" fill="none" stroke="#e8a040" stroke-width="4" opacity="0.8"/>
+      <path d="M40 134 Q160 40 280 134" fill="none" stroke="#e8e040" stroke-width="4" opacity="0.8"/>
+      <path d="M50 136 Q160 50 270 136" fill="none" stroke="#40c840" stroke-width="4" opacity="0.8"/>
+      <path d="M60 138 Q160 60 260 138" fill="none" stroke="#4040e8" stroke-width="4" opacity="0.8"/>
+      <path d="M70 140 Q160 70 250 140" fill="none" stroke="#8040c8" stroke-width="4" opacity="0.7"/>
+      <circle cx="260" cy="35" r="20" fill="#f9e04b" opacity="0.8"/>
+      <rect x="145" y="100" width="30" height="20" fill="#8b6914" rx="2"/>
+      <polygon points="145,100 160,82 175,100" fill="#7a5a10"/>
+      <circle cx="40" cy="60" r="18" fill="white" opacity="0.6"/>
+      <circle cx="280" cy="50" r="22" fill="white" opacity="0.5"/>
+    </svg>`,
+    babel: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#c8d8e8"/>
+      <rect x="0" y="120" width="320" height="40" fill="#a09060"/>
+      <rect x="130" y="80" width="60" height="50" fill="#8b7520"/>
+      <rect x="120" y="65" width="80" height="20" fill="#9b8530"/>
+      <rect x="133" y="50" width="54" height="18" fill="#8b7520"/>
+      <rect x="138" y="37" width="44" height="16" fill="#9b8530"/>
+      <rect x="143" y="25" width="34" height="14" fill="#8b7520"/>
+      <rect x="148" y="14" width="24" height="13" fill="#9b8530"/>
+      <rect x="153" y="5" width="14" height="11" fill="#8b7520"/>
+      <rect x="156" y="0" width="8" height="7" fill="#f4b942"/>
+      <circle cx="45" cy="40" r="3" fill="#f4b942" opacity="0.8"/>
+      <line x1="45" y1="40" x2="70" y2="55" stroke="#f4b942" stroke-width="1.5" opacity="0.4"/>
+      <circle cx="275" cy="45" r="3" fill="#f4b942" opacity="0.8"/>
+      <line x1="275" y1="45" x2="250" y2="58" stroke="#f4b942" stroke-width="1.5" opacity="0.4"/>
+      <circle cx="60" cy="125" r="5" fill="#5a4820"/>
+      <circle cx="80" cy="122" r="5" fill="#5a4820"/>
+      <circle cx="240" cy="125" r="5" fill="#5a4820"/>
+      <circle cx="260" cy="122" r="5" fill="#5a4820"/>
+    </svg>`,
+    babel_to_ur: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#d4c090"/>
+      <rect x="0" y="115" width="320" height="45" fill="#b09060"/>
+      <ellipse cx="280" cy="100" rx="60" ry="30" fill="#8b6914" opacity="0.6"/>
+      <rect x="240" y="55" width="50" height="50" fill="#c8a84b"/>
+      <polygon points="240,55 265,30 290,55" fill="#b09030"/>
+      <rect x="255" y="40" width="20" height="15" fill="#c8a84b"/>
+      <rect x="250" y="70" width="12" height="20" fill="#8b6914"/>
+      <rect x="270" y="70" width="12" height="20" fill="#8b6914"/>
+      <path d="M30 120 Q100 100 180 115 Q240 125 270 118" stroke="#c8901a" stroke-width="2" fill="none" stroke-dasharray="5 3" opacity="0.7"/>
+      <circle cx="30" cy="120" r="5" fill="#c8401a" opacity="0.8"/>
+      <circle cx="270" cy="118" r="5" fill="#2d6aae" opacity="0.8"/>
+      <circle cx="80" cy="30" r="3" fill="#f4b942" opacity="0.6"/>
+      <circle cx="160" cy="20" r="3" fill="#f4b942" opacity="0.7"/>
+      <circle cx="240" cy="28" r="3" fill="#f4b942" opacity="0.6"/>
+    </svg>`,
+    abram_call: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a0a1e"/>
+      <rect x="0" y="115" width="320" height="45" fill="#2d1a00"/>
+      <ellipse cx="160" cy="115" rx="200" ry="25" fill="#3d2800"/>
+      <circle cx="40" cy="20" r="3" fill="white" opacity="0.9"/>
+      <circle cx="80" cy="10" r="2" fill="white" opacity="0.8"/>
+      <circle cx="130" cy="18" r="3" fill="white" opacity="0.9"/>
+      <circle cx="180" cy="8" r="2" fill="white" opacity="0.8"/>
+      <circle cx="230" cy="15" r="3" fill="white" opacity="0.9"/>
+      <circle cx="275" cy="22" r="2" fill="white" opacity="0.7"/>
+      <circle cx="60" cy="45" r="2" fill="white" opacity="0.6"/>
+      <circle cx="290" cy="38" r="2" fill="white" opacity="0.7"/>
+      <circle cx="160" cy="5" r="4" fill="#f4b942" opacity="0.9"/>
+      <path d="M160 5 L160 50" stroke="#f4b942" stroke-width="1.5" opacity="0.5" stroke-dasharray="3 3"/>
+      <circle cx="160" cy="90" r="9" fill="#e8b45a"/>
+      <rect x="155" y="99" width="10" height="25" fill="#8b6914"/>
+      <rect x="167" y="102" width="3" height="28" fill="#6b4e10" transform="rotate(10 167 102)"/>
+      <path d="M70 118 Q120 108 155 112" stroke="#c8901a" stroke-width="1.5" fill="none" stroke-dasharray="4 3" opacity="0.6"/>
+      <text x="160" y="152" text-anchor="middle" fill="#c8901a" font-size="9" opacity="0.8">Go... to the land I will show you</text>
+    </svg>`,
+    creation_light: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#000010"/>
+      <defs><radialGradient id="lightburst" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fffde0" stop-opacity="1"/><stop offset="30%" stop-color="#f4c842" stop-opacity="0.8"/><stop offset="70%" stop-color="#f4842a" stop-opacity="0.3"/><stop offset="100%" stop-color="#000010" stop-opacity="0"/></radialGradient></defs>
+      <circle cx="160" cy="80" r="120" fill="url(#lightburst)"/>
+      <circle cx="160" cy="80" r="30" fill="#fffde0" opacity="0.95"/>
+      <circle cx="160" cy="80" r="15" fill="white"/>
+      <line x1="160" y1="10" x2="160" y2="50" stroke="#fffde0" stroke-width="2" opacity="0.6"/>
+      <line x1="160" y1="110" x2="160" y2="150" stroke="#fffde0" stroke-width="2" opacity="0.6"/>
+      <line x1="90" y1="80" x2="130" y2="80" stroke="#fffde0" stroke-width="2" opacity="0.6"/>
+      <line x1="190" y1="80" x2="230" y2="80" stroke="#fffde0" stroke-width="2" opacity="0.6"/>
+      <line x1="110" y1="30" x2="135" y2="55" stroke="#fffde0" stroke-width="2" opacity="0.5"/>
+      <line x1="210" y1="30" x2="185" y2="55" stroke="#fffde0" stroke-width="2" opacity="0.5"/>
+      <line x1="110" y1="130" x2="135" y2="105" stroke="#fffde0" stroke-width="2" opacity="0.5"/>
+      <line x1="210" y1="130" x2="185" y2="105" stroke="#fffde0" stroke-width="2" opacity="0.5"/>
+    </svg>`,
+    creation_world: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a3a6e"/>
+      <circle cx="160" cy="80" r="65" fill="#1a6e3a"/>
+      <circle cx="160" cy="80" r="65" fill="none" stroke="#4ab8f0" stroke-width="3"/>
+      <ellipse cx="130" cy="65" rx="25" ry="20" fill="#2a8a4a"/>
+      <ellipse cx="175" cy="85" rx="30" ry="18" fill="#2a8a4a"/>
+      <ellipse cx="145" cy="95" rx="20" ry="15" fill="#2a8a4a"/>
+      <ellipse cx="100" cy="80" rx="15" ry="20" fill="#1a6ab0"/>
+      <ellipse cx="195" cy="65" rx="18" ry="15" fill="#1a6ab0"/>
+      <ellipse cx="160" cy="110" rx="25" ry="12" fill="#1a6ab0"/>
+      <circle cx="40" cy="25" r="18" fill="#f9e04b" opacity="0.9"/>
+      <circle cx="280" cy="25" r="10" fill="#f0f0f0" opacity="0.8"/>
+      <circle cx="60" cy="15" r="2" fill="white" opacity="0.7"/>
+      <circle cx="220" cy="10" r="2" fill="white" opacity="0.6"/>
+      <circle cx="290" cy="50" r="2" fill="white" opacity="0.8"/>
+    </svg>`,
+    creation_human: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a4a10"/>
+      <rect x="0" y="110" width="320" height="50" fill="#2d6a20"/>
+      <rect x="0" y="0" width="320" height="80" fill="#87CEEB"/>
+      <ellipse cx="80" cy="110" rx="60" ry="20" fill="#3a7a20"/>
+      <ellipse cx="240" cy="110" rx="60" ry="20" fill="#3a7a20"/>
+      <circle cx="260" cy="30" r="22" fill="#f9e04b" opacity="0.9"/>
+      <rect x="148" y="60" width="24" height="50" fill="#e8b45a"/>
+      <circle cx="160" cy="55" r="14" fill="#f5e0c8"/>
+      <ellipse cx="148" cy="78" rx="10" ry="7" fill="#e8b45a" transform="rotate(-20 148 78)"/>
+      <ellipse cx="172" cy="78" rx="10" ry="7" fill="#e8b45a" transform="rotate(20 172 78)"/>
+      <ellipse cx="155" cy="110" rx="8" ry="15" fill="#e8b45a"/>
+      <ellipse cx="165" cy="110" rx="8" ry="15" fill="#e8b45a"/>
+      <rect x="100" y="70" width="40" height="8" rx="4" fill="#2d5a1a"/>
+      <ellipse cx="120" cy="70" rx="20" ry="15" fill="#3a7a28"/>
+      <rect x="180" y="65" width="45" height="8" rx="4" fill="#2d5a1a"/>
+      <ellipse cx="200" cy="65" rx="22" ry="16" fill="#3a7a28"/>
+    </svg>`,
+    cain_abel: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a1428"/>
+      <rect x="0" y="110" width="320" height="50" fill="#2d1a00"/>
+      <rect x="0" y="0" width="320" height="80" fill="#c84010" opacity="0.2"/>
+      <ellipse cx="90" cy="95" rx="25" ry="20" fill="#c84010" opacity="0.6"/>
+      <ellipse cx="90" cy="90" rx="15" ry="12" fill="#f4b942" opacity="0.8"/>
+      <ellipse cx="90" cy="86" rx="8" ry="8" fill="#f9e04b" opacity="0.9"/>
+      <rect x="80" y="100" width="20" height="15" fill="#5a3010"/>
+      <ellipse cx="230" cy="98" rx="22" ry="16" fill="#6a4020" opacity="0.6"/>
+      <ellipse cx="230" cy="93" rx="14" ry="10" fill="#8a5828" opacity="0.7"/>
+      <rect x="220" y="105" width="20" height="12" fill="#4a2808"/>
+      <circle cx="100" cy="70" r="9" fill="#e8b45a"/>
+      <rect x="94" y="79" width="12" height="28" fill="#8b6914"/>
+      <circle cx="220" cy="72" r="9" fill="#f5e6c8"/>
+      <rect x="214" y="81" width="12" height="28" fill="#c4a060"/>
+      <path d="M112 78 L200 78" stroke="#c84010" stroke-width="1.5" fill="none" stroke-dasharray="5 4" opacity="0.5"/>
+    </svg>`,
+    noah_flood: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a1628"/>
+      <rect x="0" y="70" width="320" height="90" fill="#1a3d6e"/>
+      <path d="M0 80 Q40 70 80 80 Q120 90 160 80 Q200 70 240 80 Q280 90 320 80" stroke="#2a5aae" stroke-width="3" fill="none" opacity="0.8"/>
+      <path d="M0 100 Q40 90 80 100 Q120 110 160 100 Q200 90 240 100 Q280 110 320 100" stroke="#2a5aae" stroke-width="2" fill="none" opacity="0.5"/>
+      <polygon points="100,70 220,70 230,100 90,100" fill="#8b6914"/>
+      <polygon points="110,70 210,70 160,35" fill="#a07820"/>
+      <rect x="140" y="50" width="40" height="20" fill="#6b4e10"/>
+      <circle cx="160" cy="60" r="8" fill="#8b6914"/>
+      <rect x="80" y="95" width="160" height="10" fill="#6b4e10"/>
+      <circle cx="50" cy="20" r="2" fill="white" opacity="0.7"/>
+      <circle cx="150" cy="15" r="2" fill="white" opacity="0.8"/>
+      <circle cx="250" cy="25" r="2" fill="white" opacity="0.7"/>
+      <path d="M30 30 Q50 20 70 30 Q50 40 30 30" fill="#2a3a50" opacity="0.8"/>
+      <path d="M200 25 Q220 15 240 25 Q220 35 200 25" fill="#2a3a50" opacity="0.8"/>
+    </svg>`,
+    rainbow: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#87CEEB"/>
+      <rect x="0" y="120" width="320" height="40" fill="#4a7a30"/>
+      <path d="M20 140 Q160 20 300 140" fill="none" stroke="#e84040" stroke-width="8" opacity="0.8"/>
+      <path d="M30 140 Q160 32 290 140" fill="none" stroke="#f4a020" stroke-width="8" opacity="0.8"/>
+      <path d="M40 140 Q160 44 280 140" fill="none" stroke="#f4d820" stroke-width="8" opacity="0.8"/>
+      <path d="M50 140 Q160 56 270 140" fill="none" stroke="#40c840" stroke-width="8" opacity="0.8"/>
+      <path d="M60 140 Q160 68 260 140" fill="none" stroke="#4080f4" stroke-width="8" opacity="0.8"/>
+      <path d="M70 140 Q160 80 250 140" fill="none" stroke="#8040c8" stroke-width="8" opacity="0.7"/>
+      <ellipse cx="160" cy="125" rx="80" ry="15" fill="#3a6a20"/>
+      <ellipse cx="80" cy="130" rx="50" ry="12" fill="#3a6a20"/>
+      <ellipse cx="240" cy="130" rx="50" ry="12" fill="#3a6a20"/>
+      <circle cx="40" cy="40" r="15" fill="#f9e04b" opacity="0.8"/>
+    </svg>`,
+    babel: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a1428"/>
+      <rect x="0" y="130" width="320" height="30" fill="#2d1a00"/>
+      <rect x="120" y="130" width="80" height="30" fill="#8b7520"/>
+      <rect x="130" y="110" width="60" height="25" fill="#9b8530"/>
+      <rect x="140" y="90" width="40" height="25" fill="#a89540"/>
+      <rect x="148" y="70" width="24" height="25" fill="#b8a550"/>
+      <rect x="154" y="50" width="12" height="25" fill="#c8b560"/>
+      <rect x="157" y="30" width="6" height="25" fill="#d8c570"/>
+      <rect x="159" y="15" width="2" height="18" fill="#e8d580"/>
+      <rect x="118" y="128" width="84" height="4" fill="#6b5510"/>
+      <rect x="128" y="108" width="64" height="4" fill="#6b5510"/>
+      <rect x="138" y="88" width="44" height="4" fill="#6b5510"/>
+      <rect x="146" y="68" width="28" height="4" fill="#6b5510"/>
+      <circle cx="60" cy="30" r="2" fill="white" opacity="0.7"/>
+      <circle cx="260" cy="25" r="2" fill="white" opacity="0.8"/>
+      <circle cx="30" cy="60" r="2" fill="white" opacity="0.6"/>
+      <circle cx="290" cy="55" r="2" fill="white" opacity="0.7"/>
+      <circle cx="100" cy="115" r="4" fill="#e8b45a" opacity="0.6"/>
+      <circle cx="220" cy="118" r="4" fill="#e8b45a" opacity="0.6"/>
+      <circle cx="80" cy="125" r="4" fill="#e8b45a" opacity="0.5"/>
+      <circle cx="240" cy="122" r="4" fill="#e8b45a" opacity="0.5"/>
+    </svg>`,
+    genealogy: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a0a00"/>
+      <rect x="100" y="15" width="120" height="130" fill="#f5e6c8" rx="4"/>
+      <rect x="100" y="15" width="10" height="130" fill="#d4b87a" rx="2"/>
+      <rect x="100" y="15" width="120" height="8" fill="#c4a860"/>
+      <line x1="116" y1="34" x2="212" y2="34" stroke="#8b6914" stroke-width="1"/>
+      <line x1="116" y1="44" x2="212" y2="44" stroke="#8b6914" stroke-width="1"/>
+      <line x1="116" y1="54" x2="212" y2="54" stroke="#8b6914" stroke-width="1"/>
+      <line x1="116" y1="64" x2="212" y2="64" stroke="#8b6914" stroke-width="1"/>
+      <line x1="116" y1="74" x2="212" y2="74" stroke="#8b6914" stroke-width="1"/>
+      <line x1="116" y1="84" x2="212" y2="84" stroke="#8b6914" stroke-width="1"/>
+      <line x1="116" y1="94" x2="212" y2="94" stroke="#8b6914" stroke-width="1"/>
+      <line x1="116" y1="104" x2="212" y2="104" stroke="#8b6914" stroke-width="1"/>
+      <line x1="116" y1="114" x2="212" y2="114" stroke="#8b6914" stroke-width="1"/>
+      <line x1="116" y1="124" x2="212" y2="124" stroke="#c84010" stroke-width="2"/>
+      <text x="118" y="132" font-size="8" fill="#c84010" font-weight="bold">Abram</text>
+      <circle cx="50" cy="60" r="18" fill="#f4b942" opacity="0.3"/>
+      <circle cx="270" cy="80" r="14" fill="#f4b942" opacity="0.2"/>
+    </svg>`,
+    abram_call: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a1628"/>
+      <rect x="0" y="0" width="320" height="160" fill="#1a1428"/>
+      <circle cx="40" cy="20" r="2" fill="white" opacity="0.8"/>
+      <circle cx="80" cy="10" r="3" fill="white" opacity="0.9"/>
+      <circle cx="130" cy="15" r="2" fill="white" opacity="0.7"/>
+      <circle cx="200" cy="8" r="2" fill="white" opacity="0.8"/>
+      <circle cx="250" cy="18" r="3" fill="white" opacity="0.9"/>
+      <circle cx="290" cy="12" r="2" fill="white" opacity="0.7"/>
+      <circle cx="20" cy="50" r="2" fill="white" opacity="0.6"/>
+      <circle cx="300" cy="45" r="2" fill="white" opacity="0.7"/>
+      <circle cx="160" cy="5" r="2" fill="white" opacity="0.8"/>
+      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
+      <ellipse cx="80" cy="125" rx="50" ry="15" fill="#3a2800"/>
+      <ellipse cx="240" cy="128" rx="45" ry="14" fill="#3a2800"/>
+      <circle cx="160" cy="80" r="12" fill="#e8b45a"/>
+      <rect x="155" y="92" width="10" height="35" fill="#8b6914"/>
+      <ellipse cx="148" cy="97" rx="10" ry="7" fill="#e8b45a" transform="rotate(-25 148 97)"/>
+      <ellipse cx="172" cy="97" rx="10" ry="7" fill="#e8b45a" transform="rotate(25 172 97)"/>
+      <ellipse cx="158" cy="127" rx="8" ry="14" fill="#e8b45a"/>
+      <ellipse cx="168" cy="127" rx="8" ry="14" fill="#e8b45a"/>
+      <path d="M230 60 Q200 50 170 72" stroke="#f4b942" stroke-width="1.5" fill="none" stroke-dasharray="4 3" opacity="0.7"/>
+      <path d="M220 55 L230 60 L220 65" fill="#f4b942" opacity="0.7"/>
+      <circle cx="240" cy="58" r="8" fill="#f4b942" opacity="0.2"/>
     </svg>`,
     david_shepherd: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
       <rect width="320" height="160" fill="#87CEEB"/>
