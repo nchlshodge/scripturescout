@@ -4963,6 +4963,292 @@ function checkHeartsBeforeRound(onProceed, onBack) {
 
 const STORY_PATHS_V2 = [
   {
+    id: 3,
+    title: "The Life of David",
+    subtitle: "From Shepherd Boy to King of Israel",
+    testament: "OT",
+    is_free: true,
+    color: "#1a3a6e",
+    accent: "#4a8eda",
+    icon: "👑",
+    description: "A shepherd. A giant-slayer. A poet. A sinner. A man after God's own heart. The story of David is one of the most human — and most hopeful — in all of Scripture.",
+    chapters: [
+      {
+        num: 1,
+        title: "The Forgotten Son",
+        scene: "david_shepherd",
+        narrative: "God had rejected King Saul. His disobedience had disqualified him. So God sent the prophet Samuel on a secret mission to Bethlehem — to the house of a man named Jesse, where God had chosen the next king of Israel. Jesse paraded his sons before Samuel one by one. Seven impressive young men. God said no to every one of them. Samuel was confused. Is this all your sons? There is still the youngest, Jesse said, as if it barely mattered. He's out tending the sheep. Send for him. When David finally walked in — ruddy, bright-eyed, handsome — God said: Rise and anoint him. He is the one. The boy nobody thought to invite to the ceremony was the one God had chosen all along. God does not see as man sees. Man looks at the outward appearance, but God looks at the heart.",
+        verse: "The Lord does not look at the things people look at. People look at the outward appearance, but the Lord looks at the heart.",
+        reference: "1 Samuel 16:7",
+        questions: [
+          { q: "Why did God send Samuel to Jesse's house?", a: "To anoint the next king of Israel", choices: ["To anoint the next king of Israel","To deliver a message to Jesse","To judge the sins of Bethlehem","To find a musician for Saul"] },
+          { q: "How many of Jesse's sons did Samuel see before David?", a: "7", choices: ["3","5","7","10"] },
+          { q: "Where was David when Samuel arrived?", a: "Tending the sheep", choices: ["Tending the sheep","Training as a soldier","Studying the law","In the fields harvesting"] }
+        ]
+      },
+      {
+        num: 2,
+        title: "David and Goliath",
+        scene: "david_goliath",
+        narrative: "For forty days the giant had terrorized Israel. Goliath of Gath — over nine feet tall, armored from head to toe, with a spear like a weaver's beam. Every morning and evening he strode to the front lines and bellowed his challenge: Send me a man! The whole Israelite army shook with fear, including King Saul. Then a teenage shepherd boy arrived to bring food to his brothers. He heard the challenge. He felt the shame. Why does no one answer him? He is defying the armies of the living God. David refused armor. He refused a sword. He went to a stream and chose five smooth stones. Then he ran toward the giant — not away from him. You come against me with sword and spear, David shouted. But I come against you in the name of the Lord Almighty. One stone. One throw. Goliath fell face down on the ground.",
+        verse: "You come against me with sword and spear and javelin, but I come against you in the name of the Lord Almighty.",
+        reference: "1 Samuel 17:45",
+        questions: [
+          { q: "How long had Goliath been challenging Israel when David arrived?", a: "40 days", choices: ["7 days","14 days","40 days","3 months"] },
+          { q: "How many stones did David pick up from the stream?", a: "5", choices: ["1","3","5","7"] },
+          { q: "What happened to Goliath when David's stone hit him?", a: "He fell face down on the ground", choices: ["He fell face down on the ground","He fell backward","He stumbled but kept fighting","He ran away"] }
+        ]
+      },
+      {
+        num: 3,
+        title: "A Friendship Like No Other",
+        scene: "david_jonathan",
+        narrative: "After David killed Goliath, he was brought before King Saul. Standing there was Saul's son Jonathan — the crown prince, the heir to the throne. Something remarkable happened. Jonathan's soul was knit to the soul of David. He loved him as himself. Jonathan gave David his own robe, his armor, his sword, his bow, his belt — the symbols of his rank and inheritance. It was an act of extraordinary generosity from the man who had the most to lose. If David became king, Jonathan would not. And Jonathan knew it. He didn't care. Their covenant friendship became one of the most celebrated in all of history — a portrait of loyalty, sacrifice, and love that transcended competition, jealousy, and even death.",
+        verse: "Jonathan became one in spirit with David, and he loved him as himself.",
+        reference: "1 Samuel 18:1",
+        questions: [
+          { q: "What did Jonathan give David as a sign of their covenant?", a: "His robe, armor, sword, bow and belt", choices: ["His robe, armor, sword, bow and belt","A ring and a promise","Land in Bethlehem","Gold and silver"] },
+          { q: "Who was Jonathan's father?", a: "King Saul", choices: ["King Saul","Jesse","Abner","Samuel"] },
+          { q: "How did Jonathan feel about David potentially becoming king?", a: "He willingly gave up his claim and stayed loyal", choices: ["He willingly gave up his claim and stayed loyal","He was angry and plotted against David","He fled to another country","He asked his father to stop David"] }
+        ]
+      },
+      {
+        num: 4,
+        title: "Fugitive in the Wilderness",
+        scene: "david_cave",
+        narrative: "Saul's admiration for David curdled into jealousy. The women sang in the streets: Saul has slain his thousands, and David his tens of thousands. That single song lodged in Saul's heart like a splinter. He threw a spear at David twice. He sent assassins to David's house. He hunted him through the wilderness like an animal. For years David lived as a fugitive — hiding in caves, leading a ragged band of outcasts, constantly moving. Twice God delivered Saul into David's hands. Twice David refused to kill him. You are the Lord's anointed, he said. It is not for me to lift my hand against you. In the wilderness, God was doing something the palace could not — forging David's character in fire. The Psalms of this period ring with both anguish and trust.",
+        verse: "I will not lay my hand on my lord, because he is the Lord's anointed.",
+        reference: "1 Samuel 24:10",
+        questions: [
+          { q: "What made Saul jealous of David?", a: "The people sang that David killed tens of thousands", choices: ["The people sang that David killed tens of thousands","David was more handsome","David married his daughter","Samuel anointed David publicly"] },
+          { q: "How many times did David have Saul in his power but refused to kill him?", a: "Twice", choices: ["Once","Twice","Three times","Never"] },
+          { q: "What did David write many of during his time as a fugitive?", a: "Psalms", choices: ["Psalms","Laws","Prophecies","Letters"] }
+        ]
+      },
+      {
+        num: 5,
+        title: "King at Last",
+        scene: "david_king",
+        narrative: "Saul died in battle against the Philistines on Mount Gilboa. Jonathan died with him. David wept — not with relief but with genuine grief. He composed a lament for Saul and Jonathan that is among the most beautiful elegies in all of literature: How the mighty have fallen. After years in the wilderness, David was anointed king — first over Judah in Hebron, then, seven years later, over all Israel. He was thirty years old. His first great act as king was to capture Jerusalem, a hilltop fortress the Jebusites had held for centuries. He made it his capital. Then he brought the Ark of the Covenant to Jerusalem with such overwhelming joy that he danced before the Lord with all his might. The shepherd boy had become the shepherd king.",
+        verse: "David was thirty years old when he became king, and he reigned forty years.",
+        reference: "2 Samuel 5:4",
+        questions: [
+          { q: "How old was David when he became king?", a: "30", choices: ["20","25","30","40"] },
+          { q: "What did David do when he brought the Ark of the Covenant to Jerusalem?", a: "Danced before the Lord with all his might", choices: ["Danced before the Lord with all his might","Offered a great sacrifice","Built a temple","Sang a new psalm"] },
+          { q: "Over which tribe did David first become king?", a: "Judah", choices: ["Judah","Benjamin","Levi","All Israel at once"] }
+        ]
+      },
+      {
+        num: 6,
+        title: "The Covenant Promise",
+        scene: "david_covenant",
+        narrative: "David sat in his cedar palace and felt uneasy. He had a beautiful house while the Ark of God sat in a tent. He told the prophet Nathan: I want to build God a house. That night God gave Nathan a message for David — one of the most remarkable promises in all of Scripture. David, you will not build Me a house. But I will build YOU a house. Not a building — a dynasty. Your son will build the temple. And from your line will come a king whose throne will be established forever. It was the Davidic Covenant — the promise that the ultimate King, the Messiah, would come from David's bloodline. David was overwhelmed. He went and sat before the Lord and prayed: Who am I, Sovereign Lord, and what is my family, that you have brought me this far?",
+        verse: "Your house and your kingdom will endure forever before me; your throne will be established forever.",
+        reference: "2 Samuel 7:16",
+        questions: [
+          { q: "What did David want to build for God?", a: "A temple to house the Ark", choices: ["A temple to house the Ark","A palace for the priests","An altar on Mount Zion","A city named after God"] },
+          { q: "What did God promise to build for David instead?", a: "A dynasty — a lasting royal house", choices: ["A dynasty — a lasting royal house","A great army","A magnificent palace","A new city"] },
+          { q: "Which of David's descendants would fulfill the eternal throne promise?", a: "Jesus the Messiah", choices: ["Jesus the Messiah","Solomon","Zerubbabel","Hezekiah"] }
+        ]
+      },
+      {
+        num: 7,
+        title: "The Great Sin",
+        scene: "david_sin",
+        narrative: "It was the season when kings go off to war. David stayed home. One evening he walked on his rooftop and saw a beautiful woman bathing. He sent for her. Her name was Bathsheba. She was the wife of Uriah the Hittite — one of David's most loyal soldiers, currently fighting David's battles. David committed adultery with her. When she became pregnant, David tried to cover it up by bringing Uriah home from battle. Uriah refused to sleep with his wife while his comrades were in the field. So David arranged for Uriah to be placed where the fighting was fiercest and then abandoned. Uriah was killed. David then took Bathsheba as his wife. The thing David had done displeased the Lord. The man after God's own heart had committed adultery and murder.",
+        verse: "But the thing David had done displeased the Lord.",
+        reference: "2 Samuel 11:27",
+        questions: [
+          { q: "Who was Bathsheba's husband?", a: "Uriah the Hittite", choices: ["Uriah the Hittite","Joab","Abner","Ittai"] },
+          { q: "How did David arrange for Uriah's death?", a: "Placed him where the fighting was fiercest then withdrew support", choices: ["Placed him where the fighting was fiercest then withdrew support","Sent him on a dangerous mission alone","Had him poisoned","Accused him of treason"] },
+          { q: "What was God's response to what David did?", a: "It displeased the Lord", choices: ["It displeased the Lord","God struck David immediately","God forgave him without consequence","God sent an angel to warn him"] }
+        ]
+      },
+      {
+        num: 8,
+        title: "Broken and Restored",
+        scene: "david_repentance",
+        narrative: "God sent the prophet Nathan to David. Nathan told a story about a rich man who had many flocks, and a poor man who had one beloved little lamb. The rich man took the poor man's lamb to feed a guest. David burned with anger: That man deserves to die! Nathan looked at the king: You are the man. David's sin was exposed. The child Bathsheba carried would die. The sword would not depart from David's house. The consequences were real and lasting. But what happened next defined David forever. He did not make excuses. He did not deflect blame. He said simply: I have sinned against the Lord. Psalm 51 — written in this moment — is the most raw, honest, beautiful prayer of repentance in all of Scripture. Have mercy on me, O God. Create in me a clean heart.",
+        verse: "Create in me a pure heart, O God, and renew a steadfast spirit within me.",
+        reference: "Psalm 51:10",
+        questions: [
+          { q: "How did God confront David about his sin?", a: "Through the prophet Nathan and a parable", choices: ["Through the prophet Nathan and a parable","Through a dream","Through an angel","Through a plague"] },
+          { q: "What was David's response when Nathan said You are the man?", a: "I have sinned against the Lord", choices: ["I have sinned against the Lord","He denied it","He punished Nathan","He offered a sacrifice to cover it"] },
+          { q: "Which Psalm did David write as a prayer of repentance?", a: "Psalm 51", choices: ["Psalm 51","Psalm 23","Psalm 22","Psalm 91"] }
+        ]
+      },
+      {
+        num: 9,
+        title: "The Shepherd Psalm",
+        scene: "david_psalm23",
+        narrative: "Among all the words David ever wrote, none have brought more comfort across more centuries than Psalm 23. He wrote it from the perspective of a sheep — which he understood better than almost anyone. A sheep is utterly dependent. It cannot find its own water. It panics easily. It needs constant guidance. The Lord is my shepherd — I shall not want. David knew both the green pastures and the darkest valleys. He had hidden in caves and walked through the shadow of death. He had enemies who wanted him dead. He had sat at tables God set for him in impossible places. He wrote with the intimacy of someone who had walked with God through everything. Even when I walk through the darkest valley, I will fear no evil, for you are with me.",
+        verse: "Even though I walk through the darkest valley, I will fear no evil, for you are with me; your rod and your staff, they comfort me.",
+        reference: "Psalm 23:4",
+        questions: [
+          { q: "What does David compare himself to in Psalm 23?", a: "A sheep", choices: ["A sheep","A warrior","A pilgrim","A servant"] },
+          { q: "What does David say he shall not want because the Lord is his shepherd?", a: "Nothing — he shall not be in need", choices: ["Nothing — he shall not be in need","Enemies","Wealth","Wisdom"] },
+          { q: "Where does David say God prepares a table for him?", a: "In the presence of his enemies", choices: ["In the presence of his enemies","In the house of the Lord","In the wilderness","In Jerusalem"] }
+        ]
+      },
+      {
+        num: 10,
+        title: "A Man After God's Heart",
+        scene: "david_legacy",
+        narrative: "David reigned for forty years. He was far from perfect — his failures are recorded without softening. But the thing that set him apart from Saul, the thing that made God call him a man after my own heart, was not his successes. It was what he did with his failures. He returned. Every time he fell, he came back to God. He never stopped writing. He never stopped worshipping. Even in his darkest seasons, he turned his face toward God. He prepared the materials for a temple he would never build. He organized the priests, the musicians, the worship. His last words were a psalm. He died at a great age, full of days and honor. And the promise God made to him — that one of his descendants would rule forever — was fulfilled a thousand years later when a baby was born in Bethlehem, the city of David.",
+        verse: "I have found David son of Jesse, a man after my own heart; he will do everything I want him to do.",
+        reference: "Acts 13:22",
+        questions: [
+          { q: "What phrase did God use to describe David?", a: "A man after my own heart", choices: ["A man after my own heart","A perfect servant","A mighty warrior","A faithful priest"] },
+          { q: "How many years did David reign as king?", a: "40 years", choices: ["20 years","30 years","40 years","50 years"] },
+          { q: "How was God's promise of an eternal throne from David's line ultimately fulfilled?", a: "Through Jesus born in Bethlehem", choices: ["Through Jesus born in Bethlehem","Through Solomon's dynasty","Through the return from exile","Through the Maccabees"] }
+        ]
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: "The Story of Moses",
+    subtitle: "From the Nile to the Promised Land",
+    testament: "OT",
+    is_free: true,
+    color: "#5a2d0c",
+    accent: "#c8841a",
+    icon: "🔥",
+    description: "From a basket on the Nile to the parting of the Red Sea — follow Moses as God uses one man to rescue an entire nation.",
+    chapters: [
+      {
+        num: 1,
+        title: "A Baby in a Basket",
+        scene: "moses_birth",
+        narrative: "Pharaoh was afraid. The Israelites were multiplying so fast that he feared they would one day outnumber the Egyptians and revolt. So he issued a terrible decree — every Hebrew baby boy was to be thrown into the Nile. Into this darkness, a baby was born to a Levite woman named Jochebed. She hid him for three months. When she could hide him no longer, she wove a basket of reeds, waterproofed it with tar and pitch, and placed her son in it among the reeds of the Nile. His sister Miriam watched from a distance. Then Pharaoh's own daughter came to bathe — and heard crying. She opened the basket and saw the child. Her heart went out to him. The very daughter of the man who ordered his death would raise him.",
+        verse: "When she opened it, she saw the baby. He was crying, and she felt sorry for him. This is one of the Hebrew babies, she said.",
+        reference: "Exodus 2:6",
+        questions: [
+          { q: "Why did Pharaoh order Hebrew baby boys to be killed?", a: "He feared the Israelites were growing too numerous", choices: ["He feared the Israelites were growing too numerous","He needed workers for his pyramids","A prophet warned him of danger","He was punishing Israel for rebellion"] },
+          { q: "What was Moses' basket made of?", a: "Reeds waterproofed with tar and pitch", choices: ["Reeds waterproofed with tar and pitch","Cedar wood","Clay and straw","Woven cloth"] },
+          { q: "Who found baby Moses in the basket?", a: "Pharaoh's daughter", choices: ["Pharaoh's daughter","A Hebrew midwife","The wife of a priest","A servant woman"] }
+        ]
+      },
+      {
+        num: 2,
+        title: "The Burning Bush",
+        scene: "burning_bush",
+        narrative: "Forty years had passed. Moses had fled Egypt after killing an Egyptian who was beating a Hebrew slave. He had built a quiet life in Midian, married a woman named Zipporah, and was tending his father-in-law's flocks. One ordinary day, leading the sheep to the far side of the wilderness, he came to Horeb — the mountain of God. There he saw something extraordinary: a bush that was on fire but did not burn up. He turned aside to look. Then God called to him from within the bush — Moses! Moses! Take off your sandals, for the place where you are standing is holy ground. I am the God of Abraham, Isaac and Jacob. I have seen the misery of my people. I have heard them crying out. And I have come down to rescue them.",
+        verse: "I have indeed seen the misery of my people in Egypt. I have heard them crying out because of their slave drivers, and I am concerned about their suffering.",
+        reference: "Exodus 3:7",
+        questions: [
+          { q: "How many years did Moses spend in Midian before the burning bush?", a: "40 years", choices: ["40 years","20 years","10 years","3 years"] },
+          { q: "What was unusual about the burning bush?", a: "It burned but was not consumed", choices: ["It burned but was not consumed","It spoke without fire","It moved toward Moses","It was surrounded by angels"] },
+          { q: "What did God tell Moses to remove at the burning bush?", a: "His sandals", choices: ["His sandals","His staff","His cloak","His ring"] }
+        ]
+      },
+      {
+        num: 3,
+        title: "Let My People Go",
+        scene: "pharaoh_court",
+        narrative: "Moses stood before the most powerful man on earth — Pharaoh of Egypt — and delivered God's message: Let my people go. Pharaoh laughed. Who is this God that I should obey him? Egypt's gods were many and mighty. He did not know the God of Israel. So God sent signs. The Nile turned to blood. Frogs covered the land. Gnats, flies, disease, boils, hail, locusts, darkness — each plague more devastating than the last. And each time Pharaoh hardened his heart. Even as Egypt crumbled around him, he refused. It was a cosmic confrontation — not just between Moses and Pharaoh, but between the living God and all the gods of Egypt. One by one, God was showing them all to be powerless.",
+        verse: "This is what the Lord, the God of Israel, says: Let my people go.",
+        reference: "Exodus 5:1",
+        questions: [
+          { q: "How many plagues did God send on Egypt?", a: "10", choices: ["7","9","10","12"] },
+          { q: "What was the first plague God sent on Egypt?", a: "The Nile turned to blood", choices: ["The Nile turned to blood","Frogs","Darkness","Locusts"] },
+          { q: "What did Pharaoh do after most of the plagues?", a: "He hardened his heart and refused", choices: ["He hardened his heart and refused","He agreed then changed his mind","He sent Moses away","He asked Moses to pray for him"] }
+        ]
+      },
+      {
+        num: 4,
+        title: "The Night of Passover",
+        scene: "passover",
+        narrative: "The final plague would be unlike any other. God would pass through Egypt and every firstborn — from Pharaoh's son to the firstborn of cattle — would die. But He gave His people a way of escape. Each family was to take a lamb without defect, slaughter it at twilight, and paint its blood on the doorposts and lintels of their house. They were to eat the lamb that night, dressed and ready to leave, in haste. When God saw the blood, He would pass over that house. It was a night of terror for Egypt and a night of salvation for Israel. By morning, there was not a house in Egypt without death — except those marked with blood. Pharaoh summoned Moses before dawn: Go. Leave. Take everything.",
+        verse: "The blood will be a sign for you on the houses where you are, and when I see the blood, I will pass over you.",
+        reference: "Exodus 12:13",
+        questions: [
+          { q: "What kind of lamb was to be used for the Passover?", a: "A lamb without defect", choices: ["A lamb without defect","The oldest lamb","The largest lamb","Any lamb available"] },
+          { q: "Where was the blood of the lamb to be placed?", a: "On the doorposts and lintels", choices: ["On the doorposts and lintels","On the ground before the door","On the altar","On the foreheads of the family"] },
+          { q: "What happened to every home NOT marked with blood?", a: "The firstborn died", choices: ["The firstborn died","It was destroyed by fire","It was flooded","Nothing happened"] }
+        ]
+      },
+      {
+        num: 5,
+        title: "Crossing the Red Sea",
+        scene: "red_sea",
+        narrative: "Six hundred thousand men, plus women and children, marched out of Egypt after 430 years of slavery. God led them as a pillar of cloud by day and a pillar of fire by night. But soon they found themselves trapped — the Red Sea before them, the mountains on either side, and the thunder of Pharaoh's army behind them. Six hundred chariots. The people panicked. They cried out to Moses: Was it because there were no graves in Egypt that you brought us here to die? Moses stretched his hand out over the sea. All that night a strong east wind blew. By morning the sea had divided — walls of water on the left and right, and dry ground between. Israel walked through on dry land. When the Egyptians followed, the waters crashed back. Not one of them survived.",
+        verse: "Moses stretched out his hand over the sea, and all that night the Lord drove the sea back with a strong east wind and turned it into dry land.",
+        reference: "Exodus 14:21",
+        questions: [
+          { q: "How did God lead Israel through the wilderness?", a: "Pillar of cloud by day, pillar of fire by night", choices: ["Pillar of cloud by day, pillar of fire by night","An angel walking ahead","The voice of Moses","A bright star"] },
+          { q: "What did God use to part the Red Sea?", a: "A strong east wind", choices: ["A strong east wind","Moses striking the water","An earthquake","Lightning from heaven"] },
+          { q: "How many of Pharaoh's soldiers survived the Red Sea crossing?", a: "None", choices: ["None","A few","Only the commanders","Half of them"] }
+        ]
+      },
+      {
+        num: 6,
+        title: "Bread from Heaven",
+        scene: "manna",
+        narrative: "The wonder of the Red Sea was still fresh when the grumbling began. The people were hungry. If only we had stayed in Egypt, they said. At least there we had bread. God heard their complaints without anger. I will rain down bread from heaven for you, He told Moses. Each morning a fine, flaky substance appeared on the ground like frost. They called it manna — what is it? — because no one had ever seen anything like it. It tasted like wafers made with honey. Every day for forty years, six days a week, God provided exactly what His people needed. On Friday He gave double so they could rest on the Sabbath. It was a daily reminder that God was their provider — and that man does not live on bread alone.",
+        verse: "Then the Lord said to Moses, I will rain down bread from heaven for you.",
+        reference: "Exodus 16:4",
+        questions: [
+          { q: "What did the Israelites call the bread from heaven?", a: "Manna", choices: ["Manna","Shewbread","Heaven bread","Daily bread"] },
+          { q: "How long did God provide manna for Israel?", a: "40 years", choices:["40 years","7 years","20 years","Until they reached Sinai"] },
+          { q: "Why did God provide double manna on Friday?", a: "So they could rest on the Sabbath", choices: ["So they could rest on the Sabbath","Because more people were hungry","To test their faith","To store for the journey ahead"] }
+        ]
+      },
+      {
+        num: 7,
+        title: "The Ten Commandments",
+        scene: "mount_sinai",
+        narrative: "Three months after leaving Egypt, Israel camped at the foot of Mount Sinai. God called Moses up the mountain. The people were to consecrate themselves and wash their clothes. On the third day, thunder and lightning, thick cloud, and a very loud trumpet blast shook the mountain. Smoke billowed up like a furnace. The whole mountain trembled violently. And God spoke the Ten Commandments directly to the people — His covenant charter for the nation He was building. You shall have no other gods before me. Honor your father and mother. Do not murder. Do not commit adultery. Do not steal. Do not lie. The commandments were not a ladder to earn God's favor. They were a portrait of what a people who had been saved by grace looked like.",
+        verse: "I am the Lord your God, who brought you out of Egypt, out of the land of slavery. You shall have no other gods before me.",
+        reference: "Exodus 20:2-3",
+        questions: [
+          { q: "How long after leaving Egypt did Israel arrive at Mount Sinai?", a: "3 months", choices: ["3 months","7 days","1 year","40 days"] },
+          { q: "What accompanied God's presence on Mount Sinai?", a: "Thunder, lightning, thick cloud and trumpet blast", choices: ["Thunder, lightning, thick cloud and trumpet blast","A still small voice","A rainbow","A pillar of fire only"] },
+          { q: "How many commandments did God give Israel at Sinai?", a: "10", choices: ["7","10","12","15"] }
+        ]
+      },
+      {
+        num: 8,
+        title: "The Golden Calf",
+        scene: "golden_calf",
+        narrative: "Moses was on the mountain for forty days. The people grew restless. They went to Aaron and said: Make us gods who will go before us. We don't know what happened to Moses. Aaron — Moses' own brother, the high priest — collected their gold earrings and cast them into the shape of a calf. These are your gods, O Israel, who brought you up out of Egypt. God told Moses what was happening and His anger burned. Moses pleaded for the people. When he came down the mountain and saw the calf and the dancing, he threw down the stone tablets and shattered them. He ground the calf into powder, scattered it on the water, and made Israel drink it. It was one of Israel's darkest moments — turning from the living God to an idol made with their own hands.",
+        verse: "They exchanged their glorious God for an image of a bull, which eats grass.",
+        reference: "Psalm 106:20",
+        questions: [
+          { q: "How long was Moses on Mount Sinai when the people made the golden calf?", a: "40 days", choices: ["40 days","7 days","3 days","1 year"] },
+          { q: "Who made the golden calf for Israel?", a: "Aaron", choices: ["Aaron","Miriam","The elders","Caleb"] },
+          { q: "What did Moses do with the golden calf?", a: "Ground it into powder and made Israel drink it", choices: ["Ground it into powder and made Israel drink it","Burned it completely","Threw it into the sea","Buried it in the wilderness"] }
+        ]
+      },
+      {
+        num: 9,
+        title: "Forty Years in the Wilderness",
+        scene: "wilderness",
+        narrative: "The Promised Land was within reach. Twelve spies went in to scout the land. Ten came back with fear: The people there are giants. We seemed like grasshoppers in our own eyes. Two — Joshua and Caleb — came back with faith: We can certainly do it. God is with us. The people chose fear. They wept and complained and wanted to go back to Egypt. God's judgment was swift: because of their unbelief, that entire generation would wander in the wilderness for forty years — one year for each day the spies were in the land — until every adult who had refused to trust God had died. Their children would inherit the promise they refused. It is one of the most sobering passages in all of Scripture.",
+        verse: "Because of your unbelief you will wander in the wilderness forty years — a year for each of the forty days you explored the land.",
+        reference: "Numbers 14:34",
+        questions: [
+          { q: "How many spies were sent into Canaan?", a: "12", choices: ["10","12","2","40"] },
+          { q: "Which two spies gave a faithful report?", a: "Joshua and Caleb", choices: ["Joshua and Caleb","Moses and Aaron","Gad and Asher","Reuben and Simeon"] },
+          { q: "Why did God sentence Israel to 40 years in the wilderness?", a: "Because of their unbelief", choices: ["Because of their unbelief","Because of the golden calf","Because they disobeyed Moses","Because Pharaoh pursued them"] }
+        ]
+      },
+      {
+        num: 10,
+        title: "The View from Nebo",
+        scene: "mount_nebo",
+        narrative: "Moses never entered the Promised Land. In a moment of frustration at the waters of Meribah, he struck the rock instead of speaking to it as God commanded. It was a small act of disobedience — but for the leader of God's people, it had consequences. God told him: you will see the land, but you will not enter it. Moses spent his final days pouring his life into Joshua, his successor, and pouring his words into the book of Deuteronomy — his final sermon to a nation he had loved and led through fire and wilderness. Then God called him to the top of Mount Nebo. From there he saw the whole land — from Gilead to the Dead Sea to the Mediterranean. And there on the mountain, Moses died. He was 120 years old. His eyes were not dim. His strength had not faded. No one knows where he is buried to this day.",
+        verse: "Moses was a hundred and twenty years old when he died, yet his eyes were not weak nor his strength gone.",
+        reference: "Deuteronomy 34:7",
+        questions: [
+          { q: "Why was Moses not allowed to enter the Promised Land?", a: "He struck the rock instead of speaking to it", choices: ["He struck the rock instead of speaking to it","He refused to lead Israel","He worshipped the golden calf","He disobeyed at the Red Sea"] },
+          { q: "From what mountain did Moses see the Promised Land?", a: "Mount Nebo", choices: ["Mount Nebo","Mount Sinai","Mount Carmel","Mount Zion"] },
+          { q: "How old was Moses when he died?", a: "120", choices: ["80","100","120","969"] }
+        ]
+      }
+    ]
+  },
+  {
     id: 1,
     title: "The Gospel Story",
     subtitle: "From Creation to the Cross",
@@ -5260,6 +5546,348 @@ function getSceneSVG(scene) {
       <circle cx="160" cy="45" r="30" fill="#f9e04b" opacity="0.6"/>
       <circle cx="160" cy="45" r="18" fill="#f9e04b" opacity="0.9"/>
       <text x="160" y="152" text-anchor="middle" fill="#8b4513" font-size="10" font-weight="bold">He is risen!</text>
+    </svg>`,
+    david_shepherd: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#87CEEB"/>
+      <rect x="0" y="110" width="320" height="50" fill="#4a7a30"/>
+      <ellipse cx="60" cy="110" rx="50" ry="18" fill="#3a6a20"/>
+      <ellipse cx="260" cy="115" rx="45" ry="16" fill="#3a6a20"/>
+      <circle cx="260" cy="40" r="22" fill="#f9e04b" opacity="0.9"/>
+      <circle cx="60" cy="118" r="10" fill="#f5f5f5"/>
+      <circle cx="85" cy="122" r="9" fill="#f5f5f5"/>
+      <circle cx="40" cy="122" r="8" fill="#f5f5f5"/>
+      <circle cx="250" cy="120" r="10" fill="#f5f5f5"/>
+      <circle cx="275" cy="118" r="9" fill="#f5f5f5"/>
+      <circle cx="160" cy="90" r="9" fill="#e8b45a"/>
+      <rect x="156" y="99" width="8" height="22" fill="#8b6914"/>
+      <rect x="166" y="100" width="3" height="28" fill="#6b4e10" transform="rotate(12 166 100)"/>
+      <ellipse cx="160" cy="88" rx="7" ry="5" fill="#c8841a"/>
+    </svg>`,
+    david_goliath: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#c8d8e8"/>
+      <rect x="0" y="120" width="320" height="40" fill="#8b8060"/>
+      <ellipse cx="80" cy="120" rx="60" ry="15" fill="#7a7050"/>
+      <ellipse cx="240" cy="120" rx="60" ry="15" fill="#7a7050"/>
+      <rect x="215" y="20" width="28" height="110" fill="#5a4020"/>
+      <circle cx="229" cy="15" r="18" fill="#8b7050"/>
+      <rect x="220" y="35" width="18" height="60" fill="#6a7a8a"/>
+      <rect x="218" y="30" width="22" height="10" fill="#7a8a9a"/>
+      <path d="M243 22 L255 10 L248 30" fill="#8a8a8a"/>
+      <rect x="71" y="85" width="10" height="40" fill="#e8b45a"/>
+      <circle cx="76" cy="80" r="10" fill="#e8b45a"/>
+      <rect x="82" y="92" width="3" height="32" fill="#6b4e10" transform="rotate(8 82 92)"/>
+      <circle cx="160" cy="80" r="6" fill="#8a8a8a" opacity="0.6"/>
+      <path d="M80 88 Q120 70 155 78" stroke="#a07820" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
+    </svg>`,
+    david_jonathan: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#e8d8b8"/>
+      <rect x="0" y="120" width="320" height="40" fill="#c4a870"/>
+      <rect x="80" y="40" width="60" height="80" fill="#8b7520" opacity="0.3"/>
+      <rect x="80" y="40" width="60" height="10" fill="#a09030" opacity="0.4"/>
+      <circle cx="130" cy="70" r="16" fill="#e8b45a"/>
+      <rect x="122" y="86" width="16" height="40" fill="#c8901a"/>
+      <rect x="138" y="93" width="5" height="32" fill="#8a8a6a"/>
+      <circle cx="190" cy="72" r="15" fill="#f5e6c8"/>
+      <rect x="182" y="87" width="16" height="40" fill="#8b6914"/>
+      <rect x="198" y="94" width="4" height="30" fill="#6b4e10" transform="rotate(8 198 94)"/>
+      <path d="M146 80 Q160 70 175 80" stroke="#c8901a" stroke-width="2" fill="none"/>
+      <path d="M138 88 Q160 100 182 90" stroke="#c8901a" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/>
+    </svg>`,
+    david_cave: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a0a1a"/>
+      <ellipse cx="160" cy="160" rx="180" ry="80" fill="#1a1428"/>
+      <ellipse cx="80" cy="140" rx="80" ry="50" fill="#2d2010"/>
+      <ellipse cx="240" cy="145" rx="80" ry="50" fill="#2d2010"/>
+      <ellipse cx="160" cy="130" rx="60" ry="40" fill="#1a1008"/>
+      <ellipse cx="160" cy="110" rx="40" ry="28" fill="#0a0808"/>
+      <circle cx="60" cy="30" r="2" fill="white" opacity="0.7"/>
+      <circle cx="100" cy="20" r="2" fill="white" opacity="0.8"/>
+      <circle cx="160" cy="15" r="2" fill="white" opacity="0.6"/>
+      <circle cx="220" cy="25" r="2" fill="white" opacity="0.7"/>
+      <circle cx="270" cy="35" r="2" fill="white" opacity="0.8"/>
+      <circle cx="160" cy="95" r="6" fill="#e8b45a" opacity="0.6"/>
+      <rect x="156" y="101" width="8" height="18" fill="#8b6914" opacity="0.6"/>
+      <ellipse cx="160" cy="98" rx="20" ry="14" fill="#f4b942" opacity="0.08"/>
+    </svg>`,
+    david_king: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a1428"/>
+      <rect x="0" y="110" width="320" height="50" fill="#2d1a00"/>
+      <rect x="80" y="20" width="160" height="90" fill="#2d2418"/>
+      <rect x="75" y="15" width="170" height="15" fill="#3d3420"/>
+      <rect x="100" y="50" width="30" height="60" fill="#4a3828"/>
+      <rect x="190" y="50" width="30" height="60" fill="#4a3828"/>
+      <rect x="130" y="60" width="60" height="50" fill="#6b4e20"/>
+      <rect x="125" y="55" width="70" height="12" fill="#8b6920"/>
+      <circle cx="160" cy="40" r="18" fill="#f4b942" opacity="0.9"/>
+      <circle cx="160" cy="40" r="12" fill="#f4b942"/>
+      <path d="M148 32 L152 20 L160 28 L168 20 L172 32" fill="#f4b942" stroke="#c8901a" stroke-width="1"/>
+      <rect x="152" y="68" width="16" height="35" fill="#2d1a00"/>
+      <circle cx="160" cy="62" r="10" fill="#e8b45a"/>
+      <ellipse cx="80" cy="140" rx="30" ry="10" fill="#3a2810" opacity="0.5"/>
+      <ellipse cx="240" cy="140" rx="30" ry="10" fill="#3a2810" opacity="0.5"/>
+      <circle cx="40" cy="35" r="6" fill="#f4b942" opacity="0.4"/>
+      <circle cx="280" cy="35" r="6" fill="#f4b942" opacity="0.4"/>
+    </svg>`,
+    david_covenant: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a1628"/>
+      <rect x="0" y="0" width="320" height="160" fill="#0a0a1e"/>
+      <circle cx="160" cy="80" r="50" fill="#f4b942" opacity="0.08"/>
+      <circle cx="160" cy="80" r="30" fill="#f4b942" opacity="0.12"/>
+      <circle cx="160" cy="80" r="15" fill="#f4b942" opacity="0.2"/>
+      <path d="M160 20 L160 140" stroke="#f4b942" stroke-width="1" opacity="0.3" stroke-dasharray="4 4"/>
+      <path d="M100 50 L220 110" stroke="#f4b942" stroke-width="1" opacity="0.2" stroke-dasharray="4 4"/>
+      <path d="M220 50 L100 110" stroke="#f4b942" stroke-width="1" opacity="0.2" stroke-dasharray="4 4"/>
+      <circle cx="160" cy="80" r="6" fill="#f4b942" opacity="0.8"/>
+      <circle cx="60" cy="30" r="2" fill="white" opacity="0.8"/>
+      <circle cx="260" cy="25" r="2" fill="white" opacity="0.7"/>
+      <circle cx="40" cy="70" r="2" fill="white" opacity="0.6"/>
+      <circle cx="290" cy="60" r="2" fill="white" opacity="0.8"/>
+      <rect x="0" y="130" width="320" height="30" fill="#1a0a00"/>
+      <circle cx="160" cy="130" r="8" fill="#e8b45a" opacity="0.7"/>
+      <rect x="156" y="138" width="8" height="20" fill="#8b6914" opacity="0.7"/>
+    </svg>`,
+    david_sin: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a0a1a"/>
+      <rect x="0" y="100" width="320" height="60" fill="#1a1428"/>
+      <rect x="100" y="20" width="120" height="80" fill="#2d2418"/>
+      <rect x="100" y="20" width="120" height="10" fill="#3d3428"/>
+      <rect x="95" y="90" width="130" height="10" fill="#3d3428"/>
+      <rect x="148" y="30" width="24" height="60" fill="#1a1428"/>
+      <circle cx="220" cy="50" r="15" fill="#e8b45a" opacity="0.8"/>
+      <rect x="212" y="65" width="16" height="30" fill="#8b6914" opacity="0.8"/>
+      <circle cx="160" cy="25" r="10" fill="#e8b45a"/>
+      <rect x="156" y="35" width="8" height="25" fill="#2d1a00"/>
+      <circle cx="100" cy="120" r="2" fill="white" opacity="0.6"/>
+      <circle cx="200" cy="115" r="2" fill="white" opacity="0.5"/>
+      <circle cx="270" cy="110" r="2" fill="white" opacity="0.7"/>
+    </svg>`,
+    david_repentance: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a1428"/>
+      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
+      <ellipse cx="160" cy="90" rx="80" ry="60" fill="#1a0a28" opacity="0.8"/>
+      <circle cx="160" cy="60" r="25" fill="#1a3d6e" opacity="0.4"/>
+      <circle cx="160" cy="60" r="15" fill="#2a5aae" opacity="0.3"/>
+      <rect x="155" y="85" width="10" height="40" fill="#e8b45a" opacity="0.8"/>
+      <circle cx="160" cy="80" r="9" fill="#f5e6c8" opacity="0.9"/>
+      <path d="M148 88 Q160 100 172 88" stroke="#e8b45a" stroke-width="2" fill="none" opacity="0.6"/>
+      <path d="M155 88 L148 102" stroke="#e8b45a" stroke-width="2" opacity="0.6"/>
+      <path d="M165 88 L172 102" stroke="#e8b45a" stroke-width="2" opacity="0.6"/>
+      <circle cx="148" cy="65" r="3" fill="#4a8aee" opacity="0.8"/>
+      <circle cx="172" cy="68" r="3" fill="#4a8aee" opacity="0.8"/>
+      <circle cx="155" cy="58" r="2" fill="#4a8aee" opacity="0.6"/>
+      <text x="160" y="148" text-anchor="middle" fill="#f4b942" font-size="9" opacity="0.7">Have mercy on me, O God</text>
+    </svg>`,
+    david_psalm23: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#87CEEB"/>
+      <rect x="0" y="100" width="320" height="60" fill="#4a8a30"/>
+      <ellipse cx="160" cy="100" rx="140" ry="30" fill="#3a7a20"/>
+      <ellipse cx="60" cy="105" rx="50" ry="18" fill="#3a6a20"/>
+      <ellipse cx="260" cy="105" rx="50" ry="18" fill="#3a6a20"/>
+      <path d="M40 105 Q80 90 120 100 Q160 110 200 100 Q240 90 280 105" fill="#5aaa38" opacity="0.6"/>
+      <circle cx="200" cy="55" r="18" fill="#f9e04b" opacity="0.7"/>
+      <rect x="120" y="110" width="5" height="20" fill="#6a4a10"/>
+      <ellipse cx="122" cy="108" rx="12" ry="8" fill="#2d5a1a"/>
+      <circle cx="60" cy="112" r="8" fill="#f5f5f5"/>
+      <circle cx="80" cy="115" r="7" fill="#f5f5f5"/>
+      <circle cx="45" cy="115" r="7" fill="#f5f5f5"/>
+      <circle cx="240" cy="112" r="8" fill="#f5f5f5"/>
+      <circle cx="260" cy="115" r="7" fill="#f5f5f5"/>
+      <path d="M60 95 Q100 80 140 90" stroke="#5aaa38" stroke-width="3" fill="none"/>
+    </svg>`,
+    david_legacy: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f4b942" stop-opacity="0.4"/><stop offset="100%" stop-color="#f4b942" stop-opacity="0"/></radialGradient></defs>
+      <rect width="320" height="160" fill="#0a0a1e"/>
+      <circle cx="160" cy="70" r="80" fill="url(#glow)"/>
+      <circle cx="40" cy="20" r="2" fill="white" opacity="0.8"/>
+      <circle cx="80" cy="10" r="2" fill="white" opacity="0.7"/>
+      <circle cx="130" cy="15" r="3" fill="white" opacity="0.9"/>
+      <circle cx="200" cy="8" r="2" fill="white" opacity="0.8"/>
+      <circle cx="250" cy="18" r="2" fill="white" opacity="0.7"/>
+      <circle cx="290" cy="10" r="3" fill="white" opacity="0.8"/>
+      <circle cx="20" cy="60" r="2" fill="white" opacity="0.6"/>
+      <circle cx="300" cy="50" r="2" fill="white" opacity="0.7"/>
+      <path d="M80 130 Q130 80 160 70 Q190 80 240 130" fill="#2d1a00" opacity="0.8"/>
+      <circle cx="160" cy="65" r="12" fill="#f4b942" opacity="0.9"/>
+      <path d="M152 57 L156 46 L160 54 L164 46 L168 57" fill="#f4b942" stroke="#c8901a" stroke-width="1.5"/>
+      <rect x="0" y="140" width="320" height="20" fill="#1a0a00"/>
+      <text x="160" y="155" text-anchor="middle" fill="#f4b942" font-size="9" opacity="0.7">A man after God's own heart</text>
+    </svg>`,
+    burning_bush: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a0a00"/>
+      <rect x="0" y="110" width="320" height="50" fill="#2d1a00"/>
+      <ellipse cx="80" cy="120" rx="50" ry="15" fill="#3d2800"/>
+      <ellipse cx="240" cy="125" rx="40" ry="12" fill="#3d2800"/>
+      <ellipse cx="160" cy="95" rx="35" ry="25" fill="#8b4513"/>
+      <ellipse cx="135" cy="105" rx="20" ry="18" fill="#7a3a10"/>
+      <ellipse cx="185" cy="105" rx="20" ry="18" fill="#7a3a10"/>
+      <ellipse cx="160" cy="70" rx="20" ry="35" fill="#f4b942" opacity="0.9"/>
+      <ellipse cx="145" cy="80" rx="12" ry="25" fill="#e8701a" opacity="0.8"/>
+      <ellipse cx="175" cy="80" rx="12" ry="25" fill="#e8701a" opacity="0.8"/>
+      <ellipse cx="160" cy="60" rx="10" ry="20" fill="#fff0a0" opacity="0.9"/>
+      <ellipse cx="150" cy="65" rx="7" ry="16" fill="#fff0a0" opacity="0.7"/>
+      <ellipse cx="170" cy="65" rx="7" ry="16" fill="#fff0a0" opacity="0.7"/>
+      <ellipse cx="160" cy="85" rx="50" ry="40" fill="#f4b942" opacity="0.1"/>
+      <rect x="240" y="90" width="8" height="30" fill="#8b6914"/>
+      <circle cx="244" cy="85" r="8" fill="#e8b45a"/>
+      <rect x="252" y="88" width="3" height="35" fill="#6b4e10" transform="rotate(10 252 88)"/>
+    </svg>`,
+    moses_birth: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a1a2e"/>
+      <rect x="0" y="100" width="320" height="60" fill="#1a4a1a"/>
+      <rect x="0" y="95" width="320" height="30" fill="#1a3d6e" opacity="0.8"/>
+      <path d="M0 100 Q40 95 80 100 Q120 105 160 100 Q200 95 240 100 Q280 105 320 100" stroke="#3a6aae" stroke-width="2" fill="none" opacity="0.6"/>
+      <rect x="40" y="70" width="4" height="40" fill="#4a7a20"/>
+      <rect x="50" y="65" width="3" height="45" fill="#4a7a20"/>
+      <rect x="60" y="72" width="4" height="38" fill="#4a7a20"/>
+      <ellipse cx="42" cy="68" rx="6" ry="3" fill="#6a9a30"/>
+      <ellipse cx="51" cy="63" rx="5" ry="2.5" fill="#6a9a30"/>
+      <ellipse cx="62" cy="70" rx="6" ry="3" fill="#6a9a30"/>
+      <ellipse cx="160" cy="100" rx="30" ry="12" fill="#8b6914"/>
+      <rect x="132" y="88" width="56" height="15" fill="#a07820" rx="5"/>
+      <ellipse cx="160" cy="88" rx="28" ry="8" fill="#8b6914"/>
+      <circle cx="160" cy="86" r="7" fill="#f5e6c8"/>
+      <rect x="270" y="80" width="6" height="28" fill="#c4845a"/>
+      <circle cx="273" cy="75" r="7" fill="#e8b45a"/>
+      <circle cx="80" cy="20" r="2" fill="white" opacity="0.8"/>
+      <circle cx="200" cy="15" r="2" fill="white" opacity="0.7"/>
+      <circle cx="280" cy="30" r="2" fill="white" opacity="0.8"/>
+    </svg>`,
+    pharaoh_court: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a1000"/>
+      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
+      <rect x="40" y="20" width="20" height="110" fill="#8b7520"/>
+      <rect x="260" y="20" width="20" height="110" fill="#8b7520"/>
+      <rect x="100" y="30" width="16" height="100" fill="#7a6418"/>
+      <rect x="204" y="30" width="16" height="100" fill="#7a6418"/>
+      <rect x="135" y="50" width="50" height="70" fill="#c8a84b"/>
+      <rect x="130" y="45" width="60" height="15" fill="#d4b850"/>
+      <circle cx="160" cy="35" r="15" fill="#e8c860"/>
+      <rect x="148" y="55" width="24" height="40" fill="#1a1000"/>
+      <circle cx="160" cy="50" r="10" fill="#e8b45a"/>
+      <path d="M150 40 L155 20 L165 20 L170 40" fill="#f4b942"/>
+      <rect x="60" y="75" width="8" height="40" fill="#8b7520"/>
+      <circle cx="64" cy="70" r="9" fill="#e8b45a"/>
+      <rect x="70" y="85" width="3" height="30" fill="#6b4e10" transform="rotate(8 70 85)"/>
+      <circle cx="40" cy="30" r="8" fill="#f4b942" opacity="0.4"/>
+      <circle cx="280" cy="30" r="8" fill="#f4b942" opacity="0.4"/>
+    </svg>`,
+    red_sea: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a1628"/>
+      <rect x="0" y="0" width="80" height="160" fill="#1a4a8e" opacity="0.9"/>
+      <path d="M80 0 Q70 40 78 80 Q70 120 80 160" fill="#2a6aae" opacity="0.6"/>
+      <rect x="240" y="0" width="80" height="160" fill="#1a4a8e" opacity="0.9"/>
+      <path d="M240 0 Q250 40 242 80 Q250 120 240 160" fill="#2a6aae" opacity="0.6"/>
+      <rect x="80" y="120" width="160" height="40" fill="#c8a84b"/>
+      <rect x="80" y="115" width="160" height="10" fill="#d4b850"/>
+      <path d="M0 30 Q20 20 40 30 Q60 40 80 30" fill="white" opacity="0.2"/>
+      <path d="M240 50 Q260 40 280 50 Q300 60 320 50" fill="white" opacity="0.2"/>
+      <circle cx="120" cy="110" r="5" fill="#2d1a00"/>
+      <circle cx="140" cy="108" r="5" fill="#2d1a00"/>
+      <circle cx="160" cy="110" r="5" fill="#2d1a00"/>
+      <circle cx="180" cy="108" r="5" fill="#2d1a00"/>
+      <circle cx="200" cy="110" r="5" fill="#2d1a00"/>
+      <rect x="150" y="10" width="20" height="80" fill="#f4b942" opacity="0.3"/>
+      <ellipse cx="160" cy="10" rx="12" ry="20" fill="#f9e04b" opacity="0.6"/>
+    </svg>`,
+    manna: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a2a10"/>
+      <rect x="0" y="120" width="320" height="40" fill="#2d4a18"/>
+      <rect x="0" y="0" width="320" height="80" fill="#2a3a50"/>
+      <ellipse cx="160" cy="80" rx="160" ry="40" fill="#f4b942" opacity="0.15"/>
+      <circle cx="160" cy="80" r="20" fill="#f9e04b" opacity="0.6"/>
+      <circle cx="60" cy="40" r="4" fill="white" opacity="0.8"/>
+      <circle cx="100" cy="30" r="3" fill="white" opacity="0.7"/>
+      <circle cx="140" cy="50" r="4" fill="white" opacity="0.9"/>
+      <circle cx="180" cy="35" r="3" fill="white" opacity="0.7"/>
+      <circle cx="220" cy="45" r="4" fill="white" opacity="0.8"/>
+      <circle cx="260" cy="30" r="3" fill="white" opacity="0.6"/>
+      <circle cx="80" cy="60" r="3" fill="white" opacity="0.8"/>
+      <circle cx="200" cy="65" r="4" fill="white" opacity="0.7"/>
+      <circle cx="40" cy="122" r="5" fill="white" opacity="0.9"/>
+      <circle cx="80" cy="120" r="4" fill="white" opacity="0.8"/>
+      <circle cx="120" cy="123" r="5" fill="white" opacity="0.9"/>
+      <circle cx="160" cy="121" r="4" fill="white" opacity="0.8"/>
+      <circle cx="200" cy="122" r="5" fill="white" opacity="0.9"/>
+      <circle cx="240" cy="120" r="4" fill="white" opacity="0.8"/>
+      <circle cx="280" cy="122" r="5" fill="white" opacity="0.9"/>
+      <circle cx="100" cy="112" r="6" fill="#e8b45a"/>
+      <rect x="96" y="118" width="8" height="15" fill="#8b6914"/>
+      <circle cx="200" cy="112" r="6" fill="#e8b45a"/>
+      <rect x="196" y="118" width="8" height="15" fill="#8b6914"/>
+    </svg>`,
+    mount_sinai: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a0a1e"/>
+      <rect x="0" y="0" width="320" height="100" fill="#1a1428"/>
+      <path d="M160 10 L145 50 L155 50 L140 90" stroke="#f9e04b" stroke-width="3" fill="none" opacity="0.9"/>
+      <path d="M200 5 L188 40 L196 40 L185 75" stroke="#f9e04b" stroke-width="2" fill="none" opacity="0.6"/>
+      <polygon points="80,160 160,40 240,160" fill="#2d2010"/>
+      <polygon points="100,160 160,55 220,160" fill="#3d2d18"/>
+      <ellipse cx="160" cy="50" rx="40" ry="20" fill="#2a2030" opacity="0.8"/>
+      <ellipse cx="160" cy="40" rx="30" ry="15" fill="#3a3048" opacity="0.8"/>
+      <ellipse cx="160" cy="35" rx="20" ry="12" fill="#f4b942" opacity="0.3"/>
+      <ellipse cx="160" cy="38" rx="15" ry="20" fill="#f4b942" opacity="0.4"/>
+      <ellipse cx="160" cy="30" rx="8" ry="12" fill="#f9e04b" opacity="0.6"/>
+      <rect x="0" y="140" width="320" height="20" fill="#2d4a18"/>
+      <circle cx="80" cy="148" r="4" fill="#8b6914"/>
+      <circle cx="120" cy="146" r="4" fill="#8b6914"/>
+      <circle cx="160" cy="148" r="4" fill="#8b6914"/>
+      <circle cx="200" cy="146" r="4" fill="#8b6914"/>
+      <circle cx="240" cy="148" r="4" fill="#8b6914"/>
+    </svg>`,
+    golden_calf: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#1a0a00"/>
+      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
+      <ellipse cx="80" cy="90" rx="15" ry="30" fill="#f4b942" opacity="0.5"/>
+      <ellipse cx="240" cy="90" rx="15" ry="30" fill="#f4b942" opacity="0.5"/>
+      <ellipse cx="80" cy="75" rx="8" ry="16" fill="#f9e04b" opacity="0.7"/>
+      <ellipse cx="240" cy="75" rx="8" ry="16" fill="#f9e04b" opacity="0.7"/>
+      <rect x="130" y="80" width="60" height="40" fill="#8b6914"/>
+      <rect x="125" y="75" width="70" height="12" fill="#a07820"/>
+      <ellipse cx="160" cy="68" rx="22" ry="16" fill="#f4b942"/>
+      <circle cx="148" cy="62" r="10" fill="#f4b942"/>
+      <circle cx="172" cy="62" r="10" fill="#f4b942"/>
+      <path d="M142 54 L136 44 L144 52" fill="#f4b942"/>
+      <path d="M166 54 L176 44 L168 52" fill="#f4b942"/>
+      <ellipse cx="160" cy="70" rx="40" ry="30" fill="#f4b942" opacity="0.15"/>
+      <circle cx="90" cy="115" r="5" fill="#5a3010"/>
+      <circle cx="115" cy="112" r="5" fill="#5a3010"/>
+      <circle cx="205" cy="115" r="5" fill="#5a3010"/>
+      <circle cx="230" cy="112" r="5" fill="#5a3010"/>
+    </svg>`,
+    wilderness: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#c8a060"/>
+      <ellipse cx="80" cy="130" rx="100" ry="40" fill="#d4aa70"/>
+      <ellipse cx="240" cy="140" rx="120" ry="45" fill="#c89850"/>
+      <ellipse cx="160" cy="120" rx="80" ry="30" fill="#b88840"/>
+      <circle cx="280" cy="30" r="25" fill="#f9e04b" opacity="0.9"/>
+      <circle cx="280" cy="30" r="18" fill="#f9e04b"/>
+      <path d="M0 100 Q40 95 80 100 Q120 105 160 100 Q200 95 240 100 Q280 105 320 100" stroke="#f4b942" stroke-width="1" fill="none" opacity="0.4"/>
+      <polygon points="140,95 160,70 180,95" fill="#8b6914"/>
+      <polygon points="145,95 160,73 175,95" fill="#a07820"/>
+      <circle cx="60" cy="110" r="5" fill="#3a2800"/>
+      <rect x="56" y="115" width="8" height="14" fill="#3a2800"/>
+      <circle cx="100" cy="105" r="5" fill="#3a2800"/>
+      <rect x="96" y="110" width="8" height="14" fill="#3a2800"/>
+      <rect x="250" y="90" width="8" height="30" fill="#5a4820"/>
+      <ellipse cx="254" cy="90" rx="8" ry="12" fill="#6a5828"/>
+    </svg>`,
+    mount_nebo: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="sunset2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f4b942" stop-opacity="0.8"/><stop offset="100%" stop-color="#e87020" stop-opacity="0.4"/></linearGradient></defs>
+      <rect width="320" height="160" fill="#1a0a28"/>
+      <ellipse cx="160" cy="160" rx="200" ry="100" fill="url(#sunset2)"/>
+      <rect x="0" y="100" width="320" height="60" fill="#2d4a18" opacity="0.8"/>
+      <ellipse cx="80" cy="100" rx="60" ry="20" fill="#3a5a20"/>
+      <ellipse cx="220" cy="95" rx="70" ry="22" fill="#3a5a20"/>
+      <path d="M100 120 Q160 110 220 120" stroke="#4a7ab0" stroke-width="4" fill="none" opacity="0.6"/>
+      <polygon points="0,160 60,60 120,160" fill="#2d1a00"/>
+      <polygon points="10,160 60,75 110,160" fill="#3d2810"/>
+      <circle cx="62" cy="55" r="7" fill="#1a0a00"/>
+      <rect x="58" y="62" width="8" height="20" fill="#1a0a00"/>
+      <rect x="68" y="58" width="2.5" height="25" fill="#1a0a00" transform="rotate(8 68 58)"/>
+      <circle cx="200" cy="20" r="2" fill="white" opacity="0.8"/>
+      <circle cx="250" cy="35" r="2" fill="white" opacity="0.7"/>
+      <circle cx="280" cy="15" r="2" fill="white" opacity="0.9"/>
+      <circle cx="300" cy="45" r="2" fill="white" opacity="0.6"/>
     </svg>`,
     commission: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
       <rect width="320" height="160" fill="#87CEEB"/>
