@@ -5700,6 +5700,10 @@ function renderTriviaSetup() {
   document.getElementById('startTriviaBtn').onclick = () => startTrivia(selectedDiff);
 }
 
+// Track recently seen trivia question IDs to avoid repeats
+const _seenTriviaIds = { easy: [], medium: [], hard: [], endless: [] };
+const MAX_SEEN = 30; // remember last 30 questions per difficulty
+
 async function startTrivia(diff) {
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading questions…</div></div>`;
@@ -5708,31 +5712,82 @@ async function startTrivia(diff) {
   let questions = [];
 
   try {
-    // Try to fetch from Supabase first
+    // Fetch a larger pool then pick randomly client-side
+    // This avoids relying on Supabase order=random() which may not work
     const dbDiff = isEndless ? '' : `&difficulty=eq.${diff}`;
-    const rows = await sbFetch(`bible_trivia_questions?select=*${dbDiff}&order=random()&limit=${isEndless ? 60 : 20}`);
-    if(rows && rows.length >= 10) {
-      questions = shuffleTrivia(rows).slice(0, isEndless ? rows.length : 10).map(r => ({
+    const limit = isEndless ? 120 : 60;
+    const rows = await sbFetch(`bible_trivia_questions?select=*${dbDiff}&limit=${limit}`);
+
+    if(rows && rows.length >= 5) {
+      // Filter out recently seen questions
+      const seenKey = isEndless ? 'endless' : diff;
+      const seen = _seenTriviaIds[seenKey] || [];
+      let pool = rows.filter(r => !seen.includes(r.id));
+
+      // If we've seen most questions, reset the seen list
+      if(pool.length < 10) {
+        _seenTriviaIds[seenKey] = [];
+        pool = rows;
+      }
+
+      // Shuffle and pick
+      const shuffled = shuffleTrivia(pool);
+      const picked = shuffled.slice(0, isEndless ? shuffled.length : 10);
+
+      // Remember these IDs
+      const newSeen = [...seen, ...picked.map(r => r.id)].slice(-MAX_SEEN);
+      _seenTriviaIds[seenKey] = newSeen;
+
+      questions = picked.map(r => ({
         q: r.question, a: r.answer,
         choices: typeof r.choices === 'string' ? JSON.parse(r.choices) : r.choices,
-        diff: r.difficulty, ref: r.reference || ''
+        diff: r.difficulty, ref: r.reference || '',
+        id: r.id
       }));
     }
   } catch(e) { console.log('DB trivia fetch failed, using local:', e); }
 
-  // Fallback to local questions if DB fails or not enough questions
-  if(questions.length < 10) {
-    const pool = isEndless ? BIBLE_TRIVIA : BIBLE_TRIVIA.filter(q => q.diff === diff);
-    questions = shuffleTrivia(pool).slice(0, isEndless ? pool.length : 10);
+  // Fallback to local questions if DB fails or not enough
+  if(questions.length < 5) {
+    const seenKey = isEndless ? 'endless' : diff;
+    const seen = _seenTriviaIds[seenKey] || [];
+    const localPool = isEndless ? BIBLE_TRIVIA : BIBLE_TRIVIA.filter(q => q.diff === diff);
+
+    // Filter seen, reset if needed
+    let available = localPool.filter((q, i) => !seen.includes(`local_${i}`));
+    if(available.length < 5) {
+      _seenTriviaIds[seenKey] = [];
+      available = localPool;
+    }
+
+    const shuffled = shuffleTrivia(available);
+    const picked = shuffled.slice(0, isEndless ? shuffled.length : 10);
+    const indices = picked.map(q => `local_${localPool.indexOf(q)}`);
+    _seenTriviaIds[seenKey] = [...seen, ...indices].slice(-MAX_SEEN);
+    questions = picked;
   }
 
-  triviaSession = { difficulty:diff, questions, current:0, score:0, correct:0, wrong:0, startTime:Date.now(), mode:isEndless?'endless':'normal', _scoreSubmitted:false, _questionStart:Date.now() };
+  triviaSession = {
+    difficulty: diff,
+    questions,
+    current: 0,
+    score: 0,
+    correct: 0,
+    wrong: 0,
+    startTime: Date.now(),
+    mode: isEndless ? 'endless' : 'normal',
+    _scoreSubmitted: false,
+    _questionStart: Date.now()
+  };
   renderTriviaQuestion();
 }
 
 function shuffleTrivia(arr) {
-  const a=[...arr];
-  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  const a = [...arr];
+  for(let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
   return a;
 }
 
