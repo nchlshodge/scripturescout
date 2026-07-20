@@ -4518,31 +4518,47 @@ function checkAllStoryBlanks() {
 const _submittedScores = new Set();
 
 async function submitGameScore(table, data) {
+  if(!currentUser || !authToken) return;
+
   // Guard against double submissions
   const key = `${table}_${data.score}_${data.difficulty}_${Date.now().toString().slice(0,-3)}`;
-  if(_submittedScores.has(key)) {
-    console.log('Duplicate score submission blocked:', key);
-    return;
-  }
+  if(_submittedScores.has(key)) return;
   _submittedScores.add(key);
-  // Clear old keys after 10 seconds
   setTimeout(() => _submittedScores.delete(key), 10000);
 
   try {
+    // First check if user already has a score for this difficulty
+    const existing = await sbFetch(`${table}?user_id=eq.${currentUser.id}&difficulty=eq.${data.difficulty}&select=id,score&limit=1`);
+
     const headers = {
       'apikey': SUPABASE_KEY,
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`,
       'Prefer': 'return=minimal'
     };
-    if(authToken) headers['Authorization'] = `Bearer ${authToken}`;
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-      method: 'POST', headers, body: JSON.stringify(data)
-    });
-    if(res.ok) showScoreToast(data.score, table, data.difficulty);
+
+    if(existing && existing.length > 0) {
+      // Only update if new score is higher
+      if(data.score <= existing[0].score) {
+        showScoreToast(data.score, table, data.difficulty, false);
+        return;
+      }
+      // Update existing row with better score
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing[0].id}`, {
+        method: 'PATCH', headers, body: JSON.stringify(data)
+      });
+      if(res.ok) showScoreToast(data.score, table, data.difficulty, true);
+    } else {
+      // Insert new row
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+        method: 'POST', headers, body: JSON.stringify(data)
+      });
+      if(res.ok) showScoreToast(data.score, table, data.difficulty, false);
+    }
   } catch(e) { console.error('Score submit failed:', e); }
 }
 
-function showScoreToast(score, table, difficulty) {
+function showScoreToast(score, table, difficulty, isPersonalBest=false) {
   const toast = document.createElement('div');
   toast.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--teal);border-radius:12px;padding:10px 20px;font-size:0.85rem;font-weight:600;color:var(--teal);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;cursor:pointer;`;
   toast.textContent = `🏆 Score of ${score.toLocaleString()} submitted! Tap to view leaderboard`;
