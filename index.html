@@ -8926,8 +8926,8 @@ async function renderProfile(userId=null, username=null) {
               <div class="profile-stat-label">Best Score</div>
             </div>
             <div class="profile-stat">
-              <div class="profile-stat-val">${streak.freeze_tokens||0}❄️</div>
-              <div class="profile-stat-label">Freeze Tokens</div>
+              <div class="profile-stat-val">${streak.freeze_tokens||0}🕊️</div>
+              <div class="profile-stat-label">Sabbath Rests</div>
             </div>
             <div class="profile-stat">
               <div class="profile-stat-val">${earnedBadges.size}</div>
@@ -9486,16 +9486,16 @@ async function updateStreak(bonusDay=false) {
 
   let newStreak = streak.current_streak;
   let newTokens = streak.freeze_tokens;
-  let usedFreeze = false;
+  let usedSabbath = false;
 
   if(lastPlayed === yesterday) {
     // Consecutive day
     newStreak++;
   } else if(lastPlayed === twoDaysAgo && streak.freeze_tokens > 0) {
-    // Missed one day but has freeze token
+    // Missed one day but has Sabbath Rest
     newStreak++;
     newTokens = Math.max(0, newTokens - 1);
-    usedFreeze = true;
+    usedSabbath = true;
   } else if(!lastPlayed) {
     // First time
     newStreak = 1;
@@ -9505,8 +9505,8 @@ async function updateStreak(bonusDay=false) {
     newTokens = 0;
   }
 
-  // Award freeze token every 7 days
-  if(newStreak % 7 === 0 && newStreak > 0) {
+  // Award Sabbath Rest every 7 days
+  if(newStreak % 5 === 0 && newStreak > 0) {
     newTokens = Math.min(3, newTokens + 1);
   }
 
@@ -9523,8 +9523,8 @@ async function updateStreak(bonusDay=false) {
   });
 
   // Show milestone notifications
-  if(usedFreeze) { playStreak(); showStreakToast(`❄️ Freeze token used! Streak protected.`); }
-  else if(newStreak % 7 === 0 && newTokens > streak.freeze_tokens) { playMilestone(); showStreakToast(`🎉 ${newStreak} day streak! ❄️ Freeze token earned!`); }
+  if(usedSabbath) { playStreak(); showStreakToast(`🕊️ Sabbath Rest used! Streak protected.`); }
+  else if(newStreak % 5 === 0 && newTokens > streak.freeze_tokens) { playMilestone(); showStreakToast(`🎉 ${newStreak} day streak! 🕊️ Sabbath Rest earned!`); }
   else if([3,7,14,30,50,100].includes(newStreak)) { playMilestone(); showStreakToast(`🔥 ${newStreak} day streak! Keep it up!`); }
 }
 
@@ -9814,7 +9814,7 @@ function getStreakDisplay() {
   const atRisk = last_played_date === yesterday && !playedToday;
 
   const tokens = [0,1,2].map(i =>
-    `<span class="streak-token ${i < freeze_tokens ? '' : 'empty'}">❄️</span>`
+    `<span class="streak-token ${i < freeze_tokens ? '' : 'empty'}">🕊️</span>`
   ).join('');
 
   return `
@@ -9827,15 +9827,15 @@ function getStreakDisplay() {
       </div>
       <div>
         <div class="streak-tokens">${tokens}</div>
-        <div style="font-size:0.68rem;color:var(--text-muted);text-align:right;margin-top:2px;">freeze tokens</div>
+        <div style="font-size:0.68rem;color:var(--text-muted);text-align:right;margin-top:2px;">Sabbath Rests</div>
       </div>
     </div>`;
 }
 
-async function useFreeze() {
+async function useSabbathRest() {
   if(!currentStreak || currentStreak.freeze_tokens <= 0) return;
   await patchStreak({ freeze_tokens: currentStreak.freeze_tokens - 1 });
-  showStreakToast('❄️ Freeze token used!');
+  showStreakToast('🕊️ Sabbath Rest used!');
 }
 
 // ═══════════════════════════════════════
