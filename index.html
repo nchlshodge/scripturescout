@@ -8874,25 +8874,25 @@ async function renderProfile(userId=null, username=null) {
   const profileUsername = username || currentUsername || 'Scout';
 
   // Fetch data in parallel
-  const [streakRows, recentScouts, recentMemory, recentMIA, recentTrack] = await Promise.all([
+  const [streakRows, recentScouts, recentTrivia, recentMIA, recentTrack] = await Promise.all([
     sbFetch(`streaks?user_id=eq.${profileId}&select=*&limit=1`),
     sbFetch(`leaderboard?user_id=eq.${profileId}&order=created_at.desc&limit=3&select=score,difficulty,created_at`),
-    sbFetch(`leaderboard_memory?user_id=eq.${profileId}&order=created_at.desc&limit=2&select=score,difficulty,created_at`),
+    sbFetch(`leaderboard_trivia?user_id=eq.${profileId}&order=created_at.desc&limit=2&select=score,difficulty,created_at`),
     sbFetch(`leaderboard_mia?user_id=eq.${profileId}&order=created_at.desc&limit=2&select=score,difficulty,created_at`),
     sbFetch(`leaderboard_track?user_id=eq.${profileId}&order=created_at.desc&limit=2&select=score,difficulty,created_at`),
   ]);
 
   const streak = streakRows[0] || {};
   const allScores = [
-    ...recentScouts.map(s=>({...s,game:'scout',icon:'📖',name:'Scripture Scout'})),
-    ...recentTrivia.map(s=>({...s,game:'trivia',icon:'📚',name:'Bible Trivia'})),
-    ...recentMIA.map(s=>({...s,game:'mia',icon:'✏️',name:'Missing in Action'})),
-    ...recentTrack.map(s=>({...s,game:'track',icon:'🎯',name:'Track It Down'})),
+    ...recentScouts.map(s=>({...s,game:'scout',name:'Scripture Scout'})),
+    ...recentTrivia.map(s=>({...s,game:'trivia',name:'Bible Trivia'})),
+    ...recentMIA.map(s=>({...s,game:'mia',name:'Missing in Action'})),
+    ...recentTrack.map(s=>({...s,game:'track',name:'Track It Down'})),
   ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,8);
 
   const stats = {
     games: (streak.total_days_played || 0),
-    best: Math.max(...[...recentScouts,...recentMemory,...recentMIA,...recentTrack].map(s=>s.score||0), 0),
+    best: Math.max(...[...recentScouts,...recentTrivia,...recentMIA,...recentTrack].map(s=>s.score||0), 0),
     streak: streak.longest_streak || 0
   };
 
