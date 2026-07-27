@@ -121,7 +121,12 @@
   /* Card */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 0 0 1px rgba(74,124,89,0.06), 0 20px 40px rgba(0,0,0,0.5); width: 100%; max-width: 560px; padding: 28px 24px 22px; }
   .rope-card { border-radius:16px; background:var(--surface) padding-box, repeating-linear-gradient(45deg,#9b7520 0,#9b7520 4px,#d4aa50 4px,#d4aa50 8px,#b08830 8px,#b08830 12px,#d4aa50 12px,#d4aa50 16px) border-box; border:3px solid transparent; padding:14px 16px; margin-bottom:12px; }
-  .rope-card-green { border-radius:18px; background:#1c3d12 padding-box, repeating-linear-gradient(45deg,#c4a030 0,#c4a030 4px,#f0c850 4px,#f0c850 8px,#c4a030 8px,#c4a030 12px,#f0c850 12px,#f0c850 16px) border-box; border:4px solid transparent; padding:18px; margin-bottom:12px; position:relative; overflow:hidden; }
+  .rope-card-green { border-radius:18px; overflow:hidden; margin-bottom:12px; border:3px solid #c4a030; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
+  .rope-card-green-header { background:linear-gradient(135deg,#7a3810,#5a2808); padding:14px 18px; display:flex; align-items:center; justify-content:space-between; }
+  .rope-card-green-body { background:#1e4a10; padding:14px 16px; position:relative; overflow:hidden; }
+  .dark-mode .rope-card-green { border-color:#8a6018; }
+  .dark-mode .rope-card-green-header { background:linear-gradient(135deg,#5a2808,#3a1804); }
+  .dark-mode .rope-card-green-body { background:#162e0a; }
   .rope-divider { display:flex; align-items:center; gap:10px; margin:14px 0 10px; color:#6b4a10; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.14em; }
   .rope-divider-line { flex:1; height:6px; background:repeating-linear-gradient(90deg,#9b7520 0,#9b7520 4px,#d4aa50 4px,#d4aa50 8px,#b08830 8px,#b08830 12px,#d4aa50 12px,#d4aa50 16px); border-radius:3px; opacity:0.6; }
 
@@ -908,10 +913,10 @@ async function showHome() {
   const completedCount = dailyGames.filter(g => isDailyCompleted(g)).length;
   const dailyPct = Math.round((completedCount / 4) * 100);
   const gameInfo = [
-    { id:'scout', icon:'📖', name:'Scout' },
-    { id:'trivia', icon:'📚', name:'Trivia' },
-    { id:'mia', icon:'✏️', name:'MIA' },
-    { id:'track', icon:'🎯', name:'Track' }
+    { id:'scout', name:'Scout' },
+    { id:'trivia', name:'Trivia' },
+    { id:'mia', name:'MIA' },
+    { id:'track', name:'Track' }
   ];
 
   // Time until midnight
@@ -948,29 +953,37 @@ async function showHome() {
 
       <!-- 4. Daily Challenge Hero -->
       <div class="rope-card-green" id="homeDailyBtn" style="cursor:pointer;">
-        <div style="position:absolute;right:12px;top:10px;font-size:48px;opacity:0.08;">🧭</div>
-        <div style="color:#90d060;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:3px;">⚡ Daily Challenge</div>
-        <div id="homeDailyTheme" style="color:#fffaee;font-size:1.15rem;font-weight:700;font-family:Georgia,serif;margin-bottom:12px;">Today's Challenge</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-          <div style="flex:1;height:7px;background:rgba(255,255,255,0.12);border-radius:4px;overflow:hidden;">
-            <div style="height:100%;background:#90d060;border-radius:4px;width:${dailyPct}%;"></div>
+        <!-- Leather brown header -->
+        <div class="rope-card-green-header">
+          <div>
+            <div style="color:#f4c050;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.14em;font-weight:700;margin-bottom:3px;">⚡ Daily Challenge</div>
+            <div id="homeDailyTheme" style="color:#fff8ee;font-size:1.15rem;font-weight:700;font-family:Georgia,serif;">Today's Challenge</div>
           </div>
-          <div style="color:#90d060;font-size:0.78rem;font-weight:700;">${completedCount} of 4</div>
+          <div style="text-align:right;">
+            <div style="color:#f4c050;font-size:1.5rem;font-weight:800;font-family:Georgia,serif;line-height:1;">${completedCount}</div>
+            <div style="color:#c89060;font-size:0.68rem;">of 4 done</div>
+          </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          ${gameInfo.map(g => {
-            const done = isDailyCompleted(g.id);
-            return `<div style="border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;background:${done ? 'rgba(160,220,100,0.18)' : 'rgba(255,255,255,0.07)'};border:1px solid ${done ? 'rgba(160,220,100,0.45)' : 'rgba(255,255,255,0.12)'};cursor:pointer;">
-              <span style="font-size:22px;">${g.icon}</span>
-              <div style="flex:1;">
-                <div style="color:${done ? '#d8ecc8' : '#a0b890'};font-size:0.82rem;font-weight:700;">${g.name}</div>
-                <div style="color:${done ? '#7ab860' : '#607858'};font-size:0.68rem;margin-top:1px;">${done ? 'Complete' : 'Tap to play'}</div>
-              </div>
-              ${done ? '<span style="color:#90d060;font-size:16px;">✓</span>' : ''}
-            </div>`;
-          }).join('')}
+        <!-- Green body -->
+        <div class="rope-card-green-body">
+          <div style="position:absolute;right:10px;top:8px;font-size:44px;opacity:0.07;">🧭</div>
+          <div style="height:7px;background:rgba(0,0,0,0.2);border-radius:4px;overflow:hidden;margin-bottom:14px;border:1px solid rgba(255,255,255,0.08);">
+            <div style="height:100%;background:linear-gradient(90deg,#c8901a,#f4c050);border-radius:4px;width:${dailyPct}%;transition:width 0.5s;"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            ${gameInfo.map(g => {
+              const done = isDailyCompleted(g.id);
+              return `<div style="border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;background:${done ? 'rgba(100,200,50,0.2)' : 'rgba(255,255,255,0.07)'};border:1.5px solid ${done ? 'rgba(100,200,50,0.5)' : 'rgba(255,255,255,0.15)'};cursor:pointer;">
+                ${getFieldIcon(g.id, 22)}
+                <div style="flex:1;">
+                  <div style="color:${done ? '#d8ffb0' : '#a0c888'};font-size:0.82rem;font-weight:700;">${g.name}</div>
+                  <div style="color:${done ? '#70b840' : '#587848'};font-size:0.68rem;margin-top:1px;">${done ? 'Complete ✓' : 'Tap to play'}</div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+          <div style="color:#60a030;font-size:0.7rem;margin-top:12px;text-align:center;font-weight:600;">⏰ Resets in ${hLeft}h ${mLeft}m</div>
         </div>
-        <div style="color:#6a8850;font-size:0.7rem;margin-top:12px;text-align:center;">⏰ Resets in ${hLeft}h ${mLeft}m</div>
       </div>
 
       <!-- 5. Games Grid -->
@@ -978,16 +991,16 @@ async function showHome() {
       <div class="home-game-grid">
         <!-- Scripture Scout — flagship full width -->
         <div class="home-game-card featured" id="homePlayBtn" style="grid-column:1/-1;background:linear-gradient(135deg,#fffbf0,#fdf0d8);border-color:#c4a97a;border-width:2px;">
-          <div class="home-game-icon">📖</div>
+          ${getFieldIcon('scout', 44)}
           <div style="flex:1;">
             <div style="font-size:0.65rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">FLAGSHIP</div>
             <div class="home-game-name">Scripture Scout</div>
-            <div class="home-game-desc">Guess Testament, Book & Chapter — Easy to Endless</div>
+            <div class="home-game-desc">Navigate the Word — Easy to Endless</div>
           </div>
         </div>
         <!-- Bible Trivia — featured full width -->
         <div class="home-game-card featured" id="homeMemoryBtn" onclick="showBackBtn(true);renderTriviaSetup();" style="grid-column:1/-1;background:linear-gradient(135deg,#fff8f0,#fde8d0);border-color:#8b4513;border-width:2px;">
-          <div class="home-game-icon">📚</div>
+          ${getFieldIcon('trivia', 44)}
           <div style="flex:1;">
             <div style="font-size:0.65rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">NEW</div>
             <div class="home-game-name">Bible Trivia</div>
@@ -996,25 +1009,25 @@ async function showHome() {
         </div>
         <!-- Story Mode — full width -->
         <div class="home-game-card featured" id="homeStoryBtn" style="grid-column:1/-1;border-color:#8b6914;background:rgba(139,105,20,0.05);">
-          <div class="home-game-icon">📜</div>
+          ${getFieldIcon('story', 40)}
           <div style="flex:1;">
             <div class="home-game-name">Story Mode</div>
-            <div class="home-game-desc">20 paths · 212 chapters</div>
+            <div class="home-game-desc">5 paths · 50 chapters · verse + trivia</div>
           </div>
         </div>
         <!-- Small game cards -->
-        <div class="home-game-card" id="homeMiaBtn" onclick="showBackBtn(true);renderFillBlankSetup();">
-          <div class="home-game-icon small">✏️</div>
+        <div class="home-game-card" id="homeMiaBtn" onclick="showBackBtn(true);renderFillBlankSetup();" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;">
+          ${getFieldIcon('mia', 36)}
           <div class="home-game-name">Missing in Action</div>
           <div class="home-game-desc">Fill the blanks</div>
         </div>
-        <div class="home-game-card" id="homeTrackBtn" onclick="showBackBtn(true);renderRefChallengeSetup();">
-          <div class="home-game-icon small">🎯</div>
+        <div class="home-game-card" id="homeTrackBtn" onclick="showBackBtn(true);renderRefChallengeSetup();" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;">
+          ${getFieldIcon('track', 36)}
           <div class="home-game-name">Track It Down</div>
           <div class="home-game-desc">Find the reference</div>
         </div>
-        <div class="home-game-card" id="homeLeaderboardBtn">
-          <div class="home-game-icon small">🏆</div>
+        <div class="home-game-card" id="homeLeaderboardBtn" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;">
+          ${getFieldIcon('leaderboard', 36)}
           <div class="home-game-name">Leaderboard</div>
           <div class="home-game-desc">Top scores</div>
         </div>
@@ -9623,6 +9636,121 @@ function stopSpeech() {
   _ttsSpeaking = false;
 }
 
+
+// ═══════════════════════════════════════
+// RANDY'S FIELD KIT — Hand Drawn SVG Icons
+// ═══════════════════════════════════════
+function getFieldIcon(game, size=40) {
+  const s = size;
+  const icons = {
+    scout: `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="20" fill="#f5e8c8" stroke="#7a4a08" stroke-width="2.5"/>
+      <circle cx="24" cy="24" r="14" fill="none" stroke="#c4a060" stroke-width="1.5" stroke-dasharray="2 4"/>
+      <circle cx="24" cy="24" r="8" fill="none" stroke="#c4a060" stroke-width="1"/>
+      <path d="M24 6 L27 18 L24 22 L21 18 Z" fill="#c8401a" stroke="#8b2a0a" stroke-width="1"/>
+      <path d="M24 42 L27 30 L24 26 L21 30 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1"/>
+      <path d="M42 24 L30 27 L26 24 L30 21 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1"/>
+      <path d="M6 24 L18 27 L22 24 L18 21 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1"/>
+      <line x1="38" y1="10" x2="35" y2="13" stroke="#c4a060" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="10" y1="10" x2="13" y2="13" stroke="#c4a060" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="38" y1="38" x2="35" y2="35" stroke="#c4a060" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="10" y1="38" x2="13" y2="35" stroke="#c4a060" stroke-width="1.5" stroke-linecap="round"/>
+      <text x="24" y="5" text-anchor="middle" font-size="6" fill="#8b4513" font-weight="bold" font-family="Georgia">N</text>
+      <text x="24" y="46" text-anchor="middle" font-size="6" fill="#8b4513" font-weight="bold" font-family="Georgia">S</text>
+      <text x="46" y="26" text-anchor="middle" font-size="6" fill="#8b4513" font-weight="bold" font-family="Georgia">E</text>
+      <text x="2" y="26" text-anchor="middle" font-size="6" fill="#8b4513" font-weight="bold" font-family="Georgia">W</text>
+      <circle cx="24" cy="24" r="3.5" fill="#2e1c00"/>
+      <circle cx="24" cy="24" r="1.5" fill="#c8941a"/>
+    </svg>`,
+    trivia: `<svg width="${s}" height="${s}" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="22" width="32" height="8" rx="3" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/>
+      <rect x="10" y="21" width="4" height="10" rx="1.5" fill="#d4a830" stroke="#7a4a08" stroke-width="1"/>
+      <rect x="20" y="21" width="4" height="10" rx="1.5" fill="#d4a830" stroke="#7a4a08" stroke-width="1"/>
+      <rect x="34" y="23" width="6" height="6" rx="2" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/>
+      <ellipse cx="6" cy="26" rx="4" ry="5" fill="#1a3a6e" stroke="#7a4a08" stroke-width="1.5"/>
+      <ellipse cx="6" cy="26" rx="2.5" ry="3.5" fill="#2a5ab0" opacity="0.8"/>
+      <ellipse cx="5" cy="24" rx="1" ry="1.5" fill="white" opacity="0.4"/>
+      <line x1="4" y1="24" x2="34" y2="24" stroke="#f4c840" stroke-width="1" opacity="0.4" stroke-linecap="round"/>
+      <rect x="12" y="8" width="22" height="12" rx="2" fill="#f5e8c8" stroke="#c4a060" stroke-width="1"/>
+      <line x1="15" y1="12" x2="31" y2="12" stroke="#8b6914" stroke-width="1" stroke-linecap="round"/>
+      <line x1="15" y1="15" x2="28" y2="15" stroke="#8b6914" stroke-width="1" stroke-linecap="round"/>
+      <path d="M12 19 L14 14" stroke="#c4a060" stroke-width="1" stroke-dasharray="1 2"/>
+      <path d="M34 19 L32 14" stroke="#c4a060" stroke-width="1" stroke-dasharray="1 2"/>
+      <text x="36" y="14" font-size="10" fill="#c8401a" font-weight="bold">?</text>
+    </svg>`,
+    story: `<svg width="${s}" height="${s}" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="38" width="16" height="5" rx="2" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/>
+      <path d="M14 20 L16 38 L36 38 L38 20 Z" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M16 22 L18 36 L26 36 L26 22 Z" fill="#f4c840" opacity="0.25"/>
+      <path d="M26 22 L26 36 L34 36 L36 22 Z" fill="#f4c840" opacity="0.25"/>
+      <line x1="26" y1="20" x2="26" y2="38" stroke="#7a4a08" stroke-width="1.5"/>
+      <line x1="14" y1="26" x2="38" y2="26" stroke="#7a4a08" stroke-width="1"/>
+      <line x1="14" y1="32" x2="38" y2="32" stroke="#7a4a08" stroke-width="1"/>
+      <path d="M14 20 L16 14 L36 14 L38 20 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/>
+      <path d="M20 14 Q26 6 32 14" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="26" cy="25" rx="4" ry="6" fill="#f4b942" opacity="0.9"/>
+      <ellipse cx="25" cy="24" rx="2.5" ry="4" fill="#f9e04b" opacity="0.8"/>
+      <ellipse cx="26" cy="23" rx="1.5" ry="3" fill="white" opacity="0.5"/>
+      <ellipse cx="26" cy="26" rx="8" ry="8" fill="#f4b942" opacity="0.12"/>
+    </svg>`,
+    mia: `<svg width="${s}" height="${s}" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="10" width="30" height="26" rx="2" fill="#f5e8c8" stroke="#c4a060" stroke-width="1.5"/>
+      <path d="M4 12 Q6 10 8 12" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
+      <path d="M4 34 Q6 36 8 34" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
+      <path d="M30 12 Q32 10 34 12" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
+      <path d="M30 34 Q32 36 34 34" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
+      <line x1="8" y1="18" x2="16" y2="18" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="17" y="16" width="8" height="4" rx="1" fill="#c8401a" opacity="0.25" stroke="#c8401a" stroke-width="1" stroke-dasharray="2 1"/>
+      <line x1="26" y1="18" x2="30" y2="18" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="8" y1="23" x2="14" y2="23" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="15" y="21" width="10" height="4" rx="1" fill="#c8401a" opacity="0.25" stroke="#c8401a" stroke-width="1" stroke-dasharray="2 1"/>
+      <line x1="26" y1="23" x2="30" y2="23" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M38 4 Q44 10 40 18 L30 36 L26 38 L28 32 Z" fill="#e8d890" stroke="#7a4a08" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M38 4 Q44 10 40 18 Q35 24 30 30 L28 34 L30 36 Z" fill="#f5f0b0" stroke="#7a4a08" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M26 38 Q28 35 30 32" stroke="#c8401a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M30 36 L28 42" stroke="#8b4513" stroke-width="2" stroke-linecap="round"/>
+    </svg>`,
+    track: `<svg width="${s}" height="${s}" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="5" width="38" height="34" rx="3" fill="#f5e8c8" stroke="#c4a060" stroke-width="1.5"/>
+      <path d="M3 5 Q5 3 7 5 Q9 7 11 5 Q13 3 15 5" stroke="#c4a060" stroke-width="1" fill="none"/>
+      <path d="M3 39 Q5 41 7 39 Q9 37 11 39 Q13 41 15 39" stroke="#c4a060" stroke-width="1" fill="none"/>
+      <path d="M5 30 L10 20 L15 30" fill="#8b8060" stroke="#7a7050" stroke-width="1"/>
+      <path d="M12 30 L18 18 L24 30" fill="#9b9070" stroke="#7a7050" stroke-width="1"/>
+      <path d="M26 28 Q28 26 30 28 Q32 30 34 28 Q36 26 38 28" stroke="#4a7ab0" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M8 36 Q12 32 18 28 Q24 24 28 18 Q32 14 36 12" stroke="#c8401a" stroke-width="1.5" fill="none" stroke-dasharray="2 3" stroke-linecap="round"/>
+      <circle cx="8" cy="36" r="3" fill="#c8401a" opacity="0.8"/>
+      <line x1="33" y1="9" x2="39" y2="15" stroke="#c8401a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="39" y1="9" x2="33" y2="15" stroke="#c8401a" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="38" cy="34" r="5" fill="#f0ddb0" stroke="#c4a060" stroke-width="1"/>
+      <line x1="38" y1="30" x2="38" y2="38" stroke="#7a4a08" stroke-width="1"/>
+      <line x1="34" y1="34" x2="42" y2="34" stroke="#7a4a08" stroke-width="1"/>
+      <path d="M38 30 L39 33 L38 32 L37 33 Z" fill="#c8401a"/>
+    </svg>`,
+    leaderboard: `<svg width="${s}" height="${s}" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="16" y="36" width="14" height="5" rx="2" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/>
+      <rect x="19" y="31" width="8" height="6" rx="1" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/>
+      <path d="M10 10 L10 28 Q10 34 18 34 L28 34 Q36 34 36 28 L36 10 Z" fill="#f4b942" stroke="#7a4a08" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M10 14 Q4 14 4 20 Q4 26 10 26" fill="#f4b942" stroke="#7a4a08" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M36 14 Q42 14 42 20 Q42 26 36 26" fill="#f4b942" stroke="#7a4a08" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M15 22 L20 17 L23 21 L28 15 L32 22" stroke="#8b4513" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="10" y1="10" x2="36" y2="10" stroke="#7a4a08" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`,
+    daily: `<svg width="${s}" height="${s}" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="30" width="40" height="13" rx="2" fill="#4a7a30"/>
+      <path d="M3 30 L12 16 L21 30" fill="#3a6a20" stroke="#2d5a18" stroke-width="1"/>
+      <path d="M16 30 L26 14 L36 30" fill="#4a7a28" stroke="#2d5a18" stroke-width="1"/>
+      <path d="M30 30 L38 20 L43 30" fill="#3a6a20" stroke="#2d5a18" stroke-width="1"/>
+      <circle cx="23" cy="14" r="9" fill="#f4b942" opacity="0.9"/>
+      <circle cx="23" cy="14" r="6" fill="#f9e04b"/>
+      <line x1="23" y1="2" x2="23" y2="6" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
+      <line x1="35" y1="5" x2="32" y2="8" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
+      <line x1="38" y1="14" x2="34" y2="14" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
+      <line x1="11" y1="5" x2="14" y2="8" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
+      <line x1="8" y1="14" x2="12" y2="14" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
+    </svg>`
+  };
+  return icons[game] || `<span style="font-size:${s*0.6}px">📖</span>`;
+}
 function getRandyImg(expression='default', size=80) {
   const imgs = {
     default:  '/randy-default-transparent.png',
