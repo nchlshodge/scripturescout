@@ -7975,7 +7975,7 @@ async function respondToChallenge(challengeId, score, verse) {
 
 function showChallengeBanner(challenge) {
   const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
-  const gameIcons = { scout:'📖', trivia:'📚', mia:'✏️', track:'🎯' };
+  const gameIcons = { scout:'scout', trivia:'trivia', mia:'mia', track:'track' };
   const fromName = challenge.challenger_name || 'Someone';
   const game = gameNames[challenge.game] || challenge.game;
   const icon = gameIcons[challenge.game] || '🎮';
@@ -8036,7 +8036,7 @@ async function renderChallenges() {
     sbFetch(`challenges?opponent_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`)
   ]);
 
-  const gameIcons = { scout:'📖', trivia:'📚', mia:'✏️', track:'🎯' };
+  const gameIcons = { scout:'scout', trivia:'trivia', mia:'mia', track:'track' };
   const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
 
   function renderChallenge(c, isMine) {
@@ -10103,10 +10103,10 @@ async function renderDailyChallenge() {
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading Daily Challenge…</div></div>`;
 
   const games = [
-    { id: 'scout', icon: '📖', name: 'Scripture Scout', desc: 'Guess the Testament, Book and Chapter' },
-    { id: 'trivia', icon: '📚', name: 'Bible Trivia', desc: 'Test your Bible knowledge' },
-    { id: 'mia', icon: '✏️', name: 'Missing in Action', desc: 'Fill in the blanks of the verse' },
-    { id: 'track', icon: '🎯', name: 'Track It Down', desc: 'Find the correct reference from 4 choices' }
+    { id: 'scout', name: 'Scripture Scout', desc: 'Guess the Testament, Book and Chapter' },
+    { id: 'trivia', name: 'Bible Trivia', desc: 'Test your Bible knowledge' },
+    { id: 'mia', name: 'Missing in Action', desc: 'Fill in the blanks of the verse' },
+    { id: 'track', name: 'Track It Down', desc: 'Find the correct reference from 4 choices' }
   ];
 
   // Calculate time until midnight
@@ -10139,7 +10139,7 @@ async function renderDailyChallenge() {
         return `
           <div class="daily-card ${done?'completed':''}" id="daily_${g.id}">
             <div class="daily-card-header">
-              <span class="daily-card-icon">${g.icon}</span>
+              ${getFieldIcon(g.id, 28)}
               <span class="daily-card-title">${g.name}</span>
               <span class="daily-card-badge ${done?'daily-badge-done':'daily-badge-new'}">${done?'✓ Done':'Play'}</span>
             </div>
@@ -10492,7 +10492,7 @@ async function showDailyResult(game, score) {
   const rows = await fetchDailyLeaderboard(game);
   const myRank = rows.findIndex(r => r.score === score) + 1;
   const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
-  const gameIcons = { scout:'📖', trivia:'📚', mia:'✏️', track:'🎯' };
+  const gameIcons = { scout:'scout', trivia:'trivia', mia:'mia', track:'track' };
 
   root.innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:28px 24px;">
@@ -10525,10 +10525,10 @@ async function renderFullDailyLeaderboard() {
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading daily leaderboard…</div></div>`;
 
   const games = [
-    { id: 'scout', icon: '📖', name: 'Scripture Scout' },
-    { id: 'trivia', icon: '📚', name: 'Bible Trivia' },
-    { id: 'mia', icon: '✏️', name: 'Missing in Action' },
-    { id: 'track', icon: '🎯', name: 'Track It Down' }
+    { id: 'scout', name: 'Scripture Scout' },
+    { id: 'trivia', name: 'Bible Trivia' },
+    { id: 'mia', name: 'Missing in Action' },
+    { id: 'track', name: 'Track It Down' }
   ];
 
   // Fetch all 4 leaderboards in parallel
