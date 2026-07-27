@@ -8118,7 +8118,7 @@ async function acceptChallenge(challengeId, game, difficulty, challengerScore, b
   if(game === 'scout') startChallengeScout(challengeVerse, difficulty);
   else if(game === 'mia') startChallengeMIA(challengeVerse, difficulty);
   else if(game === 'track') startChallengeTrack(challengeVerse, difficulty);
-  else if(game === 'memory') startChallengeMemory(challengeVerse);
+  else if(game === 'trivia') { showBackBtn(true); renderTriviaSetup(); }
 }
 
 async function startChallengeScout(verse, difficulty) {
@@ -8872,7 +8872,7 @@ async function renderProfile(userId=null, username=null) {
   const streak = streakRows[0] || {};
   const allScores = [
     ...recentScouts.map(s=>({...s,game:'scout',icon:'📖',name:'Scripture Scout'})),
-    ...recentMemory.map(s=>({...s,game:'memory',icon:'🗂️',name:'Memory Trail'})),
+    ...recentTrivia.map(s=>({...s,game:'trivia',icon:'📚',name:'Bible Trivia'})),
     ...recentMIA.map(s=>({...s,game:'mia',icon:'✏️',name:'Missing in Action'})),
     ...recentTrack.map(s=>({...s,game:'track',icon:'🎯',name:'Track It Down'})),
   ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,8);
@@ -9195,7 +9195,7 @@ async function challengeFriend(friendId, friendUsername) {
           <div class="chapter-info"><div class="chapter-title">Track It Down</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
-        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','memory','hard')">
+        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','trivia','easy')">
           <div class="chapter-num current">🗂️</div>
           <div class="chapter-info"><div class="chapter-title">Memory Trail</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
@@ -9228,7 +9228,7 @@ async function startChallengeGame(friendId, friendUsername, game, difficulty) {
   if(game === 'scout') await startChallengeScout(verse, difficulty);
   else if(game === 'mia') await startChallengeMIA(verse, difficulty);
   else if(game === 'track') await startChallengeTrack(verse, difficulty);
-  else if(game === 'memory') await startChallengeMemory(verse);
+  else if(game === 'trivia') { showBackBtn(true); renderTriviaSetup(); }
 }
 
 // ═══════════════════════════════════════
@@ -9976,7 +9976,7 @@ async function renderDailyChallenge() {
 
   const games = [
     { id: 'scout', icon: '📖', name: 'Scripture Scout', desc: 'Guess the Testament, Book and Chapter' },
-    { id: 'memory', icon: '🗂️', name: 'Memory Trail', desc: 'Recall the key verse from its reference' },
+    { id: 'trivia', icon: '📚', name: 'Bible Trivia', desc: 'Test your Bible knowledge' },
     { id: 'mia', icon: '✏️', name: 'Missing in Action', desc: 'Fill in the blanks of the verse' },
     { id: 'track', icon: '🎯', name: 'Track It Down', desc: 'Find the correct reference from 4 choices' }
   ];
@@ -10398,7 +10398,7 @@ async function renderFullDailyLeaderboard() {
 
   const games = [
     { id: 'scout', icon: '📖', name: 'Scripture Scout' },
-    { id: 'memory', icon: '🗂️', name: 'Memory Trail' },
+    { id: 'trivia', icon: '📚', name: 'Bible Trivia' },
     { id: 'mia', icon: '✏️', name: 'Missing in Action' },
     { id: 'track', icon: '🎯', name: 'Track It Down' }
   ];
