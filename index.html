@@ -904,12 +904,12 @@ async function showHome() {
   const displayName = currentUsername || (currentUser ? currentUser.email.split('@')[0] : null);
 
   // Build daily challenge progress
-  const dailyGames = ['scout','memory','mia','track'];
+  const dailyGames = ['scout','trivia','mia','track'];
   const completedCount = dailyGames.filter(g => isDailyCompleted(g)).length;
   const dailyPct = Math.round((completedCount / 4) * 100);
   const gameInfo = [
     { id:'scout', icon:'📖', name:'Scout' },
-    { id:'memory', icon:'🗂️', name:'Memory' },
+    { id:'trivia', icon:'📚', name:'Trivia' },
     { id:'mia', icon:'✏️', name:'MIA' },
     { id:'track', icon:'🎯', name:'Track' }
   ];
@@ -4599,7 +4599,7 @@ function renderLeaderboardHub() {
           <div class="chapter-num current">⚡</div>
           <div class="chapter-info">
             <div class="chapter-title" style="color:#A78BFA;">Daily Challenge</div>
-            <div class="chapter-ref">Today's top scores across all 4 games</div>
+            <div class="chapter-ref">Today's top scores across all games</div>
           </div>
           <div class="chapter-lock">▶️</div>
         </div>
@@ -4611,10 +4611,10 @@ function renderLeaderboardHub() {
           </div>
           <div class="chapter-lock">▶️</div>
         </div>
-        <div class="chapter-item unlocked" id="lbMemoryBtn">
-          <div class="chapter-num current">🗂️</div>
+        <div class="chapter-item unlocked" id="lbTriviaBtn">
+          <div class="chapter-num current">📚</div>
           <div class="chapter-info">
-            <div class="chapter-title">Memory Trail</div>
+            <div class="chapter-title">Bible Trivia</div>
             <div class="chapter-ref">Easy · Medium · Hard</div>
           </div>
           <div class="chapter-lock">▶️</div>
@@ -4641,7 +4641,7 @@ function renderLeaderboardHub() {
 
   document.getElementById('lbDailyBtn').onclick = () => { showBackBtn(true); renderFullDailyLeaderboard(); };
   document.getElementById('lbScriptureBtn').onclick = () => { showBackBtn(true); renderLeaderboard(); };
-  document.getElementById('lbMemoryBtn').onclick = () => renderGameLeaderboard('🗂️ Memory Trail','leaderboard_memory',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
+  document.getElementById('lbTriviaBtn').onclick = () => renderGameLeaderboard('📚 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
   document.getElementById('lbMiaBtn').onclick = () => renderGameLeaderboard('✏️ Missing in Action','leaderboard_mia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
   document.getElementById('lbTrackBtn').onclick = () => renderGameLeaderboard('🎯 Track It Down','leaderboard_track',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
 }
@@ -7915,7 +7915,7 @@ async function sendChallenge(friendId, friendUsername, game, difficulty, score, 
     });
     const data = await res.json();
     // Send notification
-    const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
+    const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
     await createNotification(friendId, 'challenge',
       `⚔️ ${currentUsername} challenged you to beat ${score.toLocaleString()} pts on ${gameNames[game]} ${difficulty}! You have 24 hours.`,
       { challenge_id: data[0]?.id, from_id: currentUser.id, from_username: currentUsername, game, difficulty, score }
@@ -7961,8 +7961,8 @@ async function respondToChallenge(challengeId, score, verse) {
 }
 
 function showChallengeBanner(challenge) {
-  const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
-  const gameIcons = { scout:'📖', memory:'🗂️', mia:'✏️', track:'🎯' };
+  const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
+  const gameIcons = { scout:'📖', trivia:'📚', mia:'✏️', track:'🎯' };
   const fromName = challenge.challenger_name || 'Someone';
   const game = gameNames[challenge.game] || challenge.game;
   const icon = gameIcons[challenge.game] || '🎮';
@@ -8023,8 +8023,8 @@ async function renderChallenges() {
     sbFetch(`challenges?opponent_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`)
   ]);
 
-  const gameIcons = { scout:'📖', memory:'🗂️', mia:'✏️', track:'🎯' };
-  const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
+  const gameIcons = { scout:'📖', trivia:'📚', mia:'✏️', track:'🎯' };
+  const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
 
   function renderChallenge(c, isMine) {
     const expired = new Date(c.expires_at) < new Date() && c.status === 'pending';
@@ -8598,7 +8598,7 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
   // Mark notifications as read
   notifs.filter(n => !n.read).forEach(n => markNotifRead(n.id));
 
-  const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
+  const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
 
   root.innerHTML = `
     <div class="friends-screen">
@@ -8673,11 +8673,11 @@ function timeAgo(ts) {
 // Avatar options
 const AVATAR_ICONS = [
   // Bible themed
-  '✝️','📖','🕊️','🔥','📜','⚡','🙏','🌟','👑','🛡️','⚔️','🏺',
+  '✝️','📖','🌿','🔥','📜','⚡','🙏','🌟','👑','🛡️','⚔️','🏺',
   // Fun mix
   '🦁','🐟','🦅','🌊','🌿','🌙','☀️','❄️','🎯','🎮','🏆','💎',
   // People/faces
-  '😊','🤔','😎','🙌','👋','✌️','🫶','🤝','💪','🌱','🎉','🕊️'
+  '😊','🤔','😎','🙌','👋','✌️','🫶','🤝','💪','🌱','🎉','🌿'
 ];
 
 const AVATAR_COLORS = [
@@ -8926,7 +8926,7 @@ async function renderProfile(userId=null, username=null) {
               <div class="profile-stat-label">Best Score</div>
             </div>
             <div class="profile-stat">
-              <div class="profile-stat-val">${streak.freeze_tokens||0}🕊️</div>
+              <div class="profile-stat-val">${streak.freeze_tokens||0}🌿</div>
               <div class="profile-stat-label">Sabbath Rests</div>
             </div>
             <div class="profile-stat">
@@ -9523,8 +9523,8 @@ async function updateStreak(bonusDay=false) {
   });
 
   // Show milestone notifications
-  if(usedSabbath) { playStreak(); showStreakToast(`🕊️ Sabbath Rest used! Streak protected.`); }
-  else if(newStreak % 5 === 0 && newTokens > streak.freeze_tokens) { playMilestone(); showStreakToast(`🎉 ${newStreak} day streak! 🕊️ Sabbath Rest earned!`); }
+  if(usedSabbath) { playStreak(); showStreakToast(`🌿 Sabbath Rest used! Streak protected.`); }
+  else if(newStreak % 5 === 0 && newTokens > streak.freeze_tokens) { playMilestone(); showStreakToast(`🎉 ${newStreak} day streak! 🌿 Sabbath Rest earned!`); }
   else if([3,7,14,30,50,100].includes(newStreak)) { playMilestone(); showStreakToast(`🔥 ${newStreak} day streak! Keep it up!`); }
 }
 
@@ -9814,7 +9814,7 @@ function getStreakDisplay() {
   const atRisk = last_played_date === yesterday && !playedToday;
 
   const tokens = [0,1,2].map(i =>
-    `<span class="streak-token ${i < freeze_tokens ? '' : 'empty'}">🕊️</span>`
+    `<span class="streak-token ${i < freeze_tokens ? '' : 'empty'}">🌿</span>`
   ).join('');
 
   return `
@@ -9835,7 +9835,7 @@ function getStreakDisplay() {
 async function useSabbathRest() {
   if(!currentStreak || currentStreak.freeze_tokens <= 0) return;
   await patchStreak({ freeze_tokens: currentStreak.freeze_tokens - 1 });
-  showStreakToast('🕊️ Sabbath Rest used!');
+  showStreakToast('🌿 Sabbath Rest used!');
 }
 
 // ═══════════════════════════════════════
@@ -9941,7 +9941,7 @@ function prefetchDailyChallenge() {
 
 async function fetchDailyVerse(game) {
   const { topic, verses } = await getDailyTopicAndVerses();
-  const gameIndex = ['scout','memory','mia','track'].indexOf(game);
+  const gameIndex = ['scout','trivia','mia','track'].indexOf(game);
   return verses[Math.min(gameIndex, verses.length-1)] || null;
 }
 
@@ -10040,9 +10040,9 @@ async function startDailyGame(game) {
   if(game === 'scout') {
     dailyChallengeMode = { active: true, game };
     renderDailyScout(verse);
-  } else if(game === 'memory') {
+  } else if(game === 'trivia') {
     dailyChallengeMode = { active: true, game };
-    renderDailyMemory(verse);
+    startTrivia('easy');
   } else if(game === 'mia') {
     dailyChallengeMode = { active: true, game };
     renderDailyMIA(verse);
@@ -10177,9 +10177,9 @@ function renderDailyMemory(verse) {
 }
 
 async function completeDailyMemory(rating, score) {
-  markDailyCompleted('memory', score);
-  await submitDailyScore('memory', score);
-  showDailyResult('memory', score);
+  markDailyCompleted('trivia', score);
+  await submitDailyScore('trivia', score);
+  showDailyResult('trivia', score);
 }
 
 async function renderDailyMIA(verse) {
@@ -10363,8 +10363,8 @@ async function showDailyResult(game, score) {
 
   const rows = await fetchDailyLeaderboard(game);
   const myRank = rows.findIndex(r => r.score === score) + 1;
-  const gameNames = { scout:'Scripture Scout', memory:'Memory Trail', mia:'Missing in Action', track:'Track It Down' };
-  const gameIcons = { scout:'📖', memory:'🗂️', mia:'✏️', track:'🎯' };
+  const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
+  const gameIcons = { scout:'📖', trivia:'📚', mia:'✏️', track:'🎯' };
 
   root.innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:28px 24px;">
