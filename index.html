@@ -1639,7 +1639,7 @@ async function saveUsername() {
 
     // Update user bar display name
     const userBarEmail = document.querySelector('.user-bar-email');
-    if(userBarEmail) userBarEmail.textContent = `👤 ${username}`;
+    if(userBarEmail) userBarEmail.textContent = username;
 
     // Remove whichever prompt is showing
     document.getElementById('usernamePromptOverlay')?.remove();
@@ -9128,7 +9128,10 @@ async function renderFriends(startTab=null) {
                   <div class="friend-meta">Scripture Scout friend</div>
                 </div>
                 <div class="friend-actions">
-                  <button class="btn-friend-action" onclick="showBackBtn(true);renderProfile('${fId}','${uname}')">👤</button>
+                  <button class="btn-friend-action" onclick="showBackBtn(true);renderProfile('${fId}','${uname}')" style="display:flex;align-items:center;gap:4px;">
+                    <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="11" r="7" fill="#d4a830" opacity="0.4" stroke="#7a4a08" stroke-width="2"/><path d="M4 28 Q4 20 16 20 Q28 20 28 28" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/></svg>
+                    Profile
+                  </button>
                   <button class="btn-friend-action message" onclick="openDirectMessage('${fId}','${uname}')">💬</button>
                   <button class="btn-friend-action challenge" onclick="challengeFriend('${fId}','${uname}')">⚔️</button>
                 </div>
