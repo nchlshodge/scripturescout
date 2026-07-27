@@ -9041,7 +9041,7 @@ async function renderProfile(userId=null, username=null) {
         </div>
         ${allScores.length ? allScores.map(s => `
           <div class="recent-score-row">
-            <span class="recent-score-game">${s.icon}</span>
+            <div class="recent-score-game">${getFieldIcon(s.game, 28)}</div>
             <div class="recent-score-info">
               <div class="recent-score-name">${s.name}</div>
               <div class="recent-score-diff">${s.difficulty} difficulty</div>
