@@ -990,7 +990,7 @@ async function showHome() {
       <div class="rope-divider"><div class="rope-divider-line"></div><span>🌾 Game Modes 🌾</span><div class="rope-divider-line"></div></div>
       <div class="home-game-grid">
         <!-- Scripture Scout — flagship full width -->
-        <div class="home-game-card featured" id="homePlayBtn" style="grid-column:1/-1;background:linear-gradient(135deg,#fffbf0,#fdf0d8);border-color:#c4a97a;border-width:2px;">
+        <div class="home-game-card featured" id="homePlayBtn" style="grid-column:1/-1;background:var(--surface) padding-box,repeating-linear-gradient(45deg,#7a4810 0,#7a4810 4px,#c48828 4px,#c48828 8px,#6a3808 8px,#6a3808 12px,#c48828 12px,#c48828 16px) border-box;border:3px solid transparent;">
           ${getFieldIcon('scout', 44)}
           <div style="flex:1;">
             <div style="font-size:0.65rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">FLAGSHIP</div>
@@ -999,7 +999,7 @@ async function showHome() {
           </div>
         </div>
         <!-- Bible Trivia — featured full width -->
-        <div class="home-game-card featured" id="homeMemoryBtn" onclick="showBackBtn(true);renderTriviaSetup();" style="grid-column:1/-1;background:linear-gradient(135deg,#fff8f0,#fde8d0);border-color:#8b4513;border-width:2px;">
+        <div class="home-game-card featured" id="homeMemoryBtn" onclick="showBackBtn(true);renderTriviaSetup();" style="grid-column:1/-1;background:var(--surface) padding-box,repeating-linear-gradient(45deg,#602008 0,#602008 4px,#984018 4px,#984018 8px,#602008 8px,#602008 12px,#984018 12px,#984018 16px) border-box;border:3px solid transparent;">
           ${getFieldIcon('trivia', 44)}
           <div style="flex:1;">
             <div style="font-size:0.65rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">NEW</div>
@@ -1008,7 +1008,7 @@ async function showHome() {
           </div>
         </div>
         <!-- Story Mode — full width -->
-        <div class="home-game-card featured" id="homeStoryBtn" style="grid-column:1/-1;border-color:#8b6914;background:rgba(139,105,20,0.05);">
+        <div class="home-game-card featured" id="homeStoryBtn" style="grid-column:1/-1;background:var(--surface) padding-box,repeating-linear-gradient(45deg,#6a5808 0,#6a5808 4px,#a89028 4px,#a89028 8px,#6a5808 8px,#6a5808 12px,#a89028 12px,#a89028 16px) border-box;border:3px solid transparent;">
           ${getFieldIcon('story', 40)}
           <div style="flex:1;">
             <div class="home-game-name">Story Mode</div>
