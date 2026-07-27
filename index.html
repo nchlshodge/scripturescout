@@ -1035,17 +1035,67 @@ async function showHome() {
 
       <!-- 6. Account strip -->
       ${currentUser ? `
-      <div style="border-radius:14px;background:var(--surface) padding-box,var(--rope) border-box;border:3px solid transparent;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-top:4px;">
-        <div style="width:38px;height:38px;border-radius:50%;background:#8b4513;display:flex;align-items:center;justify-content:center;color:#f4b942;font-weight:700;font-size:14px;flex-shrink:0;">${(currentUsername||'S')[0].toUpperCase()}</div>
-        <div style="flex:1;">
-          <div style="font-size:0.88rem;font-weight:700;color:var(--text);">${currentUsername || 'Scout'}</div>
-          <div style="font-size:0.72rem;color:var(--text-muted);">Scripture Scout Player</div>
+      <div style="border-radius:16px;background:var(--surface) padding-box,var(--rope) border-box;border:3px solid transparent;padding:14px 16px;margin-top:4px;">
+        <!-- User info row -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#8b4513,#6b3410);display:flex;align-items:center;justify-content:center;color:#f4b942;font-weight:700;font-size:18px;flex-shrink:0;border:2px solid #c4a060;">${(currentUsername||'S')[0].toUpperCase()}</div>
+          <div style="flex:1;">
+            <div style="font-size:0.92rem;font-weight:700;color:var(--text);">${currentUsername || 'Scout'}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Scripture Scout Player</div>
+          </div>
+          ${currentUserPro ? `<div style="background:#f4b942;color:#3a2000;font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:20px;">PRO</div>` : ''}
         </div>
-        <div style="display:flex;gap:6px;">
-          <button class="btn-change-diff" style="padding:6px 10px;font-size:0.72rem;" onclick="showBackBtn(true);renderProfile()">👤</button>
-          <button class="btn-change-diff" style="padding:6px 10px;font-size:0.72rem;position:relative;" id="homeNotifBtn" onclick="showBackBtn(true);renderNotificationHub()">🔔<span id="homeNotifCount" style="display:none;position:absolute;top:-4px;right:-4px;background:#E53E3E;color:white;font-size:0.6rem;font-weight:700;border-radius:8px;padding:1px 4px;">0</span></button>
-          <button class="btn-change-diff" style="padding:6px 10px;font-size:0.72rem;" onclick="showBackBtn(true);renderFriends()">👥</button>
-          <button class="btn-change-diff" style="padding:6px 10px;font-size:0.72rem;" onclick="showBackBtn(true);renderChallenges()">⚔️</button>
+        <!-- Action buttons row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+          <!-- Profile -->
+          <button onclick="showBackBtn(true);renderProfile()" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;background:#f0e4c8;border:2px solid #c4a060;border-radius:14px;cursor:pointer;">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="11" r="7" fill="#d4a830" opacity="0.3" stroke="#7a4a08" stroke-width="2"/>
+              <circle cx="16" cy="11" r="7" fill="none" stroke="#c8941a" stroke-width="1" stroke-dasharray="2 3"/>
+              <ellipse cx="12" cy="10" rx="2" ry="2.5" fill="#7a4a08" opacity="0.5"/>
+              <ellipse cx="20" cy="10" rx="2" ry="2.5" fill="#7a4a08" opacity="0.5"/>
+              <path d="M13 14 Q16 16.5 19 14" stroke="#7a4a08" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <path d="M4 28 Q4 20 16 20 Q28 20 28 28" fill="#d4a830" opacity="0.2" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span style="font-size:0.65rem;font-weight:700;color:#6b4a10;font-family:'DM Sans',sans-serif;">Profile</span>
+          </button>
+          <!-- Alerts -->
+          <button id="homeNotifBtn" onclick="showBackBtn(true);renderNotificationHub()" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;background:#f0e4c8;border:2px solid #c4a060;border-radius:14px;cursor:pointer;position:relative;">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <path d="M16 3 Q23 3 25 10 L26 22 L6 22 L7 10 Q9 3 16 3 Z" fill="#f4c840" opacity="0.35" stroke="#7a4a08" stroke-width="2" stroke-linejoin="round"/>
+              <line x1="16" y1="3" x2="16" y2="7" stroke="#7a4a08" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M6 22 L26 22 L28 26 L4 26 Z" fill="#c8941a" opacity="0.8" stroke="#7a4a08" stroke-width="1.5"/>
+              <path d="M13 26 Q13 29 16 29 Q19 29 19 26" fill="none" stroke="#7a4a08" stroke-width="1.5"/>
+              <line x1="12" y1="13" x2="20" y2="13" stroke="#7a4a08" stroke-width="1" stroke-linecap="round" stroke-dasharray="2 2"/>
+              <line x1="12" y1="17" x2="18" y2="17" stroke="#7a4a08" stroke-width="1" stroke-linecap="round" stroke-dasharray="2 2"/>
+            </svg>
+            <span style="font-size:0.65rem;font-weight:700;color:#6b4a10;font-family:'DM Sans',sans-serif;">Alerts</span>
+            <span id="homeNotifCount" style="display:none;position:absolute;top:5px;right:5px;background:#c8401a;color:white;font-size:0.58rem;font-weight:700;border-radius:8px;padding:1px 4px;line-height:1.4;">0</span>
+          </button>
+          <!-- Friends -->
+          <button onclick="showBackBtn(true);renderFriends()" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;background:#f0e4c8;border:2px solid #c4a060;border-radius:14px;cursor:pointer;">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <circle cx="10" cy="11" r="5.5" fill="#d4a830" opacity="0.3" stroke="#7a4a08" stroke-width="2"/>
+              <circle cx="22" cy="11" r="5.5" fill="#d4a830" opacity="0.3" stroke="#7a4a08" stroke-width="2"/>
+              <path d="M1 28 Q1 20 10 20 Q14 20 16 22" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/>
+              <path d="M16 22 Q18 20 22 20 Q31 20 31 28" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/>
+              <path d="M13 10 Q16 12 19 10" stroke="#7a4a08" stroke-width="1" fill="none" stroke-linecap="round"/>
+            </svg>
+            <span style="font-size:0.65rem;font-weight:700;color:#6b4a10;font-family:'DM Sans',sans-serif;">Friends</span>
+          </button>
+          <!-- Duel -->
+          <button onclick="showBackBtn(true);renderChallenges()" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;background:linear-gradient(160deg,#6b2e08,#4a1e04);border:2px solid #d4a030;border-radius:14px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,0.25);">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <line x1="5" y1="27" x2="27" y2="5" stroke="#f4c050" stroke-width="3" stroke-linecap="round"/>
+              <path d="M25 5 L29 3 L27 7 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1"/>
+              <rect x="3.5" y="23.5" width="9" height="3" rx="1.5" fill="#c8941a" stroke="#f4c050" stroke-width="1" transform="rotate(-45 8 25)"/>
+              <line x1="27" y1="27" x2="5" y2="5" stroke="#f4c050" stroke-width="3" stroke-linecap="round"/>
+              <path d="M7 5 L3 3 L5 7 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1"/>
+              <rect x="19.5" y="23.5" width="9" height="3" rx="1.5" fill="#c8941a" stroke="#f4c050" stroke-width="1" transform="rotate(45 24 25)"/>
+              <circle cx="16" cy="16" r="2.5" fill="#f4c050" opacity="0.8"/>
+            </svg>
+            <span style="font-size:0.65rem;font-weight:700;color:#f4b942;font-family:'DM Sans',sans-serif;">Duel</span>
+          </button>
         </div>
       </div>` : `
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;text-align:center;margin-top:4px;">
