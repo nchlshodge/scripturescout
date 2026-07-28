@@ -10229,6 +10229,8 @@ async function renderDailyChallenge() {
   });
 }
 
+let dailyChallengeMode = { active: false, game: null };
+
 async function startDailyGame(game) {
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading today's verse…</div></div>`;
@@ -10251,7 +10253,7 @@ async function startDailyGame(game) {
   }
 }
 
-let dailyChallengeMode = { active: false, game: null };
+
 
 async function renderDailyScout(verse) {
   // Clear any stale pending challenge
