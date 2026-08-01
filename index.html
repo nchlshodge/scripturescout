@@ -5768,1256 +5768,11 @@ let storyV2Session = {
 
 // SVG scenes for story chapters
 function getSceneSVG(scene) {
-  const scenes = {
-    creation: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <defs><radialGradient id="sun" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f4d03f"/><stop offset="100%" stop-color="#e67e22" stop-opacity="0"/></radialGradient></defs>
-      <rect width="320" height="160" fill="#0a1628"/>
-      <circle cx="160" cy="80" r="60" fill="url(#sun)" opacity="0.6"/>
-      <circle cx="160" cy="80" r="35" fill="#f9e04b" opacity="0.9"/>
-      <circle cx="60" cy="30" r="3" fill="white" opacity="0.8"/>
-      <circle cx="90" cy="15" r="2" fill="white" opacity="0.6"/>
-      <circle cx="240" cy="25" r="3" fill="white" opacity="0.8"/>
-      <circle cx="280" cy="40" r="2" fill="white" opacity="0.6"/>
-      <circle cx="30" cy="50" r="2" fill="white" opacity="0.7"/>
-      <circle cx="200" cy="10" r="2" fill="white" opacity="0.5"/>
-      <rect x="0" y="120" width="320" height="40" fill="#1a3d1a"/>
-      <ellipse cx="160" cy="120" rx="80" ry="20" fill="#2d5a2d"/>
-    </svg>`,
-    garden: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a3d0a"/>
-      <rect x="0" y="100" width="320" height="60" fill="#2d5a1a"/>
-      <ellipse cx="80" cy="90" rx="50" ry="60" fill="#3a7a20"/>
-      <ellipse cx="240" cy="85" rx="55" ry="65" fill="#3a7a20"/>
-      <ellipse cx="160" cy="80" rx="45" ry="55" fill="#4a9a30"/>
-      <rect x="155" y="80" width="10" height="40" fill="#8b4513"/>
-      <circle cx="170" cy="75" r="12" fill="#e74c3c"/>
-      <path d="M155 95 Q140 80 150 70" stroke="#4a9a30" stroke-width="3" fill="none"/>
-      <circle cx="50" cy="120" r="8" fill="#f39c12" opacity="0.8"/>
-      <circle cx="270" cy="115" r="6" fill="#e74c3c" opacity="0.8"/>
-    </svg>`,
-    stars: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a0a2e"/>
-      <circle cx="40" cy="20" r="2" fill="white"/>
-      <circle cx="80" cy="35" r="3" fill="white" opacity="0.9"/>
-      <circle cx="120" cy="15" r="2" fill="white"/>
-      <circle cx="160" cy="25" r="4" fill="#f9e04b"/>
-      <circle cx="200" cy="10" r="2" fill="white"/>
-      <circle cx="240" cy="30" r="3" fill="white" opacity="0.8"/>
-      <circle cx="280" cy="20" r="2" fill="white"/>
-      <circle cx="60" cy="55" r="2" fill="white" opacity="0.6"/>
-      <circle cx="100" cy="45" r="3" fill="white" opacity="0.9"/>
-      <circle cx="140" cy="60" r="2" fill="white"/>
-      <circle cx="180" cy="40" r="2" fill="white" opacity="0.7"/>
-      <circle cx="220" cy="55" r="3" fill="white" opacity="0.8"/>
-      <circle cx="260" cy="45" r="2" fill="white"/>
-      <circle cx="300" cy="35" r="2" fill="white" opacity="0.6"/>
-      <circle cx="20" cy="70" r="2" fill="white" opacity="0.5"/>
-      <circle cx="320" cy="60" r="2" fill="white" opacity="0.7"/>
-      <rect x="0" y="120" width="320" height="40" fill="#1a1a3a"/>
-      <path d="M100 120 Q160 100 220 120" fill="#2a2a5a"/>
-      <text x="160" y="145" text-anchor="middle" fill="#f9e04b" font-size="12" opacity="0.8">✦ Count them if you can ✦</text>
-    </svg>`,
-    passover: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a0a00"/>
-      <rect x="0" y="100" width="320" height="60" fill="#2d1a00"/>
-      <rect x="60" y="40" width="60" height="80" fill="#8b6914"/>
-      <rect x="80" y="60" width="20" height="60" fill="#a07820"/>
-      <rect x="60" y="40" width="60" height="10" fill="#6b4e10"/>
-      <rect x="200" y="40" width="60" height="80" fill="#8b6914"/>
-      <rect x="220" y="60" width="20" height="60" fill="#a07820"/>
-      <rect x="200" y="40" width="60" height="10" fill="#6b4e10"/>
-      <rect x="58" y="38" width="8" height="40" fill="#c8401a" rx="2"/>
-      <rect x="198" y="38" width="8" height="40" fill="#c8401a" rx="2"/>
-      <circle cx="62" cy="38" r="6" fill="#f4b942" opacity="0.9"/>
-      <circle cx="202" cy="38" r="6" fill="#f4b942" opacity="0.9"/>
-      <ellipse cx="62" cy="32" rx="4" ry="8" fill="#f9e04b" opacity="0.6"/>
-      <ellipse cx="202" cy="32" rx="4" ry="8" fill="#f9e04b" opacity="0.6"/>
-      <text x="160" y="90" text-anchor="middle" fill="#f4b942" font-size="11" opacity="0.9">The blood is the sign</text>
-    </svg>`,
-    prophecy: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a1428"/>
-      <rect x="100" y="20" width="120" height="110" fill="#f5e6c8" rx="4"/>
-      <rect x="100" y="20" width="10" height="110" fill="#d4b87a" rx="2"/>
-      <line x1="115" y1="40" x2="210" y2="40" stroke="#8b6914" stroke-width="1.5"/>
-      <line x1="115" y1="52" x2="210" y2="52" stroke="#8b6914" stroke-width="1.5"/>
-      <line x1="115" y1="64" x2="210" y2="64" stroke="#8b6914" stroke-width="1.5"/>
-      <line x1="115" y1="76" x2="210" y2="76" stroke="#8b6914" stroke-width="1.5"/>
-      <line x1="115" y1="88" x2="195" y2="88" stroke="#c8401a" stroke-width="2"/>
-      <line x1="115" y1="100" x2="210" y2="100" stroke="#8b6914" stroke-width="1.5"/>
-      <line x1="115" y1="112" x2="185" y2="112" stroke="#8b6914" stroke-width="1.5"/>
-      <text x="162" y="88" text-anchor="middle" fill="#c8401a" font-size="7">He was pierced for our sins</text>
-      <circle cx="50" cy="60" r="20" fill="#f4b942" opacity="0.3"/>
-      <circle cx="50" cy="60" r="12" fill="#f4b942" opacity="0.5"/>
-      <text x="50" y="115" text-anchor="middle" fill="#f4b942" font-size="9">Isaiah</text>
-      <text x="50" y="126" text-anchor="middle" fill="#f4b942" font-size="8">700 BC</text>
-    </svg>`,
-    nativity: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a1628"/>
-      <polygon points="160,5 175,5 160,80 145,80" fill="#f9e04b" opacity="0.9"/>
-      <circle cx="160" cy="5" r="6" fill="#f9e04b"/>
-      <polygon points="100,70 220,70 240,130 80,130" fill="#8b6914"/>
-      <polygon points="100,70 220,70 160,40" fill="#a07820"/>
-      <rect x="130" y="95" width="60" height="35" fill="#6b4e10"/>
-      <rect x="140" y="105" width="40" height="25" fill="#8b6914"/>
-      <ellipse cx="160" cy="108" rx="15" ry="10" fill="#f5e6c8"/>
-      <circle cx="160" cy="103" r="7" fill="#f5e6c8"/>
-      <circle cx="160" cy="108" r="5" fill="#f4b942" opacity="0.5"/>
-      <ellipse cx="100" cy="125" rx="18" ry="12" fill="#6b4e10"/>
-      <ellipse cx="220" cy="125" rx="18" ry="12" fill="#6b4e10"/>
-      <circle cx="40" cy="30" r="2" fill="white"/>
-      <circle cx="280" cy="25" r="2" fill="white"/>
-      <circle cx="60" cy="50" r="2" fill="white" opacity="0.7"/>
-      <circle cx="260" cy="45" r="2" fill="white" opacity="0.7"/>
-    </svg>`,
-    ministry: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#87CEEB"/>
-      <rect x="0" y="110" width="320" height="50" fill="#4a7a30"/>
-      <ellipse cx="60" cy="110" rx="40" ry="15" fill="#3a6a20"/>
-      <ellipse cx="260" cy="110" rx="40" ry="15" fill="#3a6a20"/>
-      <circle cx="160" cy="70" r="25" fill="#f5e6c8"/>
-      <circle cx="160" cy="58" r="14" fill="#f5e6c8"/>
-      <rect x="148" y="72" width="24" height="30" fill="#6b4e10"/>
-      <ellipse cx="140" cy="75" rx="12" ry="8" fill="#f5e6c8" transform="rotate(-20 140 75)"/>
-      <ellipse cx="180" cy="75" rx="12" ry="8" fill="#f5e6c8" transform="rotate(20 180 75)"/>
-      <circle cx="110" cy="90" r="10" fill="#f5e6c8"/>
-      <circle cx="210" cy="90" r="10" fill="#f5e6c8"/>
-      <circle cx="90" cy="100" r="8" fill="#f5e6c8"/>
-      <circle cx="230" cy="100" r="8" fill="#f5e6c8"/>
-      <circle cx="70" cy="108" r="7" fill="#f5e6c8"/>
-      <circle cx="250" cy="108" r="7" fill="#f5e6c8"/>
-    </svg>`,
-    cross: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <defs><radialGradient id="darksky" cx="50%" cy="30%" r="70%"><stop offset="0%" stop-color="#2c1810"/><stop offset="100%" stop-color="#0a0a0a"/></radialGradient></defs>
-      <rect width="320" height="160" fill="url(#darksky)"/>
-      <rect x="0" y="100" width="320" height="60" fill="#1a0a00"/>
-      <rect x="152" y="20" width="16" height="100" fill="#5a3010"/>
-      <rect x="120" y="45" width="80" height="14" fill="#5a3010"/>
-      <rect x="154" y="22" width="12" height="96" fill="#6b3810"/>
-      <rect x="122" y="47" width="76" height="10" fill="#6b3810"/>
-      <ellipse cx="160" cy="155" rx="100" ry="15" fill="#2d1a00" opacity="0.5"/>
-      <circle cx="50" cy="40" r="15" fill="#f4b942" opacity="0.15"/>
-      <circle cx="270" cy="40" r="15" fill="#f4b942" opacity="0.15"/>
-    </svg>`,
-    resurrection: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <defs><radialGradient id="dawn" cx="50%" cy="60%" r="60%"><stop offset="0%" stop-color="#f9e04b" stop-opacity="0.8"/><stop offset="100%" stop-color="#87CEEB" stop-opacity="0.3"/></radialGradient></defs>
-      <rect width="320" height="160" fill="#e8f4fd"/>
-      <ellipse cx="160" cy="160" rx="200" ry="80" fill="url(#dawn)"/>
-      <ellipse cx="80" cy="120" rx="60" ry="30" fill="#8b8b6b"/>
-      <ellipse cx="240" cy="125" rx="50" ry="25" fill="#8b8b6b"/>
-      <ellipse cx="160" cy="110" rx="50" ry="40" fill="#9b9b7b"/>
-      <ellipse cx="185" cy="115" rx="25" ry="30" fill="#7b7b5b"/>
-      <ellipse cx="235" cy="125" rx="30" ry="22" fill="#9b9b7b" opacity="0.7"/>
-      <circle cx="160" cy="45" r="30" fill="#f9e04b" opacity="0.6"/>
-      <circle cx="160" cy="45" r="18" fill="#f9e04b" opacity="0.9"/>
-      <text x="160" y="152" text-anchor="middle" fill="#8b4513" font-size="10" font-weight="bold">He is risen!</text>
-    </svg>`,
-    covenant_stars: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#020210"/>
-      <rect x="0" y="120" width="320" height="40" fill="#1a1008"/>
-      <circle cx="40" cy="25" r="2" fill="white" opacity="0.9"/>
-      <circle cx="70" cy="12" r="3" fill="white" opacity="0.8"/>
-      <circle cx="100" cy="30" r="2" fill="white" opacity="0.7"/>
-      <circle cx="130" cy="8" r="2" fill="white" opacity="0.9"/>
-      <circle cx="160" cy="20" r="3" fill="#f9e04b" opacity="0.95"/>
-      <circle cx="190" cy="10" r="2" fill="white" opacity="0.8"/>
-      <circle cx="220" cy="25" r="2" fill="white" opacity="0.7"/>
-      <circle cx="250" cy="15" r="3" fill="white" opacity="0.9"/>
-      <circle cx="280" cy="30" r="2" fill="white" opacity="0.8"/>
-      <circle cx="55" cy="45" r="2" fill="white" opacity="0.7"/>
-      <circle cx="90" cy="55" r="2" fill="white" opacity="0.8"/>
-      <circle cx="125" cy="42" r="2" fill="white" opacity="0.6"/>
-      <circle cx="175" cy="50" r="2" fill="white" opacity="0.7"/>
-      <circle cx="210" cy="40" r="2" fill="white" opacity="0.8"/>
-      <circle cx="245" cy="55" r="2" fill="white" opacity="0.7"/>
-      <circle cx="285" cy="45" r="2" fill="white" opacity="0.6"/>
-      <circle cx="30" cy="70" r="2" fill="white" opacity="0.5"/>
-      <circle cx="300" cy="65" r="2" fill="white" opacity="0.6"/>
-      <circle cx="80" cy="75" r="2" fill="white" opacity="0.5"/>
-      <circle cx="240" cy="70" r="2" fill="white" opacity="0.6"/>
-      <circle cx="160" cy="80" r="10" fill="#e8b45a" opacity="0.8"/>
-      <rect x="155" y="90" width="10" height="35" fill="#8b6914"/>
-      <ellipse cx="148" cy="96" rx="10" ry="7" fill="#e8b45a" transform="rotate(-25 148 96)"/>
-      <ellipse cx="172" cy="96" rx="10" ry="7" fill="#e8b45a" transform="rotate(25 172 96)"/>
-      <ellipse cx="156" cy="125" rx="8" ry="14" fill="#e8b45a"/>
-      <ellipse cx="166" cy="125" rx="8" ry="14" fill="#e8b45a"/>
-      <path d="M160 30 L160 68" stroke="#f4b942" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="3 3"/>
-    </svg>`,
-    hagar: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8a060"/>
-      <rect x="0" y="115" width="320" height="45" fill="#b88840"/>
-      <ellipse cx="160" cy="115" rx="120" ry="20" fill="#a87830"/>
-      <circle cx="270" cy="35" r="22" fill="#f9e04b" opacity="0.9"/>
-      <ellipse cx="160" cy="105" rx="20" ry="12" fill="#6ab0d8" opacity="0.8"/>
-      <path d="M140 108 Q160 100 180 108" fill="#5aa0c8" opacity="0.7"/>
-      <ellipse cx="160" cy="108" rx="20" ry="5" fill="#4a90b8" opacity="0.5"/>
-      <circle cx="90" cy="85" r="10" fill="#f5e0c0"/>
-      <rect x="83" y="95" width="14" height="30" fill="#8b6040"/>
-      <ellipse cx="88" cy="100" rx="10" ry="7" fill="#f5e0c0" transform="rotate(-20 88 100)"/>
-      <ellipse cx="100" cy="100" rx="10" ry="7" fill="#f5e0c0" transform="rotate(15 100 100)"/>
-      <ellipse cx="84" cy="125" rx="7" ry="13" fill="#8b6040"/>
-      <ellipse cx="97" cy="125" rx="7" ry="13" fill="#8b6040"/>
-      <circle cx="88" cy="78" r="2" fill="#4a90b8" opacity="0.8"/>
-      <circle cx="93" cy="72" r="2" fill="#4a90b8" opacity="0.7"/>
-    </svg>`,
-    three_visitors: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8d8a8"/>
-      <rect x="0" y="115" width="320" height="45" fill="#8b7520"/>
-      <ellipse cx="160" cy="115" rx="100" ry="18" fill="#7a6418"/>
-      <circle cx="260" cy="30" r="20" fill="#f9e04b" opacity="0.9"/>
-      <polygon points="50,115 130,115 130,60 90,50 50,60" fill="#c8a84b"/>
-      <polygon points="50,60 90,50 130,60" fill="#d4b450"/>
-      <rect x="80" y="80" width="30" height="35" fill="#a08030"/>
-      <circle cx="180" cy="80" r="11" fill="#fffde0"/>
-      <rect x="172" y="91" width="16" height="30" fill="#f0f0d0"/>
-      <circle cx="210" cy="78" r="11" fill="#fffde0"/>
-      <rect x="202" y="89" width="16" height="30" fill="#f0f0d0"/>
-      <circle cx="240" cy="82" r="11" fill="#fffde0"/>
-      <rect x="232" y="93" width="16" height="30" fill="#f0f0d0"/>
-      <circle cx="90" cy="75" r="8" fill="#e8b45a"/>
-      <rect x="84" y="83" width="12" height="28" fill="#8b5a10"/>
-    </svg>`,
-    sodom: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a0a00"/>
-      <rect x="0" y="110" width="320" height="50" fill="#1a0a00"/>
-      <ellipse cx="80" cy="80" rx="60" ry="50" fill="#c84010" opacity="0.8"/>
-      <ellipse cx="240" cy="85" rx="55" ry="45" fill="#c84010" opacity="0.7"/>
-      <ellipse cx="80" cy="75" rx="40" ry="35" fill="#f4b942" opacity="0.7"/>
-      <ellipse cx="240" cy="80" rx="35" ry="30" fill="#f4b942" opacity="0.6"/>
-      <ellipse cx="80" cy="68" rx="20" ry="18" fill="#f9e04b" opacity="0.8"/>
-      <ellipse cx="240" cy="73" rx="18" ry="16" fill="#f9e04b" opacity="0.7"/>
-      <path d="M0 110 Q80 90 160 110 Q240 130 320 110" fill="#2d1a00" opacity="0.8"/>
-      <circle cx="200" cy="100" r="7" fill="#f5e6c8"/>
-      <rect x="194" y="107" width="12" height="22" fill="#8b6914"/>
-      <circle cx="220" cy="98" r="7" fill="#f5e6c8"/>
-      <rect x="214" y="105" width="12" height="22" fill="#8b6914"/>
-      <circle cx="210" cy="130" r="5" fill="#c8c8b0" opacity="0.8"/>
-      <rect x="206" y="135" width="8" height="20" fill="#b8b8a0" opacity="0.8"/>
-    </svg>`,
-    isaac_birth: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#e8d8a8"/>
-      <rect x="0" y="115" width="320" height="45" fill="#c4a870"/>
-      <rect x="60" y="30" width="200" height="85" fill="#d4b870" rx="8"/>
-      <rect x="60" y="30" width="200" height="12" fill="#a08840" rx="4"/>
-      <rect x="90" y="55" width="40" height="60" fill="#b89848"/>
-      <rect x="190" y="55" width="40" height="60" fill="#b89848"/>
-      <rect x="120" y="65" width="80" height="50" fill="#e8c870"/>
-      <circle cx="160" cy="78" r="14" fill="#f5e6c8"/>
-      <ellipse cx="160" cy="90" rx="20" ry="12" fill="#f5e6c8"/>
-      <circle cx="160" cy="74" r="6" fill="#f5d8b0"/>
-      <ellipse cx="155" cy="115" rx="12" ry="10" fill="#e0c890"/>
-      <ellipse cx="168" cy="118" rx="10" ry="8" fill="#e0c890"/>
-      <circle cx="40" cy="60" r="8" fill="#f5e6c8"/>
-      <rect x="34" y="68" width="12" height="30" fill="#8b6040"/>
-      <circle cx="280" cy="65" r="8" fill="#f5e6c8"/>
-      <rect x="274" y="73" width="12" height="30" fill="#8b6040"/>
-    </svg>`,
-    moriah: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a0a28"/>
-      <rect x="0" y="0" width="320" height="160" fill="#0a1428"/>
-      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
-      <polygon points="80,160 160,50 240,160" fill="#2d2010"/>
-      <polygon points="95,160 160,65 225,160" fill="#3d2d18"/>
-      <rect x="148" y="80" width="24" height="50" fill="#5a3010"/>
-      <rect x="136" y="75" width="48" height="10" fill="#6b3810"/>
-      <circle cx="155" cy="68" r="8" fill="#e8b45a"/>
-      <rect x="149" y="76" width="12" height="20" fill="#8b6914"/>
-      <circle cx="178" cy="65" r="9" fill="#f5e6c8"/>
-      <rect x="172" y="74" width="12" height="25" fill="#c4a060"/>
-      <path d="M168 72 L175 58" stroke="#f9e04b" stroke-width="2" fill="none" opacity="0.8"/>
-      <path d="M168 72 L178 60" stroke="#f9e04b" stroke-width="1.5" fill="none" opacity="0.6"/>
-      <ellipse cx="200" cy="90" rx="15" ry="12" fill="#8b6914" opacity="0.8"/>
-      <ellipse cx="200" cy="85" rx="8" ry="6" fill="#a07820" opacity="0.9"/>
-      <circle cx="50" cy="20" r="2" fill="white" opacity="0.8"/>
-      <circle cx="260" cy="15" r="2" fill="white" opacity="0.7"/>
-      <circle cx="30" cy="50" r="2" fill="white" opacity="0.6"/>
-    </svg>`,
-    rebekah_well: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#87CEEB"/>
-      <rect x="0" y="115" width="320" height="45" fill="#b09060"/>
-      <ellipse cx="160" cy="115" rx="100" ry="15" fill="#a08050"/>
-      <rect x="130" y="70" width="60" height="50" fill="#8b6914" rx="4"/>
-      <rect x="128" y="68" width="64" height="8" fill="#a07820" rx="2"/>
-      <rect x="155" y="40" width="10" height="30" fill="#6b4e10"/>
-      <rect x="140" y="38" width="40" height="6" fill="#6b4e10" rx="2"/>
-      <ellipse cx="160" cy="95" rx="20" ry="10" fill="#4a8ab0" opacity="0.8"/>
-      <circle cx="220" cy="80" r="10" fill="#f5e0c0"/>
-      <rect x="213" y="90" width="14" height="32" fill="#c4845a"/>
-      <ellipse cx="213" cy="95" rx="10" ry="7" fill="#f5e0c0" transform="rotate(-15 213 95)"/>
-      <rect x="226" y="72" width="6" height="25" fill="#8b6914"/>
-      <ellipse cx="229" cy="72" rx="6" ry="10" fill="#c4845a" opacity="0.8"/>
-      <circle cx="70" cy="90" r="9" fill="#e8b45a"/>
-      <rect x="63" y="99" width="14" height="28" fill="#8b6914"/>
-      <ellipse cx="50" cy="108" rx="12" ry="8" fill="#c8a060" opacity="0.7"/>
-      <ellipse cx="48" cy="112" rx="8" ry="5" fill="#c8a060" opacity="0.6"/>
-      <circle cx="260" cy="35" r="18" fill="#f9e04b" opacity="0.8"/>
-    </svg>`,
-    jacob_esau: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#e8d8b0"/>
-      <rect x="0" y="120" width="320" height="40" fill="#c4a870"/>
-      <rect x="80" y="40" width="160" height="80" fill="#d4b870" rx="6"/>
-      <rect x="80" y="40" width="160" height="10" fill="#a08840" rx="4"/>
-      <circle cx="260" cy="30" r="16" fill="#f9e04b" opacity="0.8"/>
-      <rect x="155" y="95" width="10" height="30" fill="#c4945a"/>
-      <ellipse cx="155" cy="125" rx="10" ry="8" fill="#8b6040"/>
-      <circle cx="160" cy="85" r="10" fill="#e8b45a"/>
-      <ellipse cx="153" cy="93" rx="9" ry="6" fill="#e8b45a" transform="rotate(-20 153 93)"/>
-      <ellipse cx="167" cy="93" rx="9" ry="6" fill="#e8b45a" transform="rotate(20 167 93)"/>
-      <ellipse cx="200" cy="108" rx="20" ry="10" fill="#c84010" opacity="0.8"/>
-      <ellipse cx="200" cy="104" rx="14" ry="8" fill="#e8601a" opacity="0.7"/>
-      <circle cx="230" cy="85" r="10" fill="#d09060"/>
-      <rect x="223" y="95" width="14" height="28" fill="#8b5030"/>
-      <ellipse cx="220" cy="100" rx="10" ry="7" fill="#d09060" transform="rotate(-20 220 100)"/>
-      <ellipse cx="237" cy="100" rx="10" ry="7" fill="#d09060" transform="rotate(20 237 100)"/>
-      <path d="M165 90 Q195 88 220 88" stroke="#c8a060" stroke-width="1.5" fill="none" stroke-dasharray="4 3" opacity="0.6"/>
-    </svg>`,
-    jacobs_ladder: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a0a1e"/>
-      <rect x="0" y="130" width="320" height="30" fill="#1a1008"/>
-      <defs><linearGradient id="laddergrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#c4a030" stop-opacity="0.9"/><stop offset="100%" stop-color="#f9e04b" stop-opacity="0.3"/></linearGradient></defs>
-      <rect x="148" y="10" width="8" height="120" fill="url(#laddergrad)"/>
-      <rect x="164" y="10" width="8" height="120" fill="url(#laddergrad)"/>
-      <rect x="148" y="25" width="24" height="4" fill="#f4b942" opacity="0.7"/>
-      <rect x="148" y="45" width="24" height="4" fill="#f4b942" opacity="0.65"/>
-      <rect x="148" y="65" width="24" height="4" fill="#f4b942" opacity="0.6"/>
-      <rect x="148" y="85" width="24" height="4" fill="#f4b942" opacity="0.55"/>
-      <rect x="148" y="105" width="24" height="4" fill="#f4b942" opacity="0.5"/>
-      <circle cx="125" cy="40" r="8" fill="#fffde0" opacity="0.9"/>
-      <ellipse cx="118" cy="48" rx="10" ry="7" fill="#fffde0" opacity="0.8"/>
-      <circle cx="195" cy="55" r="8" fill="#fffde0" opacity="0.85"/>
-      <ellipse cx="202" cy="63" rx="10" ry="7" fill="#fffde0" opacity="0.75"/>
-      <circle cx="130" cy="75" r="7" fill="#fffde0" opacity="0.8"/>
-      <circle cx="190" cy="85" r="7" fill="#fffde0" opacity="0.75"/>
-      <circle cx="160" cy="8" r="15" fill="#f9e04b" opacity="0.4"/>
-      <circle cx="160" cy="8" r="8" fill="#f9e04b" opacity="0.7"/>
-      <circle cx="160" cy="135" r="8" fill="#e8b45a"/>
-      <rect x="155" y="143" width="10" height="15" fill="#8b6914"/>
-      <circle cx="40" cy="20" r="2" fill="white" opacity="0.7"/>
-      <circle cx="280" cy="15" r="2" fill="white" opacity="0.8"/>
-      <circle cx="60" cy="50" r="2" fill="white" opacity="0.6"/>
-      <circle cx="300" cy="45" r="2" fill="white" opacity="0.7"/>
-    </svg>`,
-    joseph_sold: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8a060"/>
-      <rect x="0" y="115" width="320" height="45" fill="#a08040"/>
-      <ellipse cx="80" cy="115" rx="60" ry="15" fill="#907030"/>
-      <ellipse cx="240" cy="118" rx="55" ry="14" fill="#907030"/>
-      <circle cx="260" cy="30" r="18" fill="#f9e04b" opacity="0.85"/>
-      <circle cx="160" cy="78" r="9" fill="#c04010"/>
-      <rect x="154" y="87" width="12" height="28" fill="#a03008"/>
-      <ellipse cx="147" cy="93" rx="10" ry="7" fill="#c04010" transform="rotate(-20 147 93)"/>
-      <ellipse cx="173" cy="93" rx="10" ry="7" fill="#c04010" transform="rotate(20 173 93)"/>
-      <ellipse cx="157" cy="115" rx="8" ry="13" fill="#a03008"/>
-      <ellipse cx="167" cy="115" rx="8" ry="13" fill="#a03008"/>
-      <circle cx="80" cy="72" r="8" fill="#e8b45a"/>
-      <rect x="74" y="80" width="12" height="25" fill="#8b6914"/>
-      <circle cx="100" cy="70" r="8" fill="#d09060"/>
-      <rect x="94" y="78" width="12" height="25" fill="#7a5830"/>
-      <circle cx="120" cy="75" r="8" fill="#e8b45a"/>
-      <rect x="114" y="83" width="12" height="25" fill="#8b6914"/>
-      <path d="M135 88 L148 85" stroke="#8b6914" stroke-width="2"/>
-      <circle cx="230" cy="70" r="8" fill="#d09060"/>
-      <rect x="224" y="78" width="12" height="25" fill="#8b6040"/>
-      <circle cx="250" cy="75" r="8" fill="#c09050"/>
-      <rect x="244" y="83" width="12" height="25" fill="#7a5030"/>
-      <path d="M175 86 L220 74" stroke="#8b6914" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
-    </svg>`,
-    creation_light: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <defs><radialGradient id="lightburst" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fff8d0" stop-opacity="1"/><stop offset="40%" stop-color="#f4d050" stop-opacity="0.8"/><stop offset="100%" stop-color="#0a0a1e" stop-opacity="1"/></radialGradient></defs>
-      <rect width="320" height="160" fill="#0a0a1e"/>
-      <circle cx="160" cy="80" r="120" fill="url(#lightburst)"/>
-      <circle cx="160" cy="80" r="30" fill="#fff8d0" opacity="0.95"/>
-      <circle cx="160" cy="80" r="15" fill="white"/>
-      <line x1="160" y1="10" x2="160" y2="30" stroke="#f4d050" stroke-width="2" opacity="0.8"/>
-      <line x1="160" y1="130" x2="160" y2="150" stroke="#f4d050" stroke-width="2" opacity="0.8"/>
-      <line x1="90" y1="80" x2="110" y2="80" stroke="#f4d050" stroke-width="2" opacity="0.8"/>
-      <line x1="210" y1="80" x2="230" y2="80" stroke="#f4d050" stroke-width="2" opacity="0.8"/>
-      <line x1="107" y1="27" x2="121" y2="41" stroke="#f4d050" stroke-width="2" opacity="0.6"/>
-      <line x1="199" y1="119" x2="213" y2="133" stroke="#f4d050" stroke-width="2" opacity="0.6"/>
-      <line x1="213" y1="27" x2="199" y2="41" stroke="#f4d050" stroke-width="2" opacity="0.6"/>
-      <line x1="107" y1="119" x2="121" y2="105" stroke="#f4d050" stroke-width="2" opacity="0.6"/>
-      <rect x="0" y="0" width="160" height="160" fill="#0a0a1e" opacity="0.5"/>
-    </svg>`,
-    creation_world: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#4a9aee"/>
-      <rect x="0" y="100" width="320" height="60" fill="#3a7a30"/>
-      <ellipse cx="160" cy="100" rx="180" ry="25" fill="#4a9a38"/>
-      <circle cx="260" cy="35" r="28" fill="#f9e04b" opacity="0.9"/>
-      <ellipse cx="60" cy="40" rx="40" ry="20" fill="white" opacity="0.7"/>
-      <ellipse cx="200" cy="25" rx="50" ry="22" fill="white" opacity="0.6"/>
-      <ellipse cx="120" cy="55" rx="35" ry="15" fill="white" opacity="0.5"/>
-      <ellipse cx="60" cy="115" rx="30" ry="20" fill="#2d6a20"/>
-      <ellipse cx="260" cy="118" rx="35" ry="18" fill="#2d6a20"/>
-      <rect x="150" y="75" width="6" height="30" fill="#5a3a10"/>
-      <ellipse cx="153" cy="72" rx="14" ry="16" fill="#3a7a20"/>
-      <rect x="180" y="80" width="5" height="25" fill="#5a3a10"/>
-      <ellipse cx="182" cy="77" rx="11" ry="13" fill="#4a8a28"/>
-      <circle cx="80" cy="118" r="8" fill="#f5f5f5"/>
-      <circle cx="95" cy="120" r="7" fill="#f5f5f5"/>
-      <circle cx="240" cy="120" r="8" fill="#8b4513"/>
-      <circle cx="255" cy="118" r="6" fill="#a05a20"/>
-    </svg>`,
-    creation_human: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#87ceeb"/>
-      <rect x="0" y="110" width="320" height="50" fill="#4a8a30"/>
-      <ellipse cx="160" cy="110" rx="150" ry="25" fill="#5a9a38"/>
-      <circle cx="240" cy="40" r="20" fill="#f9e04b" opacity="0.8"/>
-      <ellipse cx="80" cy="50" rx="35" ry="15" fill="white" opacity="0.6"/>
-      <ellipse cx="200" cy="30" rx="40" ry="18" fill="white" opacity="0.5"/>
-      <rect x="148" y="75" width="6" height="28" fill="#5a3a10"/>
-      <ellipse cx="151" cy="72" rx="12" ry="14" fill="#3a7a20"/>
-      <rect x="168" y="78" width="5" height="24" fill="#5a3a10"/>
-      <ellipse cx="170" cy="76" rx="10" ry="12" fill="#4a8a28"/>
-      <circle cx="120" cy="88" r="9" fill="#e8b45a"/>
-      <rect x="115" y="97" width="10" height="22" fill="#c8901a"/>
-      <circle cx="200" cy="90" r="9" fill="#f5e6c8"/>
-      <rect x="195" y="99" width="10" height="22" fill="#d4a870"/>
-      <ellipse cx="160" cy="125" rx="30" ry="8" fill="#f4b942" opacity="0.15"/>
-      <text x="160" y="150" text-anchor="middle" fill="#2d5a10" font-size="9" opacity="0.7">Made in His Image</text>
-    </svg>`,
-    cain_abel: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8a860"/>
-      <rect x="0" y="110" width="320" height="50" fill="#8b7040"/>
-      <ellipse cx="80" cy="110" rx="60" ry="20" fill="#7a6030"/>
-      <ellipse cx="240" cy="115" rx="60" ry="18" fill="#7a6030"/>
-      <rect x="60" y="60" width="80" height="50" fill="#6a4a20" opacity="0.3"/>
-      <polygon points="60,60 100,35 140,60" fill="#5a3a18" opacity="0.4"/>
-      <circle cx="100" cy="75" r="8" fill="#f4b942" opacity="0.6"/>
-      <ellipse cx="100" cy="80" rx="15" ry="8" fill="#f4b942" opacity="0.3"/>
-      <circle cx="200" cy="80" r="9" fill="#e8b45a"/>
-      <rect x="195" y="89" width="10" height="28" fill="#8b6914"/>
-      <circle cx="240" cy="78" r="9" fill="#f5e6c8"/>
-      <rect x="235" y="87" width="10" height="28" fill="#a07820"/>
-      <path d="M220 85 Q230 75 238 82" stroke="#c8401a" stroke-width="2" fill="none" opacity="0.6"/>
-      <circle cx="80" cy="115" r="6" fill="#8b5a20" opacity="0.8"/>
-      <circle cx="95" cy="118" r="5" fill="#7a4a18" opacity="0.8"/>
-    </svg>`,
-    noah_flood: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a2a4a"/>
-      <rect x="0" y="90" width="320" height="70" fill="#1a3a6e"/>
-      <path d="M0 95 Q40 85 80 95 Q120 105 160 95 Q200 85 240 95 Q280 105 320 95" fill="none" stroke="#3a6aae" stroke-width="2" opacity="0.6"/>
-      <path d="M0 110 Q40 100 80 110 Q120 120 160 110 Q200 100 240 110 Q280 120 320 110" fill="none" stroke="#2a5a9e" stroke-width="1.5" opacity="0.4"/>
-      <rect x="110" y="55" width="100" height="40" fill="#8b6914" rx="3"/>
-      <rect x="105" y="88" width="110" height="12" fill="#a07820" rx="2"/>
-      <polygon points="110,55 160,25 210,55" fill="#7a5a10"/>
-      <rect x="145" y="30" width="30" height="25" fill="#8b6914"/>
-      <rect x="155" y="35" width="10" height="15" fill="#6b4e10"/>
-      <line x1="80" y1="0" x2="60" y2="50" stroke="#3a5a8e" stroke-width="1.5" opacity="0.6"/>
-      <line x1="120" y1="0" x2="100" y2="45" stroke="#3a5a8e" stroke-width="1.5" opacity="0.5"/>
-      <line x1="200" y1="0" x2="220" y2="45" stroke="#3a5a8e" stroke-width="1.5" opacity="0.6"/>
-      <line x1="250" y1="0" x2="270" y2="40" stroke="#3a5a8e" stroke-width="1.5" opacity="0.5"/>
-      <circle cx="40" cy="15" r="15" fill="#2a4a7e" opacity="0.4"/>
-      <circle cx="280" cy="20" r="18" fill="#2a4a7e" opacity="0.4"/>
-    </svg>`,
-    noah_rainbow: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#87ceeb"/>
-      <rect x="0" y="115" width="320" height="45" fill="#3a7a30"/>
-      <ellipse cx="160" cy="115" rx="180" ry="20" fill="#4a8a38"/>
-      <path d="M20 130 Q160 20 300 130" fill="none" stroke="#e84040" stroke-width="4" opacity="0.8"/>
-      <path d="M30 132 Q160 30 290 132" fill="none" stroke="#e8a040" stroke-width="4" opacity="0.8"/>
-      <path d="M40 134 Q160 40 280 134" fill="none" stroke="#e8e040" stroke-width="4" opacity="0.8"/>
-      <path d="M50 136 Q160 50 270 136" fill="none" stroke="#40c840" stroke-width="4" opacity="0.8"/>
-      <path d="M60 138 Q160 60 260 138" fill="none" stroke="#4040e8" stroke-width="4" opacity="0.8"/>
-      <path d="M70 140 Q160 70 250 140" fill="none" stroke="#8040c8" stroke-width="4" opacity="0.7"/>
-      <circle cx="260" cy="35" r="20" fill="#f9e04b" opacity="0.8"/>
-      <rect x="145" y="100" width="30" height="20" fill="#8b6914" rx="2"/>
-      <polygon points="145,100 160,82 175,100" fill="#7a5a10"/>
-      <circle cx="40" cy="60" r="18" fill="white" opacity="0.6"/>
-      <circle cx="280" cy="50" r="22" fill="white" opacity="0.5"/>
-    </svg>`,
-    babel: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8d8e8"/>
-      <rect x="0" y="120" width="320" height="40" fill="#a09060"/>
-      <rect x="130" y="80" width="60" height="50" fill="#8b7520"/>
-      <rect x="120" y="65" width="80" height="20" fill="#9b8530"/>
-      <rect x="133" y="50" width="54" height="18" fill="#8b7520"/>
-      <rect x="138" y="37" width="44" height="16" fill="#9b8530"/>
-      <rect x="143" y="25" width="34" height="14" fill="#8b7520"/>
-      <rect x="148" y="14" width="24" height="13" fill="#9b8530"/>
-      <rect x="153" y="5" width="14" height="11" fill="#8b7520"/>
-      <rect x="156" y="0" width="8" height="7" fill="#f4b942"/>
-      <circle cx="45" cy="40" r="3" fill="#f4b942" opacity="0.8"/>
-      <line x1="45" y1="40" x2="70" y2="55" stroke="#f4b942" stroke-width="1.5" opacity="0.4"/>
-      <circle cx="275" cy="45" r="3" fill="#f4b942" opacity="0.8"/>
-      <line x1="275" y1="45" x2="250" y2="58" stroke="#f4b942" stroke-width="1.5" opacity="0.4"/>
-      <circle cx="60" cy="125" r="5" fill="#5a4820"/>
-      <circle cx="80" cy="122" r="5" fill="#5a4820"/>
-      <circle cx="240" cy="125" r="5" fill="#5a4820"/>
-      <circle cx="260" cy="122" r="5" fill="#5a4820"/>
-    </svg>`,
-    babel_to_ur: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#d4c090"/>
-      <rect x="0" y="115" width="320" height="45" fill="#b09060"/>
-      <ellipse cx="280" cy="100" rx="60" ry="30" fill="#8b6914" opacity="0.6"/>
-      <rect x="240" y="55" width="50" height="50" fill="#c8a84b"/>
-      <polygon points="240,55 265,30 290,55" fill="#b09030"/>
-      <rect x="255" y="40" width="20" height="15" fill="#c8a84b"/>
-      <rect x="250" y="70" width="12" height="20" fill="#8b6914"/>
-      <rect x="270" y="70" width="12" height="20" fill="#8b6914"/>
-      <path d="M30 120 Q100 100 180 115 Q240 125 270 118" stroke="#c8901a" stroke-width="2" fill="none" stroke-dasharray="5 3" opacity="0.7"/>
-      <circle cx="30" cy="120" r="5" fill="#c8401a" opacity="0.8"/>
-      <circle cx="270" cy="118" r="5" fill="#2d6aae" opacity="0.8"/>
-      <circle cx="80" cy="30" r="3" fill="#f4b942" opacity="0.6"/>
-      <circle cx="160" cy="20" r="3" fill="#f4b942" opacity="0.7"/>
-      <circle cx="240" cy="28" r="3" fill="#f4b942" opacity="0.6"/>
-    </svg>`,
-    abram_call: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a0a1e"/>
-      <rect x="0" y="115" width="320" height="45" fill="#2d1a00"/>
-      <ellipse cx="160" cy="115" rx="200" ry="25" fill="#3d2800"/>
-      <circle cx="40" cy="20" r="3" fill="white" opacity="0.9"/>
-      <circle cx="80" cy="10" r="2" fill="white" opacity="0.8"/>
-      <circle cx="130" cy="18" r="3" fill="white" opacity="0.9"/>
-      <circle cx="180" cy="8" r="2" fill="white" opacity="0.8"/>
-      <circle cx="230" cy="15" r="3" fill="white" opacity="0.9"/>
-      <circle cx="275" cy="22" r="2" fill="white" opacity="0.7"/>
-      <circle cx="60" cy="45" r="2" fill="white" opacity="0.6"/>
-      <circle cx="290" cy="38" r="2" fill="white" opacity="0.7"/>
-      <circle cx="160" cy="5" r="4" fill="#f4b942" opacity="0.9"/>
-      <path d="M160 5 L160 50" stroke="#f4b942" stroke-width="1.5" opacity="0.5" stroke-dasharray="3 3"/>
-      <circle cx="160" cy="90" r="9" fill="#e8b45a"/>
-      <rect x="155" y="99" width="10" height="25" fill="#8b6914"/>
-      <rect x="167" y="102" width="3" height="28" fill="#6b4e10" transform="rotate(10 167 102)"/>
-      <path d="M70 118 Q120 108 155 112" stroke="#c8901a" stroke-width="1.5" fill="none" stroke-dasharray="4 3" opacity="0.6"/>
-      <text x="160" y="152" text-anchor="middle" fill="#c8901a" font-size="9" opacity="0.8">Go... to the land I will show you</text>
-    </svg>`,
-    covenant_stars: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#020210"/>
-      <rect x="0" y="120" width="320" height="40" fill="#1a1008"/>
-      <circle cx="40" cy="25" r="2" fill="white" opacity="0.9"/>
-      <circle cx="70" cy="12" r="3" fill="white" opacity="0.8"/>
-      <circle cx="100" cy="30" r="2" fill="white" opacity="0.7"/>
-      <circle cx="130" cy="8" r="2" fill="white" opacity="0.9"/>
-      <circle cx="160" cy="20" r="3" fill="#f9e04b" opacity="0.95"/>
-      <circle cx="190" cy="10" r="2" fill="white" opacity="0.8"/>
-      <circle cx="220" cy="25" r="2" fill="white" opacity="0.7"/>
-      <circle cx="250" cy="15" r="3" fill="white" opacity="0.9"/>
-      <circle cx="280" cy="30" r="2" fill="white" opacity="0.8"/>
-      <circle cx="55" cy="45" r="2" fill="white" opacity="0.7"/>
-      <circle cx="90" cy="55" r="2" fill="white" opacity="0.8"/>
-      <circle cx="125" cy="42" r="2" fill="white" opacity="0.6"/>
-      <circle cx="175" cy="50" r="2" fill="white" opacity="0.7"/>
-      <circle cx="210" cy="40" r="2" fill="white" opacity="0.8"/>
-      <circle cx="245" cy="55" r="2" fill="white" opacity="0.7"/>
-      <circle cx="285" cy="45" r="2" fill="white" opacity="0.6"/>
-      <circle cx="30" cy="70" r="2" fill="white" opacity="0.5"/>
-      <circle cx="300" cy="65" r="2" fill="white" opacity="0.6"/>
-      <circle cx="80" cy="75" r="2" fill="white" opacity="0.5"/>
-      <circle cx="240" cy="70" r="2" fill="white" opacity="0.6"/>
-      <circle cx="160" cy="80" r="10" fill="#e8b45a" opacity="0.8"/>
-      <rect x="155" y="90" width="10" height="35" fill="#8b6914"/>
-      <ellipse cx="148" cy="96" rx="10" ry="7" fill="#e8b45a" transform="rotate(-25 148 96)"/>
-      <ellipse cx="172" cy="96" rx="10" ry="7" fill="#e8b45a" transform="rotate(25 172 96)"/>
-      <ellipse cx="156" cy="125" rx="8" ry="14" fill="#e8b45a"/>
-      <ellipse cx="166" cy="125" rx="8" ry="14" fill="#e8b45a"/>
-      <path d="M160 30 L160 68" stroke="#f4b942" stroke-width="1" fill="none" opacity="0.4" stroke-dasharray="3 3"/>
-    </svg>`,
-    hagar: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8a060"/>
-      <rect x="0" y="115" width="320" height="45" fill="#b88840"/>
-      <ellipse cx="160" cy="115" rx="120" ry="20" fill="#a87830"/>
-      <circle cx="270" cy="35" r="22" fill="#f9e04b" opacity="0.9"/>
-      <ellipse cx="160" cy="105" rx="20" ry="12" fill="#6ab0d8" opacity="0.8"/>
-      <path d="M140 108 Q160 100 180 108" fill="#5aa0c8" opacity="0.7"/>
-      <ellipse cx="160" cy="108" rx="20" ry="5" fill="#4a90b8" opacity="0.5"/>
-      <circle cx="90" cy="85" r="10" fill="#f5e0c0"/>
-      <rect x="83" y="95" width="14" height="30" fill="#8b6040"/>
-      <ellipse cx="88" cy="100" rx="10" ry="7" fill="#f5e0c0" transform="rotate(-20 88 100)"/>
-      <ellipse cx="100" cy="100" rx="10" ry="7" fill="#f5e0c0" transform="rotate(15 100 100)"/>
-      <ellipse cx="84" cy="125" rx="7" ry="13" fill="#8b6040"/>
-      <ellipse cx="97" cy="125" rx="7" ry="13" fill="#8b6040"/>
-      <circle cx="88" cy="78" r="2" fill="#4a90b8" opacity="0.8"/>
-      <circle cx="93" cy="72" r="2" fill="#4a90b8" opacity="0.7"/>
-    </svg>`,
-    three_visitors: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8d8a8"/>
-      <rect x="0" y="115" width="320" height="45" fill="#8b7520"/>
-      <ellipse cx="160" cy="115" rx="100" ry="18" fill="#7a6418"/>
-      <circle cx="260" cy="30" r="20" fill="#f9e04b" opacity="0.9"/>
-      <polygon points="50,115 130,115 130,60 90,50 50,60" fill="#c8a84b"/>
-      <polygon points="50,60 90,50 130,60" fill="#d4b450"/>
-      <rect x="80" y="80" width="30" height="35" fill="#a08030"/>
-      <circle cx="180" cy="80" r="11" fill="#fffde0"/>
-      <rect x="172" y="91" width="16" height="30" fill="#f0f0d0"/>
-      <circle cx="210" cy="78" r="11" fill="#fffde0"/>
-      <rect x="202" y="89" width="16" height="30" fill="#f0f0d0"/>
-      <circle cx="240" cy="82" r="11" fill="#fffde0"/>
-      <rect x="232" y="93" width="16" height="30" fill="#f0f0d0"/>
-      <circle cx="90" cy="75" r="8" fill="#e8b45a"/>
-      <rect x="84" y="83" width="12" height="28" fill="#8b5a10"/>
-    </svg>`,
-    sodom: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a0a00"/>
-      <rect x="0" y="110" width="320" height="50" fill="#1a0a00"/>
-      <ellipse cx="80" cy="80" rx="60" ry="50" fill="#c84010" opacity="0.8"/>
-      <ellipse cx="240" cy="85" rx="55" ry="45" fill="#c84010" opacity="0.7"/>
-      <ellipse cx="80" cy="75" rx="40" ry="35" fill="#f4b942" opacity="0.7"/>
-      <ellipse cx="240" cy="80" rx="35" ry="30" fill="#f4b942" opacity="0.6"/>
-      <ellipse cx="80" cy="68" rx="20" ry="18" fill="#f9e04b" opacity="0.8"/>
-      <ellipse cx="240" cy="73" rx="18" ry="16" fill="#f9e04b" opacity="0.7"/>
-      <path d="M0 110 Q80 90 160 110 Q240 130 320 110" fill="#2d1a00" opacity="0.8"/>
-      <circle cx="200" cy="100" r="7" fill="#f5e6c8"/>
-      <rect x="194" y="107" width="12" height="22" fill="#8b6914"/>
-      <circle cx="220" cy="98" r="7" fill="#f5e6c8"/>
-      <rect x="214" y="105" width="12" height="22" fill="#8b6914"/>
-      <circle cx="210" cy="130" r="5" fill="#c8c8b0" opacity="0.8"/>
-      <rect x="206" y="135" width="8" height="20" fill="#b8b8a0" opacity="0.8"/>
-    </svg>`,
-    isaac_birth: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#e8d8a8"/>
-      <rect x="0" y="115" width="320" height="45" fill="#c4a870"/>
-      <rect x="60" y="30" width="200" height="85" fill="#d4b870" rx="8"/>
-      <rect x="60" y="30" width="200" height="12" fill="#a08840" rx="4"/>
-      <rect x="90" y="55" width="40" height="60" fill="#b89848"/>
-      <rect x="190" y="55" width="40" height="60" fill="#b89848"/>
-      <rect x="120" y="65" width="80" height="50" fill="#e8c870"/>
-      <circle cx="160" cy="78" r="14" fill="#f5e6c8"/>
-      <ellipse cx="160" cy="90" rx="20" ry="12" fill="#f5e6c8"/>
-      <circle cx="160" cy="74" r="6" fill="#f5d8b0"/>
-      <ellipse cx="155" cy="115" rx="12" ry="10" fill="#e0c890"/>
-      <ellipse cx="168" cy="118" rx="10" ry="8" fill="#e0c890"/>
-      <circle cx="40" cy="60" r="8" fill="#f5e6c8"/>
-      <rect x="34" y="68" width="12" height="30" fill="#8b6040"/>
-      <circle cx="280" cy="65" r="8" fill="#f5e6c8"/>
-      <rect x="274" y="73" width="12" height="30" fill="#8b6040"/>
-    </svg>`,
-    moriah: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a0a28"/>
-      <rect x="0" y="0" width="320" height="160" fill="#0a1428"/>
-      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
-      <polygon points="80,160 160,50 240,160" fill="#2d2010"/>
-      <polygon points="95,160 160,65 225,160" fill="#3d2d18"/>
-      <rect x="148" y="80" width="24" height="50" fill="#5a3010"/>
-      <rect x="136" y="75" width="48" height="10" fill="#6b3810"/>
-      <circle cx="155" cy="68" r="8" fill="#e8b45a"/>
-      <rect x="149" y="76" width="12" height="20" fill="#8b6914"/>
-      <circle cx="178" cy="65" r="9" fill="#f5e6c8"/>
-      <rect x="172" y="74" width="12" height="25" fill="#c4a060"/>
-      <path d="M168 72 L175 58" stroke="#f9e04b" stroke-width="2" fill="none" opacity="0.8"/>
-      <path d="M168 72 L178 60" stroke="#f9e04b" stroke-width="1.5" fill="none" opacity="0.6"/>
-      <ellipse cx="200" cy="90" rx="15" ry="12" fill="#8b6914" opacity="0.8"/>
-      <ellipse cx="200" cy="85" rx="8" ry="6" fill="#a07820" opacity="0.9"/>
-      <circle cx="50" cy="20" r="2" fill="white" opacity="0.8"/>
-      <circle cx="260" cy="15" r="2" fill="white" opacity="0.7"/>
-      <circle cx="30" cy="50" r="2" fill="white" opacity="0.6"/>
-    </svg>`,
-    rebekah_well: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#87CEEB"/>
-      <rect x="0" y="115" width="320" height="45" fill="#b09060"/>
-      <ellipse cx="160" cy="115" rx="100" ry="15" fill="#a08050"/>
-      <rect x="130" y="70" width="60" height="50" fill="#8b6914" rx="4"/>
-      <rect x="128" y="68" width="64" height="8" fill="#a07820" rx="2"/>
-      <rect x="155" y="40" width="10" height="30" fill="#6b4e10"/>
-      <rect x="140" y="38" width="40" height="6" fill="#6b4e10" rx="2"/>
-      <ellipse cx="160" cy="95" rx="20" ry="10" fill="#4a8ab0" opacity="0.8"/>
-      <circle cx="220" cy="80" r="10" fill="#f5e0c0"/>
-      <rect x="213" y="90" width="14" height="32" fill="#c4845a"/>
-      <ellipse cx="213" cy="95" rx="10" ry="7" fill="#f5e0c0" transform="rotate(-15 213 95)"/>
-      <rect x="226" y="72" width="6" height="25" fill="#8b6914"/>
-      <ellipse cx="229" cy="72" rx="6" ry="10" fill="#c4845a" opacity="0.8"/>
-      <circle cx="70" cy="90" r="9" fill="#e8b45a"/>
-      <rect x="63" y="99" width="14" height="28" fill="#8b6914"/>
-      <ellipse cx="50" cy="108" rx="12" ry="8" fill="#c8a060" opacity="0.7"/>
-      <ellipse cx="48" cy="112" rx="8" ry="5" fill="#c8a060" opacity="0.6"/>
-      <circle cx="260" cy="35" r="18" fill="#f9e04b" opacity="0.8"/>
-    </svg>`,
-    jacob_esau: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#e8d8b0"/>
-      <rect x="0" y="120" width="320" height="40" fill="#c4a870"/>
-      <rect x="80" y="40" width="160" height="80" fill="#d4b870" rx="6"/>
-      <rect x="80" y="40" width="160" height="10" fill="#a08840" rx="4"/>
-      <circle cx="260" cy="30" r="16" fill="#f9e04b" opacity="0.8"/>
-      <rect x="155" y="95" width="10" height="30" fill="#c4945a"/>
-      <ellipse cx="155" cy="125" rx="10" ry="8" fill="#8b6040"/>
-      <circle cx="160" cy="85" r="10" fill="#e8b45a"/>
-      <ellipse cx="153" cy="93" rx="9" ry="6" fill="#e8b45a" transform="rotate(-20 153 93)"/>
-      <ellipse cx="167" cy="93" rx="9" ry="6" fill="#e8b45a" transform="rotate(20 167 93)"/>
-      <ellipse cx="200" cy="108" rx="20" ry="10" fill="#c84010" opacity="0.8"/>
-      <ellipse cx="200" cy="104" rx="14" ry="8" fill="#e8601a" opacity="0.7"/>
-      <circle cx="230" cy="85" r="10" fill="#d09060"/>
-      <rect x="223" y="95" width="14" height="28" fill="#8b5030"/>
-      <ellipse cx="220" cy="100" rx="10" ry="7" fill="#d09060" transform="rotate(-20 220 100)"/>
-      <ellipse cx="237" cy="100" rx="10" ry="7" fill="#d09060" transform="rotate(20 237 100)"/>
-      <path d="M165 90 Q195 88 220 88" stroke="#c8a060" stroke-width="1.5" fill="none" stroke-dasharray="4 3" opacity="0.6"/>
-    </svg>`,
-    jacobs_ladder: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a0a1e"/>
-      <rect x="0" y="130" width="320" height="30" fill="#1a1008"/>
-      <defs><linearGradient id="laddergrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#c4a030" stop-opacity="0.9"/><stop offset="100%" stop-color="#f9e04b" stop-opacity="0.3"/></linearGradient></defs>
-      <rect x="148" y="10" width="8" height="120" fill="url(#laddergrad)"/>
-      <rect x="164" y="10" width="8" height="120" fill="url(#laddergrad)"/>
-      <rect x="148" y="25" width="24" height="4" fill="#f4b942" opacity="0.7"/>
-      <rect x="148" y="45" width="24" height="4" fill="#f4b942" opacity="0.65"/>
-      <rect x="148" y="65" width="24" height="4" fill="#f4b942" opacity="0.6"/>
-      <rect x="148" y="85" width="24" height="4" fill="#f4b942" opacity="0.55"/>
-      <rect x="148" y="105" width="24" height="4" fill="#f4b942" opacity="0.5"/>
-      <circle cx="125" cy="40" r="8" fill="#fffde0" opacity="0.9"/>
-      <ellipse cx="118" cy="48" rx="10" ry="7" fill="#fffde0" opacity="0.8"/>
-      <circle cx="195" cy="55" r="8" fill="#fffde0" opacity="0.85"/>
-      <ellipse cx="202" cy="63" rx="10" ry="7" fill="#fffde0" opacity="0.75"/>
-      <circle cx="130" cy="75" r="7" fill="#fffde0" opacity="0.8"/>
-      <circle cx="190" cy="85" r="7" fill="#fffde0" opacity="0.75"/>
-      <circle cx="160" cy="8" r="15" fill="#f9e04b" opacity="0.4"/>
-      <circle cx="160" cy="8" r="8" fill="#f9e04b" opacity="0.7"/>
-      <circle cx="160" cy="135" r="8" fill="#e8b45a"/>
-      <rect x="155" y="143" width="10" height="15" fill="#8b6914"/>
-      <circle cx="40" cy="20" r="2" fill="white" opacity="0.7"/>
-      <circle cx="280" cy="15" r="2" fill="white" opacity="0.8"/>
-      <circle cx="60" cy="50" r="2" fill="white" opacity="0.6"/>
-      <circle cx="300" cy="45" r="2" fill="white" opacity="0.7"/>
-    </svg>`,
-    joseph_sold: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8a060"/>
-      <rect x="0" y="115" width="320" height="45" fill="#a08040"/>
-      <ellipse cx="80" cy="115" rx="60" ry="15" fill="#907030"/>
-      <ellipse cx="240" cy="118" rx="55" ry="14" fill="#907030"/>
-      <circle cx="260" cy="30" r="18" fill="#f9e04b" opacity="0.85"/>
-      <circle cx="160" cy="78" r="9" fill="#c04010"/>
-      <rect x="154" y="87" width="12" height="28" fill="#a03008"/>
-      <ellipse cx="147" cy="93" rx="10" ry="7" fill="#c04010" transform="rotate(-20 147 93)"/>
-      <ellipse cx="173" cy="93" rx="10" ry="7" fill="#c04010" transform="rotate(20 173 93)"/>
-      <ellipse cx="157" cy="115" rx="8" ry="13" fill="#a03008"/>
-      <ellipse cx="167" cy="115" rx="8" ry="13" fill="#a03008"/>
-      <circle cx="80" cy="72" r="8" fill="#e8b45a"/>
-      <rect x="74" y="80" width="12" height="25" fill="#8b6914"/>
-      <circle cx="100" cy="70" r="8" fill="#d09060"/>
-      <rect x="94" y="78" width="12" height="25" fill="#7a5830"/>
-      <circle cx="120" cy="75" r="8" fill="#e8b45a"/>
-      <rect x="114" y="83" width="12" height="25" fill="#8b6914"/>
-      <path d="M135 88 L148 85" stroke="#8b6914" stroke-width="2"/>
-      <circle cx="230" cy="70" r="8" fill="#d09060"/>
-      <rect x="224" y="78" width="12" height="25" fill="#8b6040"/>
-      <circle cx="250" cy="75" r="8" fill="#c09050"/>
-      <rect x="244" y="83" width="12" height="25" fill="#7a5030"/>
-      <path d="M175 86 L220 74" stroke="#8b6914" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
-    </svg>`,
-    creation_light: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#000010"/>
-      <defs><radialGradient id="lightburst" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fffde0" stop-opacity="1"/><stop offset="30%" stop-color="#f4c842" stop-opacity="0.8"/><stop offset="70%" stop-color="#f4842a" stop-opacity="0.3"/><stop offset="100%" stop-color="#000010" stop-opacity="0"/></radialGradient></defs>
-      <circle cx="160" cy="80" r="120" fill="url(#lightburst)"/>
-      <circle cx="160" cy="80" r="30" fill="#fffde0" opacity="0.95"/>
-      <circle cx="160" cy="80" r="15" fill="white"/>
-      <line x1="160" y1="10" x2="160" y2="50" stroke="#fffde0" stroke-width="2" opacity="0.6"/>
-      <line x1="160" y1="110" x2="160" y2="150" stroke="#fffde0" stroke-width="2" opacity="0.6"/>
-      <line x1="90" y1="80" x2="130" y2="80" stroke="#fffde0" stroke-width="2" opacity="0.6"/>
-      <line x1="190" y1="80" x2="230" y2="80" stroke="#fffde0" stroke-width="2" opacity="0.6"/>
-      <line x1="110" y1="30" x2="135" y2="55" stroke="#fffde0" stroke-width="2" opacity="0.5"/>
-      <line x1="210" y1="30" x2="185" y2="55" stroke="#fffde0" stroke-width="2" opacity="0.5"/>
-      <line x1="110" y1="130" x2="135" y2="105" stroke="#fffde0" stroke-width="2" opacity="0.5"/>
-      <line x1="210" y1="130" x2="185" y2="105" stroke="#fffde0" stroke-width="2" opacity="0.5"/>
-    </svg>`,
-    creation_world: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a3a6e"/>
-      <circle cx="160" cy="80" r="65" fill="#1a6e3a"/>
-      <circle cx="160" cy="80" r="65" fill="none" stroke="#4ab8f0" stroke-width="3"/>
-      <ellipse cx="130" cy="65" rx="25" ry="20" fill="#2a8a4a"/>
-      <ellipse cx="175" cy="85" rx="30" ry="18" fill="#2a8a4a"/>
-      <ellipse cx="145" cy="95" rx="20" ry="15" fill="#2a8a4a"/>
-      <ellipse cx="100" cy="80" rx="15" ry="20" fill="#1a6ab0"/>
-      <ellipse cx="195" cy="65" rx="18" ry="15" fill="#1a6ab0"/>
-      <ellipse cx="160" cy="110" rx="25" ry="12" fill="#1a6ab0"/>
-      <circle cx="40" cy="25" r="18" fill="#f9e04b" opacity="0.9"/>
-      <circle cx="280" cy="25" r="10" fill="#f0f0f0" opacity="0.8"/>
-      <circle cx="60" cy="15" r="2" fill="white" opacity="0.7"/>
-      <circle cx="220" cy="10" r="2" fill="white" opacity="0.6"/>
-      <circle cx="290" cy="50" r="2" fill="white" opacity="0.8"/>
-    </svg>`,
-    creation_human: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a4a10"/>
-      <rect x="0" y="110" width="320" height="50" fill="#2d6a20"/>
-      <rect x="0" y="0" width="320" height="80" fill="#87CEEB"/>
-      <ellipse cx="80" cy="110" rx="60" ry="20" fill="#3a7a20"/>
-      <ellipse cx="240" cy="110" rx="60" ry="20" fill="#3a7a20"/>
-      <circle cx="260" cy="30" r="22" fill="#f9e04b" opacity="0.9"/>
-      <rect x="148" y="60" width="24" height="50" fill="#e8b45a"/>
-      <circle cx="160" cy="55" r="14" fill="#f5e0c8"/>
-      <ellipse cx="148" cy="78" rx="10" ry="7" fill="#e8b45a" transform="rotate(-20 148 78)"/>
-      <ellipse cx="172" cy="78" rx="10" ry="7" fill="#e8b45a" transform="rotate(20 172 78)"/>
-      <ellipse cx="155" cy="110" rx="8" ry="15" fill="#e8b45a"/>
-      <ellipse cx="165" cy="110" rx="8" ry="15" fill="#e8b45a"/>
-      <rect x="100" y="70" width="40" height="8" rx="4" fill="#2d5a1a"/>
-      <ellipse cx="120" cy="70" rx="20" ry="15" fill="#3a7a28"/>
-      <rect x="180" y="65" width="45" height="8" rx="4" fill="#2d5a1a"/>
-      <ellipse cx="200" cy="65" rx="22" ry="16" fill="#3a7a28"/>
-    </svg>`,
-    cain_abel: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a1428"/>
-      <rect x="0" y="110" width="320" height="50" fill="#2d1a00"/>
-      <rect x="0" y="0" width="320" height="80" fill="#c84010" opacity="0.2"/>
-      <ellipse cx="90" cy="95" rx="25" ry="20" fill="#c84010" opacity="0.6"/>
-      <ellipse cx="90" cy="90" rx="15" ry="12" fill="#f4b942" opacity="0.8"/>
-      <ellipse cx="90" cy="86" rx="8" ry="8" fill="#f9e04b" opacity="0.9"/>
-      <rect x="80" y="100" width="20" height="15" fill="#5a3010"/>
-      <ellipse cx="230" cy="98" rx="22" ry="16" fill="#6a4020" opacity="0.6"/>
-      <ellipse cx="230" cy="93" rx="14" ry="10" fill="#8a5828" opacity="0.7"/>
-      <rect x="220" y="105" width="20" height="12" fill="#4a2808"/>
-      <circle cx="100" cy="70" r="9" fill="#e8b45a"/>
-      <rect x="94" y="79" width="12" height="28" fill="#8b6914"/>
-      <circle cx="220" cy="72" r="9" fill="#f5e6c8"/>
-      <rect x="214" y="81" width="12" height="28" fill="#c4a060"/>
-      <path d="M112 78 L200 78" stroke="#c84010" stroke-width="1.5" fill="none" stroke-dasharray="5 4" opacity="0.5"/>
-    </svg>`,
-    noah_flood: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a1628"/>
-      <rect x="0" y="70" width="320" height="90" fill="#1a3d6e"/>
-      <path d="M0 80 Q40 70 80 80 Q120 90 160 80 Q200 70 240 80 Q280 90 320 80" stroke="#2a5aae" stroke-width="3" fill="none" opacity="0.8"/>
-      <path d="M0 100 Q40 90 80 100 Q120 110 160 100 Q200 90 240 100 Q280 110 320 100" stroke="#2a5aae" stroke-width="2" fill="none" opacity="0.5"/>
-      <polygon points="100,70 220,70 230,100 90,100" fill="#8b6914"/>
-      <polygon points="110,70 210,70 160,35" fill="#a07820"/>
-      <rect x="140" y="50" width="40" height="20" fill="#6b4e10"/>
-      <circle cx="160" cy="60" r="8" fill="#8b6914"/>
-      <rect x="80" y="95" width="160" height="10" fill="#6b4e10"/>
-      <circle cx="50" cy="20" r="2" fill="white" opacity="0.7"/>
-      <circle cx="150" cy="15" r="2" fill="white" opacity="0.8"/>
-      <circle cx="250" cy="25" r="2" fill="white" opacity="0.7"/>
-      <path d="M30 30 Q50 20 70 30 Q50 40 30 30" fill="#2a3a50" opacity="0.8"/>
-      <path d="M200 25 Q220 15 240 25 Q220 35 200 25" fill="#2a3a50" opacity="0.8"/>
-    </svg>`,
-    rainbow: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#87CEEB"/>
-      <rect x="0" y="120" width="320" height="40" fill="#4a7a30"/>
-      <path d="M20 140 Q160 20 300 140" fill="none" stroke="#e84040" stroke-width="8" opacity="0.8"/>
-      <path d="M30 140 Q160 32 290 140" fill="none" stroke="#f4a020" stroke-width="8" opacity="0.8"/>
-      <path d="M40 140 Q160 44 280 140" fill="none" stroke="#f4d820" stroke-width="8" opacity="0.8"/>
-      <path d="M50 140 Q160 56 270 140" fill="none" stroke="#40c840" stroke-width="8" opacity="0.8"/>
-      <path d="M60 140 Q160 68 260 140" fill="none" stroke="#4080f4" stroke-width="8" opacity="0.8"/>
-      <path d="M70 140 Q160 80 250 140" fill="none" stroke="#8040c8" stroke-width="8" opacity="0.7"/>
-      <ellipse cx="160" cy="125" rx="80" ry="15" fill="#3a6a20"/>
-      <ellipse cx="80" cy="130" rx="50" ry="12" fill="#3a6a20"/>
-      <ellipse cx="240" cy="130" rx="50" ry="12" fill="#3a6a20"/>
-      <circle cx="40" cy="40" r="15" fill="#f9e04b" opacity="0.8"/>
-    </svg>`,
-    babel: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a1428"/>
-      <rect x="0" y="130" width="320" height="30" fill="#2d1a00"/>
-      <rect x="120" y="130" width="80" height="30" fill="#8b7520"/>
-      <rect x="130" y="110" width="60" height="25" fill="#9b8530"/>
-      <rect x="140" y="90" width="40" height="25" fill="#a89540"/>
-      <rect x="148" y="70" width="24" height="25" fill="#b8a550"/>
-      <rect x="154" y="50" width="12" height="25" fill="#c8b560"/>
-      <rect x="157" y="30" width="6" height="25" fill="#d8c570"/>
-      <rect x="159" y="15" width="2" height="18" fill="#e8d580"/>
-      <rect x="118" y="128" width="84" height="4" fill="#6b5510"/>
-      <rect x="128" y="108" width="64" height="4" fill="#6b5510"/>
-      <rect x="138" y="88" width="44" height="4" fill="#6b5510"/>
-      <rect x="146" y="68" width="28" height="4" fill="#6b5510"/>
-      <circle cx="60" cy="30" r="2" fill="white" opacity="0.7"/>
-      <circle cx="260" cy="25" r="2" fill="white" opacity="0.8"/>
-      <circle cx="30" cy="60" r="2" fill="white" opacity="0.6"/>
-      <circle cx="290" cy="55" r="2" fill="white" opacity="0.7"/>
-      <circle cx="100" cy="115" r="4" fill="#e8b45a" opacity="0.6"/>
-      <circle cx="220" cy="118" r="4" fill="#e8b45a" opacity="0.6"/>
-      <circle cx="80" cy="125" r="4" fill="#e8b45a" opacity="0.5"/>
-      <circle cx="240" cy="122" r="4" fill="#e8b45a" opacity="0.5"/>
-    </svg>`,
-    genealogy: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a0a00"/>
-      <rect x="100" y="15" width="120" height="130" fill="#f5e6c8" rx="4"/>
-      <rect x="100" y="15" width="10" height="130" fill="#d4b87a" rx="2"/>
-      <rect x="100" y="15" width="120" height="8" fill="#c4a860"/>
-      <line x1="116" y1="34" x2="212" y2="34" stroke="#8b6914" stroke-width="1"/>
-      <line x1="116" y1="44" x2="212" y2="44" stroke="#8b6914" stroke-width="1"/>
-      <line x1="116" y1="54" x2="212" y2="54" stroke="#8b6914" stroke-width="1"/>
-      <line x1="116" y1="64" x2="212" y2="64" stroke="#8b6914" stroke-width="1"/>
-      <line x1="116" y1="74" x2="212" y2="74" stroke="#8b6914" stroke-width="1"/>
-      <line x1="116" y1="84" x2="212" y2="84" stroke="#8b6914" stroke-width="1"/>
-      <line x1="116" y1="94" x2="212" y2="94" stroke="#8b6914" stroke-width="1"/>
-      <line x1="116" y1="104" x2="212" y2="104" stroke="#8b6914" stroke-width="1"/>
-      <line x1="116" y1="114" x2="212" y2="114" stroke="#8b6914" stroke-width="1"/>
-      <line x1="116" y1="124" x2="212" y2="124" stroke="#c84010" stroke-width="2"/>
-      <text x="118" y="132" font-size="8" fill="#c84010" font-weight="bold">Abram</text>
-      <circle cx="50" cy="60" r="18" fill="#f4b942" opacity="0.3"/>
-      <circle cx="270" cy="80" r="14" fill="#f4b942" opacity="0.2"/>
-    </svg>`,
-    abram_call: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a1628"/>
-      <rect x="0" y="0" width="320" height="160" fill="#1a1428"/>
-      <circle cx="40" cy="20" r="2" fill="white" opacity="0.8"/>
-      <circle cx="80" cy="10" r="3" fill="white" opacity="0.9"/>
-      <circle cx="130" cy="15" r="2" fill="white" opacity="0.7"/>
-      <circle cx="200" cy="8" r="2" fill="white" opacity="0.8"/>
-      <circle cx="250" cy="18" r="3" fill="white" opacity="0.9"/>
-      <circle cx="290" cy="12" r="2" fill="white" opacity="0.7"/>
-      <circle cx="20" cy="50" r="2" fill="white" opacity="0.6"/>
-      <circle cx="300" cy="45" r="2" fill="white" opacity="0.7"/>
-      <circle cx="160" cy="5" r="2" fill="white" opacity="0.8"/>
-      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
-      <ellipse cx="80" cy="125" rx="50" ry="15" fill="#3a2800"/>
-      <ellipse cx="240" cy="128" rx="45" ry="14" fill="#3a2800"/>
-      <circle cx="160" cy="80" r="12" fill="#e8b45a"/>
-      <rect x="155" y="92" width="10" height="35" fill="#8b6914"/>
-      <ellipse cx="148" cy="97" rx="10" ry="7" fill="#e8b45a" transform="rotate(-25 148 97)"/>
-      <ellipse cx="172" cy="97" rx="10" ry="7" fill="#e8b45a" transform="rotate(25 172 97)"/>
-      <ellipse cx="158" cy="127" rx="8" ry="14" fill="#e8b45a"/>
-      <ellipse cx="168" cy="127" rx="8" ry="14" fill="#e8b45a"/>
-      <path d="M230 60 Q200 50 170 72" stroke="#f4b942" stroke-width="1.5" fill="none" stroke-dasharray="4 3" opacity="0.7"/>
-      <path d="M220 55 L230 60 L220 65" fill="#f4b942" opacity="0.7"/>
-      <circle cx="240" cy="58" r="8" fill="#f4b942" opacity="0.2"/>
-    </svg>`,
-    david_shepherd: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#87CEEB"/>
-      <rect x="0" y="110" width="320" height="50" fill="#4a7a30"/>
-      <ellipse cx="60" cy="110" rx="50" ry="18" fill="#3a6a20"/>
-      <ellipse cx="260" cy="115" rx="45" ry="16" fill="#3a6a20"/>
-      <circle cx="260" cy="40" r="22" fill="#f9e04b" opacity="0.9"/>
-      <circle cx="60" cy="118" r="10" fill="#f5f5f5"/>
-      <circle cx="85" cy="122" r="9" fill="#f5f5f5"/>
-      <circle cx="40" cy="122" r="8" fill="#f5f5f5"/>
-      <circle cx="250" cy="120" r="10" fill="#f5f5f5"/>
-      <circle cx="275" cy="118" r="9" fill="#f5f5f5"/>
-      <circle cx="160" cy="90" r="9" fill="#e8b45a"/>
-      <rect x="156" y="99" width="8" height="22" fill="#8b6914"/>
-      <rect x="166" y="100" width="3" height="28" fill="#6b4e10" transform="rotate(12 166 100)"/>
-      <ellipse cx="160" cy="88" rx="7" ry="5" fill="#c8841a"/>
-    </svg>`,
-    david_goliath: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8d8e8"/>
-      <rect x="0" y="120" width="320" height="40" fill="#8b8060"/>
-      <ellipse cx="80" cy="120" rx="60" ry="15" fill="#7a7050"/>
-      <ellipse cx="240" cy="120" rx="60" ry="15" fill="#7a7050"/>
-      <rect x="215" y="20" width="28" height="110" fill="#5a4020"/>
-      <circle cx="229" cy="15" r="18" fill="#8b7050"/>
-      <rect x="220" y="35" width="18" height="60" fill="#6a7a8a"/>
-      <rect x="218" y="30" width="22" height="10" fill="#7a8a9a"/>
-      <path d="M243 22 L255 10 L248 30" fill="#8a8a8a"/>
-      <rect x="71" y="85" width="10" height="40" fill="#e8b45a"/>
-      <circle cx="76" cy="80" r="10" fill="#e8b45a"/>
-      <rect x="82" y="92" width="3" height="32" fill="#6b4e10" transform="rotate(8 82 92)"/>
-      <circle cx="160" cy="80" r="6" fill="#8a8a8a" opacity="0.6"/>
-      <path d="M80 88 Q120 70 155 78" stroke="#a07820" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
-    </svg>`,
-    david_jonathan: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#e8d8b8"/>
-      <rect x="0" y="120" width="320" height="40" fill="#c4a870"/>
-      <rect x="80" y="40" width="60" height="80" fill="#8b7520" opacity="0.3"/>
-      <rect x="80" y="40" width="60" height="10" fill="#a09030" opacity="0.4"/>
-      <circle cx="130" cy="70" r="16" fill="#e8b45a"/>
-      <rect x="122" y="86" width="16" height="40" fill="#c8901a"/>
-      <rect x="138" y="93" width="5" height="32" fill="#8a8a6a"/>
-      <circle cx="190" cy="72" r="15" fill="#f5e6c8"/>
-      <rect x="182" y="87" width="16" height="40" fill="#8b6914"/>
-      <rect x="198" y="94" width="4" height="30" fill="#6b4e10" transform="rotate(8 198 94)"/>
-      <path d="M146 80 Q160 70 175 80" stroke="#c8901a" stroke-width="2" fill="none"/>
-      <path d="M138 88 Q160 100 182 90" stroke="#c8901a" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/>
-    </svg>`,
-    david_cave: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a0a1a"/>
-      <ellipse cx="160" cy="160" rx="180" ry="80" fill="#1a1428"/>
-      <ellipse cx="80" cy="140" rx="80" ry="50" fill="#2d2010"/>
-      <ellipse cx="240" cy="145" rx="80" ry="50" fill="#2d2010"/>
-      <ellipse cx="160" cy="130" rx="60" ry="40" fill="#1a1008"/>
-      <ellipse cx="160" cy="110" rx="40" ry="28" fill="#0a0808"/>
-      <circle cx="60" cy="30" r="2" fill="white" opacity="0.7"/>
-      <circle cx="100" cy="20" r="2" fill="white" opacity="0.8"/>
-      <circle cx="160" cy="15" r="2" fill="white" opacity="0.6"/>
-      <circle cx="220" cy="25" r="2" fill="white" opacity="0.7"/>
-      <circle cx="270" cy="35" r="2" fill="white" opacity="0.8"/>
-      <circle cx="160" cy="95" r="6" fill="#e8b45a" opacity="0.6"/>
-      <rect x="156" y="101" width="8" height="18" fill="#8b6914" opacity="0.6"/>
-      <ellipse cx="160" cy="98" rx="20" ry="14" fill="#f4b942" opacity="0.08"/>
-    </svg>`,
-    david_king: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a1428"/>
-      <rect x="0" y="110" width="320" height="50" fill="#2d1a00"/>
-      <rect x="80" y="20" width="160" height="90" fill="#2d2418"/>
-      <rect x="75" y="15" width="170" height="15" fill="#3d3420"/>
-      <rect x="100" y="50" width="30" height="60" fill="#4a3828"/>
-      <rect x="190" y="50" width="30" height="60" fill="#4a3828"/>
-      <rect x="130" y="60" width="60" height="50" fill="#6b4e20"/>
-      <rect x="125" y="55" width="70" height="12" fill="#8b6920"/>
-      <circle cx="160" cy="40" r="18" fill="#f4b942" opacity="0.9"/>
-      <circle cx="160" cy="40" r="12" fill="#f4b942"/>
-      <path d="M148 32 L152 20 L160 28 L168 20 L172 32" fill="#f4b942" stroke="#c8901a" stroke-width="1"/>
-      <rect x="152" y="68" width="16" height="35" fill="#2d1a00"/>
-      <circle cx="160" cy="62" r="10" fill="#e8b45a"/>
-      <ellipse cx="80" cy="140" rx="30" ry="10" fill="#3a2810" opacity="0.5"/>
-      <ellipse cx="240" cy="140" rx="30" ry="10" fill="#3a2810" opacity="0.5"/>
-      <circle cx="40" cy="35" r="6" fill="#f4b942" opacity="0.4"/>
-      <circle cx="280" cy="35" r="6" fill="#f4b942" opacity="0.4"/>
-    </svg>`,
-    david_covenant: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a1628"/>
-      <rect x="0" y="0" width="320" height="160" fill="#0a0a1e"/>
-      <circle cx="160" cy="80" r="50" fill="#f4b942" opacity="0.08"/>
-      <circle cx="160" cy="80" r="30" fill="#f4b942" opacity="0.12"/>
-      <circle cx="160" cy="80" r="15" fill="#f4b942" opacity="0.2"/>
-      <path d="M160 20 L160 140" stroke="#f4b942" stroke-width="1" opacity="0.3" stroke-dasharray="4 4"/>
-      <path d="M100 50 L220 110" stroke="#f4b942" stroke-width="1" opacity="0.2" stroke-dasharray="4 4"/>
-      <path d="M220 50 L100 110" stroke="#f4b942" stroke-width="1" opacity="0.2" stroke-dasharray="4 4"/>
-      <circle cx="160" cy="80" r="6" fill="#f4b942" opacity="0.8"/>
-      <circle cx="60" cy="30" r="2" fill="white" opacity="0.8"/>
-      <circle cx="260" cy="25" r="2" fill="white" opacity="0.7"/>
-      <circle cx="40" cy="70" r="2" fill="white" opacity="0.6"/>
-      <circle cx="290" cy="60" r="2" fill="white" opacity="0.8"/>
-      <rect x="0" y="130" width="320" height="30" fill="#1a0a00"/>
-      <circle cx="160" cy="130" r="8" fill="#e8b45a" opacity="0.7"/>
-      <rect x="156" y="138" width="8" height="20" fill="#8b6914" opacity="0.7"/>
-    </svg>`,
-    david_sin: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a0a1a"/>
-      <rect x="0" y="100" width="320" height="60" fill="#1a1428"/>
-      <rect x="100" y="20" width="120" height="80" fill="#2d2418"/>
-      <rect x="100" y="20" width="120" height="10" fill="#3d3428"/>
-      <rect x="95" y="90" width="130" height="10" fill="#3d3428"/>
-      <rect x="148" y="30" width="24" height="60" fill="#1a1428"/>
-      <circle cx="220" cy="50" r="15" fill="#e8b45a" opacity="0.8"/>
-      <rect x="212" y="65" width="16" height="30" fill="#8b6914" opacity="0.8"/>
-      <circle cx="160" cy="25" r="10" fill="#e8b45a"/>
-      <rect x="156" y="35" width="8" height="25" fill="#2d1a00"/>
-      <circle cx="100" cy="120" r="2" fill="white" opacity="0.6"/>
-      <circle cx="200" cy="115" r="2" fill="white" opacity="0.5"/>
-      <circle cx="270" cy="110" r="2" fill="white" opacity="0.7"/>
-    </svg>`,
-    david_repentance: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a1428"/>
-      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
-      <ellipse cx="160" cy="90" rx="80" ry="60" fill="#1a0a28" opacity="0.8"/>
-      <circle cx="160" cy="60" r="25" fill="#1a3d6e" opacity="0.4"/>
-      <circle cx="160" cy="60" r="15" fill="#2a5aae" opacity="0.3"/>
-      <rect x="155" y="85" width="10" height="40" fill="#e8b45a" opacity="0.8"/>
-      <circle cx="160" cy="80" r="9" fill="#f5e6c8" opacity="0.9"/>
-      <path d="M148 88 Q160 100 172 88" stroke="#e8b45a" stroke-width="2" fill="none" opacity="0.6"/>
-      <path d="M155 88 L148 102" stroke="#e8b45a" stroke-width="2" opacity="0.6"/>
-      <path d="M165 88 L172 102" stroke="#e8b45a" stroke-width="2" opacity="0.6"/>
-      <circle cx="148" cy="65" r="3" fill="#4a8aee" opacity="0.8"/>
-      <circle cx="172" cy="68" r="3" fill="#4a8aee" opacity="0.8"/>
-      <circle cx="155" cy="58" r="2" fill="#4a8aee" opacity="0.6"/>
-      <text x="160" y="148" text-anchor="middle" fill="#f4b942" font-size="9" opacity="0.7">Have mercy on me, O God</text>
-    </svg>`,
-    david_psalm23: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#87CEEB"/>
-      <rect x="0" y="100" width="320" height="60" fill="#4a8a30"/>
-      <ellipse cx="160" cy="100" rx="140" ry="30" fill="#3a7a20"/>
-      <ellipse cx="60" cy="105" rx="50" ry="18" fill="#3a6a20"/>
-      <ellipse cx="260" cy="105" rx="50" ry="18" fill="#3a6a20"/>
-      <path d="M40 105 Q80 90 120 100 Q160 110 200 100 Q240 90 280 105" fill="#5aaa38" opacity="0.6"/>
-      <circle cx="200" cy="55" r="18" fill="#f9e04b" opacity="0.7"/>
-      <rect x="120" y="110" width="5" height="20" fill="#6a4a10"/>
-      <ellipse cx="122" cy="108" rx="12" ry="8" fill="#2d5a1a"/>
-      <circle cx="60" cy="112" r="8" fill="#f5f5f5"/>
-      <circle cx="80" cy="115" r="7" fill="#f5f5f5"/>
-      <circle cx="45" cy="115" r="7" fill="#f5f5f5"/>
-      <circle cx="240" cy="112" r="8" fill="#f5f5f5"/>
-      <circle cx="260" cy="115" r="7" fill="#f5f5f5"/>
-      <path d="M60 95 Q100 80 140 90" stroke="#5aaa38" stroke-width="3" fill="none"/>
-    </svg>`,
-    david_legacy: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f4b942" stop-opacity="0.4"/><stop offset="100%" stop-color="#f4b942" stop-opacity="0"/></radialGradient></defs>
-      <rect width="320" height="160" fill="#0a0a1e"/>
-      <circle cx="160" cy="70" r="80" fill="url(#glow)"/>
-      <circle cx="40" cy="20" r="2" fill="white" opacity="0.8"/>
-      <circle cx="80" cy="10" r="2" fill="white" opacity="0.7"/>
-      <circle cx="130" cy="15" r="3" fill="white" opacity="0.9"/>
-      <circle cx="200" cy="8" r="2" fill="white" opacity="0.8"/>
-      <circle cx="250" cy="18" r="2" fill="white" opacity="0.7"/>
-      <circle cx="290" cy="10" r="3" fill="white" opacity="0.8"/>
-      <circle cx="20" cy="60" r="2" fill="white" opacity="0.6"/>
-      <circle cx="300" cy="50" r="2" fill="white" opacity="0.7"/>
-      <path d="M80 130 Q130 80 160 70 Q190 80 240 130" fill="#2d1a00" opacity="0.8"/>
-      <circle cx="160" cy="65" r="12" fill="#f4b942" opacity="0.9"/>
-      <path d="M152 57 L156 46 L160 54 L164 46 L168 57" fill="#f4b942" stroke="#c8901a" stroke-width="1.5"/>
-      <rect x="0" y="140" width="320" height="20" fill="#1a0a00"/>
-      <text x="160" y="155" text-anchor="middle" fill="#f4b942" font-size="9" opacity="0.7">A man after God's own heart</text>
-    </svg>`,
-    burning_bush: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a0a00"/>
-      <rect x="0" y="110" width="320" height="50" fill="#2d1a00"/>
-      <ellipse cx="80" cy="120" rx="50" ry="15" fill="#3d2800"/>
-      <ellipse cx="240" cy="125" rx="40" ry="12" fill="#3d2800"/>
-      <ellipse cx="160" cy="95" rx="35" ry="25" fill="#8b4513"/>
-      <ellipse cx="135" cy="105" rx="20" ry="18" fill="#7a3a10"/>
-      <ellipse cx="185" cy="105" rx="20" ry="18" fill="#7a3a10"/>
-      <ellipse cx="160" cy="70" rx="20" ry="35" fill="#f4b942" opacity="0.9"/>
-      <ellipse cx="145" cy="80" rx="12" ry="25" fill="#e8701a" opacity="0.8"/>
-      <ellipse cx="175" cy="80" rx="12" ry="25" fill="#e8701a" opacity="0.8"/>
-      <ellipse cx="160" cy="60" rx="10" ry="20" fill="#fff0a0" opacity="0.9"/>
-      <ellipse cx="150" cy="65" rx="7" ry="16" fill="#fff0a0" opacity="0.7"/>
-      <ellipse cx="170" cy="65" rx="7" ry="16" fill="#fff0a0" opacity="0.7"/>
-      <ellipse cx="160" cy="85" rx="50" ry="40" fill="#f4b942" opacity="0.1"/>
-      <rect x="240" y="90" width="8" height="30" fill="#8b6914"/>
-      <circle cx="244" cy="85" r="8" fill="#e8b45a"/>
-      <rect x="252" y="88" width="3" height="35" fill="#6b4e10" transform="rotate(10 252 88)"/>
-    </svg>`,
-    moses_birth: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a1a2e"/>
-      <rect x="0" y="100" width="320" height="60" fill="#1a4a1a"/>
-      <rect x="0" y="95" width="320" height="30" fill="#1a3d6e" opacity="0.8"/>
-      <path d="M0 100 Q40 95 80 100 Q120 105 160 100 Q200 95 240 100 Q280 105 320 100" stroke="#3a6aae" stroke-width="2" fill="none" opacity="0.6"/>
-      <rect x="40" y="70" width="4" height="40" fill="#4a7a20"/>
-      <rect x="50" y="65" width="3" height="45" fill="#4a7a20"/>
-      <rect x="60" y="72" width="4" height="38" fill="#4a7a20"/>
-      <ellipse cx="42" cy="68" rx="6" ry="3" fill="#6a9a30"/>
-      <ellipse cx="51" cy="63" rx="5" ry="2.5" fill="#6a9a30"/>
-      <ellipse cx="62" cy="70" rx="6" ry="3" fill="#6a9a30"/>
-      <ellipse cx="160" cy="100" rx="30" ry="12" fill="#8b6914"/>
-      <rect x="132" y="88" width="56" height="15" fill="#a07820" rx="5"/>
-      <ellipse cx="160" cy="88" rx="28" ry="8" fill="#8b6914"/>
-      <circle cx="160" cy="86" r="7" fill="#f5e6c8"/>
-      <rect x="270" y="80" width="6" height="28" fill="#c4845a"/>
-      <circle cx="273" cy="75" r="7" fill="#e8b45a"/>
-      <circle cx="80" cy="20" r="2" fill="white" opacity="0.8"/>
-      <circle cx="200" cy="15" r="2" fill="white" opacity="0.7"/>
-      <circle cx="280" cy="30" r="2" fill="white" opacity="0.8"/>
-    </svg>`,
-    pharaoh_court: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a1000"/>
-      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
-      <rect x="40" y="20" width="20" height="110" fill="#8b7520"/>
-      <rect x="260" y="20" width="20" height="110" fill="#8b7520"/>
-      <rect x="100" y="30" width="16" height="100" fill="#7a6418"/>
-      <rect x="204" y="30" width="16" height="100" fill="#7a6418"/>
-      <rect x="135" y="50" width="50" height="70" fill="#c8a84b"/>
-      <rect x="130" y="45" width="60" height="15" fill="#d4b850"/>
-      <circle cx="160" cy="35" r="15" fill="#e8c860"/>
-      <rect x="148" y="55" width="24" height="40" fill="#1a1000"/>
-      <circle cx="160" cy="50" r="10" fill="#e8b45a"/>
-      <path d="M150 40 L155 20 L165 20 L170 40" fill="#f4b942"/>
-      <rect x="60" y="75" width="8" height="40" fill="#8b7520"/>
-      <circle cx="64" cy="70" r="9" fill="#e8b45a"/>
-      <rect x="70" y="85" width="3" height="30" fill="#6b4e10" transform="rotate(8 70 85)"/>
-      <circle cx="40" cy="30" r="8" fill="#f4b942" opacity="0.4"/>
-      <circle cx="280" cy="30" r="8" fill="#f4b942" opacity="0.4"/>
-    </svg>`,
-    red_sea: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a1628"/>
-      <rect x="0" y="0" width="80" height="160" fill="#1a4a8e" opacity="0.9"/>
-      <path d="M80 0 Q70 40 78 80 Q70 120 80 160" fill="#2a6aae" opacity="0.6"/>
-      <rect x="240" y="0" width="80" height="160" fill="#1a4a8e" opacity="0.9"/>
-      <path d="M240 0 Q250 40 242 80 Q250 120 240 160" fill="#2a6aae" opacity="0.6"/>
-      <rect x="80" y="120" width="160" height="40" fill="#c8a84b"/>
-      <rect x="80" y="115" width="160" height="10" fill="#d4b850"/>
-      <path d="M0 30 Q20 20 40 30 Q60 40 80 30" fill="white" opacity="0.2"/>
-      <path d="M240 50 Q260 40 280 50 Q300 60 320 50" fill="white" opacity="0.2"/>
-      <circle cx="120" cy="110" r="5" fill="#2d1a00"/>
-      <circle cx="140" cy="108" r="5" fill="#2d1a00"/>
-      <circle cx="160" cy="110" r="5" fill="#2d1a00"/>
-      <circle cx="180" cy="108" r="5" fill="#2d1a00"/>
-      <circle cx="200" cy="110" r="5" fill="#2d1a00"/>
-      <rect x="150" y="10" width="20" height="80" fill="#f4b942" opacity="0.3"/>
-      <ellipse cx="160" cy="10" rx="12" ry="20" fill="#f9e04b" opacity="0.6"/>
-    </svg>`,
-    manna: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a2a10"/>
-      <rect x="0" y="120" width="320" height="40" fill="#2d4a18"/>
-      <rect x="0" y="0" width="320" height="80" fill="#2a3a50"/>
-      <ellipse cx="160" cy="80" rx="160" ry="40" fill="#f4b942" opacity="0.15"/>
-      <circle cx="160" cy="80" r="20" fill="#f9e04b" opacity="0.6"/>
-      <circle cx="60" cy="40" r="4" fill="white" opacity="0.8"/>
-      <circle cx="100" cy="30" r="3" fill="white" opacity="0.7"/>
-      <circle cx="140" cy="50" r="4" fill="white" opacity="0.9"/>
-      <circle cx="180" cy="35" r="3" fill="white" opacity="0.7"/>
-      <circle cx="220" cy="45" r="4" fill="white" opacity="0.8"/>
-      <circle cx="260" cy="30" r="3" fill="white" opacity="0.6"/>
-      <circle cx="80" cy="60" r="3" fill="white" opacity="0.8"/>
-      <circle cx="200" cy="65" r="4" fill="white" opacity="0.7"/>
-      <circle cx="40" cy="122" r="5" fill="white" opacity="0.9"/>
-      <circle cx="80" cy="120" r="4" fill="white" opacity="0.8"/>
-      <circle cx="120" cy="123" r="5" fill="white" opacity="0.9"/>
-      <circle cx="160" cy="121" r="4" fill="white" opacity="0.8"/>
-      <circle cx="200" cy="122" r="5" fill="white" opacity="0.9"/>
-      <circle cx="240" cy="120" r="4" fill="white" opacity="0.8"/>
-      <circle cx="280" cy="122" r="5" fill="white" opacity="0.9"/>
-      <circle cx="100" cy="112" r="6" fill="#e8b45a"/>
-      <rect x="96" y="118" width="8" height="15" fill="#8b6914"/>
-      <circle cx="200" cy="112" r="6" fill="#e8b45a"/>
-      <rect x="196" y="118" width="8" height="15" fill="#8b6914"/>
-    </svg>`,
-    mount_sinai: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#0a0a1e"/>
-      <rect x="0" y="0" width="320" height="100" fill="#1a1428"/>
-      <path d="M160 10 L145 50 L155 50 L140 90" stroke="#f9e04b" stroke-width="3" fill="none" opacity="0.9"/>
-      <path d="M200 5 L188 40 L196 40 L185 75" stroke="#f9e04b" stroke-width="2" fill="none" opacity="0.6"/>
-      <polygon points="80,160 160,40 240,160" fill="#2d2010"/>
-      <polygon points="100,160 160,55 220,160" fill="#3d2d18"/>
-      <ellipse cx="160" cy="50" rx="40" ry="20" fill="#2a2030" opacity="0.8"/>
-      <ellipse cx="160" cy="40" rx="30" ry="15" fill="#3a3048" opacity="0.8"/>
-      <ellipse cx="160" cy="35" rx="20" ry="12" fill="#f4b942" opacity="0.3"/>
-      <ellipse cx="160" cy="38" rx="15" ry="20" fill="#f4b942" opacity="0.4"/>
-      <ellipse cx="160" cy="30" rx="8" ry="12" fill="#f9e04b" opacity="0.6"/>
-      <rect x="0" y="140" width="320" height="20" fill="#2d4a18"/>
-      <circle cx="80" cy="148" r="4" fill="#8b6914"/>
-      <circle cx="120" cy="146" r="4" fill="#8b6914"/>
-      <circle cx="160" cy="148" r="4" fill="#8b6914"/>
-      <circle cx="200" cy="146" r="4" fill="#8b6914"/>
-      <circle cx="240" cy="148" r="4" fill="#8b6914"/>
-    </svg>`,
-    golden_calf: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#1a0a00"/>
-      <rect x="0" y="120" width="320" height="40" fill="#2d1a00"/>
-      <ellipse cx="80" cy="90" rx="15" ry="30" fill="#f4b942" opacity="0.5"/>
-      <ellipse cx="240" cy="90" rx="15" ry="30" fill="#f4b942" opacity="0.5"/>
-      <ellipse cx="80" cy="75" rx="8" ry="16" fill="#f9e04b" opacity="0.7"/>
-      <ellipse cx="240" cy="75" rx="8" ry="16" fill="#f9e04b" opacity="0.7"/>
-      <rect x="130" y="80" width="60" height="40" fill="#8b6914"/>
-      <rect x="125" y="75" width="70" height="12" fill="#a07820"/>
-      <ellipse cx="160" cy="68" rx="22" ry="16" fill="#f4b942"/>
-      <circle cx="148" cy="62" r="10" fill="#f4b942"/>
-      <circle cx="172" cy="62" r="10" fill="#f4b942"/>
-      <path d="M142 54 L136 44 L144 52" fill="#f4b942"/>
-      <path d="M166 54 L176 44 L168 52" fill="#f4b942"/>
-      <ellipse cx="160" cy="70" rx="40" ry="30" fill="#f4b942" opacity="0.15"/>
-      <circle cx="90" cy="115" r="5" fill="#5a3010"/>
-      <circle cx="115" cy="112" r="5" fill="#5a3010"/>
-      <circle cx="205" cy="115" r="5" fill="#5a3010"/>
-      <circle cx="230" cy="112" r="5" fill="#5a3010"/>
-    </svg>`,
-    wilderness: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#c8a060"/>
-      <ellipse cx="80" cy="130" rx="100" ry="40" fill="#d4aa70"/>
-      <ellipse cx="240" cy="140" rx="120" ry="45" fill="#c89850"/>
-      <ellipse cx="160" cy="120" rx="80" ry="30" fill="#b88840"/>
-      <circle cx="280" cy="30" r="25" fill="#f9e04b" opacity="0.9"/>
-      <circle cx="280" cy="30" r="18" fill="#f9e04b"/>
-      <path d="M0 100 Q40 95 80 100 Q120 105 160 100 Q200 95 240 100 Q280 105 320 100" stroke="#f4b942" stroke-width="1" fill="none" opacity="0.4"/>
-      <polygon points="140,95 160,70 180,95" fill="#8b6914"/>
-      <polygon points="145,95 160,73 175,95" fill="#a07820"/>
-      <circle cx="60" cy="110" r="5" fill="#3a2800"/>
-      <rect x="56" y="115" width="8" height="14" fill="#3a2800"/>
-      <circle cx="100" cy="105" r="5" fill="#3a2800"/>
-      <rect x="96" y="110" width="8" height="14" fill="#3a2800"/>
-      <rect x="250" y="90" width="8" height="30" fill="#5a4820"/>
-      <ellipse cx="254" cy="90" rx="8" ry="12" fill="#6a5828"/>
-    </svg>`,
-    mount_nebo: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="sunset2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f4b942" stop-opacity="0.8"/><stop offset="100%" stop-color="#e87020" stop-opacity="0.4"/></linearGradient></defs>
-      <rect width="320" height="160" fill="#1a0a28"/>
-      <ellipse cx="160" cy="160" rx="200" ry="100" fill="url(#sunset2)"/>
-      <rect x="0" y="100" width="320" height="60" fill="#2d4a18" opacity="0.8"/>
-      <ellipse cx="80" cy="100" rx="60" ry="20" fill="#3a5a20"/>
-      <ellipse cx="220" cy="95" rx="70" ry="22" fill="#3a5a20"/>
-      <path d="M100 120 Q160 110 220 120" stroke="#4a7ab0" stroke-width="4" fill="none" opacity="0.6"/>
-      <polygon points="0,160 60,60 120,160" fill="#2d1a00"/>
-      <polygon points="10,160 60,75 110,160" fill="#3d2810"/>
-      <circle cx="62" cy="55" r="7" fill="#1a0a00"/>
-      <rect x="58" y="62" width="8" height="20" fill="#1a0a00"/>
-      <rect x="68" y="58" width="2.5" height="25" fill="#1a0a00" transform="rotate(8 68 58)"/>
-      <circle cx="200" cy="20" r="2" fill="white" opacity="0.8"/>
-      <circle cx="250" cy="35" r="2" fill="white" opacity="0.7"/>
-      <circle cx="280" cy="15" r="2" fill="white" opacity="0.9"/>
-      <circle cx="300" cy="45" r="2" fill="white" opacity="0.6"/>
-    </svg>`,
-    commission: `<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
-      <rect width="320" height="160" fill="#87CEEB"/>
-      <rect x="0" y="110" width="320" height="50" fill="#4a7a30"/>
-      <ellipse cx="160" cy="110" rx="120" ry="20" fill="#3a6a20"/>
-      <circle cx="160" cy="65" r="22" fill="#f5e6c8"/>
-      <circle cx="160" cy="53" r="13" fill="#f5e6c8"/>
-      <rect x="150" y="67" width="20" height="28" fill="#ffffff" opacity="0.9"/>
-      <ellipse cx="144" cy="70" rx="10" ry="7" fill="#f5e6c8" transform="rotate(-30 144 70)"/>
-      <ellipse cx="176" cy="70" rx="10" ry="7" fill="#f5e6c8" transform="rotate(30 176 70)"/>
-      <circle cx="80" cy="95" r="10" fill="#f5e6c8"/>
-      <circle cx="240" cy="95" r="10" fill="#f5e6c8"/>
-      <circle cx="55" cy="100" r="9" fill="#f5e6c8"/>
-      <circle cx="265" cy="100" r="9" fill="#f5e6c8"/>
-      <circle cx="110" cy="88" r="9" fill="#f5e6c8"/>
-      <circle cx="210" cy="88" r="9" fill="#f5e6c8"/>
-      <circle cx="130" cy="82" r="9" fill="#f5e6c8"/>
-      <circle cx="190" cy="82" r="9" fill="#f5e6c8"/>
-      <path d="M120 50 Q160 30 200 50" stroke="#f4b942" stroke-width="2" fill="none" stroke-dasharray="4 3"/>
-      <text x="160" y="25" text-anchor="middle" fill="#f4b942" font-size="10">Go into all the world</text>
-    </svg>`
-  };
-  return scenes[scene] || scenes.creation;
+  const valid = ['creation','garden','stars','passover','prophecy','nativity','ministry','cross','resurrection','covenant_stars','hagar','three_visitors','sodom','isaac_birth','moriah','rebekah_well','jacob_esau','jacobs_ladder','joseph_sold','creation_light','creation_world','creation_human','cain_abel','noah_flood','noah_rainbow','babel','babel_to_ur','abram_call','rainbow','genealogy','david_shepherd','david_goliath','david_jonathan','david_cave','david_king','david_covenant','david_sin','david_repentance','david_psalm23','david_legacy','burning_bush','moses_birth','pharaoh_court','red_sea','manna','mount_sinai','golden_calf','wilderness','mount_nebo','commission'];
+  if(!valid.includes(scene)) scene = 'creation';
+  return '<img src="/scenes/' + scene + '.svg" width="100%" style="border-radius:10px;display:block;" alt="' + scene + ' illustration">';
 }
+
 
 function renderStoryModeV2() {
   showBackBtn(true);
@@ -8860,25 +7615,32 @@ function showAvatarPicker() {
 }
 
 const BADGE_ICONS = {
-  streak_3: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect x="17" y="30" width="10" height="8" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="15" y="28" width="14" height="4" rx="1.5" fill="#8b4513" stroke="#7a4a08" stroke-width="1"/><rect x="20" y="20" width="4" height="10" fill="#c8941a" stroke="#7a4a08" stroke-width="1"/><ellipse cx="22" cy="18" rx="5" ry="7" fill="#f4b942" opacity="0.9"/><ellipse cx="21" cy="17" rx="3" ry="5" fill="#f9e04b" opacity="0.85"/><ellipse cx="22" cy="15" rx="2" ry="3.5" fill="white" opacity="0.5"/></svg>`,
-  streak_7: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect x="20" y="6" width="4" height="32" rx="2" fill="#8b6914" stroke="#5a4008" stroke-width="1.5"/><line x1="14" y1="11" x2="20" y2="11" stroke="#c8401a" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="15" x2="20" y2="15" stroke="#c8401a" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="19" x2="20" y2="19" stroke="#c8401a" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="23" x2="20" y2="23" stroke="#c8401a" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="27" x2="20" y2="27" stroke="#c8401a" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="31" x2="20" y2="31" stroke="#c8401a" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="11" x2="24" y2="33" stroke="#c8401a" stroke-width="2" stroke-linecap="round"/></svg>`,
-  streak_14: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><path d="M28 10 Q36 14 36 22 Q36 30 28 34 Q32 28 32 22 Q32 16 28 10 Z" fill="#f4c840" stroke="#c8901a" stroke-width="1.5"/><circle cx="26" cy="22" r="10" fill="none" stroke="#c8901a" stroke-width="1" stroke-dasharray="2 3"/><circle cx="18" cy="36" r="2" fill="#c8941a" opacity="0.6"/><circle cx="26" cy="38" r="2" fill="#c8941a" opacity="0.5"/><circle cx="10" cy="30" r="2" fill="#c8941a" opacity="0.7"/></svg>`,
-  streak_30: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><path d="M8 22 Q8 8 22 8 Q36 8 36 22 Q36 36 22 36 Q8 36 8 22 Z" fill="none" stroke="#3a6820" stroke-width="2"/><ellipse cx="10" cy="15" rx="4" ry="2.5" fill="#4a8a28" transform="rotate(-40 10 15)"/><ellipse cx="8" cy="22" rx="4" ry="2.5" fill="#4a8a28"/><ellipse cx="10" cy="29" rx="4" ry="2.5" fill="#4a8a28" transform="rotate(40 10 29)"/><ellipse cx="34" cy="15" rx="4" ry="2.5" fill="#4a8a28" transform="rotate(40 34 15)"/><ellipse cx="36" cy="22" rx="4" ry="2.5" fill="#4a8a28"/><ellipse cx="34" cy="29" rx="4" ry="2.5" fill="#4a8a28" transform="rotate(-40 34 29)"/><ellipse cx="17" cy="8" rx="4" ry="2.5" fill="#4a8a28" transform="rotate(-20 17 8)"/><ellipse cx="27" cy="8" rx="4" ry="2.5" fill="#4a8a28" transform="rotate(20 27 8)"/><text x="22" y="26" text-anchor="middle" font-size="11" fill="#c8941a" font-weight="bold" font-family="Georgia">30</text></svg>`,
-  streak_100: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><path d="M10 28 Q10 22 16 20 L28 20 Q34 22 34 28 Q34 32 22 32 Q10 32 10 28 Z" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><path d="M16 20 Q18 14 22 12 Q26 14 28 20" fill="#d4a830" stroke="#7a4a08" stroke-width="1.5"/><rect x="30" y="26" width="8" height="3" rx="1.5" fill="#8b6914" stroke="#7a4a08" stroke-width="1"/><ellipse cx="22" cy="12" rx="4" ry="6" fill="#f4b942" opacity="0.8"/><ellipse cx="21" cy="11" rx="2.5" ry="4" fill="#f9e04b" opacity="0.8"/><ellipse cx="22" cy="10" rx="1.5" ry="2.5" fill="white" opacity="0.5"/></svg>`,
-  streak_365: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><path d="M8 28 L8 18 L16 24 L22 10 L28 24 L36 18 L36 28 Z" fill="#f4c050" stroke="#c8901a" stroke-width="2" stroke-linejoin="round"/><rect x="8" y="28" width="28" height="5" rx="2" fill="#c8901a" stroke="#7a4a08" stroke-width="1.5"/><circle cx="22" cy="24" r="3" fill="#c8401a" stroke="#8b2a0a" stroke-width="1"/><circle cx="12" cy="22" r="2" fill="#c8401a" stroke="#8b2a0a" stroke-width="1"/><circle cx="32" cy="22" r="2" fill="#c8401a" stroke="#8b2a0a" stroke-width="1"/></svg>`,
-  perfect_1: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="16" fill="none" stroke="#7a4a08" stroke-width="2"/><circle cx="22" cy="22" r="11" fill="none" stroke="#c8401a" stroke-width="1.5"/><circle cx="22" cy="22" r="6" fill="none" stroke="#c8401a" stroke-width="1.5"/><circle cx="22" cy="22" r="2.5" fill="#c8401a"/><line x1="36" y1="8" x2="22" y2="22" stroke="#8b4513" stroke-width="2.5" stroke-linecap="round"/><path d="M36 8 L33 12 L38 13 Z" fill="#8b4513"/></svg>`,
-  perfect_10: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><path d="M22 6 L36 16 L30 38 L14 38 L8 16 Z" fill="#a8d4f0" stroke="#4a8ab0" stroke-width="2" stroke-linejoin="round"/><path d="M8 16 L22 6 L36 16 L22 38 Z" fill="none" stroke="#4a8ab0" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 16 L22 6 L30 16" fill="none" stroke="#4a8ab0" stroke-width="1" stroke-linejoin="round"/><circle cx="32" cy="12" r="2" fill="white" opacity="0.8"/></svg>`,
-  top_1: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect x="16" y="36" width="12" height="4" rx="1.5" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/><rect x="18" y="32" width="8" height="5" rx="1" fill="#c8941a" stroke="#7a4a08" stroke-width="1"/><path d="M10 10 L10 26 Q10 32 18 32 L26 32 Q34 32 34 26 L34 10 Z" fill="#f4b942" stroke="#7a4a08" stroke-width="1.5"/><path d="M10 14 Q4 14 4 20 Q4 26 10 26" fill="#f4b942" stroke="#7a4a08" stroke-width="1.5"/><path d="M34 14 Q40 14 40 20 Q40 26 34 26" fill="#f4b942" stroke="#7a4a08" stroke-width="1.5"/><text x="22" y="25" text-anchor="middle" font-size="10" fill="#8b4513" font-weight="bold" font-family="Georgia">#1</text><line x1="10" y1="10" x2="34" y2="10" stroke="#7a4a08" stroke-width="1.5"/></svg>`,
-  hard_3: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><path d="M4 38 L16 18 L22 26 L28 14 L40 38 Z" fill="#8b8060" stroke="#7a7050" stroke-width="1.5" stroke-linejoin="round"/><path d="M22 14 L22 6" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/><path d="M22 6 L32 9 L22 12 Z" fill="#c8401a" stroke="#8b2a0a" stroke-width="1"/><path d="M18 38 L22 26 L26 38" fill="#9b9070" stroke="#7a7050" stroke-width="1"/><circle cx="22" cy="14" r="3" fill="#f4c050" stroke="#c8901a" stroke-width="1.5"/></svg>`,
-  endless: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><path d="M4 22 Q4 14 12 14 Q18 14 22 22 Q26 30 32 30 Q40 30 40 22 Q40 14 32 14 Q26 14 22 22 Q18 30 12 30 Q4 30 4 22 Z" fill="none" stroke="#c8941a" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="22" r="3" fill="#c8941a"/><circle cx="4" cy="22" r="2" fill="#8b6914"/><circle cx="40" cy="22" r="2" fill="#8b6914"/></svg>`,
-  score_10k: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="34" rx="12" ry="4" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="28" width="24" height="6" fill="#c8941a" stroke="#7a4a08" stroke-width="1"/><ellipse cx="22" cy="28" rx="12" ry="4" fill="#d4a830" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="22" width="24" height="6" fill="#d4a830" stroke="#7a4a08" stroke-width="1"/><ellipse cx="22" cy="22" rx="12" ry="4" fill="#e8c050" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="16" width="24" height="6" fill="#e8c050" stroke="#7a4a08" stroke-width="1"/><ellipse cx="22" cy="16" rx="12" ry="4" fill="#f4d060" stroke="#7a4a08" stroke-width="1.5"/><text x="22" y="19" text-anchor="middle" font-size="6" fill="#7a4a08" font-weight="bold">10K</text></svg>`,
-  all_games: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="17" fill="#f5e8c8" stroke="#7a4a08" stroke-width="2"/><circle cx="22" cy="22" r="11" fill="none" stroke="#c4a060" stroke-width="1" stroke-dasharray="2 4"/><path d="M22 7 L25 18 L22 22 L19 18 Z" fill="#c8401a" stroke="#8b2a0a" stroke-width="1"/><path d="M22 37 L25 26 L22 22 L19 26 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1"/><path d="M37 22 L26 25 L22 22 L26 19 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1"/><path d="M7 22 L18 25 L22 22 L18 19 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1"/><circle cx="22" cy="22" r="3" fill="#2e1c00"/><circle cx="22" cy="22" r="1.5" fill="#c8941a"/></svg>`,
-  story_start: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect x="17" y="36" width="10" height="4" rx="1.5" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/><path d="M12 20 L14 36 L30 36 L32 20 Z" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5" stroke-linejoin="round"/><line x1="22" y1="20" x2="22" y2="36" stroke="#7a4a08" stroke-width="1.5"/><line x1="12" y1="26" x2="32" y2="26" stroke="#7a4a08" stroke-width="1"/><line x1="12" y1="31" x2="32" y2="31" stroke="#7a4a08" stroke-width="1"/><path d="M12 20 L14 14 L30 14 L32 20 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/><path d="M18 14 Q22 8 26 14" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/><ellipse cx="22" cy="25" rx="3.5" ry="5" fill="#f4b942" opacity="0.9"/><ellipse cx="22" cy="24" rx="2" ry="3.5" fill="#f9e04b" opacity="0.85"/></svg>`,
-  story_done: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect x="19" y="6" width="6" height="32" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="14" width="24" height="6" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="20" y="7" width="4" height="30" fill="#d4a830"/><rect x="11" y="15" width="22" height="4" fill="#d4a830"/><circle cx="22" cy="20" r="3" fill="#f4c050" stroke="#c8901a" stroke-width="1"/></svg>`,
-  daily_all: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect x="4" y="30" width="36" height="10" rx="2" fill="#4a7a30"/><path d="M4 30 L14 18 L22 28 L30 16 L40 30 Z" fill="#3a6a20" stroke="#2d5a18" stroke-width="1"/><circle cx="22" cy="16" r="8" fill="#f4b942" opacity="0.8"/><circle cx="22" cy="16" r="5" fill="#f9e04b"/><line x1="22" y1="5" x2="22" y2="8" stroke="#f4b942" stroke-width="1.5" stroke-linecap="round"/><line x1="31" y1="8" x2="29" y2="10" stroke="#f4b942" stroke-width="1.5" stroke-linecap="round"/><line x1="34" y1="16" x2="31" y2="16" stroke="#f4b942" stroke-width="1.5" stroke-linecap="round"/><line x1="13" y1="8" x2="15" y2="10" stroke="#f4b942" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="16" x2="13" y2="16" stroke="#f4b942" stroke-width="1.5" stroke-linecap="round"/></svg>`,
-  daily_7: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect x="6" y="10" width="32" height="28" rx="3" fill="#f5e8c8" stroke="#7a4a08" stroke-width="1.5"/><rect x="6" y="10" width="32" height="8" rx="3" fill="#8b4513"/><rect x="6" y="14" width="32" height="4" fill="#8b4513"/><line x1="14" y1="10" x2="14" y2="6" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/><line x1="30" y1="10" x2="30" y2="6" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/><path d="M12 24 L15 27 L20 22" stroke="#2d6e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 24 L27 27 L32 22" stroke="#2d6e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 32 L15 35 L20 30" stroke="#2d6e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="30" y="35" text-anchor="middle" font-size="8" fill="#c4a060" font-weight="bold">7</text></svg>`,
-  both_tests: `<svg width="36" height="36" viewBox="0 0 44 44" fill="none"><rect x="4" y="14" width="16" height="20" rx="2" fill="#f5e8c8" stroke="#c4a060" stroke-width="1.5"/><path d="M4 16 Q6 14 8 16" fill="#d4b870" stroke="#c4a060" stroke-width="1"/><path d="M4 32 Q6 34 8 32" fill="#d4b870" stroke="#c4a060" stroke-width="1"/><path d="M16 16 Q18 14 20 16" fill="#d4b870" stroke="#c4a060" stroke-width="1"/><path d="M16 32 Q18 34 20 32" fill="#d4b870" stroke="#c4a060" stroke-width="1"/><line x1="7" y1="20" x2="17" y2="20" stroke="#8b6914" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="24" x2="17" y2="24" stroke="#8b6914" stroke-width="1" stroke-linecap="round"/><rect x="27" y="10" width="4" height="24" rx="1.5" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="22" y="16" width="14" height="4" rx="1.5" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/></svg>`,
+  streak_3:   '/badges/streak_3.svg',
+  streak_7:   '/badges/streak_7.svg',
+  streak_14:  '/badges/streak_14.svg',
+  streak_30:  '/badges/streak_30.svg',
+  streak_100: '/badges/streak_100.svg',
+  streak_365: '/badges/streak_365.svg',
+  perfect_1:  '/badges/perfect_1.svg',
+  perfect_10: '/badges/perfect_10.svg',
+  top_1:      '/badges/top_1.svg',
+  hard_3:     '/badges/hard_3.svg',
+  endless:    '/badges/endless.svg',
+  score_10k:  '/badges/score_10k.svg',
+  all_games:  '/badges/all_games.svg',
+  story_start:'/badges/story_start.svg',
+  story_done: '/badges/story_done.svg',
+  daily_all:  '/badges/daily_all.svg',
+  daily_7:    '/badges/daily_7.svg',
+  both_tests: '/badges/both_tests.svg',
 };
+
+function getBadgeIcon(id, size=36, earned=true) {
+  const src = BADGE_ICONS[id];
+  if(!src) return '';
+  return '<img src="' + src + '" width="' + size + '" height="' + size + '" style="object-fit:contain;opacity:' + (earned ? '1' : '0.35') + ';" alt="' + id + ' badge">';
+}
+
 
 const ALL_BADGES = [
   { id:'streak_3',    name:'First Flame',      desc:'3 day streak',           cat:'streak' },
@@ -9028,7 +7790,7 @@ async function renderProfile(userId=null, username=null) {
             <div class="badge-grid-profile">
               ${ALL_BADGES.filter(b=>b.cat===cat).map(b => `
                 <div class="badge-pill ${earnedBadges.has(b.id)?'earned':'locked'}" title="${b.desc}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;">
-                  <div style="opacity:${earnedBadges.has(b.id)?'1':'0.4'}">${BADGE_ICONS[b.id]||''}</div>
+                  ${getBadgeIcon(b.id, 36, earnedBadges.has(b.id))}
                   <div class="badge-pill-name" style="text-align:center;font-size:0.6rem;font-weight:700;color:${earnedBadges.has(b.id)?'#7a4a08':'#9a7a48'};line-height:1.2">${b.name}</div>
                 </div>`).join('')}
             </div>`).join('')}
@@ -9589,7 +8351,7 @@ async function updateStreak(bonusDay=false) {
     newTokens = 0;
   }
 
-  // Award Sabbath Rest every 7 days
+  // Award Sabbath Rest every 5 days
   if(newStreak % 5 === 0 && newStreak > 0) {
     newTokens = Math.min(3, newTokens + 1);
   }
@@ -9606,10 +8368,22 @@ async function updateStreak(bonusDay=false) {
     updated_at: new Date().toISOString()
   });
 
-  // Show milestone notifications
-  if(usedSabbath) { playStreak(); showStreakToast(`🌿 Sabbath Rest used! Streak protected.`); }
-  else if(newStreak % 5 === 0 && newTokens > streak.freeze_tokens) { playMilestone(); showStreakToast(`🎉 ${newStreak} day streak! 🌿 Sabbath Rest earned!`); }
-  else if([3,7,14,30,50,100].includes(newStreak)) { playMilestone(); showStreakToast(`🔥 ${newStreak} day streak! Keep it up!`); }
+  // Show journal card
+  const sabbathEarned = newStreak % 5 === 0 && newTokens > streak.freeze_tokens;
+  if(usedSabbath) { playStreak(); showJournalCard(newStreak, newLongest, newTokens, false, true, false); }
+  else if(sabbathEarned) { playMilestone(); showJournalCard(newStreak, newLongest, newTokens, true, false, false); }
+  else if([1,2,3,7,14,30,50,100].includes(newStreak)) { playMilestone(); showJournalCard(newStreak, newLongest, newTokens, false, false, false); }
+  else { playStreak(); showJournalCard(newStreak, newLongest, newTokens, false, false, false); }
+
+  // Update home streak card to done state
+  const streakCard = document.getElementById('homeStreakCard');
+  if(streakCard) {
+    streakCard.classList.add('streak-card-done');
+    const streakSub = document.getElementById('homeStreakSub');
+    if(streakSub) { streakSub.textContent = 'streak earned today!'; streakSub.style.color = '#4a8a28'; streakSub.style.fontWeight = '700'; }
+    const streakBadge = document.getElementById('homeStreakBadge');
+    if(streakBadge) { streakBadge.textContent = '✓ Done'; streakBadge.style.background = '#e0f4d0'; streakBadge.style.color = '#4a8a28'; streakBadge.style.border = '1px solid #5aaa30'; }
+  }
 }
 
 async function patchStreak(updates) {
@@ -9708,120 +8482,153 @@ function stopSpeech() {
 }
 
 
+
+// ═══════════════════════════════════════
+// RANDY'S FIELD JOURNAL — Streak Card
+// ═══════════════════════════════════════
+
+function getJournalEntry(streak, isSabbathEarned, isSabbathUsed, isReset) {
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  if(isReset) return {
+    tag: '💔 Streak Reset', tagClass: 'journal-tag-red',
+    date: dateStr,
+    body: `The trail went cold. Even the best explorers lose the path sometimes.<br><br>Paul was shipwrecked three times and still wrote half the New Testament. Today is day one again.<br><br>Every expert was once a beginner. Every streak was once a single day.`,
+    sign: '<strong>Streak: 1. Fresh start. No shame.</strong>',
+    sabbath: false
+  };
+
+  if(isSabbathUsed) return {
+    tag: '🌿 Sabbath Rest Used', tagClass: 'journal-tag-green',
+    date: dateStr,
+    body: `Missed yesterday. Life happened — it does that.<br><br>Good thing you had a <strong>🌿 Sabbath Rest</strong> stored up. Streak protected. No damage done.<br><br>Moses didn't cross the Red Sea on his first try either. Get back out there.`,
+    sign: '<strong>Streak intact. Rest spent. Onward.</strong>',
+    sabbath: true
+  };
+
+  if(isSabbathEarned) return {
+    tag: '🌿 Sabbath Rest Earned', tagClass: 'journal-tag-green',
+    date: dateStr,
+    body: streak === 5
+      ? `Day 5. The Lord rested on the seventh — Randy rests on the fifth.<br><br>A <strong>🌿 Sabbath Rest</strong> added to the pack. If you miss a day, it'll cover you. Use it wisely — or better yet, don't need it at all.`
+      : `Day ${streak}. Another <strong>🌿 Sabbath Rest</strong> earned.<br><br>At this rate you're going to run out of days to miss. That's called faithfulness.`,
+    sign: '<strong>Selah.</strong>',
+    sabbath: true
+  };
+
+  // Regular day entries
+  const entries = {
+    1: { tag:'📖 First Entry', tagClass:'journal-tag-blue', body:`First day in the field. The terrain is unfamiliar but the guide is sure.<br><br>Every great expedition starts with a single step. Today was mine.`, sign:`<strong>Streak: 1 day. The journey begins.</strong>` },
+    2: { tag:'🔥 Day 2', tagClass:'journal-tag-fire', body:`Back again. Some explorers quit after day one — not this one.<br><br>Two days in. The Word is deeper than it looks from the outside.`, sign:`<strong>Streak: 2 days. Still going.</strong>` },
+    3: { tag:'🔥 Day 3', tagClass:'journal-tag-fire', body:`Three days. You know what they say — it takes 3 days to start a habit. Ask Jonah.`, sign:`<strong>Streak: 3 days. Something's forming here.</strong>` },
+    7: { tag:'🔥 Day 7', tagClass:'journal-tag-fire', body:`One full week. Seven days of creation. Seven days of showing up.<br><br>Randy approves. So does Someone with considerably more authority.`, sign:`<strong>Streak: 7 days. One week strong.</strong>` },
+    14: { tag:'🔥 Day 14', tagClass:'journal-tag-fire', body:`Two weeks. Fourteen days of the Word working on you whether you noticed or not.<br><br>The disciples walked with Jesus for three years. You've got time.`, sign:`<strong>Streak: 14 days. Still here.</strong>` },
+    30: { tag:'🔥 Day 30', tagClass:'journal-tag-fire', body:`Thirty days. A whole month. The psalmist said blessed is the one who meditates on the law <strong>day and night.</strong><br><br>Thirty nights counted too, just so you know.`, sign:`<strong>Streak: 30 days. The Lord is noticing.</strong>` },
+    50: { tag:'🔥 Day 50', tagClass:'journal-tag-fire', body:`Fifty days. That's Pentecost. The disciples waited fifty days for the Spirit to fall.<br><br>You've been showing up every one of those days. Randy is not crying. There's just something in his eye.`, sign:`<strong>Streak: 50 days. Legendary territory.</strong>` },
+    100: { tag:'🔥 Day 100', tagClass:'journal-tag-fire', body:`One hundred days. A century of faithfulness. Abraham was 100 when Isaac was born — proof that great things take time.<br><br>Randy didn't think you'd make it this far. Randy was wrong. It happens.`, sign:`<strong>Streak: 100 days. Extraordinary.</strong>` },
+  };
+
+  // Pick specific or generic
+  const specific = entries[streak];
+  if(specific) return { ...specific, date: dateStr, sabbath: false };
+
+  // Generic fallback
+  return {
+    tag: '🔥 Day ' + streak, tagClass: 'journal-tag-fire',
+    date: dateStr,
+    body: `Day ${streak}. Still on the trail. Still in the Word.<br><br>Most people give up before they get to the good part. You haven't.`,
+    sign: '<strong>Streak: ' + streak + ' days. Keep going.</strong>',
+    sabbath: false,
+  };
+}
+
+function showJournalCard(streak, longest, rests, isSabbathEarned=false, isSabbathUsed=false, isReset=false) {
+  const entry = getJournalEntry(streak, isSabbathEarned, isSabbathUsed, isReset);
+
+  // Build dot trail (last 7 days or streak length, whichever is smaller)
+  const dotCount = Math.min(streak, 7);
+  const dots = Array.from({length: dotCount}, (_,i) => {
+    if(isSabbathEarned && i === dotCount-1)
+      return '<div class="journal-dot journal-dot-sabbath">🌿</div>';
+    if(i === dotCount-1)
+      return '<div class="journal-dot journal-dot-today">✓</div>';
+    return '<div class="journal-dot journal-dot-filled">✓</div>';
+  }).join('');
+
+  // Paw print color
+  const pawColor = entry.sabbath ? '#4a8a28' : '#8b4513';
+
+  const html = `
+  <div class="journal-overlay" id="journalOverlay" onclick="if(event.target===this)closeJournal()">
+    <div class="journal-card">
+      <div style="position:relative">
+        <div class="journal-spine">
+          <div class="journal-spine-dots">
+            <svg width="20" height="220" viewBox="0 0 20 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="10" y1="0" x2="10" y2="220" stroke="#4a2208" stroke-width="1" stroke-dasharray="6 5"/>
+              <circle cx="10" cy="22" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
+              <circle cx="10" cy="55" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
+              <circle cx="10" cy="88" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
+              <circle cx="10" cy="121" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
+              <circle cx="10" cy="154" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
+              <circle cx="10" cy="187" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
+            </svg>
+          </div>
+        </div>
+        <div class="journal-page ${entry.sabbath ? 'journal-sabbath-page' : ''}">
+          <div class="journal-tag ${entry.tagClass}">${entry.tag}</div>
+          <div class="journal-date">${entry.date}</div>
+          <div class="journal-body">${entry.body}<br><br>${entry.sign}</div>
+          <div class="journal-stats">
+            <div class="journal-stat">
+              <div class="journal-stat-val">🔥 ${streak}</div>
+              <div class="journal-stat-label">Streak</div>
+            </div>
+            <div class="journal-stat">
+              <div class="journal-stat-val">${longest}</div>
+              <div class="journal-stat-label">Best</div>
+            </div>
+            <div class="journal-stat">
+              <div class="journal-stat-val">🌿 ${rests}</div>
+              <div class="journal-stat-label">Rests</div>
+            </div>
+          </div>
+          <div class="journal-dots">${dots}</div>
+          <div class="journal-paw">
+            <svg width="30" height="30" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="22" cy="28" r="9" fill="${pawColor}"/>
+              <circle cx="14" cy="20" r="5" fill="${pawColor}"/>
+              <circle cx="22" cy="17" r="5" fill="${pawColor}"/>
+              <circle cx="30" cy="20" r="5" fill="${pawColor}"/>
+              <circle cx="11" cy="30" r="4" fill="${pawColor}"/>
+              <circle cx="33" cy="30" r="4" fill="${pawColor}"/>
+            </svg>
+          </div>
+          <button class="journal-btn" onclick="closeJournal()">Back to the Trail →</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeJournal() {
+  const el = document.getElementById('journalOverlay');
+  if(el) el.remove();
+}
+
 // ═══════════════════════════════════════
 // RANDY'S FIELD KIT — Hand Drawn SVG Icons
 // ═══════════════════════════════════════
 function getFieldIcon(game, size=40) {
-  const s = size;
-  const icons = {
-    scout: `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="24" cy="24" r="20" fill="#f5e8c8" stroke="#7a4a08" stroke-width="2.5"/>
-      <circle cx="24" cy="24" r="14" fill="none" stroke="#c4a060" stroke-width="1.5" stroke-dasharray="2 4"/>
-      <circle cx="24" cy="24" r="8" fill="none" stroke="#c4a060" stroke-width="1"/>
-      <path d="M24 6 L27 18 L24 22 L21 18 Z" fill="#c8401a" stroke="#8b2a0a" stroke-width="1"/>
-      <path d="M24 42 L27 30 L24 26 L21 30 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1"/>
-      <path d="M42 24 L30 27 L26 24 L30 21 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1"/>
-      <path d="M6 24 L18 27 L22 24 L18 21 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1"/>
-      <line x1="38" y1="10" x2="35" y2="13" stroke="#c4a060" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="10" y1="10" x2="13" y2="13" stroke="#c4a060" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="38" y1="38" x2="35" y2="35" stroke="#c4a060" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="10" y1="38" x2="13" y2="35" stroke="#c4a060" stroke-width="1.5" stroke-linecap="round"/>
-      <text x="24" y="5" text-anchor="middle" font-size="6" fill="#8b4513" font-weight="bold" font-family="Georgia">N</text>
-      <text x="24" y="46" text-anchor="middle" font-size="6" fill="#8b4513" font-weight="bold" font-family="Georgia">S</text>
-      <text x="46" y="26" text-anchor="middle" font-size="6" fill="#8b4513" font-weight="bold" font-family="Georgia">E</text>
-      <text x="2" y="26" text-anchor="middle" font-size="6" fill="#8b4513" font-weight="bold" font-family="Georgia">W</text>
-      <circle cx="24" cy="24" r="3.5" fill="#2e1c00"/>
-      <circle cx="24" cy="24" r="1.5" fill="#c8941a"/>
-    </svg>`,
-    trivia: `<svg width="${s}" height="${s}" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="22" width="32" height="8" rx="3" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/>
-      <rect x="10" y="21" width="4" height="10" rx="1.5" fill="#d4a830" stroke="#7a4a08" stroke-width="1"/>
-      <rect x="20" y="21" width="4" height="10" rx="1.5" fill="#d4a830" stroke="#7a4a08" stroke-width="1"/>
-      <rect x="34" y="23" width="6" height="6" rx="2" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/>
-      <ellipse cx="6" cy="26" rx="4" ry="5" fill="#1a3a6e" stroke="#7a4a08" stroke-width="1.5"/>
-      <ellipse cx="6" cy="26" rx="2.5" ry="3.5" fill="#2a5ab0" opacity="0.8"/>
-      <ellipse cx="5" cy="24" rx="1" ry="1.5" fill="white" opacity="0.4"/>
-      <line x1="4" y1="24" x2="34" y2="24" stroke="#f4c840" stroke-width="1" opacity="0.4" stroke-linecap="round"/>
-      <rect x="12" y="8" width="22" height="12" rx="2" fill="#f5e8c8" stroke="#c4a060" stroke-width="1"/>
-      <line x1="15" y1="12" x2="31" y2="12" stroke="#8b6914" stroke-width="1" stroke-linecap="round"/>
-      <line x1="15" y1="15" x2="28" y2="15" stroke="#8b6914" stroke-width="1" stroke-linecap="round"/>
-      <path d="M12 19 L14 14" stroke="#c4a060" stroke-width="1" stroke-dasharray="1 2"/>
-      <path d="M34 19 L32 14" stroke="#c4a060" stroke-width="1" stroke-dasharray="1 2"/>
-      <text x="36" y="14" font-size="10" fill="#c8401a" font-weight="bold">?</text>
-    </svg>`,
-    story: `<svg width="${s}" height="${s}" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="18" y="38" width="16" height="5" rx="2" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/>
-      <path d="M14 20 L16 38 L36 38 L38 20 Z" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5" stroke-linejoin="round"/>
-      <path d="M16 22 L18 36 L26 36 L26 22 Z" fill="#f4c840" opacity="0.25"/>
-      <path d="M26 22 L26 36 L34 36 L36 22 Z" fill="#f4c840" opacity="0.25"/>
-      <line x1="26" y1="20" x2="26" y2="38" stroke="#7a4a08" stroke-width="1.5"/>
-      <line x1="14" y1="26" x2="38" y2="26" stroke="#7a4a08" stroke-width="1"/>
-      <line x1="14" y1="32" x2="38" y2="32" stroke="#7a4a08" stroke-width="1"/>
-      <path d="M14 20 L16 14 L36 14 L38 20 Z" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/>
-      <path d="M20 14 Q26 6 32 14" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/>
-      <ellipse cx="26" cy="25" rx="4" ry="6" fill="#f4b942" opacity="0.9"/>
-      <ellipse cx="25" cy="24" rx="2.5" ry="4" fill="#f9e04b" opacity="0.8"/>
-      <ellipse cx="26" cy="23" rx="1.5" ry="3" fill="white" opacity="0.5"/>
-      <ellipse cx="26" cy="26" rx="8" ry="8" fill="#f4b942" opacity="0.12"/>
-    </svg>`,
-    mia: `<svg width="${s}" height="${s}" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="10" width="30" height="26" rx="2" fill="#f5e8c8" stroke="#c4a060" stroke-width="1.5"/>
-      <path d="M4 12 Q6 10 8 12" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
-      <path d="M4 34 Q6 36 8 34" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
-      <path d="M30 12 Q32 10 34 12" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
-      <path d="M30 34 Q32 36 34 34" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
-      <line x1="8" y1="18" x2="16" y2="18" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
-      <rect x="17" y="16" width="8" height="4" rx="1" fill="#c8401a" opacity="0.25" stroke="#c8401a" stroke-width="1" stroke-dasharray="2 1"/>
-      <line x1="26" y1="18" x2="30" y2="18" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="8" y1="23" x2="14" y2="23" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
-      <rect x="15" y="21" width="10" height="4" rx="1" fill="#c8401a" opacity="0.25" stroke="#c8401a" stroke-width="1" stroke-dasharray="2 1"/>
-      <line x1="26" y1="23" x2="30" y2="23" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M38 4 Q44 10 40 18 L30 36 L26 38 L28 32 Z" fill="#e8d890" stroke="#7a4a08" stroke-width="1.5" stroke-linejoin="round"/>
-      <path d="M38 4 Q44 10 40 18 Q35 24 30 30 L28 34 L30 36 Z" fill="#f5f0b0" stroke="#7a4a08" stroke-width="1" stroke-linejoin="round"/>
-      <path d="M26 38 Q28 35 30 32" stroke="#c8401a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <path d="M30 36 L28 42" stroke="#8b4513" stroke-width="2" stroke-linecap="round"/>
-    </svg>`,
-    track: `<svg width="${s}" height="${s}" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="5" width="38" height="34" rx="3" fill="#f5e8c8" stroke="#c4a060" stroke-width="1.5"/>
-      <path d="M3 5 Q5 3 7 5 Q9 7 11 5 Q13 3 15 5" stroke="#c4a060" stroke-width="1" fill="none"/>
-      <path d="M3 39 Q5 41 7 39 Q9 37 11 39 Q13 41 15 39" stroke="#c4a060" stroke-width="1" fill="none"/>
-      <path d="M5 30 L10 20 L15 30" fill="#8b8060" stroke="#7a7050" stroke-width="1"/>
-      <path d="M12 30 L18 18 L24 30" fill="#9b9070" stroke="#7a7050" stroke-width="1"/>
-      <path d="M26 28 Q28 26 30 28 Q32 30 34 28 Q36 26 38 28" stroke="#4a7ab0" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <path d="M8 36 Q12 32 18 28 Q24 24 28 18 Q32 14 36 12" stroke="#c8401a" stroke-width="1.5" fill="none" stroke-dasharray="2 3" stroke-linecap="round"/>
-      <circle cx="8" cy="36" r="3" fill="#c8401a" opacity="0.8"/>
-      <line x1="33" y1="9" x2="39" y2="15" stroke="#c8401a" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="39" y1="9" x2="33" y2="15" stroke="#c8401a" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="38" cy="34" r="5" fill="#f0ddb0" stroke="#c4a060" stroke-width="1"/>
-      <line x1="38" y1="30" x2="38" y2="38" stroke="#7a4a08" stroke-width="1"/>
-      <line x1="34" y1="34" x2="42" y2="34" stroke="#7a4a08" stroke-width="1"/>
-      <path d="M38 30 L39 33 L38 32 L37 33 Z" fill="#c8401a"/>
-    </svg>`,
-    leaderboard: `<svg width="${s}" height="${s}" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="16" y="36" width="14" height="5" rx="2" fill="#8b4513" stroke="#4a2208" stroke-width="1.5"/>
-      <rect x="19" y="31" width="8" height="6" rx="1" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/>
-      <path d="M10 10 L10 28 Q10 34 18 34 L28 34 Q36 34 36 28 L36 10 Z" fill="#f4b942" stroke="#7a4a08" stroke-width="1.5" stroke-linejoin="round"/>
-      <path d="M10 14 Q4 14 4 20 Q4 26 10 26" fill="#f4b942" stroke="#7a4a08" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M36 14 Q42 14 42 20 Q42 26 36 26" fill="#f4b942" stroke="#7a4a08" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M15 22 L20 17 L23 21 L28 15 L32 22" stroke="#8b4513" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      <line x1="10" y1="10" x2="36" y2="10" stroke="#7a4a08" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>`,
-    daily: `<svg width="${s}" height="${s}" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="30" width="40" height="13" rx="2" fill="#4a7a30"/>
-      <path d="M3 30 L12 16 L21 30" fill="#3a6a20" stroke="#2d5a18" stroke-width="1"/>
-      <path d="M16 30 L26 14 L36 30" fill="#4a7a28" stroke="#2d5a18" stroke-width="1"/>
-      <path d="M30 30 L38 20 L43 30" fill="#3a6a20" stroke="#2d5a18" stroke-width="1"/>
-      <circle cx="23" cy="14" r="9" fill="#f4b942" opacity="0.9"/>
-      <circle cx="23" cy="14" r="6" fill="#f9e04b"/>
-      <line x1="23" y1="2" x2="23" y2="6" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
-      <line x1="35" y1="5" x2="32" y2="8" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
-      <line x1="38" y1="14" x2="34" y2="14" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
-      <line x1="11" y1="5" x2="14" y2="8" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
-      <line x1="8" y1="14" x2="12" y2="14" stroke="#f4b942" stroke-width="2" stroke-linecap="round"/>
-    </svg>`
-  };
-  return icons[game] || `<span style="font-size:${s*0.6}px">📖</span>`;
+  const valid = ['scout','trivia','story','mia','track','leaderboard','daily'];
+  if(!valid.includes(game)) return '<span style="font-size:' + size + 'px">📖</span>';
+  return '<img src="/icons/' + game + '.svg" width="' + size + '" height="' + size + '" style="object-fit:contain;flex-shrink:0;" alt="' + game + ' icon">';
 }
+
+
 function getRandyImg(expression='default', size=80) {
   const imgs = {
     default:  '/randy-default-transparent.png',
@@ -9830,7 +8637,7 @@ function getRandyImg(expression='default', size=80) {
     thinking: '/randy-thinking-transparent.png'
   };
   const src = imgs[expression] || imgs.default;
-  return `<img src="${src}" width="${size}" height="${size}" style="object-fit:contain;flex-shrink:0;" alt="Randy the Ranger" onerror="this.style.display='none'">`;
+  return '<img src="' + src + '" width="' + size + '" height="' + size + '" style="object-fit:contain;flex-shrink:0;" alt="Randy the Ranger" onerror="this.style.display=&quot;none&quot;">';
 }
 
 function getRandySVG(size=80) {
@@ -10115,14 +8922,13 @@ async function getDailyTopicAndVerses() {
   const results = await Promise.all(versePromises);
   const pool = results.filter(Boolean).slice(0, 4);
 
-  // Fallback if not enough verses found
+  // Fallback if not enough verses found — no difficulty filter since column doesn't exist
   if(pool.length < 4) {
-    const dow = now.getDay();
-    const diff = [0,6].includes(dow) ? 'hard' : [2,4].includes(dow) ? 'medium' : 'easy';
-    const total = DIFF_COUNTS[TRANSLATION][diff];
-    const offset = getDailySeed('fallback') % total;
-    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=${4-pool.length}&offset=${offset}`);
-    pool.push(...rows);
+    try {
+      const offset = getDailySeed('fallback') % 5000;
+      const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&select=*&limit=${4-pool.length}&offset=${offset}`);
+      pool.push(...rows.filter(Boolean));
+    } catch(e) { console.log('Daily fallback failed:', e); }
   }
 
   _dailyVersePool = pool;
