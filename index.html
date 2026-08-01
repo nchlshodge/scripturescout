@@ -8545,78 +8545,64 @@ function getJournalEntry(streak, isSabbathEarned, isSabbathUsed, isReset) {
 
 function showJournalCard(streak, longest, rests, isSabbathEarned=false, isSabbathUsed=false, isReset=false) {
   const entry = getJournalEntry(streak, isSabbathEarned, isSabbathUsed, isReset);
-
-  // Build dot trail (last 7 days or streak length, whichever is smaller)
   const dotCount = Math.min(streak, 7);
   const dots = Array.from({length: dotCount}, (_,i) => {
-    if(isSabbathEarned && i === dotCount-1)
-      return '<div class="journal-dot journal-dot-sabbath">🌿</div>';
-    if(i === dotCount-1)
-      return '<div class="journal-dot journal-dot-today">✓</div>';
+    if(isSabbathEarned && i === dotCount-1) return '<div class="journal-dot journal-dot-sabbath">🌿</div>';
+    if(i === dotCount-1) return '<div class="journal-dot journal-dot-today">✓</div>';
     return '<div class="journal-dot journal-dot-filled">✓</div>';
   }).join('');
-
-  // Paw print color
   const pawColor = entry.sabbath ? '#4a8a28' : '#8b4513';
 
-  const html = `
-  <div class="journal-overlay" id="journalOverlay" onclick="if(event.target===this)closeJournal()">
-    <div class="journal-card">
-      <div style="position:relative">
-        <div class="journal-spine">
-          <div class="journal-spine-dots">
-            <svg width="20" height="220" viewBox="0 0 20 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <line x1="10" y1="0" x2="10" y2="220" stroke="#4a2208" stroke-width="1" stroke-dasharray="6 5"/>
-              <circle cx="10" cy="22" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
-              <circle cx="10" cy="55" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
-              <circle cx="10" cy="88" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
-              <circle cx="10" cy="121" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
-              <circle cx="10" cy="154" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
-              <circle cx="10" cy="187" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>
-            </svg>
-          </div>
-        </div>
-        <div class="journal-page ${entry.sabbath ? 'journal-sabbath-page' : ''}">
-          <div class="journal-tag ${entry.tagClass}">${entry.tag}</div>
-          <div class="journal-date">${entry.date}</div>
-          <div class="journal-body">${entry.body}<br><br>${entry.sign}</div>
-          <div class="journal-stats">
-            <div class="journal-stat">
-              <div class="journal-stat-val">🔥 ${streak}</div>
-              <div class="journal-stat-label">Streak</div>
-            </div>
-            <div class="journal-stat">
-              <div class="journal-stat-val">${longest}</div>
-              <div class="journal-stat-label">Best</div>
-            </div>
-            <div class="journal-stat">
-              <div class="journal-stat-val">🌿 ${rests}</div>
-              <div class="journal-stat-label">Rests</div>
-            </div>
-          </div>
-          <div class="journal-dots">${dots}</div>
-          <div class="journal-paw">
-            <svg width="30" height="30" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="22" cy="28" r="9" fill="${pawColor}"/>
-              <circle cx="14" cy="20" r="5" fill="${pawColor}"/>
-              <circle cx="22" cy="17" r="5" fill="${pawColor}"/>
-              <circle cx="30" cy="20" r="5" fill="${pawColor}"/>
-              <circle cx="11" cy="30" r="4" fill="${pawColor}"/>
-              <circle cx="33" cy="30" r="4" fill="${pawColor}"/>
-            </svg>
-          </div>
-          <button class="journal-btn" onclick="closeJournal()">Back to the Trail →</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
+  // Store the previous screen so we can go back
+  _journalPrevScreen = root.innerHTML;
+  _journalPrevBack = document.getElementById('backBtn')?.style.display;
+  showBackBtn(false);
 
-  document.body.insertAdjacentHTML('beforeend', html);
+  root.innerHTML = '<div style="min-height:100vh;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;">'
+    + '<div style="width:100%;max-width:420px;">'
+    + '<div class="journal-card" style="width:100%;">'
+    + '<div style="position:relative;">'
+    + '<div class="journal-spine">'
+    + '<div class="journal-spine-dots">'
+    + '<svg width="20" height="260" viewBox="0 0 20 260" fill="none" xmlns="http://www.w3.org/2000/svg">'
+    + '<line x1="10" y1="0" x2="10" y2="260" stroke="#4a2208" stroke-width="1" stroke-dasharray="6 5"/>'
+    + '<circle cx="10" cy="22" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>'
+    + '<circle cx="10" cy="55" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>'
+    + '<circle cx="10" cy="88" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>'
+    + '<circle cx="10" cy="121" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>'
+    + '<circle cx="10" cy="154" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>'
+    + '<circle cx="10" cy="187" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>'
+    + '<circle cx="10" cy="220" r="3.5" fill="#c8941a" stroke="#4a2208" stroke-width="1"/>'
+    + '</svg></div></div>'
+    + '<div class="journal-page ' + (entry.sabbath ? 'journal-sabbath-page' : '') + '">'
+    + '<div class="journal-tag ' + entry.tagClass + '">' + entry.tag + '</div>'
+    + '<div class="journal-date">' + entry.date + '</div>'
+    + '<div class="journal-body">' + entry.body + '<br><br>' + entry.sign + '</div>'
+    + '<div class="journal-stats">'
+    + '<div class="journal-stat"><div class="journal-stat-val">🔥 ' + streak + '</div><div class="journal-stat-label">Streak</div></div>'
+    + '<div class="journal-stat"><div class="journal-stat-val">' + longest + '</div><div class="journal-stat-label">Best</div></div>'
+    + '<div class="journal-stat"><div class="journal-stat-val">🌿 ' + rests + '</div><div class="journal-stat-label">Rests</div></div>'
+    + '</div>'
+    + '<div class="journal-dots">' + dots + '</div>'
+    + '<div class="journal-paw">'
+    + '<svg width="30" height="30" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">'
+    + '<circle cx="22" cy="28" r="9" fill="' + pawColor + '"/>'
+    + '<circle cx="14" cy="20" r="5" fill="' + pawColor + '"/>'
+    + '<circle cx="22" cy="17" r="5" fill="' + pawColor + '"/>'
+    + '<circle cx="30" cy="20" r="5" fill="' + pawColor + '"/>'
+    + '<circle cx="11" cy="30" r="4" fill="' + pawColor + '"/>'
+    + '<circle cx="33" cy="30" r="4" fill="' + pawColor + '"/>'
+    + '</svg></div>'
+    + '<button class="journal-btn" onclick="closeJournal()">Back to the Trail →</button>'
+    + '</div></div></div></div></div>';
 }
 
+let _journalPrevScreen = null;
+let _journalPrevBack = null;
+
 function closeJournal() {
-  const el = document.getElementById('journalOverlay');
-  if(el) el.remove();
+  showBackBtn(true);
+  showHome();
 }
 
 // ═══════════════════════════════════════
