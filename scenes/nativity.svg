@@ -1,0 +1,18 @@
+<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="320" height="160" fill="#0a1628"/>
+      <polygon points="160,5 175,5 160,80 145,80" fill="#f9e04b" opacity="0.9"/>
+      <circle cx="160" cy="5" r="6" fill="#f9e04b"/>
+      <polygon points="100,70 220,70 240,130 80,130" fill="#8b6914"/>
+      <polygon points="100,70 220,70 160,40" fill="#a07820"/>
+      <rect x="130" y="95" width="60" height="35" fill="#6b4e10"/>
+      <rect x="140" y="105" width="40" height="25" fill="#8b6914"/>
+      <ellipse cx="160" cy="108" rx="15" ry="10" fill="#f5e6c8"/>
+      <circle cx="160" cy="103" r="7" fill="#f5e6c8"/>
+      <circle cx="160" cy="108" r="5" fill="#f4b942" opacity="0.5"/>
+      <ellipse cx="100" cy="125" rx="18" ry="12" fill="#6b4e10"/>
+      <ellipse cx="220" cy="125" rx="18" ry="12" fill="#6b4e10"/>
+      <circle cx="40" cy="30" r="2" fill="white"/>
+      <circle cx="280" cy="25" r="2" fill="white"/>
+      <circle cx="60" cy="50" r="2" fill="white" opacity="0.7"/>
+      <circle cx="260" cy="45" r="2" fill="white" opacity="0.7"/>
+    </svg>
