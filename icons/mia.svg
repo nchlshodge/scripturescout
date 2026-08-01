@@ -1,0 +1,17 @@
+<svg viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="10" width="30" height="26" rx="2" fill="#f5e8c8" stroke="#c4a060" stroke-width="1.5"/>
+      <path d="M4 12 Q6 10 8 12" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
+      <path d="M4 34 Q6 36 8 34" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
+      <path d="M30 12 Q32 10 34 12" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
+      <path d="M30 34 Q32 36 34 34" fill="#d4b870" stroke="#c4a060" stroke-width="1"/>
+      <line x1="8" y1="18" x2="16" y2="18" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="17" y="16" width="8" height="4" rx="1" fill="#c8401a" opacity="0.25" stroke="#c8401a" stroke-width="1" stroke-dasharray="2 1"/>
+      <line x1="26" y1="18" x2="30" y2="18" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="8" y1="23" x2="14" y2="23" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="15" y="21" width="10" height="4" rx="1" fill="#c8401a" opacity="0.25" stroke="#c8401a" stroke-width="1" stroke-dasharray="2 1"/>
+      <line x1="26" y1="23" x2="30" y2="23" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M38 4 Q44 10 40 18 L30 36 L26 38 L28 32 Z" fill="#e8d890" stroke="#7a4a08" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M38 4 Q44 10 40 18 Q35 24 30 30 L28 34 L30 36 Z" fill="#f5f0b0" stroke="#7a4a08" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M26 38 Q28 35 30 32" stroke="#c8401a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M30 36 L28 42" stroke="#8b4513" stroke-width="2" stroke-linecap="round"/>
+    </svg>
