@@ -6,40 +6,60 @@
 * { box-sizing:border-box; margin:0; padding:0; }
 body { background:#ede3cf; padding:16px; font-family:sans-serif; }
 
+/* The trick: use a grid where image and overlays share the same cell */
 .map-container {
-  position: relative;
+  display: grid;
   width: 100%;
   max-width: 420px;
   margin: 0 auto;
-  /* Lock the height to match the map's 576:1024 aspect ratio */
-  padding-bottom: calc(100% * 1024 / 576);
   border-radius: 12px;
   border: 3px solid #c4a030;
   overflow: hidden;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.4);
 }
 
-/* Every child fills the container absolutely */
+/* Every child sits in the same grid cell */
 .map-container > * {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  grid-area: 1 / 1;
 }
 
 .map-container img {
-  object-fit: cover;
+  width: 100%;
+  display: block;
 }
 
-/* Landmarks */
-.lm {
+.map-container svg {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Landmarks and Randy sit in the grid cell too */
+.lm, .randy {
+  position: relative;
+  grid-area: 1 / 1;
+  align-self: start;
+  justify-self: start;
+  width: 0; height: 0; /* zero footprint */
+  overflow: visible;
+}
+
+/* Actual lm content positioned via transform */
+.lm-inner {
   position: absolute;
   transform: translate(-50%, -50%);
-  z-index: 10;
   text-align: center;
   cursor: pointer;
-  /* Reset the width/height override from above */
-  width: auto !important;
-  height: auto !important;
+  z-index: 10;
 }
+.randy-inner {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.7));
+}
+
 .lm-ring {
   width: 48px; height: 48px;
   border-radius: 50%;
@@ -48,33 +68,18 @@ body { background:#ede3cf; padding:16px; font-family:sans-serif; }
   box-shadow: 0 2px 12px rgba(0,0,0,0.5);
   margin: 0 auto 4px;
 }
-.lm-done   .lm-ring { background: radial-gradient(circle at 35% 35%, #f9e04b, #c8901a); }
-.lm-active .lm-ring { background: radial-gradient(circle at 35% 35%, #7a3010, #4a1804); border-color:#f4b942; animation: glow 2s infinite; }
-.lm-locked .lm-ring { background: rgba(40,28,12,0.75); border-color:#7a6030; }
+.done   .lm-ring { background: radial-gradient(circle at 35% 35%, #f9e04b, #c8901a); }
+.active .lm-ring { background: radial-gradient(circle at 35% 35%, #7a3010, #4a1804); border-color:#f4b942; animation: glow 2s infinite; }
+.locked .lm-ring { background: rgba(40,28,12,0.75); border-color:#7a6030; }
 .lm-label {
-  font-family: Georgia, serif;
-  font-size: 9px; font-weight: 700;
-  color: #fff8ee;
-  background: rgba(30,12,2,0.88);
+  font-family: Georgia, serif; font-size: 9px; font-weight: 700;
+  color: #fff8ee; background: rgba(30,12,2,0.88);
   padding: 2px 6px; border-radius: 7px;
-  white-space: nowrap;
-  border: 1px solid #c4a060;
+  white-space: nowrap; border: 1px solid #c4a060;
   text-shadow: 0 1px 2px rgba(0,0,0,0.9);
 }
 .lm-stars { font-size: 8px; color: #f4c050; margin-top: 2px; }
-.lm-locked .lm-stars { color: #7a6030; }
-
-/* Randy */
-.randy {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  z-index: 15;
-  width: auto !important;
-  height: auto !important;
-  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.7));
-  pointer-events: none;
-}
-
+.locked .lm-stars { color: #7a6030; }
 @keyframes glow {
   0%,100% { box-shadow: 0 2px 12px rgba(0,0,0,0.5); }
   50%      { box-shadow: 0 2px 22px rgba(244,185,66,0.7), 0 0 28px rgba(244,185,66,0.3); }
@@ -84,11 +89,12 @@ body { background:#ede3cf; padding:16px; font-family:sans-serif; }
 <body>
 
 <div class="map-container">
-  <!-- 1. Map image -->
+
+  <!-- 1. Map image — defines the container height -->
   <img src="/map-bg.svg" alt="Story map">
 
-  <!-- 2. Trail SVG -->
-  <svg viewBox="0 0 576 1024" xmlns="http://www.w3.org/2000/svg" style="pointer-events:none;">
+  <!-- 2. Trail SVG — sits in same grid cell, scales to match image -->
+  <svg viewBox="0 0 576 1024" xmlns="http://www.w3.org/2000/svg">
     <path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30"
           fill="none" stroke="#3a1a00" stroke-width="22" stroke-linecap="round" opacity="0.35"/>
     <path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30"
@@ -97,75 +103,71 @@ body { background:#ede3cf; padding:16px; font-family:sans-serif; }
           fill="none" stroke="#f0d878" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 20" opacity="0.65"/>
   </svg>
 
-  <!-- 3. Randy — positioned at Moses (47% down) -->
-  <div class="randy" style="left:58%;top:44%">
-    <img src="/randy-default-transparent.png" width="60" height="60" alt="Randy">
+  <!-- 3. Randy — positioned using % of 576x1024 -->
+  <div class="randy" style="left:calc(58% * 1px);top:0">
+    <div class="randy-inner" style="left:calc(58% * 1);top:calc(44% * 1)">
+      <img src="/randy-default-transparent.png" width="60" height="60" alt="Randy">
+    </div>
   </div>
 
-  <!-- 4. Landmarks — left/top are % of container (x/576*100, y/1024*100) -->
-  <div class="lm lm-active" style="left:45.5%;top:8%" onclick="alert('In The Beginning')">
-    <div class="lm-ring">
-      <svg width="26" height="26" viewBox="0 0 44 44" fill="none">
-        <circle cx="22" cy="22" r="18" fill="#f4c840" opacity="0.95"/>
-        <path d="M22 7 L25 18 L22 22 L19 18 Z" fill="#c8401a"/>
-        <path d="M22 37 L25 26 L22 22 L19 26 Z" fill="#6b3010"/>
-        <path d="M37 22 L26 25 L22 22 L26 19 Z" fill="#6b3010"/>
-        <path d="M7 22 L18 25 L22 22 L18 19 Z" fill="#6b3010"/>
-        <circle cx="22" cy="22" r="3" fill="#2e1c00"/>
-        <circle cx="22" cy="22" r="1.5" fill="#c8941a"/>
-      </svg>
+  <!-- 4. Landmarks — each is a zero-size grid item, content overflows visibly -->
+  <div class="lm active" style="margin-left:45.5%;margin-top:8%">
+    <div class="lm-inner">
+      <div class="lm-ring">
+        <svg width="26" height="26" viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="18" fill="#f4c840" opacity="0.95"/>
+          <path d="M22 7 L25 18 L22 22 L19 18 Z" fill="#c8401a"/>
+          <path d="M22 37 L25 26 L22 22 L19 26 Z" fill="#6b3010"/>
+          <path d="M37 22 L26 25 L22 22 L26 19 Z" fill="#6b3010"/>
+          <path d="M7 22 L18 25 L22 22 L18 19 Z" fill="#6b3010"/>
+          <circle cx="22" cy="22" r="3" fill="#2e1c00"/>
+          <circle cx="22" cy="22" r="1.5" fill="#c8941a"/>
+        </svg>
+      </div>
+      <div class="lm-label">🌍 In The Beginning</div>
+      <div class="lm-stars">☆☆☆</div>
     </div>
-    <div class="lm-label">🌍 In The Beginning</div>
-    <div class="lm-stars">☆☆☆</div>
   </div>
 
-  <div class="lm lm-locked" style="left:43%;top:27%" onclick="alert('The Patriarchs')">
-    <div class="lm-ring">
-      <svg width="26" height="26" viewBox="0 0 44 44" fill="none">
-        <rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/>
-        <path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/>
-      </svg>
+  <div class="lm locked" style="margin-left:43%;margin-top:27%">
+    <div class="lm-inner" onclick="alert('The Patriarchs')">
+      <div class="lm-ring"><svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/></svg></div>
+      <div class="lm-label">⭐ The Patriarchs</div>
+      <div class="lm-stars">🔒</div>
     </div>
-    <div class="lm-label">⭐ The Patriarchs</div>
-    <div class="lm-stars">🔒</div>
   </div>
 
-  <div class="lm lm-locked" style="left:43.8%;top:47%" onclick="alert('Story of Moses')">
-    <div class="lm-ring">
-      <svg width="26" height="26" viewBox="0 0 44 44" fill="none">
-        <rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/>
-        <path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/>
-      </svg>
+  <div class="lm locked" style="margin-left:43.8%;margin-top:47%">
+    <div class="lm-inner" onclick="alert('Story of Moses')">
+      <div class="lm-ring"><svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/></svg></div>
+      <div class="lm-label">🔥 Story of Moses</div>
+      <div class="lm-stars">🔒</div>
     </div>
-    <div class="lm-label">🔥 Story of Moses</div>
-    <div class="lm-stars">🔒</div>
   </div>
 
-  <div class="lm lm-locked" style="left:44.8%;top:67%" onclick="alert('Life of David')">
-    <div class="lm-ring">
-      <svg width="26" height="26" viewBox="0 0 44 44" fill="none">
-        <rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/>
-        <path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/>
-      </svg>
+  <div class="lm locked" style="margin-left:44.8%;margin-top:67%">
+    <div class="lm-inner" onclick="alert('Life of David')">
+      <div class="lm-ring"><svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/></svg></div>
+      <div class="lm-label">👑 Life of David</div>
+      <div class="lm-stars">🔒</div>
     </div>
-    <div class="lm-label">👑 Life of David</div>
-    <div class="lm-stars">🔒</div>
   </div>
 
-  <div class="lm lm-locked" style="left:46.9%;top:87%" onclick="alert('The Gospel Story')">
-    <div class="lm-ring">
-      <svg width="26" height="26" viewBox="0 0 44 44" fill="none">
-        <rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/>
-        <path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/>
-      </svg>
+  <div class="lm locked" style="margin-left:46.9%;margin-top:87%">
+    <div class="lm-inner" onclick="alert('Gospel Story')">
+      <div class="lm-ring"><svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/></svg></div>
+      <div class="lm-label">✝️ Gospel Story</div>
+      <div class="lm-stars">🔒</div>
     </div>
-    <div class="lm-label">✝️ Gospel Story</div>
-    <div class="lm-stars">🔒</div>
   </div>
+
+  <!-- Randy using same grid+margin trick -->
+  <div class="lm" style="margin-left:56%;margin-top:44%">
+    <div class="randy-inner">
+      <img src="/randy-default-transparent.png" width="60" height="60" alt="Randy">
+    </div>
+  </div>
+
 </div>
 
 </body>
