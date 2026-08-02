@@ -5263,83 +5263,82 @@ function renderStoryModeV2() {
   showBackBtn(true);
   const root = document.getElementById('root');
 
-  // Build landmark data from STORY_PATHS_V2
-  const landmarks = STORY_PATHS_V2.map((path, i) => {
-    const progress = getStoryV2Progress(path.id);
-    const completed = progress.filter(p => p.stars > 0).length;
-    const total = path.chapters.length;
-    const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-    const isComplete = completed === total && total > 0;
-    const isActive = completed < total && (i === 0 || getStoryV2Progress(STORY_PATHS_V2[i-1].id).filter(p=>p.stars>0).length === STORY_PATHS_V2[i-1].chapters.length);
-    const isLocked = !isComplete && !isActive && i > 0;
-    const avgStars = progress.length > 0 ? Math.round(progress.reduce((a,b)=>a+(b.stars||0),0)/total) : 0;
-    const stars = isComplete ? (avgStars >= 3 ? '★★★' : avgStars >= 2 ? '★★☆' : '★☆☆') : (isActive ? '☆☆☆' : '');
-    return { path, completed, total, pct, isComplete, isActive, isLocked, stars };
-  });
+  const paths = STORY_PATHS_V2;
 
-  // Positions: [left%, top%] for each path along the trail
+  // Landmark positions in the map coordinate space (576x1024)
   const positions = [
-    [45, 8],   // In The Beginning — top
-    [43, 27],  // The Patriarchs
-    [44, 47],  // The Story of Moses
-    [45, 67],  // The Life of David
-    [47, 87],  // The Gospel Story — bottom
+    { x: 262, y: 82  },  // In The Beginning
+    { x: 248, y: 277 },  // The Patriarchs
+    { x: 252, y: 481 },  // Story of Moses
+    { x: 258, y: 686 },  // Life of David
+    { x: 270, y: 891 },  // Gospel Story
   ];
 
-  // Find the active/furthest path for Randy
-  const randyIdx = landmarks.findIndex(l => l.isActive);
-  const randyPos = positions[randyIdx >= 0 ? randyIdx : landmarks.filter(l=>l.isComplete).length - 1] || positions[0];
-  const randyExpression = landmarks.some(l => l.isComplete) ? 'happy' : 'default';
+  // Randy position (near active path)
+  const activeIdx = paths.findIndex((p, i) => {
+    const prog = getStoryV2Progress(p.id);
+    const done = prog.filter(x => x.stars > 0).length;
+    const prevDone = i === 0 || getStoryV2Progress(paths[i-1].id).filter(x=>x.stars>0).length === paths[i-1].chapters.length;
+    return done < p.chapters.length && prevDone;
+  });
+  const randyIdx = activeIdx >= 0 ? activeIdx : 0;
+  const randyPos = positions[randyIdx];
+  const randyExpression = activeIdx > 0 ? 'happy' : 'default';
 
-  const lmHTML = landmarks.map((lm, i) => {
-    const [left, top] = positions[i];
-    const stateClass = lm.isComplete ? 'sm-done' : lm.isActive ? 'sm-active' : 'sm-locked';
+  // Build landmark HTML elements (positioned over SVG using % based on 576x1024)
+  const lmHTML = paths.map((path, i) => {
+    const pos = positions[i];
+    const prog = getStoryV2Progress(path.id);
+    const done = prog.filter(x => x.stars > 0).length;
+    const total = path.chapters.length;
+    const isComplete = done === total && total > 0;
+    const prevDone = i === 0 || getStoryV2Progress(paths[i-1].id).filter(x=>x.stars>0).length === paths[i-1].chapters.length;
+    const isActive = !isComplete && prevDone;
+    const isLocked = !isComplete && !isActive;
+    const stateClass = isComplete ? 'sm-done' : isActive ? 'sm-active' : 'sm-locked';
+    const avgStars = total > 0 && prog.length > 0 ? Math.round(prog.reduce((a,b)=>a+(b.stars||0),0)/total) : 0;
+    const stars = isComplete ? '★'.repeat(avgStars)+'☆'.repeat(3-avgStars) : isActive ? '☆☆☆' : '🔒';
 
-    // Icon SVG per path
     const icons = [
-      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="18" fill="#f4c840" opacity="0.95"/><path d="M22 7 L25 18 L22 22 L19 18 Z" fill="#c8401a" stroke="#8b2a0a" stroke-width="1"/><path d="M22 37 L25 26 L22 22 L19 26 Z" fill="#6b3010"/><path d="M37 22 L26 25 L22 22 L26 19 Z" fill="#6b3010"/><path d="M7 22 L18 25 L22 22 L18 19 Z" fill="#6b3010"/><circle cx="22" cy="22" r="3" fill="#2e1c00"/><circle cx="22" cy="22" r="1.5" fill="#c8941a"/></svg>',
-      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="8,36 22,10 36,36" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><line x1="8" y1="36" x2="36" y2="36" stroke="#7a4a08" stroke-width="2"/><circle cx="22" cy="28" r="4" fill="#8b4513"/><line x1="22" y1="10" x2="22" y2="5" stroke="#7a4a08" stroke-width="1.5"/><rect x="18" y="2" width="8" height="4" rx="1" fill="#f4b942"/></svg>',
-      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="26" rx="14" ry="10" fill="#f4b942" opacity="0.3"/><ellipse cx="22" cy="22" rx="8" ry="9" fill="#f4b942" opacity="0.7"/><ellipse cx="21" cy="18" rx="3.5" ry="5.5" fill="#f9e04b"/><ellipse cx="22" cy="16" rx="2" ry="3.5" fill="white" opacity="0.6"/><rect x="18" y="32" width="8" height="5" rx="2" fill="#8b4513"/></svg>',
-      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><path d="M8 28 L8 18 L16 24 L22 10 L28 24 L36 18 L36 28 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1.5"/><rect x="8" y="28" width="28" height="5" rx="1.5" fill="#c8901a"/><circle cx="22" cy="24" r="2.5" fill="#c8401a"/></svg>',
-      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><rect x="19" y="6" width="6" height="32" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="14" width="24" height="6" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><circle cx="22" cy="20" r="3" fill="#f4c050" stroke="#c8901a" stroke-width="1"/></svg>',
+      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="18" fill="#f4c840" opacity="0.95"/><path d="M22 7 L25 18 L22 22 L19 18 Z" fill="#c8401a"/><path d="M22 37 L25 26 L22 22 L19 26 Z" fill="#6b3010"/><path d="M37 22 L26 25 L22 22 L26 19 Z" fill="#6b3010"/><path d="M7 22 L18 25 L22 22 L18 19 Z" fill="#6b3010"/><circle cx="22" cy="22" r="3" fill="#2e1c00"/><circle cx="22" cy="22" r="1.5" fill="#c8941a"/></svg>',
+      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><polygon points="8,36 22,10 36,36" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><line x1="8" y1="36" x2="36" y2="36" stroke="#7a4a08" stroke-width="2"/><circle cx="22" cy="28" r="4" fill="#8b4513"/><line x1="22" y1="10" x2="22" y2="5" stroke="#7a4a08" stroke-width="1.5"/><rect x="18" y="2" width="8" height="4" rx="1" fill="#f4b942"/></svg>',
+      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="8" ry="9" fill="#f4b942" opacity="0.7"/><ellipse cx="21" cy="18" rx="3.5" ry="5.5" fill="#f9e04b"/><ellipse cx="22" cy="16" rx="2" ry="3.5" fill="white" opacity="0.6"/><rect x="18" y="32" width="8" height="5" rx="2" fill="#8b4513"/></svg>',
+      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><path d="M8 28 L8 18 L16 24 L22 10 L28 24 L36 18 L36 28 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1.5"/><rect x="8" y="28" width="28" height="5" rx="1.5" fill="#c8901a"/><circle cx="22" cy="24" r="2.5" fill="#c8401a"/></svg>',
+      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="19" y="6" width="6" height="32" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="14" width="24" height="6" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><circle cx="22" cy="20" r="3" fill="#f4c050" stroke="#c8901a" stroke-width="1"/></svg>',
     ];
+    const lockIcon = '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/></svg>';
 
-    const lockIcon = '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.7" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.8"/></svg>';
+    const leftPct = (pos.x / 576 * 100).toFixed(1);
+    const topPct = (pos.y / 1024 * 100).toFixed(1);
 
-    return '<div class="sm-lm ' + stateClass + '" style="left:' + left + '%;top:' + top + '%" onclick="storyMapTap(' + i + ')">'
-      + '<div class="sm-ring">' + (lm.isLocked ? lockIcon : icons[i]) + '</div>'
-      + '<div class="sm-label">' + lm.path.title + '</div>'
-      + '<div class="sm-stars">' + (lm.isLocked ? '🔒' : lm.stars) + '</div>'
+    return '<div class="sm-lm ' + stateClass + '" style="left:' + leftPct + '%;top:' + topPct + '%;" onclick="storyMapTap(' + i + ')">'
+      + '<div class="sm-ring">' + (isLocked ? lockIcon : icons[i]) + '</div>'
+      + '<div class="sm-label">' + path.title + '</div>'
+      + '<div class="sm-stars">' + stars + '</div>'
       + '</div>';
   }).join('');
 
-  root.innerHTML = '<div class="sm-wrap">'
+  const randyLeftPct = ((randyPos.x + 60) / 576 * 100).toFixed(1);
+  const randyTopPct = ((randyPos.y - 30) / 1024 * 100).toFixed(1);
 
-    // Map background image + overlays
-    + '<div class="sm-map-container">'
+  root.innerHTML =
+    '<div class="sm-map-container">'
+    // Map background image
     + '<img src="/map-bg.svg" class="sm-map" alt="Story map">'
-    + '<svg class="sm-trail" viewBox="0 0 576 1024" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'
+    // Trail overlay — clipped inside container
+    + '<svg class="sm-trail" viewBox="0 0 576 1024" xmlns="http://www.w3.org/2000/svg">'
     + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#3a1a00" stroke-width="22" stroke-linecap="round" opacity="0.35"/>'
-    + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#c4a050" stroke-width="14" stroke-linecap="round" opacity="0.88"/>'
+    + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#c4a050" stroke-width="14" stroke-linecap="round" opacity="0.9"/>'
     + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#f0d878" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 20" opacity="0.65"/>'
-    + '<circle cx="262" cy="82" r="28" fill="#f9e878" opacity="0.18"/>'
-    + '<circle cx="248" cy="277" r="26" fill="#f9e878" opacity="0.15"/>'
-    + '<circle cx="252" cy="481" r="30" fill="#f4b942" opacity="0.22"/>'
-    + '<circle cx="258" cy="686" r="26" fill="#f9e878" opacity="0.12"/>'
-    + '<circle cx="270" cy="891" r="28" fill="#f9e878" opacity="0.12"/>'
-    + '<ellipse cx="272" cy="970" rx="4" ry="6" fill="#8b5a10" opacity="0.35" transform="rotate(-12 272 970)"/>'
-    + '<ellipse cx="282" cy="948" rx="4" ry="6" fill="#8b5a10" opacity="0.35" transform="rotate(8 282 948)"/>'
-    + '<ellipse cx="268" cy="924" rx="4" ry="6" fill="#8b5a10" opacity="0.3" transform="rotate(-15 268 924)"/>'
     + '</svg>'
-    // Randy positioned at active path
-    + '<div class="sm-randy" style="left:' + (randyPos[0]+12) + '%;top:' + (randyPos[1]+3) + '%">'
-    + getRandyImg(randyExpression, 65)
+    // Randy
+    + '<div class="sm-randy" style="left:' + randyLeftPct + '%;top:' + randyTopPct + '%">'
+    + getRandyImg(randyExpression, 60)
     + '</div>'
-
     // Landmarks
     + lmHTML
-
     + '</div>'
+    // Panel — fixed to screen bottom
     + '<div class="sm-panel" id="smPanel">'
     + '<div class="sm-spine"></div>'
     + '<button class="sm-close" onclick="closeStoryPanel()">✕</button>'
@@ -5350,52 +5349,6 @@ function renderStoryModeV2() {
     + '<button class="sm-go-btn" id="smGoBtn">Continue Expedition →</button>'
     + '</div></div>';
 }
-
-function storyMapTap(pathIdx) {
-  const path = STORY_PATHS_V2[pathIdx];
-  const progress = getStoryV2Progress(path.id);
-  const completed = progress.filter(p => p.stars > 0).length;
-  const isLocked = pathIdx > 0 && getStoryV2Progress(STORY_PATHS_V2[pathIdx-1].id).filter(p=>p.stars>0).length < STORY_PATHS_V2[pathIdx-1].chapters.length;
-
-  document.getElementById('smTitle').textContent = path.title;
-  document.getElementById('smSub').textContent = path.subtitle;
-
-  const btn = document.getElementById('smGoBtn');
-  if(isLocked) {
-    document.getElementById('smChapters').innerHTML = '<div style="text-align:center;padding:18px 8px;font-family:Georgia,serif;font-size:0.85rem;color:#9a7030;line-height:1.7">Complete the previous path<br>to unlock this campsite. 🔒</div>';
-    btn.textContent = 'Not yet...';
-    btn.style.opacity = '0.5';
-    btn.onclick = closeStoryPanel;
-  } else {
-    document.getElementById('smChapters').innerHTML = path.chapters.map((ch, i) => {
-      const p = progress.find(p => p.chapter === ch.num);
-      const isDone = p && p.stars > 0;
-      const isNext = !isDone && path.chapters.slice(0,i).every(c => { const pp = progress.find(pp=>pp.chapter===c.num); return pp && pp.stars > 0; });
-      const numClass = isDone ? 'sm-ch-done' : isNext ? 'sm-ch-next' : 'sm-ch-lock';
-      const numContent = isDone ? '✓' : ch.num;
-      const stars = p && p.stars > 0 ? '★'.repeat(p.stars)+'☆'.repeat(3-p.stars) : '';
-      return '<div class="sm-ch" onclick="' + (isDone||isNext ? 'closeStoryPanel();startStoryChapterV2('+path.id+','+ch.num+')' : '') + '">'
-        + '<div class="sm-chn ' + numClass + '">' + numContent + '</div>'
-        + '<div class="sm-cht">' + ch.title + '</div>'
-        + '<div class="sm-chs">' + stars + '</div>'
-        + '</div>';
-    }).join('');
-    const nextCh = path.chapters.find((ch,i) => {
-      const p = progress.find(p=>p.chapter===ch.num);
-      return !(p && p.stars > 0);
-    });
-    btn.textContent = nextCh ? 'Begin Chapter ' + nextCh.num + ' →' : '★ Path Complete!';
-    btn.style.opacity = '1';
-    btn.onclick = nextCh ? () => { closeStoryPanel(); startStoryChapterV2(path.id, nextCh.num); } : closeStoryPanel;
-  }
-  document.getElementById('smPanel').classList.add('open');
-}
-
-function closeStoryPanel() {
-  const p = document.getElementById('smPanel');
-  if(p) p.classList.remove('open');
-}
-
 
 function getStoryV2Progress(pathId) {
   try {
