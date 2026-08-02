@@ -2567,7 +2567,7 @@ function renderGameOver(card){
     try {
       await submitScore(name, score, difficulty);
       document.getElementById('submitBtn').textContent = '✓ Score Submitted!';
-      updateStreak();
+      await updateStreak();
   setTimeout(()=>switchTab(currentUser ? 'stats' : 'leaderboard'), 1200);
     } catch(e) {
       document.getElementById('submitBtn').textContent = '⚠️ Failed — try again';
@@ -3080,7 +3080,7 @@ async function renderFillBlankComplete() {
   }
   const justUnlockedMIA = s.difficulty === 'hard' && perfectHardMIA === 3;
 
-  updateStreak();
+  await updateStreak();
   const miaName = currentUsername || (currentUser ? currentUser.email.split('@')[0] : playerName) || 'Scout';
   await submitGameScore('leaderboard_mia', {
     name: miaName, score: s.score, correct: s.correct,
@@ -3336,7 +3336,7 @@ async function renderRefChallengeComplete() {
   }
   const justUnlockedTrack = s.difficulty === 'hard' && perfectHardTrack === 3;
 
-  updateStreak();
+  await updateStreak();
   const trackName = currentUsername || (currentUser ? currentUser.email.split('@')[0] : playerName) || 'Scout';
   await submitGameScore('leaderboard_track', {
     name: trackName, score: s.score, correct: s.correct,
@@ -5263,82 +5263,33 @@ function renderStoryModeV2() {
   showBackBtn(true);
   const root = document.getElementById('root');
 
-  const paths = STORY_PATHS_V2;
-
-  // Landmark positions in the map coordinate space (576x1024)
+  const SVG_W = 576, SVG_H = 1024;
   const positions = [
-    { x: 262, y: 82  },  // In The Beginning
-    { x: 248, y: 277 },  // The Patriarchs
-    { x: 252, y: 481 },  // Story of Moses
-    { x: 258, y: 686 },  // Life of David
-    { x: 270, y: 891 },  // Gospel Story
+    { x: 262, y:  82 },
+    { x: 248, y: 277 },
+    { x: 252, y: 481 },
+    { x: 258, y: 686 },
+    { x: 270, y: 891 },
   ];
 
-  // Randy position (near active path)
-  const activeIdx = paths.findIndex((p, i) => {
-    const prog = getStoryV2Progress(p.id);
-    const done = prog.filter(x => x.stars > 0).length;
-    const prevDone = i === 0 || getStoryV2Progress(paths[i-1].id).filter(x=>x.stars>0).length === paths[i-1].chapters.length;
-    return done < p.chapters.length && prevDone;
-  });
-  const randyIdx = activeIdx >= 0 ? activeIdx : 0;
-  const randyPos = positions[randyIdx];
-  const randyExpression = activeIdx > 0 ? 'happy' : 'default';
-
-  // Build landmark HTML elements (positioned over SVG using % based on 576x1024)
-  const lmHTML = paths.map((path, i) => {
-    const pos = positions[i];
-    const prog = getStoryV2Progress(path.id);
-    const done = prog.filter(x => x.stars > 0).length;
-    const total = path.chapters.length;
-    const isComplete = done === total && total > 0;
-    const prevDone = i === 0 || getStoryV2Progress(paths[i-1].id).filter(x=>x.stars>0).length === paths[i-1].chapters.length;
-    const isActive = !isComplete && prevDone;
-    const isLocked = !isComplete && !isActive;
-    const stateClass = isComplete ? 'sm-done' : isActive ? 'sm-active' : 'sm-locked';
-    const avgStars = total > 0 && prog.length > 0 ? Math.round(prog.reduce((a,b)=>a+(b.stars||0),0)/total) : 0;
-    const stars = isComplete ? '★'.repeat(avgStars)+'☆'.repeat(3-avgStars) : isActive ? '☆☆☆' : '🔒';
-
-    const icons = [
-      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="18" fill="#f4c840" opacity="0.95"/><path d="M22 7 L25 18 L22 22 L19 18 Z" fill="#c8401a"/><path d="M22 37 L25 26 L22 22 L19 26 Z" fill="#6b3010"/><path d="M37 22 L26 25 L22 22 L26 19 Z" fill="#6b3010"/><path d="M7 22 L18 25 L22 22 L18 19 Z" fill="#6b3010"/><circle cx="22" cy="22" r="3" fill="#2e1c00"/><circle cx="22" cy="22" r="1.5" fill="#c8941a"/></svg>',
-      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><polygon points="8,36 22,10 36,36" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><line x1="8" y1="36" x2="36" y2="36" stroke="#7a4a08" stroke-width="2"/><circle cx="22" cy="28" r="4" fill="#8b4513"/><line x1="22" y1="10" x2="22" y2="5" stroke="#7a4a08" stroke-width="1.5"/><rect x="18" y="2" width="8" height="4" rx="1" fill="#f4b942"/></svg>',
-      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="8" ry="9" fill="#f4b942" opacity="0.7"/><ellipse cx="21" cy="18" rx="3.5" ry="5.5" fill="#f9e04b"/><ellipse cx="22" cy="16" rx="2" ry="3.5" fill="white" opacity="0.6"/><rect x="18" y="32" width="8" height="5" rx="2" fill="#8b4513"/></svg>',
-      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><path d="M8 28 L8 18 L16 24 L22 10 L28 24 L36 18 L36 28 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1.5"/><rect x="8" y="28" width="28" height="5" rx="1.5" fill="#c8901a"/><circle cx="22" cy="24" r="2.5" fill="#c8401a"/></svg>',
-      '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="19" y="6" width="6" height="32" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="14" width="24" height="6" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><circle cx="22" cy="20" r="3" fill="#f4c050" stroke="#c8901a" stroke-width="1"/></svg>',
-    ];
-    const lockIcon = '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/></svg>';
-
-    const leftPct = (pos.x / 576 * 100).toFixed(1);
-    const topPct = (pos.y / 1024 * 100).toFixed(1);
-
-    return '<div class="sm-lm ' + stateClass + '" style="left:' + leftPct + '%;top:' + topPct + '%;" onclick="storyMapTap(' + i + ')">'
-      + '<div class="sm-ring">' + (isLocked ? lockIcon : icons[i]) + '</div>'
-      + '<div class="sm-label">' + path.title + '</div>'
-      + '<div class="sm-stars">' + stars + '</div>'
-      + '</div>';
-  }).join('');
-
-  const randyLeftPct = ((randyPos.x + 60) / 576 * 100).toFixed(1);
-  const randyTopPct = ((randyPos.y - 30) / 1024 * 100).toFixed(1);
+  const lockSVG = '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/></svg>';
+  const pathIcons = [
+    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="18" fill="#f4c840" opacity="0.95"/><path d="M22 7 L25 18 L22 22 L19 18 Z" fill="#c8401a"/><path d="M22 37 L25 26 L22 22 L19 26 Z" fill="#6b3010"/><path d="M37 22 L26 25 L22 22 L26 19 Z" fill="#6b3010"/><path d="M7 22 L18 25 L22 22 L18 19 Z" fill="#6b3010"/><circle cx="22" cy="22" r="3" fill="#2e1c00"/><circle cx="22" cy="22" r="1.5" fill="#c8941a"/></svg>',
+    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><polygon points="8,36 22,10 36,36" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><line x1="8" y1="36" x2="36" y2="36" stroke="#7a4a08" stroke-width="2"/><circle cx="22" cy="28" r="4" fill="#8b4513"/><line x1="22" y1="10" x2="22" y2="5" stroke="#7a4a08" stroke-width="1.5"/><rect x="18" y="2" width="8" height="4" rx="1" fill="#f4b942"/></svg>',
+    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="8" ry="9" fill="#f4b942" opacity="0.7"/><ellipse cx="21" cy="18" rx="3.5" ry="5.5" fill="#f9e04b"/><rect x="18" y="32" width="8" height="5" rx="2" fill="#8b4513"/></svg>',
+    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><path d="M8 28 L8 18 L16 24 L22 10 L28 24 L36 18 L36 28 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1.5"/><rect x="8" y="28" width="28" height="5" rx="1.5" fill="#c8901a"/><circle cx="22" cy="24" r="2.5" fill="#c8401a"/></svg>',
+    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="19" y="6" width="6" height="32" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="14" width="24" height="6" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><circle cx="22" cy="20" r="3" fill="#f4c050" stroke="#c8901a" stroke-width="1"/></svg>',
+  ];
 
   root.innerHTML =
-    '<div class="sm-map-container">'
-    // Map background image
-    + '<img src="/map-bg.svg" class="sm-map" alt="Story map">'
-    // Trail overlay — clipped inside container
+    '<div class="sm-map-container" id="smMapContainer">'
+    + '<img class="sm-map" id="smMapImg" src="/map-bg.svg" alt="Story map">'
     + '<svg class="sm-trail" viewBox="0 0 576 1024" xmlns="http://www.w3.org/2000/svg">'
-    + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#3a1a00" stroke-width="22" stroke-linecap="round" opacity="0.35"/>'
-    + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#c4a050" stroke-width="14" stroke-linecap="round" opacity="0.9"/>'
-    + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#f0d878" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 20" opacity="0.65"/>'
+    + '<path d="M288 1018 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 20" fill="none" stroke="#3a1a00" stroke-width="22" stroke-linecap="round" opacity="0.35"/>'
+    + '<path d="M288 1018 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 20" fill="none" stroke="#c4a050" stroke-width="14" stroke-linecap="round" opacity="0.9"/>'
+    + '<path d="M288 1018 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 20" fill="none" stroke="#f0d878" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 20" opacity="0.65"/>'
     + '</svg>'
-    // Randy
-    + '<div class="sm-randy" style="left:' + randyLeftPct + '%;top:' + randyTopPct + '%">'
-    + getRandyImg(randyExpression, 60)
     + '</div>'
-    // Landmarks
-    + lmHTML
-    + '</div>'
-    // Panel — fixed to screen bottom
     + '<div class="sm-panel" id="smPanel">'
     + '<div class="sm-spine"></div>'
     + '<button class="sm-close" onclick="closeStoryPanel()">✕</button>'
@@ -5348,7 +5299,69 @@ function renderStoryModeV2() {
     + '<div id="smChapters"></div>'
     + '<button class="sm-go-btn" id="smGoBtn">Continue Expedition →</button>'
     + '</div></div>';
+
+  function placeMapElements() {
+    const container = document.getElementById('smMapContainer');
+    const img = document.getElementById('smMapImg');
+    if(!img || !container) return;
+    const W = img.offsetWidth;
+    const H = img.offsetHeight;
+    if(!W || !H) return;
+
+    // Remove existing landmarks/randy
+    container.querySelectorAll('.sm-lm, .sm-randy-pin').forEach(el => el.remove());
+
+    STORY_PATHS_V2.forEach((path, i) => {
+      const pos = positions[i];
+      const prog = getStoryV2Progress(path.id);
+      const done = prog.filter(x => x.stars > 0).length;
+      const total = path.chapters.length;
+      const isComplete = done === total && total > 0;
+      const prevDone = i === 0 || getStoryV2Progress(STORY_PATHS_V2[i-1].id).filter(x=>x.stars>0).length === STORY_PATHS_V2[i-1].chapters.length;
+      const isActive = !isComplete && prevDone;
+      const isLocked = !isComplete && !isActive;
+      const avgStars = total > 0 && prog.length > 0 ? Math.round(prog.reduce((a,b)=>a+(b.stars||0),0)/total) : 0;
+      const stars = isComplete ? '★'.repeat(avgStars)+'☆'.repeat(3-avgStars) : isActive ? '☆☆☆' : '🔒';
+      const stateClass = isComplete ? 'sm-done' : isActive ? 'sm-active' : 'sm-locked';
+
+      const leftPx = (pos.x / SVG_W) * W;
+      const topPx  = (pos.y / SVG_H) * H;
+
+      const el = document.createElement('div');
+      el.className = 'sm-lm ' + stateClass;
+      el.style.left = leftPx + 'px';
+      el.style.top  = topPx  + 'px';
+      el.innerHTML =
+        '<div class="sm-ring">' + (isLocked ? lockSVG : pathIcons[i]) + '</div>'
+        + '<div class="sm-label">' + path.title + '</div>'
+        + '<div class="sm-stars">' + stars + '</div>';
+      el.onclick = () => storyMapTap(i);
+      container.appendChild(el);
+    });
+
+    // Randy
+    const activeIdx = STORY_PATHS_V2.findIndex((p, i) => {
+      const prog = getStoryV2Progress(p.id);
+      const done = prog.filter(x=>x.stars>0).length;
+      const prevDone = i===0 || getStoryV2Progress(STORY_PATHS_V2[i-1].id).filter(x=>x.stars>0).length===STORY_PATHS_V2[i-1].chapters.length;
+      return done < p.chapters.length && prevDone;
+    });
+    const ri = activeIdx >= 0 ? activeIdx : 0;
+    const rpos = positions[ri];
+    const randy = document.createElement('div');
+    randy.className = 'sm-randy-pin';
+    randy.style.left = ((rpos.x + 55) / SVG_W * W) + 'px';
+    randy.style.top  = ((rpos.y - 25) / SVG_H * H) + 'px';
+    randy.innerHTML = getRandyImg('default', 55);
+    container.appendChild(randy);
+  }
+
+  const img = document.getElementById('smMapImg');
+  if(img.complete && img.naturalHeight > 0) placeMapElements();
+  else img.onload = placeMapElements;
+  window.addEventListener('resize', placeMapElements);
 }
+
 
 function getStoryV2Progress(pathId) {
   try {
@@ -5911,7 +5924,7 @@ async function renderTriviaComplete() {
   if(currentUser && s.score>0 && s.difficulty!=='endless') {
     await submitGameScore('leaderboard_trivia',{user_id:currentUser.id,player_name:currentUsername||playerName,score:s.score,difficulty:s.difficulty,correct:s.correct});
   }
-  updateStreak();
+  await updateStreak();
 }
 
 // ═══════════════════════════════════════
@@ -7852,6 +7865,7 @@ async function loadStreak() {
 
 async function updateStreak(bonusDay=false) {
   if(!currentUser) return;
+  try {
   const streak = await loadStreak();
   if(!streak) return;
 
@@ -7911,14 +7925,18 @@ async function updateStreak(bonusDay=false) {
     updated_at: new Date().toISOString()
   });
 
-  // Show journal card
+  // Show journal card — only on FIRST play of the day (new streak update)
   const sabbathEarned = newStreak % 5 === 0 && newTokens > streak.freeze_tokens;
-  if(usedSabbath) { playStreak(); showJournalCard(newStreak, newLongest, newTokens, false, true, false); }
-  else if(sabbathEarned) { playMilestone(); showJournalCard(newStreak, newLongest, newTokens, true, false, false); }
-  else if([1,2,3,7,14,30,50,100].includes(newStreak)) { playMilestone(); showJournalCard(newStreak, newLongest, newTokens, false, false, false); }
-  else { playStreak(); showJournalCard(newStreak, newLongest, newTokens, false, false, false); }
+  // Small delay so game completion screen shows first
+  setTimeout(() => {
+    if(usedSabbath) { playStreak(); showJournalCard(newStreak, newLongest, newTokens, false, true, false); }
+    else if(sabbathEarned) { playMilestone(); showJournalCard(newStreak, newLongest, newTokens, true, false, false); }
+    else if([1,2,3,7,14,30,50,100].includes(newStreak)) { playMilestone(); showJournalCard(newStreak, newLongest, newTokens, false, false, false); }
+    else { playStreak(); showJournalCard(newStreak, newLongest, newTokens, false, false, false); }
+  }, 1200);
 
   // Update home streak card to done state
+  } catch(e) { console.error('updateStreak error:', e); return; }
   const streakCard = document.getElementById('homeStreakCard');
   if(streakCard) {
     streakCard.classList.add('streak-card-done');
@@ -8705,14 +8723,14 @@ function renderDailyMemory(verse) {
     document.getElementById('dailyMemFlip').innerHTML = `
       <div class="flashcard-verse" style="margin-bottom:14px;">"${verse.text}"</div>
       <div class="rating-btns">
-        <button class="rating-btn rating-didnt" onclick="completeDailyMemory('didnt_know',0)"><span class="rating-icon">😬</span>Didn't Know</button>
-        <button class="rating-btn rating-almost" onclick="completeDailyMemory('almost',100)"><span class="rating-icon">🤔</span>Almost</button>
-        <button class="rating-btn rating-knew" onclick="completeDailyMemory('knew_it',300)"><span class="rating-icon">✅</span>Knew It!</button>
+        <button class="rating-btn rating-didnt" onclick="completeDailyMIA('didnt_know',0)"><span class="rating-icon">😬</span>Didn't Know</button>
+        <button class="rating-btn rating-almost" onclick="completeDailyMIA('almost',100)"><span class="rating-icon">🤔</span>Almost</button>
+        <button class="rating-btn rating-knew" onclick="completeDailyMIA('knew_it',300)"><span class="rating-icon">✅</span>Knew It!</button>
       </div>`;
   };
 }
 
-async function completeDailyMemory(rating, score) {
+async function completeDailyMIA(rating, score) {
   markDailyCompleted('trivia', score);
   await submitDailyScore('trivia', score);
   showDailyResult('trivia', score);
