@@ -2667,522 +2667,7 @@ const BOOK_CONTEXT = {
   'Revelation':'John\'s visions about the end of history, the defeat of evil, and the new creation — Come, Lord Jesus.'
 };
 
-let flashcardSession = {
-  verses: [],
-  current: 0,
-  flipped: false,
-  knew: 0,
-  almost: 0,
-  didnt: 0,
-  filter: { difficulty: 'easy', book: null }
-};
-
-const ALL_BOOKS = [
-  "Genesis","Exodus","Leviticus","Numbers","Deuteronomy",
-  "Joshua","Judges","Ruth","1 Samuel","2 Samuel",
-  "1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra",
-  "Nehemiah","Esther","Job","Psalms","Proverbs",
-  "Ecclesiastes","Song of Solomon","Isaiah","Jeremiah",
-  "Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos",
-  "Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah",
-  "Haggai","Zechariah","Malachi","Matthew","Mark","Luke",
-  "John","Acts","Romans","1 Corinthians","2 Corinthians",
-  "Galatians","Ephesians","Philippians","Colossians",
-  "1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy",
-  "Titus","Philemon","Hebrews","James","1 Peter","2 Peter",
-  "1 John","2 John","3 John","Jude","Revelation"
-];
-
-function renderTrainScreen() {
-  showBackBtn(true);
-  const root = document.getElementById('root');
-  root.innerHTML = `
-    <div class="train-screen">
-      <div class="train-modes">
-        <div class="train-mode-card" id="flashcardBtn">
-          <div class="train-mode-icon">🗂️</div>
-          <div class="train-mode-info">
-            <div class="train-mode-name">Memory Trail</div>
-            <div class="train-mode-desc">See a reference, recall the verse. Rate yourself and blaze your memory trail.</div>
-          </div>
-        </div>
-        <div class="train-mode-card" id="fillBlankBtn">
-          <div class="train-mode-icon">✏️</div>
-          <div class="train-mode-info">
-            <div class="train-mode-name">Missing in Action</div>
-            <div class="train-mode-desc">Words have gone missing from the verse. Can you track them down?</div>
-          </div>
-        </div>
-        <div class="train-mode-card" id="refChallengeBtn">
-          <div class="train-mode-icon">🎯</div>
-          <div class="train-mode-info">
-            <div class="train-mode-name">Track It Down</div>
-            <div class="train-mode-desc">See a verse, track down the correct book and chapter from four options.</div>
-          </div>
-        </div>
-      </div>
-    </div>`;
-  document.getElementById('flashcardBtn').onclick = renderFlashcardSetup;
-  document.getElementById('fillBlankBtn').onclick = renderFillBlankSetup;
-  document.getElementById('refChallengeBtn').onclick = renderRefChallengeSetup;
-}
-
-function renderFlashcardSetup() {
-  const root = document.getElementById('root');
-  const difficulties = ['easy','medium','hard'];
-  const diffDescs = { easy:'Top 100 verses + hints', medium:'6,000+ verses + hints', hard:'27,000+ verses — no hints!' };
-  const diffButtons = difficulties.map(d =>
-    `<button class="setup-btn ${flashcardSession.filter.difficulty===d?'selected':''}" data-diff="${d}" title="${diffDescs[d]}">${d.charAt(0).toUpperCase()+d.slice(1)}</button>`
-  ).join('');
-
-  const bookButtons = ['All Books', ...ALL_BOOKS].map(b =>
-    `<button class="setup-btn ${(b==='All Books'&&!flashcardSession.filter.book)||(flashcardSession.filter.book===b)?'selected':''}" data-book="${b}">${b}</button>`
-  ).join('');
-
-  root.innerHTML = `
-    <div class="flashcard-setup">
-      <div class="card">
-        <div class="verse-label">🗂️ Memory Trail Setup</div>
-
-        <div class="setup-section">
-          <div class="setup-label">Difficulty</div>
-          <div class="setup-options" id="diffOptions">${diffButtons}</div>
-        </div>
-
-        <div class="setup-section">
-          <div class="setup-label">Book Filter</div>
-          <div class="setup-options" id="bookOptions" style="max-height:160px;overflow-y:auto;">${bookButtons}</div>
-        </div>
-
-        <div class="setup-section">
-          <div class="setup-label">Session Size</div>
-          <div class="setup-options" id="sizeOptions">
-            ${[10,20,30,50].map(n=>`<button class="setup-btn ${n===20?'selected':''}" data-size="${n}">${n} cards</button>`).join('')}
-          </div>
-        </div>
-
-        <div class="setup-section">
-          <div class="setup-label">Mode</div>
-          <div class="setup-options" id="modeOptions">
-            <button class="setup-btn selected" data-mode="quiz">🎯 Quiz Mode</button>
-            <button class="setup-btn" data-mode="study">📖 Study Mode</button>
-          </div>
-        </div>
-
-        <button class="btn-next" id="startFlashcardBtn">Start →</button>
-        <button class="btn-next" style="margin-top:8px;" onclick="showBackBtn(true);renderGameLeaderboard('🗂️ Memory Trail','leaderboard_memory',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy')">🏆 View Leaderboard →</button>
-        <button class="btn-change-diff" style="margin-top:8px;" onclick="renderTrainScreen()">← Back</button>
-      </div>
-    </div>`;
-
-  // Difficulty selection
-  if(perfectHardMemory >= 3) {
-    document.getElementById('memoryEndlessBtn')?.addEventListener('click', startMemoryEndless);
-  }
-  document.querySelectorAll('#fcTransOptions .setup-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#fcTransOptions .setup-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      TRANSLATION = btn.dataset.trans;
-      localStorage.setItem('ss_translation', btn.dataset.trans);
-    });
-  });
-
-  document.querySelectorAll('#diffOptions .setup-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#diffOptions .setup-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      flashcardSession.filter.difficulty = btn.dataset.diff;
-    });
-  });
-
-  // Book selection
-  document.querySelectorAll('#bookOptions .setup-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#bookOptions .setup-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      flashcardSession.filter.book = btn.dataset.book === 'All Books' ? null : btn.dataset.book;
-    });
-  });
-
-  // Size selection
-  let sessionSize = 20;
-  document.querySelectorAll('#sizeOptions .setup-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#sizeOptions .setup-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      sessionSize = parseInt(btn.dataset.size);
-    });
-  });
-
-  let selectedMode = 'quiz';
-  document.querySelectorAll('#modeOptions .setup-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#modeOptions .setup-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedMode = btn.dataset.mode;
-    });
-  });
-
-  document.getElementById('startFlashcardBtn').onclick = () => {
-    flashcardSession.mode = selectedMode;
-    startFlashcards(sessionSize);
-  };
-}
-
-async function startFlashcards(size) {
-  const root = document.getElementById('root');
-  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading flashcards…</div></div>`;
-
-  try {
-    const diff = flashcardSession.filter.difficulty;
-    const book = flashcardSession.filter.book;
-    const total = DIFF_COUNTS[TRANSLATION][diff];
-    const verses = [];
-    const usedVerseIdsMT = new Set();
-    let safetyMT = 0;
-
-    // Fetch verses
-    while(verses.length < size && safetyMT < size * 10) {
-      safetyMT++;
-      const offset = Math.floor(Math.random() * total);
-      let url = `verses?translation=eq.${TRANSLATION}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`;
-      if(book) url += `&book=eq.${encodeURIComponent(book)}`;
-      const rows = await sbFetch(url);
-      if(rows.length && !usedVerseIdsMT.has(rows[0].id)) {
-        usedVerseIdsMT.add(rows[0].id);
-        verses.push(rows[0]);
-      }
-    }
-
-    flashcardSession = {
-      verses,
-      current: 0,
-      flipped: false,
-      knew: 0,
-      almost: 0,
-      didnt: 0,
-      filter: flashcardSession.filter
-    };
-
-    renderFlashcard();
-  } catch(e) {
-    root.innerHTML = `<div class="error-box">⚠️ Couldn't load flashcards — ${e.message}</div>
-    <button class="btn-next" onclick="renderFlashcardSetup()">Try Again</button>`;
-  }
-}
-
-// AI hint state
-let currentHints = null;
-let hintsLoading = false;
-let hintsRevealed = 0;
-
-const HINT_DEFINITIONS = [
-  { icon: '💬', label: 'First Words',  key: 'firstWords' },
-  { icon: '🏷️', label: 'Theme',        key: 'theme' },
-  { icon: '🗣️', label: 'Who Said It',  key: 'speaker' },
-  { icon: '👥', label: 'Audience',     key: 'audience' },
-  { icon: '📖', label: 'Context',      key: 'context' }
-];
-
-async function fetchHintsForVerse(verse) {
-  currentHints = null;
-  hintsLoading = true;
-  hintsRevealed = 0;
-
-  // First words hint is always instant
-  const words = verse.text.split(' ').slice(0, 5).join(' ');
-  const firstWords = words + (verse.text.split(' ').length > 5 ? '…' : '');
-
-  try {
-    // Load hints from Supabase database
-    const rows = await sbFetch(
-      `verses?translation=eq.${TRANSLATION}&book=eq.${encodeURIComponent(verse.book)}&chapter=eq.${verse.chapter}&verse=eq.${verse.verse}&select=hints&limit=1`
-    );
-
-    if(rows.length && rows[0].hints) {
-      const h = rows[0].hints;
-      currentHints = {
-        firstWords,
-        theme:    h.theme    || 'Not available',
-        speaker:  h.speaker  || 'Not available',
-        audience: h.audience || 'Not available',
-        context:  h.context  || null
-      };
-    } else {
-      // No hints in database yet — show first words only
-      currentHints = {
-        firstWords,
-        theme:    null,
-        speaker:  null,
-        audience: null,
-        context:  null
-      };
-    }
-  } catch(e) {
-    currentHints = { firstWords, theme: null, speaker: null, audience: null, context: null };
-  }
-
-  hintsLoading = false;
-  updateHintButton();
-}
-
-function updateHintButton() {
-  const btn = document.getElementById('hintRevealBtn');
-  if(!btn) return;
-  if(hintsLoading) {
-    btn.textContent = '⏳ Loading hints…';
-    btn.disabled = true;
-  } else if(hintsRevealed >= HINT_DEFINITIONS.length) {
-    btn.textContent = '✓ All hints revealed';
-    btn.disabled = true;
-  } else {
-    const available = currentHints ? HINT_DEFINITIONS.filter(d => currentHints[d.key]).length : HINT_DEFINITIONS.length;
-    btn.textContent = `💡 Reveal Hint ${hintsRevealed + 1} of ${available}`;
-    btn.disabled = false;
-  }
-}
-
-function revealNextHint() {
-  if(!currentHints || hintsLoading) return;
-  if(hintsRevealed >= HINT_DEFINITIONS.length) return;
-
-  const strip = document.getElementById('hintStrip');
-  if(!strip) return;
-
-  // Skip hints that have no data
-  while(hintsRevealed < HINT_DEFINITIONS.length) {
-    const def = HINT_DEFINITIONS[hintsRevealed];
-    const value = currentHints[def.key];
-    hintsRevealed++;
-    if(value) {
-      const item = document.createElement('div');
-      item.className = 'hint-item';
-      item.innerHTML = `
-        <span class="hint-icon">${def.icon}</span>
-        <div class="hint-content">
-          <div class="hint-label">${def.label}</div>
-          <div class="hint-text">${value}</div>
-        </div>`;
-      strip.appendChild(item);
-      break;
-    }
-  }
-  updateHintButton();
-}
-
-function renderFlashcard() {
-  const root = document.getElementById('root');
-  const s = flashcardSession;
-  if(s.current >= s.verses.length) {
-    if(s.mode === 'study') { renderFlashcardSetup(); return; }
-    renderFlashcardComplete();
-    return;
-  }
-
-  const v = s.verses[s.current];
-  const progress = (s.current / s.verses.length) * 100;
-  const isStudy = s.mode === 'study';
-  const bookContext = BOOK_CONTEXT[v.book] || '';
-
-  root.innerHTML = `
-    <div class="flashcard-hud">
-      <div class="flashcard-hud-item"><strong>${s.current+1}/${s.verses.length}</strong> card</div>
-      ${isStudy ? `
-        <div class="flashcard-hud-item" style="color:#A78BFA;font-weight:600;">📖 Study Mode</div>
-      ` : `
-        <div class="flashcard-hud-item"><strong style="color:var(--teal);">${s.knew}</strong> knew it</div>
-        <div class="flashcard-hud-item"><strong style="color:var(--fern);">${s.almost}</strong> almost</div>
-        <div class="flashcard-hud-item"><strong style="color:var(--earth);">${s.didnt}</strong> nope</div>
-      `}
-    </div>
-    <div class="flashcard-progress-bar"><div class="flashcard-progress-fill" style="width:${progress}%"></div></div>
-    <div class="flashcard-wrap">
-      <div class="flashcard" id="flashcard" onclick="${!s.flipped ? 'flipFlashcard()' : isStudy ? 'flipFlashcard()' : ''}">
-        ${!s.flipped ? `
-          <div class="flashcard-label">${isStudy ? 'Study this verse' : 'Can you recall this verse?'}</div>
-          <div class="flashcard-reference">${v.book} ${v.chapter}:${v.verse}</div>
-          <div class="flashcard-book">${v.testament === 'OT' ? '📜 Old Testament' : '✝️ New Testament'}</div>
-          <div class="flashcard-tap-hint">👆 Tap to ${isStudy ? 'show' : 'reveal'} the verse</div>
-        ` : `
-          <div class="flashcard-label">${v.book} ${v.chapter}:${v.verse}</div>
-          <div class="flashcard-verse">"${v.text}"</div>
-          <div class="flashcard-ref-revealed">${TRANSLATION}</div>
-        `}
-      </div>
-    </div>
-
-    ${isStudy ? `
-      <!-- Study mode controls -->
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="btn-change-diff" style="flex:1;" onclick="studyPrev()">← Previous</button>
-        <button class="btn-change-diff" style="flex:1;" onclick="flipFlashcard()">${s.flipped ? '🔄 Flip Back' : '👆 Flip'}</button>
-        <button class="btn-next" style="flex:1;margin:0;" onclick="studyNext()">Next →</button>
-      </div>
-      ${bookContext ? `
-      <div id="contextSection" style="margin-top:10px;">
-        <button onclick="toggleBookContext()" style="width:100%;padding:10px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:var(--text-muted);cursor:pointer;text-align:left;">
-          📚 About ${v.book} <span id="contextArrow" style="float:right;">▼</span>
-        </button>
-        <div id="contextText" style="display:none;background:var(--surface-2);border:1.5px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:12px 14px;font-size:0.83rem;color:var(--text-muted);line-height:1.6;">
-          ${bookContext}
-        </div>
-      </div>` : ''}
-      <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="renderFlashcardSetup()">← End Session</button>
-    ` : `
-      <!-- Quiz mode controls -->
-      ${!s.flipped ? `
-        ${s.filter.difficulty !== 'hard' ? `
-        <div class="hint-strip" id="hintStrip"></div>
-        <button class="btn-hint" id="hintRevealBtn" onclick="revealNextHint()">💡 Reveal Hint 1 of 4</button>` : `
-        <div style="font-size:0.78rem;color:var(--earth);text-align:center;padding:8px 0;font-weight:600;">🪨 Hard Mode — No hints available!</div>`}
-        <button class="btn-change-diff" style="margin-top:8px;" onclick="renderFlashcardSetup()">← End Session</button>
-      ` : `
-        ${bookContext ? `
-        <div id="contextSection" style="margin-top:8px;">
-          <button onclick="toggleBookContext()" style="width:100%;padding:10px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:var(--text-muted);cursor:pointer;text-align:left;">
-            📚 About ${v.book} <span id="contextArrow" style="float:right;">▼</span>
-          </button>
-          <div id="contextText" style="display:none;background:var(--surface-2);border:1.5px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:12px 14px;font-size:0.83rem;color:var(--text-muted);line-height:1.6;">
-            ${bookContext}
-          </div>
-        </div>` : ''}
-        <div class="rating-btns">
-          <button class="rating-btn rating-didnt" onclick="rateFlashcard('didnt_know')">
-            <span class="rating-icon">😬</span>Didn't Know
-          </button>
-          <button class="rating-btn rating-almost" onclick="rateFlashcard('almost')">
-            <span class="rating-icon">🤔</span>Almost
-          </button>
-          <button class="rating-btn rating-knew" onclick="rateFlashcard('knew_it')">
-            <span class="rating-icon">✅</span>Knew It!
-          </button>
-        </div>
-      `}
-    `}`;
-
-  if(!s.flipped && s.filter.difficulty !== 'hard' && !isStudy) {
-    fetchHintsForVerse(v);
-    updateHintButton();
-  }
-}
-
-function toggleBookContext() {
-  const text = document.getElementById('contextText');
-  const arrow = document.getElementById('contextArrow');
-  if(!text) return;
-  const isOpen = text.style.display !== 'none';
-  text.style.display = isOpen ? 'none' : 'block';
-  if(arrow) arrow.textContent = isOpen ? '▼' : '▲';
-}
-
-function studyNext() {
-  flashcardSession.current++;
-  flashcardSession.flipped = false;
-  renderFlashcard();
-}
-
-function studyPrev() {
-  if(flashcardSession.current > 0) {
-    flashcardSession.current--;
-    flashcardSession.flipped = false;
-    renderFlashcard();
-  }
-}
-
-function flipFlashcard() {
-  playFlip();
-  if(flashcardSession.mode === 'study') {
-    flashcardSession.flipped = !flashcardSession.flipped;
-  } else {
-    flashcardSession.flipped = true;
-  }
-  renderFlashcard();
-}
-
-async function rateFlashcard(rating) {
-  if(rating === 'knew_it') playCorrect();
-  else if(rating === 'almost') playFlip();
-  else playWrong();
-  const s = flashcardSession;
-  const v = s.verses[s.current];
-
-  if(rating === 'knew_it') s.knew++;
-  else if(rating === 'almost') s.almost++;
-  else s.didnt++;
-
-  // Save progress if logged in
-  if(currentUser) {
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/flashcard_progress`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({
-          user_id: currentUser.id,
-          book: v.book,
-          chapter: v.chapter,
-          verse: v.verse,
-          translation: TRANSLATION,
-          rating
-        })
-      });
-    } catch(e) { /* silent fail */ }
-  }
-
-  s.current++;
-  s.flipped = false;
-  currentHints = null;
-  hintsRevealed = 0;
-  renderFlashcard();
-}
-
-async function renderFlashcardComplete() {
-  const s = flashcardSession;
-  if(s._scoreSubmitted) return;
-  s._scoreSubmitted = true;
-  window._lastGameTable = 'leaderboard_memory';
-  window._lastGameDiff = s.filter?.difficulty || 'easy';
-  const total = s.verses.length;
-  const pct = Math.round((s.knew / total) * 100);
-
-  // Track perfect Hard runs for Memory Trail
-  if(s.filter.difficulty === 'hard' && s.didnt === 0) {
-    perfectHardMemory++;
-    localStorage.setItem('ss_perfect_hard_memory', perfectHardMemory);
-  }
-  const justUnlocked = s.filter.difficulty === 'hard' && perfectHardMemory === 3;
-
-  let grade = '';
-  if(pct >= 90) grade = 'Scripture Scholar! 🏆';
-  else if(pct >= 70) grade = 'Well done! 📖';
-  else if(pct >= 50) grade = 'Keep practicing! 💪';
-  else grade = 'Keep at it! 🌱';
-
-  document.getElementById('root').innerHTML = `
-    <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-      <div class="verse-label">🗂️ Memory Trail Complete</div>
-      ${justUnlocked ? `<div style="background:rgba(244,185,66,0.1);border:1px solid #F4B942;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;font-size:0.85rem;color:#F4B942;font-weight:600;">🔓 Endless Memory Trail Unlocked!</div>` : ''}
-      <div style="font-size:2.5rem;margin:12px 0;">🗂️</div>
-      <h2 style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:6px;">${grade}</h2>
-      <div style="font-size:3rem;font-weight:700;background:linear-gradient(135deg,#8FD9A8,#3BBFA0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:12px 0;">${pct}%</div>
-      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:24px;">recalled correctly</div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px;">
-        <div class="stat-box"><div class="stat-val" style="color:var(--teal);">${s.knew}</div><div class="stat-label">Knew It</div></div>
-        <div class="stat-box"><div class="stat-val" style="color:var(--fern);">${s.almost}</div><div class="stat-label">Almost</div></div>
-        <div class="stat-box"><div class="stat-val" style="color:var(--earth);">${s.didnt}</div><div class="stat-label">Missed</div></div>
-      </div>
-
-      ${!currentUser ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;">Sign in to save your progress!</div>` : ''}
-      <button class="btn-next" onclick="startFlashcards(${total})">Study Again</button>
-      <button class="btn-change-diff" style="margin-top:8px;" onclick="renderFlashcardSetup()">← Change Settings</button>
-    </div>`;
-}
+// Memory Trail (flashcard) removed
 
 // ═══════════════════════════════════════
 // FILL IN THE BLANK MODE
@@ -5778,34 +5263,144 @@ function renderStoryModeV2() {
   showBackBtn(true);
   const root = document.getElementById('root');
 
-  root.innerHTML = `
-    <div style="text-align:center;margin-bottom:16px;">
-      ${getRandyImg('default', 80)}
-      <div style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;color:var(--text);margin-top:8px;">Story Mode</div>
-      <div style="color:var(--text-muted);font-size:0.82rem;">Journey through the greatest stories ever told</div>
-    </div>
+  // Build landmark data from STORY_PATHS_V2
+  const landmarks = STORY_PATHS_V2.map((path, i) => {
+    const progress = getStoryV2Progress(path.id);
+    const completed = progress.filter(p => p.stars > 0).length;
+    const total = path.chapters.length;
+    const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const isComplete = completed === total && total > 0;
+    const isActive = completed < total && (i === 0 || getStoryV2Progress(STORY_PATHS_V2[i-1].id).filter(p=>p.stars>0).length === STORY_PATHS_V2[i-1].chapters.length);
+    const isLocked = !isComplete && !isActive && i > 0;
+    const avgStars = progress.length > 0 ? Math.round(progress.reduce((a,b)=>a+(b.stars||0),0)/total) : 0;
+    const stars = isComplete ? (avgStars >= 3 ? '★★★' : avgStars >= 2 ? '★★☆' : '★☆☆') : (isActive ? '☆☆☆' : '');
+    return { path, completed, total, pct, isComplete, isActive, isLocked, stars };
+  });
 
-    ${STORY_PATHS_V2.map(path => {
-      const progress = getStoryV2Progress(path.id);
-      const completed = progress.filter(p => p.stars > 0).length;
-      const pct = Math.round((completed / path.chapters.length) * 100);
-      return `
-      <div onclick="renderStoryPathV2(${path.id})" style="background:var(--surface);border:1.5px solid ${path.accent};border-radius:18px;padding:16px;margin-bottom:10px;cursor:pointer;overflow:hidden;position:relative;">
-        <div style="position:absolute;top:0;right:0;bottom:0;width:40%;background:linear-gradient(to left,${path.color}33,transparent);border-radius:0 18px 18px 0;"></div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="font-size:2.5rem;">${path.icon}</div>
-          <div style="flex:1;">
-            <div style="font-family:Georgia,serif;font-size:1rem;font-weight:700;color:var(--text);">${path.title}</div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${path.subtitle}</div>
-            <div style="margin-top:8px;height:4px;background:var(--surface-2);border-radius:2px;overflow:hidden;">
-              <div style="height:100%;background:${path.accent};border-radius:2px;width:${pct}%;transition:width 0.5s;"></div>
-            </div>
-            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;">${completed}/${path.chapters.length} chapters · ${pct}% complete</div>
-          </div>
-        </div>
-      </div>`
-    }).join('')}`;
+  // Positions: [left%, top%] for each path along the trail
+  const positions = [
+    [45, 8],   // In The Beginning — top
+    [43, 27],  // The Patriarchs
+    [44, 47],  // The Story of Moses
+    [45, 67],  // The Life of David
+    [47, 87],  // The Gospel Story — bottom
+  ];
+
+  // Find the active/furthest path for Randy
+  const randyIdx = landmarks.findIndex(l => l.isActive);
+  const randyPos = positions[randyIdx >= 0 ? randyIdx : landmarks.filter(l=>l.isComplete).length - 1] || positions[0];
+  const randyExpression = landmarks.some(l => l.isComplete) ? 'happy' : 'default';
+
+  const lmHTML = landmarks.map((lm, i) => {
+    const [left, top] = positions[i];
+    const stateClass = lm.isComplete ? 'sm-done' : lm.isActive ? 'sm-active' : 'sm-locked';
+
+    // Icon SVG per path
+    const icons = [
+      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="18" fill="#f4c840" opacity="0.95"/><path d="M22 7 L25 18 L22 22 L19 18 Z" fill="#c8401a" stroke="#8b2a0a" stroke-width="1"/><path d="M22 37 L25 26 L22 22 L19 26 Z" fill="#6b3010"/><path d="M37 22 L26 25 L22 22 L26 19 Z" fill="#6b3010"/><path d="M7 22 L18 25 L22 22 L18 19 Z" fill="#6b3010"/><circle cx="22" cy="22" r="3" fill="#2e1c00"/><circle cx="22" cy="22" r="1.5" fill="#c8941a"/></svg>',
+      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><polygon points="8,36 22,10 36,36" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><line x1="8" y1="36" x2="36" y2="36" stroke="#7a4a08" stroke-width="2"/><circle cx="22" cy="28" r="4" fill="#8b4513"/><line x1="22" y1="10" x2="22" y2="5" stroke="#7a4a08" stroke-width="1.5"/><rect x="18" y="2" width="8" height="4" rx="1" fill="#f4b942"/></svg>',
+      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="26" rx="14" ry="10" fill="#f4b942" opacity="0.3"/><ellipse cx="22" cy="22" rx="8" ry="9" fill="#f4b942" opacity="0.7"/><ellipse cx="21" cy="18" rx="3.5" ry="5.5" fill="#f9e04b"/><ellipse cx="22" cy="16" rx="2" ry="3.5" fill="white" opacity="0.6"/><rect x="18" y="32" width="8" height="5" rx="2" fill="#8b4513"/></svg>',
+      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><path d="M8 28 L8 18 L16 24 L22 10 L28 24 L36 18 L36 28 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1.5"/><rect x="8" y="28" width="28" height="5" rx="1.5" fill="#c8901a"/><circle cx="22" cy="24" r="2.5" fill="#c8401a"/></svg>',
+      '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><rect x="19" y="6" width="6" height="32" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="14" width="24" height="6" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><circle cx="22" cy="20" r="3" fill="#f4c050" stroke="#c8901a" stroke-width="1"/></svg>',
+    ];
+
+    const lockIcon = '<svg width="28" height="28" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.7" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.8"/></svg>';
+
+    return '<div class="sm-lm ' + stateClass + '" style="left:' + left + '%;top:' + top + '%" onclick="storyMapTap(' + i + ')">'
+      + '<div class="sm-ring">' + (lm.isLocked ? lockIcon : icons[i]) + '</div>'
+      + '<div class="sm-label">' + lm.path.title + '</div>'
+      + '<div class="sm-stars">' + (lm.isLocked ? '🔒' : lm.stars) + '</div>'
+      + '</div>';
+  }).join('');
+
+  root.innerHTML = '<div class="sm-wrap">'
+
+    // Map SVG with trail overlay
+    + '<svg class="sm-map" viewBox="0 0 576 1024" xmlns="http://www.w3.org/2000/svg">'
+    /* map loaded as external img */
+    // Trail shadow
+    + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#3a1a00" stroke-width="22" stroke-linecap="round" opacity="0.35"/>'
+    // Main trail
+    + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#c4a050" stroke-width="14" stroke-linecap="round" opacity="0.88"/>'
+    // Center dashes
+    + '<path d="M288 1010 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 30" fill="none" stroke="#f0d878" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 20" opacity="0.65"/>'
+    // Clearing glows
+    + '<circle cx="262" cy="82" r="28" fill="#f9e878" opacity="0.18"/>'
+    + '<circle cx="248" cy="277" r="26" fill="#f9e878" opacity="0.15"/>'
+    + '<circle cx="252" cy="481" r="30" fill="#f4b942" opacity="0.22"/>'
+    + '<circle cx="258" cy="686" r="26" fill="#f9e878" opacity="0.12"/>'
+    + '<circle cx="270" cy="891" r="28" fill="#f9e878" opacity="0.12"/>'
+    // Footsteps
+    + '<ellipse cx="272" cy="970" rx="4" ry="6" fill="#8b5a10" opacity="0.35" transform="rotate(-12 272 970)"/>'
+    + '<ellipse cx="282" cy="948" rx="4" ry="6" fill="#8b5a10" opacity="0.35" transform="rotate(8 282 948)"/>'
+    + '<ellipse cx="268" cy="924" rx="4" ry="6" fill="#8b5a10" opacity="0.3" transform="rotate(-15 268 924)"/>'
+    + '</svg>'
+
+    // Randy positioned at active path
+    + '<div class="sm-randy" style="left:' + (randyPos[0]+12) + '%;top:' + (randyPos[1]+3) + '%">'
+    + getRandyImg(randyExpression, 65)
+    + '</div>'
+
+    // Landmarks
+    + lmHTML
+
+    // Chapter panel
+    + '<div class="sm-panel" id="smPanel">'
+    + '<div class="sm-spine"></div>'
+    + '<button class="sm-close" onclick="closeStoryPanel()">✕</button>'
+    + '<div class="sm-panel-body">'
+    + '<div class="sm-panel-title" id="smTitle"></div>'
+    + '<div class="sm-panel-sub" id="smSub"></div>'
+    + '<div id="smChapters"></div>'
+    + '<button class="sm-go-btn" id="smGoBtn">Continue Expedition →</button>'
+    + '</div></div>';
 }
+
+function storyMapTap(pathIdx) {
+  const path = STORY_PATHS_V2[pathIdx];
+  const progress = getStoryV2Progress(path.id);
+  const completed = progress.filter(p => p.stars > 0).length;
+  const isLocked = pathIdx > 0 && getStoryV2Progress(STORY_PATHS_V2[pathIdx-1].id).filter(p=>p.stars>0).length < STORY_PATHS_V2[pathIdx-1].chapters.length;
+
+  document.getElementById('smTitle').textContent = path.title;
+  document.getElementById('smSub').textContent = path.subtitle;
+
+  const btn = document.getElementById('smGoBtn');
+  if(isLocked) {
+    document.getElementById('smChapters').innerHTML = '<div style="text-align:center;padding:18px 8px;font-family:Georgia,serif;font-size:0.85rem;color:#9a7030;line-height:1.7">Complete the previous path<br>to unlock this campsite. 🔒</div>';
+    btn.textContent = 'Not yet...';
+    btn.style.opacity = '0.5';
+    btn.onclick = closeStoryPanel;
+  } else {
+    document.getElementById('smChapters').innerHTML = path.chapters.map((ch, i) => {
+      const p = progress.find(p => p.chapter === ch.num);
+      const isDone = p && p.stars > 0;
+      const isNext = !isDone && path.chapters.slice(0,i).every(c => { const pp = progress.find(pp=>pp.chapter===c.num); return pp && pp.stars > 0; });
+      const numClass = isDone ? 'sm-ch-done' : isNext ? 'sm-ch-next' : 'sm-ch-lock';
+      const numContent = isDone ? '✓' : ch.num;
+      const stars = p && p.stars > 0 ? '★'.repeat(p.stars)+'☆'.repeat(3-p.stars) : '';
+      return '<div class="sm-ch" onclick="' + (isDone||isNext ? 'closeStoryPanel();startStoryChapterV2('+path.id+','+ch.num+')' : '') + '">'
+        + '<div class="sm-chn ' + numClass + '">' + numContent + '</div>'
+        + '<div class="sm-cht">' + ch.title + '</div>'
+        + '<div class="sm-chs">' + stars + '</div>'
+        + '</div>';
+    }).join('');
+    const nextCh = path.chapters.find((ch,i) => {
+      const p = progress.find(p=>p.chapter===ch.num);
+      return !(p && p.stars > 0);
+    });
+    btn.textContent = nextCh ? 'Begin Chapter ' + nextCh.num + ' →' : '★ Path Complete!';
+    btn.style.opacity = '1';
+    btn.onclick = nextCh ? () => { closeStoryPanel(); startStoryChapterV2(path.id, nextCh.num); } : closeStoryPanel;
+  }
+  document.getElementById('smPanel').classList.add('open');
+}
+
+function closeStoryPanel() {
+  const p = document.getElementById('smPanel');
+  if(p) p.classList.remove('open');
+}
+
 
 function getStoryV2Progress(pathId) {
   try {
