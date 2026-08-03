@@ -743,6 +743,91 @@
     .masthead h1 { font-size: 1.8rem; }
     .diff-card { padding: 14px 14px; }
   }
+
+  /* ── Randy's Field Guide — Story Mode ── */
+  .fg-book { position:relative; width:100%; background:#6b3810; border-radius:6px 14px 14px 6px; overflow:hidden; min-height:480px; }
+  .fg-spine { position:absolute; left:0; top:0; bottom:0; width:22px; background:linear-gradient(90deg,#4a2208,#7a4010,#4a2208); z-index:2; display:flex; flex-direction:column; align-items:center; justify-content:space-evenly; padding:8px 0; }
+  .fg-rivet { width:8px; height:8px; border-radius:50%; background:#c8941a; border:1px solid #8b6010; flex-shrink:0; }
+  .fg-pages { margin-left:22px; background:#f5e8c8; position:relative; min-height:480px; }
+  .fg-page { position:relative; min-height:480px; }
+  .fg-page-lines { position:absolute; inset:0; background:repeating-linear-gradient(transparent,transparent 27px,rgba(139,105,20,0.1) 27px,rgba(139,105,20,0.1) 28px); pointer-events:none; }
+  .fg-margin-line { position:absolute; left:32px; top:0; bottom:0; width:1px; background:rgba(200,64,26,0.18); pointer-events:none; }
+  .fg-page-inner { padding:16px 14px 24px 42px; position:relative; }
+  .fg-guide-header { border-bottom:1.5px solid rgba(139,105,20,0.3); padding-bottom:10px; margin-bottom:12px; }
+  .fg-guide-label { font-size:0.62rem; font-weight:700; color:#9a6028; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:2px; font-family:Georgia,serif; }
+  .fg-guide-title { font-size:1rem; font-weight:700; color:#2e1c00; font-family:Georgia,serif; }
+  .fg-guide-sub { font-size:0.68rem; color:#9a7040; font-style:italic; margin-top:1px; font-family:Georgia,serif; }
+  .fg-path-entry { padding:10px 0; border-bottom:1px solid rgba(139,105,20,0.18); }
+  .fg-path-entry:last-of-type { border-bottom:none; }
+  .fg-path-tappable { cursor:pointer; }
+  .fg-path-tappable:active { background:rgba(139,105,20,0.07); border-radius:4px; }
+  .fg-num { width:22px; height:22px; border-radius:50%; font-size:0.6rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:10px; margin-top:2px; font-family:Georgia,serif; }
+  .fg-num-done { background:#c8941a; color:white; }
+  .fg-num-active { background:#7a3810; color:#f4c050; border:2px solid #f4b942; }
+  .fg-num-lock { background:#e8d8b0; color:#9a8050; border:1px solid #c4a060; }
+  .fg-path-body { flex:1; overflow:hidden; }
+  .fg-path-title { font-size:0.87rem; font-weight:700; color:#2e1c00; margin-bottom:1px; font-family:Georgia,serif; }
+  .fg-path-sub { font-size:0.67rem; color:#7a5010; font-style:italic; font-family:Georgia,serif; }
+  .fg-path-meta { display:flex; align-items:center; gap:7px; margin-top:4px; flex-wrap:wrap; }
+  .fg-stars { font-size:9px; color:#c8941a; letter-spacing:1px; }
+  .fg-pct { font-size:0.63rem; color:#9a7030; background:rgba(139,105,20,0.12); padding:1px 6px; border-radius:10px; font-family:Georgia,serif; }
+  .fg-stamp { display:inline-block; border:1.5px solid #c8401a; color:#c8401a; font-size:0.55rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:1px 5px; border-radius:3px; transform:rotate(-2deg); font-family:Georgia,serif; }
+  .fg-stamp-done { border-color:#5aaa30; color:#5aaa30; transform:rotate(1deg); }
+  .fg-lock-text { font-size:0.63rem; color:#9a7030; font-family:Georgia,serif; font-style:italic; }
+  .fg-paw-sig { text-align:right; margin-top:12px; opacity:0.28; }
+  .fg-page-num { text-align:right; margin-top:8px; font-size:0.6rem; color:#9a7040; font-style:italic; font-family:Georgia,serif; }
+  .fg-cover { background:linear-gradient(160deg,#5a2808,#3a1804); min-height:480px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px 20px; text-align:center; cursor:pointer; }
+  .fg-cover-emblem { width:80px; height:80px; border-radius:50%; border:1.5px solid rgba(196,160,96,0.35); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; }
+  .fg-cover-title { font-family:Georgia,serif; font-size:1.1rem; font-weight:700; color:#f4c050; line-height:1.35; margin-bottom:6px; }
+  .fg-cover-sub { font-family:Georgia,serif; font-size:0.72rem; color:#c4a060; font-style:italic; margin-bottom:18px; line-height:1.5; }
+  .fg-cover-divider { width:50px; height:1px; background:rgba(196,160,96,0.35); margin:0 auto 18px; }
+  .fg-cover-cta { font-size:0.68rem; color:rgba(196,160,96,0.65); letter-spacing:0.12em; text-transform:uppercase; font-family:Georgia,serif; animation:fgBlink 2s ease-in-out infinite; }
+  @keyframes fgBlink { 0%,100%{opacity:0.45} 50%{opacity:1} }
+  .fg-back-btn { display:inline-flex; align-items:center; gap:4px; font-size:0.68rem; color:#7a5010; margin-bottom:12px; cursor:pointer; font-family:Georgia,serif; }
+  .fg-ch-row { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid rgba(139,105,20,0.15); }
+  .fg-ch-row:last-of-type { border-bottom:none; }
+  .fg-ch-n { width:20px; height:20px; border-radius:50%; font-size:0.6rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:Georgia,serif; }
+  .fg-ch-done { background:#c8941a; color:white; }
+  .fg-ch-next { background:#7a3810; color:#f4c050; border:1.5px solid #f4b942; }
+  .fg-ch-lock { background:#e8d8b0; color:#9a8050; border:1px solid #c4a060; }
+  .fg-ch-title { font-family:Georgia,serif; font-size:0.79rem; color:#2e1c00; flex:1; }
+  .fg-ch-stars { font-size:8px; color:#f4b942; letter-spacing:0.5px; }
+  .fg-begin-btn { width:100%; padding:10px; background:linear-gradient(135deg,#7a3810,#5a2808); border:none; border-radius:10px; color:#f4c050; font-size:0.85rem; font-weight:700; cursor:pointer; font-family:Georgia,serif; margin-top:12px; }
+
+  /* ── Randy's Field Journal ── */
+  .journal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;animation:fadeIn 0.25s ease; }
+  .journal-card { background:#f5e8c8;border-radius:4px 20px 20px 4px;width:100%;max-width:390px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.4);animation:slideUp 0.35s cubic-bezier(.2,.8,.3,1); }
+  .journal-spine { position:absolute;left:0;top:0;bottom:0;width:20px;background:linear-gradient(135deg,#8b4513,#6b3010);border-radius:4px 0 0 4px; }
+  .journal-spine-dots { position:absolute;left:0;top:0;bottom:0;width:20px;display:flex;flex-direction:column;justify-content:space-evenly;align-items:center; }
+  .journal-page { padding:20px 20px 20px 34px;position:relative;min-height:200px; }
+  .journal-page::before { content:'';position:absolute;inset:0;left:34px;background:repeating-linear-gradient(transparent,transparent 27px,rgba(139,105,20,0.14) 27px,rgba(139,105,20,0.14) 28px);pointer-events:none; }
+  .journal-page::after { content:'';position:absolute;left:50px;top:0;bottom:0;width:1px;background:rgba(200,64,26,0.2);pointer-events:none; }
+  .journal-tag { display:inline-block;font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:2px 10px;border-radius:20px;margin-bottom:8px; }
+  .journal-tag-fire { background:#f4b942;color:#4a2808; }
+  .journal-tag-green { background:#5aaa30;color:white; }
+  .journal-tag-red { background:#c8401a;color:white; }
+  .journal-tag-blue { background:#1a3a9e;color:white; }
+  .journal-date { font-family:Georgia,serif;font-size:1rem;font-weight:700;color:#4a2808;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(139,105,20,0.2); }
+  .journal-body { font-family:Georgia,serif;font-size:0.88rem;color:#3a2008;line-height:1.9; }
+  .journal-body strong { color:#7a4a08; }
+  .journal-stats { display:flex;margin:14px 0;border:1.5px solid rgba(139,105,20,0.3);border-radius:8px;overflow:hidden; }
+  .journal-stat { flex:1;padding:10px 6px;text-align:center;background:rgba(255,255,255,0.4);border-right:1px solid rgba(139,105,20,0.2); }
+  .journal-stat:last-child { border-right:none; }
+  .journal-stat-val { font-family:Georgia,serif;font-size:1.2rem;font-weight:700;color:#4a2808;line-height:1; }
+  .journal-stat-label { font-size:0.58rem;color:#9a6a28;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px; }
+  .journal-dots { display:flex;gap:5px;margin:12px 0;flex-wrap:wrap; }
+  .journal-dot { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;border:1.5px solid; }
+  .journal-dot-filled { background:linear-gradient(135deg,#f4b942,#c8901a);border-color:#c8901a;color:white; }
+  .journal-dot-today { background:linear-gradient(135deg,#c8401a,#8b2a0a);border-color:#8b2a0a;color:white;box-shadow:0 0 0 3px rgba(200,64,26,0.2); }
+  .journal-dot-sabbath { background:linear-gradient(135deg,#5aaa30,#3a7a18);border-color:#3a7a18;color:white;box-shadow:0 0 0 3px rgba(90,170,48,0.2); }
+  .journal-dot-empty { background:rgba(255,255,255,0.4);border-color:rgba(139,105,20,0.3);color:#9a6a28; }
+  .journal-paw { text-align:right;margin-top:10px;opacity:0.35; }
+  .journal-btn { width:100%;padding:13px;background:linear-gradient(135deg,#7a3810,#5a2808);border:none;border-radius:10px;color:#f4c050;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:Georgia,serif;margin-top:14px;letter-spacing:0.02em; }
+  .journal-sabbath-page { background:#eef5e8; }
+  @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .streak-card-done { border:3px solid #5aaa30 !important;background:#f0fae8 padding-box,repeating-linear-gradient(45deg,#5aaa30 0,#5aaa30 4px,#8ade50 4px,#8ade50 8px,#5aaa30 8px,#5aaa30 12px,#8ade50 12px,#8ade50 16px) border-box !important; }
+
 </style>
 </head>
 <body>
