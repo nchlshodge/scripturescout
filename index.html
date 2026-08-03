@@ -6786,7 +6786,8 @@ function renderChallengeScout(verse) {
           area.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
           const isCorrect = btn.dataset.ans === correctBook;
           btn.classList.add(isCorrect?'correct':'wrong');
-          if(!isCorrect) area.querySelector(`[data-ans="${correctBook}"]`).classList.add('correct');
+          const correctBookBtn = area.querySelector(`[data-ans="${correctBook}"]`);
+          if(!isCorrect && correctBookBtn) correctBookBtn.classList.add('correct');
           if(isCorrect) { score+=500; fb.className='feedback correct'; fb.textContent='✓ Correct! +500'; playCorrect(); }
           else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctBook}`; playWrong(); }
           setTimeout(()=>{ phase=3; renderPhase(); }, 1200);
@@ -9062,20 +9063,29 @@ async function renderDailyScout(verse) {
           area.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
           const isCorrect = btn.dataset.ans === correctBook;
           btn.classList.add(isCorrect?'correct':'wrong');
-          if(!isCorrect) area.querySelector(`[data-ans="${correctBook}"]`).classList.add('correct');
+          const correctBookBtn = area.querySelector(`[data-ans="${correctBook}"]`);
+          if(!isCorrect && correctBookBtn) correctBookBtn.classList.add('correct');
           if(isCorrect) { score+=500; correct++; fb.className='feedback correct'; fb.textContent='✓ Correct! +500'; }
           else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctBook}`; }
           setTimeout(()=>{ phase=3; renderPhase(); }, 1200);
         };
       });
     } else {
+      // Generate wrong chapter choices safely
+      const maxChapter = (correctTestament === 'OT' ? OT_BOOKS : NT_BOOKS).find(b=>b[0]===correctBook)?.[1] || 30;
       const wrongChapters = [];
-      for(let i=0;i<3;i++) {
-        let c;
-        do { c=Math.max(1,correctChapter+Math.floor(Math.random()*6)-3); } while(c===correctChapter||wrongChapters.includes(c));
-        wrongChapters.push(c);
+      let attempts = 0;
+      while(wrongChapters.length < 3 && attempts < 20) {
+        attempts++;
+        let c = Math.max(1, Math.min(maxChapter, correctChapter + Math.floor(Math.random()*6) - 3));
+        if(c !== correctChapter && !wrongChapters.includes(c)) wrongChapters.push(c);
       }
-      const choices = shuffle([correctChapter,...wrongChapters]);
+      // Fill if needed
+      while(wrongChapters.length < 3) {
+        let c = Math.floor(Math.random() * maxChapter) + 1;
+        if(c !== correctChapter && !wrongChapters.includes(c)) wrongChapters.push(c);
+      }
+      const choices = shuffle([correctChapter, ...wrongChapters]);
       area.innerHTML = `
         <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Chapter?</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -9086,11 +9096,13 @@ async function renderDailyScout(verse) {
           area.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
           const isCorrect = parseInt(btn.dataset.ans) === correctChapter;
           btn.classList.add(isCorrect?'correct':'wrong');
-          if(!isCorrect) area.querySelector(`[data-ans="${correctChapter}"]`).classList.add('correct');
+          const correctBtn = area.querySelector(`[data-ans="${correctChapter}"]`);
+          if(!isCorrect && correctBtn) correctBtn.classList.add('correct');
           if(isCorrect) { score+=700; correct++; fb.className='feedback correct'; fb.textContent='✓ Correct! +700'; }
           else { fb.className='feedback wrong'; fb.textContent=`✗ It was Chapter ${correctChapter}`; }
           markDailyCompleted('scout', score);
           await submitDailyScore('scout', score);
+          await updateStreak();
           setTimeout(()=>showDailyResult('scout', score), 1200);
         };
       });
