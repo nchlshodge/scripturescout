@@ -5672,13 +5672,16 @@ function checkStoryAnswerV2(btn, chosen) {
   setTimeout(() => renderStoryQuestions(), 1200);
 }
 
-function renderStoryChapterComplete() {
+async function renderStoryChapterComplete() {
   const { path, chapter, answers, pathId, chapterNum } = storyV2Session;
   const correct = answers.filter(a => a).length;
   const stars = correct;
   storyV2Session.stars = stars;
 
   saveStoryV2Progress(pathId, chapterNum, stars);
+  const _sgp = JSON.parse(localStorage.getItem('ss_games_played') || '[]');
+  if(!_sgp.includes('story')) { _sgp.push('story'); localStorage.setItem('ss_games_played', JSON.stringify(_sgp)); }
+  await updateStreak();
   showBackBtn(true);
   const root = document.getElementById('root');
   const randy = stars === 3 ? 'happy' : stars >= 1 ? 'default' : 'sad';
