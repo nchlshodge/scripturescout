@@ -5370,10 +5370,25 @@ function renderStoryModeV2() {
     container.appendChild(randy);
   }
 
-  const img = document.getElementById('smMapImg');
-  if(img.complete && img.naturalHeight > 0) placeMapElements();
-  else img.onload = placeMapElements;
-  window.addEventListener('resize', placeMapElements);
+  // Use requestAnimationFrame + polling to ensure image is rendered
+  function tryPlace(attempts) {
+    const img = document.getElementById('smMapImg');
+    if(!img) return;
+    if(img.offsetHeight > 0) {
+      placeMapElements();
+      window.addEventListener('resize', placeMapElements);
+    } else if(attempts > 0) {
+      // Image not yet rendered - try again next frame
+      requestAnimationFrame(() => tryPlace(attempts - 1));
+    } else {
+      // Last resort - wait for load event
+      img.onload = () => {
+        requestAnimationFrame(placeMapElements);
+        window.addEventListener('resize', placeMapElements);
+      };
+    }
+  }
+  requestAnimationFrame(() => tryPlace(20));
 }
 
 
