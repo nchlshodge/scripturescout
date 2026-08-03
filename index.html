@@ -5276,119 +5276,147 @@ function getSceneSVG(scene) {
 function renderStoryModeV2() {
   showBackBtn(true);
   const root = document.getElementById('root');
+  root.innerHTML = '<div class="fg-book" id="fgBook">'
+    + '<div class="fg-spine">'
+    + '<div class="fg-rivet"></div><div class="fg-rivet"></div><div class="fg-rivet"></div>'
+    + '<div class="fg-rivet"></div><div class="fg-rivet"></div><div class="fg-rivet"></div>'
+    + '</div>'
+    + '<div class="fg-pages" id="fgPages"></div>'
+    + '</div>';
+  renderFieldGuideCover();
+}
 
-  const SVG_W = 576, SVG_H = 1024;
-  const positions = [
-    { x: 262, y:  82 },
-    { x: 248, y: 277 },
-    { x: 252, y: 481 },
-    { x: 258, y: 686 },
-    { x: 270, y: 891 },
-  ];
-
-  const lockSVG = '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="13" y="20" width="18" height="16" rx="3" fill="#8b6914" opacity="0.8" stroke="#c4a060" stroke-width="1.5"/><path d="M16 20 L16 14 Q16 8 22 8 Q28 8 28 14 L28 20" fill="none" stroke="#c4a060" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="28" r="2.5" fill="#f4c050" opacity="0.9"/></svg>';
-  const pathIcons = [
-    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="18" fill="#f4c840" opacity="0.95"/><path d="M22 7 L25 18 L22 22 L19 18 Z" fill="#c8401a"/><path d="M22 37 L25 26 L22 22 L19 26 Z" fill="#6b3010"/><path d="M37 22 L26 25 L22 22 L26 19 Z" fill="#6b3010"/><path d="M7 22 L18 25 L22 22 L18 19 Z" fill="#6b3010"/><circle cx="22" cy="22" r="3" fill="#2e1c00"/><circle cx="22" cy="22" r="1.5" fill="#c8941a"/></svg>',
-    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><polygon points="8,36 22,10 36,36" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><line x1="8" y1="36" x2="36" y2="36" stroke="#7a4a08" stroke-width="2"/><circle cx="22" cy="28" r="4" fill="#8b4513"/><line x1="22" y1="10" x2="22" y2="5" stroke="#7a4a08" stroke-width="1.5"/><rect x="18" y="2" width="8" height="4" rx="1" fill="#f4b942"/></svg>',
-    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><ellipse cx="22" cy="22" rx="8" ry="9" fill="#f4b942" opacity="0.7"/><ellipse cx="21" cy="18" rx="3.5" ry="5.5" fill="#f9e04b"/><rect x="18" y="32" width="8" height="5" rx="2" fill="#8b4513"/></svg>',
-    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><path d="M8 28 L8 18 L16 24 L22 10 L28 24 L36 18 L36 28 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1.5"/><rect x="8" y="28" width="28" height="5" rx="1.5" fill="#c8901a"/><circle cx="22" cy="24" r="2.5" fill="#c8401a"/></svg>',
-    '<svg width="26" height="26" viewBox="0 0 44 44" fill="none"><rect x="19" y="6" width="6" height="32" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><rect x="10" y="14" width="24" height="6" rx="2" fill="#c8941a" stroke="#7a4a08" stroke-width="1.5"/><circle cx="22" cy="20" r="3" fill="#f4c050" stroke="#c8901a" stroke-width="1"/></svg>',
-  ];
-
-  root.innerHTML =
-    '<div class="sm-map-container" id="smMapContainer">'
-    + '<img class="sm-map" id="smMapImg" src="/map-bg.svg" alt="Story map">'
-    + '<svg class="sm-trail" viewBox="0 0 576 1024" xmlns="http://www.w3.org/2000/svg">'
-    + '<path d="M288 1018 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 20" fill="none" stroke="#3a1a00" stroke-width="22" stroke-linecap="round" opacity="0.35"/>'
-    + '<path d="M288 1018 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 20" fill="none" stroke="#c4a050" stroke-width="14" stroke-linecap="round" opacity="0.9"/>'
-    + '<path d="M288 1018 Q260 940 270 870 Q282 800 258 730 Q234 660 252 590 Q270 520 244 450 Q218 380 238 310 Q255 250 246 185 Q238 130 260 75 Q272 48 288 20" fill="none" stroke="#f0d878" stroke-width="4" stroke-linecap="round" stroke-dasharray="16 20" opacity="0.65"/>'
+function renderFieldGuideCover() {
+  document.getElementById('fgPages').innerHTML =
+    '<div class="fg-cover" onclick="renderFieldGuidePaths()">'
+    + '<div class="fg-cover-emblem">'
+    + '<svg width="52" height="52" viewBox="0 0 44 44" fill="none">'
+    + '<circle cx="22" cy="22" r="18" stroke="rgba(196,160,96,0.45)" stroke-width="1.5" fill="none"/>'
+    + '<path d="M22 7 L25 18 L22 22 L19 18 Z" fill="rgba(196,160,96,0.75)"/>'
+    + '<path d="M22 37 L25 26 L22 22 L19 26 Z" fill="rgba(196,160,96,0.45)"/>'
+    + '<path d="M37 22 L26 25 L22 22 L26 19 Z" fill="rgba(196,160,96,0.45)"/>'
+    + '<path d="M7 22 L18 25 L22 22 L18 19 Z" fill="rgba(196,160,96,0.45)"/>'
+    + '<circle cx="22" cy="22" r="3" fill="rgba(196,160,96,0.65)"/>'
     + '</svg>'
     + '</div>'
-    + '<div class="sm-panel" id="smPanel">'
-    + '<div class="sm-spine"></div>'
-    + '<button class="sm-close" onclick="closeStoryPanel()">✕</button>'
-    + '<div class="sm-panel-body">'
-    + '<div class="sm-panel-title" id="smTitle"></div>'
-    + '<div class="sm-panel-sub" id="smSub"></div>'
-    + '<div id="smChapters"></div>'
-    + '<button class="sm-go-btn" id="smGoBtn">Continue Expedition →</button>'
-    + '</div></div>';
+    + '<div class="fg-cover-title">Randy\'s Field Guide<br>to Scripture</div>'
+    + '<div class="fg-cover-sub">An explorer\'s companion through<br>the greatest stories ever told</div>'
+    + '<div class="fg-cover-divider"></div>'
+    + '<div class="fg-cover-cta">Tap to open</div>'
+    + '</div>';
+}
 
-  function placeMapElements() {
-    const container = document.getElementById('smMapContainer');
-    const img = document.getElementById('smMapImg');
-    if(!img || !container) return;
-    const W = img.offsetWidth;
-    const H = img.offsetHeight;
-    if(!W || !H) return;
+function renderFieldGuidePaths() {
+  const paths = STORY_PATHS_V2;
 
-    // Remove existing landmarks/randy
-    container.querySelectorAll('.sm-lm, .sm-randy-pin').forEach(el => el.remove());
+  const entriesHTML = paths.map((path, i) => {
+    const prog = getStoryV2Progress(path.id);
+    const done = prog.filter(x => x.stars > 0).length;
+    const total = path.chapters.length;
+    const isComplete = done === total && total > 0;
+    const prevDone = i === 0 || getStoryV2Progress(paths[i-1].id).filter(x=>x.stars>0).length === paths[i-1].chapters.length;
+    const isActive = !isComplete && prevDone;
+    const isLocked = !isComplete && !isActive;
+    const avgStars = total > 0 && done > 0 ? Math.round(prog.filter(x=>x.stars>0).reduce((a,b)=>a+(b.stars||0),0)/done) : 0;
 
-    STORY_PATHS_V2.forEach((path, i) => {
-      const pos = positions[i];
-      const prog = getStoryV2Progress(path.id);
-      const done = prog.filter(x => x.stars > 0).length;
-      const total = path.chapters.length;
-      const isComplete = done === total && total > 0;
-      const prevDone = i === 0 || getStoryV2Progress(STORY_PATHS_V2[i-1].id).filter(x=>x.stars>0).length === STORY_PATHS_V2[i-1].chapters.length;
-      const isActive = !isComplete && prevDone;
-      const isLocked = !isComplete && !isActive;
-      const avgStars = total > 0 && prog.length > 0 ? Math.round(prog.reduce((a,b)=>a+(b.stars||0),0)/total) : 0;
-      const stars = isComplete ? '★'.repeat(avgStars)+'☆'.repeat(3-avgStars) : isActive ? '☆☆☆' : '🔒';
-      const stateClass = isComplete ? 'sm-done' : isActive ? 'sm-active' : 'sm-locked';
+    const numClass = isComplete ? 'fg-num-done' : isActive ? 'fg-num-active' : 'fg-num-lock';
+    const numContent = isComplete ? '✓' : isActive ? '→' : (i+1);
+    const opacity = isLocked ? 'opacity:0.45;' : '';
 
-      const leftPx = (pos.x / SVG_W) * W;
-      const topPx  = (pos.y / SVG_H) * H;
-
-      const el = document.createElement('div');
-      el.className = 'sm-lm ' + stateClass;
-      el.style.left = leftPx + 'px';
-      el.style.top  = topPx  + 'px';
-      el.innerHTML =
-        '<div class="sm-ring">' + (isLocked ? lockSVG : pathIcons[i]) + '</div>'
-        + '<div class="sm-label">' + path.title + '</div>'
-        + '<div class="sm-stars">' + stars + '</div>';
-      el.onclick = () => storyMapTap(i);
-      container.appendChild(el);
-    });
-
-    // Randy
-    const activeIdx = STORY_PATHS_V2.findIndex((p, i) => {
-      const prog = getStoryV2Progress(p.id);
-      const done = prog.filter(x=>x.stars>0).length;
-      const prevDone = i===0 || getStoryV2Progress(STORY_PATHS_V2[i-1].id).filter(x=>x.stars>0).length===STORY_PATHS_V2[i-1].chapters.length;
-      return done < p.chapters.length && prevDone;
-    });
-    const ri = activeIdx >= 0 ? activeIdx : 0;
-    const rpos = positions[ri];
-    const randy = document.createElement('div');
-    randy.className = 'sm-randy-pin';
-    randy.style.left = ((rpos.x + 55) / SVG_W * W) + 'px';
-    randy.style.top  = ((rpos.y - 25) / SVG_H * H) + 'px';
-    randy.innerHTML = getRandyImg('default', 55);
-    container.appendChild(randy);
-  }
-
-  // Use requestAnimationFrame + polling to ensure image is rendered
-  function tryPlace(attempts) {
-    const img = document.getElementById('smMapImg');
-    if(!img) return;
-    if(img.offsetHeight > 0) {
-      placeMapElements();
-      window.addEventListener('resize', placeMapElements);
-    } else if(attempts > 0) {
-      // Image not yet rendered - try again next frame
-      requestAnimationFrame(() => tryPlace(attempts - 1));
+    let metaHTML = '';
+    if(isComplete) {
+      const stars = '★'.repeat(avgStars) + '☆'.repeat(3-avgStars);
+      metaHTML = '<span class="fg-stars">' + stars + '</span>'
+        + '<span class="fg-pct">' + done + '/' + total + ' chapters</span>'
+        + '<span class="fg-stamp fg-stamp-done">Complete</span>';
+    } else if(isActive) {
+      metaHTML = '<span class="fg-stars">' + (done > 0 ? '★'.repeat(avgStars)+'☆'.repeat(3-avgStars) : '☆☆☆') + '</span>'
+        + '<span class="fg-pct">' + done + '/' + total + ' chapters</span>'
+        + '<span class="fg-stamp">In progress</span>';
     } else {
-      // Last resort - wait for load event
-      img.onload = () => {
-        requestAnimationFrame(placeMapElements);
-        window.addEventListener('resize', placeMapElements);
-      };
+      metaHTML = '<span class="fg-lock-text">🔒 Complete previous path to unlock</span>';
     }
-  }
-  requestAnimationFrame(() => tryPlace(20));
+
+    return '<div class="fg-path-entry' + (isLocked ? '' : ' fg-path-tappable') + '" style="' + opacity + '" '
+      + (isLocked ? '' : 'onclick="renderFieldGuideChapters(' + i + ')"') + '>'
+      + '<div style="display:flex;align-items:flex-start;gap:0">'
+      + '<div class="fg-num ' + numClass + '">' + numContent + '</div>'
+      + '<div class="fg-path-body">'
+      + '<div class="fg-path-title">' + path.title + '</div>'
+      + '<div class="fg-path-sub">' + path.subtitle + '</div>'
+      + '<div class="fg-path-meta">' + metaHTML + '</div>'
+      + '</div></div></div>';
+  }).join('');
+
+  document.getElementById('fgPages').innerHTML =
+    '<div class="fg-page">'
+    + '<div class="fg-page-lines"></div>'
+    + '<div class="fg-margin-line"></div>'
+    + '<div class="fg-page-inner">'
+    + '<div class="fg-guide-header">'
+    + '<div class="fg-guide-label">Randy\'s Field Guide to Scripture</div>'
+    + '<div class="fg-guide-title">Story Paths</div>'
+    + '<div class="fg-guide-sub">Five expeditions through the Word</div>'
+    + '</div>'
+    + entriesHTML
+    + '<div class="fg-paw-sig">'
+    + '<svg width="28" height="28" viewBox="0 0 44 44" fill="none">'
+    + '<circle cx="22" cy="28" r="9" fill="#8b4513"/>'
+    + '<circle cx="14" cy="20" r="5" fill="#8b4513"/>'
+    + '<circle cx="22" cy="17" r="5" fill="#8b4513"/>'
+    + '<circle cx="30" cy="20" r="5" fill="#8b4513"/>'
+    + '<circle cx="11" cy="30" r="4" fill="#8b4513"/>'
+    + '<circle cx="33" cy="30" r="4" fill="#8b4513"/>'
+    + '</svg></div>'
+    + '<div class="fg-page-num">p. 1</div>'
+    + '</div></div>';
+}
+
+function renderFieldGuideChapters(pathIdx) {
+  const path = STORY_PATHS_V2[pathIdx];
+  const prog = getStoryV2Progress(path.id);
+
+  const chaptersHTML = path.chapters.map((ch, i) => {
+    const p = prog.find(x => x.chapter === ch.num);
+    const isDone = p && p.stars > 0;
+    const isNext = !isDone && path.chapters.slice(0,i).every(c => {
+      const pp = prog.find(pp=>pp.chapter===c.num);
+      return pp && pp.stars > 0;
+    });
+    const numClass = isDone ? 'fg-ch-done' : isNext ? 'fg-ch-next' : 'fg-ch-lock';
+    const numContent = isDone ? '✓' : ch.num;
+    const stars = p && p.stars > 0 ? '★'.repeat(p.stars)+'☆'.repeat(3-p.stars) : '';
+    const clickable = isDone || isNext;
+    return '<div class="fg-ch-row' + (clickable ? ' fg-path-tappable' : '') + '" '
+      + (clickable ? 'onclick="closeStoryPanel();startStoryChapterV2(' + path.id + ',' + ch.num + ')"' : '') + '>'
+      + '<div class="fg-ch-n ' + numClass + '">' + numContent + '</div>'
+      + '<div class="fg-ch-title">' + ch.title + '</div>'
+      + '<div class="fg-ch-stars">' + stars + '</div>'
+      + '</div>';
+  }).join('');
+
+  const done = prog.filter(x=>x.stars>0).length;
+  const total = path.chapters.length;
+  const nextCh = path.chapters.find((ch,i) => {
+    const p = prog.find(p=>p.chapter===ch.num);
+    return !(p && p.stars > 0);
+  });
+
+  document.getElementById('fgPages').innerHTML =
+    '<div class="fg-page">'
+    + '<div class="fg-page-lines"></div>'
+    + '<div class="fg-margin-line"></div>'
+    + '<div class="fg-page-inner">'
+    + '<div class="fg-back-btn" onclick="renderFieldGuidePaths()">← back to paths</div>'
+    + '<div class="fg-guide-header">'
+    + '<div class="fg-guide-title" style="font-size:0.95rem">' + path.title + '</div>'
+    + '<div class="fg-guide-sub">' + path.subtitle + ' · ' + done + '/' + total + ' chapters</div>'
+    + '</div>'
+    + chaptersHTML
+    + '<button class="fg-begin-btn" onclick="' + (nextCh ? 'startStoryChapterV2(' + path.id + ',' + nextCh.num + ')' : 'renderFieldGuidePaths()') + '">'
+    + (nextCh ? 'Begin Chapter ' + nextCh.num + ' →' : '★ Path Complete — Back to Guide') + '</button>'
+    + '<div class="fg-page-num">p. ' + (pathIdx+2) + '</div>'
+    + '</div></div>';
 }
 
 
