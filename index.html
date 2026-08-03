@@ -4074,34 +4074,48 @@ async function submitGameScore(table, data) {
   _submittedScores.add(key);
   setTimeout(() => _submittedScores.delete(key), 10000);
 
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${authToken}`,
+    'Prefer': 'return=minimal'
+  };
+
+  // Only send columns that exist on all leaderboard tables
+  const safeData = {
+    user_id: data.user_id,
+    player_name: data.player_name,
+    score: data.score,
+    difficulty: data.difficulty
+  };
+
   try {
-    // First check if user already has a score for this difficulty
-    const existing = await sbFetch(`${table}?user_id=eq.${currentUser.id}&difficulty=eq.${data.difficulty}&select=id,score&limit=1`);
+    // Check for existing score — wrap separately so failure here doesn't block insert
+    let existing = null;
+    try {
+      const rows = await sbFetch(`${table}?user_id=eq.${currentUser.id}&difficulty=eq.${data.difficulty}&select=id,score&limit=1`);
+      if(rows && rows.length > 0) existing = rows[0];
+    } catch(e) {
+      console.warn('Could not check existing score, will attempt insert:', e.message);
+    }
 
-    const headers = {
-      'apikey': SUPABASE_KEY,
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`,
-      'Prefer': 'return=minimal'
-    };
-
-    if(existing && existing.length > 0) {
+    if(existing) {
       // Only update if new score is higher
-      if(data.score <= existing[0].score) {
+      if(data.score <= existing.score) {
         showScoreToast(data.score, table, data.difficulty, false);
         return;
       }
-      // Update existing row with better score
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing[0].id}`, {
-        method: 'PATCH', headers, body: JSON.stringify(data)
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
+        method: 'PATCH', headers, body: JSON.stringify(safeData)
       });
       if(res.ok) showScoreToast(data.score, table, data.difficulty, true);
+      else console.error('Score PATCH failed:', res.status, await res.text());
     } else {
-      // Insert new row
       const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-        method: 'POST', headers, body: JSON.stringify(data)
+        method: 'POST', headers, body: JSON.stringify(safeData)
       });
       if(res.ok) showScoreToast(data.score, table, data.difficulty, false);
+      else console.error('Score POST failed:', res.status, await res.text());
     }
   } catch(e) { console.error('Score submit failed:', e); }
 }
