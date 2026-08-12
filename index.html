@@ -1880,27 +1880,43 @@ async function submitScore(name, scoreVal, diff) {
     'Prefer': 'return=minimal'
   };
 
-  // Submit to leaderboard
-  const lbBody = { name, score: scoreVal, difficulty: diff };
-  if (currentUser) lbBody.user_id = currentUser.id;
+  // Build safe body matching leaderboard schema
+  const lbBody = {
+    player_name: name,
+    score: scoreVal,
+    difficulty: diff,
+  };
+  if(currentUser) lbBody.user_id = currentUser.id;
+
+  // Check for existing score to update vs insert
+  if(currentUser) {
+    let existing = null;
+    try {
+      const rows = await sbFetch(`leaderboard?user_id=eq.${currentUser.id}&difficulty=eq.${diff}&select=id,score&limit=1`);
+      if(rows && rows.length > 0) existing = rows[0];
+    } catch(e) { console.warn('Could not check existing score:', e.message); }
+
+    if(existing) {
+      if(scoreVal > existing.score) {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?id=eq.${existing.id}`, {
+          method: 'PATCH', headers, body: JSON.stringify(lbBody)
+        });
+        if(!res.ok) {
+          const text = await res.text();
+          throw new Error(`Submit failed: ${res.status} ${text}`);
+        }
+      }
+      return; // Score already exists and new one isn't better
+    }
+  }
+
+  // Insert new score
   const res = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard`, {
     method: 'POST', headers, body: JSON.stringify(lbBody)
   });
-  if (!res.ok) throw new Error(`Submit failed: ${res.status}`);
-
-  // Save to personal history if logged in
-  if (currentUser) {
-    const total = TOTAL_ROUNDS * maxPhases();
-    await fetch(`${SUPABASE_URL}/rest/v1/user_scores`, {
-      method: 'POST', headers,
-      body: JSON.stringify({
-        user_id: currentUser.id,
-        score: scoreVal,
-        difficulty: diff,
-        correct: correctCount,
-        total: total
-      })
-    });
+  if(!res.ok) {
+    const text = await res.text();
+    throw new Error(`Submit failed: ${res.status} ${text}`);
   }
 }
 
