@@ -4621,1105 +4621,625 @@ function checkHeartsBeforeRound(onProceed, onBack) {
 
 
 // ═══════════════════════════════════════
-// STORY MODE V2 — Rich Narrative
+// TOPIC EXPLORER
 // ═══════════════════════════════════════
 
-const STORY_PATHS_V2 = [
-  {
-    id: 1,
-    title: "In The Beginning",
-    subtitle: "From Creation to the Call of Abram",
-    testament: "OT",
-    is_free: true,
-    color: "#1a4a2e",
-    accent: "#4ab870",
-    icon: "🌍",
-    description: "Before anything existed, God spoke. From the first word of creation to the moment He called one man to change everything — this is where the greatest story begins.",
-    chapters: [
-      {
-        num: 1,
-        title: "Let There Be Light",
-        scene: "creation_light",
-        narrative: "In the beginning, there was nothing. No matter, no energy, no time, no space. Only God. Then He spoke — and everything that exists exploded into being. Let there be light. And there was light. On the first day, God separated light from darkness, day from night. He looked at what He had made and called it good. This was not the sun — that would come later. This was something more fundamental, a declaration that the God who is Himself light was filling His creation with the very nature of who He is. Every sunrise since that first moment has been an echo of those first words. Before science, before history, before everything — there was the voice of God.",
-        verse: "In the beginning God created the heavens and the earth. And God said, Let there be light, and there was light.",
-        reference: "Genesis 1:1,3",
-        questions: [
-          { q: "What did God create on the very first day?", a: "Light", choices: ["Light","The sun","The sky","Plants"] },
-          { q: "What did God call the light?", a: "Day", choices: ["Day","Morning","Dawn","Brightness"] },
-          { q: "What phrase did God use to evaluate what He had made?", a: "It was good", choices: ["It was good","It was perfect","It was finished","It was beautiful"] }
-        ]
-      },
-      {
-        num: 2,
-        title: "The World Takes Shape",
-        scene: "creation_world",
-        narrative: "Over five more days, God filled His creation with breathtaking variety. He separated the waters and called the sky into being. He gathered the seas and raised dry land. He filled the earth with vegetation — every seed bearing plant, every fruit tree. He set the sun to rule the day and the moon to rule the night, placing the stars like lamps across the heavens. He filled the seas with creatures and the sky with birds. He covered the land with every living thing — cattle, creatures that move along the ground, wild animals of every kind. Each day He looked at what He had made and said the same thing: it is good. The universe was not an accident. It was a work of art, spoken into existence by a Creator who delighted in every detail.",
-        verse: "God saw all that he had made, and it was very good.",
-        reference: "Genesis 1:31",
-        questions: [
-          { q: "What did God create on the fourth day?", a: "The sun, moon and stars", choices: ["The sun, moon and stars","Fish and birds","Land animals","Plants and trees"] },
-          { q: "How many days did God take to create everything?", a: "6", choices: ["5","6","7","8"] },
-          { q: "What did God say about everything He had made at the end?", a: "It was very good", choices: ["It was very good","It was good","It was finished","It was perfect"] }
-        ]
-      },
-      {
-        num: 3,
-        title: "Made in His Image",
-        scene: "creation_human",
-        narrative: "On the sixth day, something different happened. God paused and said: Let us make mankind in our image, in our likeness. Every other act of creation had been spoken into existence from a distance. But when God made humanity, He got close. He formed the man from the dust of the ground — shaped him with intention, like a potter with clay. Then He breathed into his nostrils the breath of life, and the man became a living being. He placed the man in a garden called Eden — a word that means delight. He brought the animals to the man to be named, and gave him the woman to be his companion and equal partner. He blessed them and gave them a mandate: fill the earth, care for it, rule over it. They were made for relationship — with each other and with God.",
-        verse: "So God created mankind in his own image, in the image of God he created them; male and female he created them.",
-        reference: "Genesis 1:27",
-        questions: [
-          { q: "What did God use to form the first man?", a: "Dust from the ground", choices: ["Dust from the ground","Clay from the river","Stone","Water"] },
-          { q: "What does the name Eden mean?", a: "Delight", choices: ["Delight","Paradise","Garden","Beginning"] },
-          { q: "What was unique about how God created humans compared to everything else?", a: "He made them in His own image", choices: ["He made them in His own image","He spoke them into existence","He formed them from water","He created them last"] }
-        ]
-      },
-      {
-        num: 4,
-        title: "The Fall",
-        scene: "garden",
-        narrative: "Everything was perfect. God walked with Adam and Eve in the garden in the cool of the day. There was no shame, no fear, no hiding. Only one boundary existed — one tree whose fruit they were not to eat. Then came the serpent — subtle, patient, and dangerous. Did God really say? The question was designed not to get information but to plant doubt. He told them the fruit would make them like God, knowing good and evil. Eve looked. The fruit was beautiful. It seemed good for food. She took it. Adam was with her and said nothing. He took it too. Immediately their eyes were opened — but not in the way they had hoped. They felt shame for the first time. They hid. And when God called out Where are you? the question echoed with heartbreak. Something irreversible had happened. The world would never be the same.",
-        verse: "Where are you? God called to the man.",
-        reference: "Genesis 3:9",
-        questions: [
-          { q: "What did the serpent question to begin the temptation?", a: "What God had said", choices: ["What God had said","God's existence","God's power","God's love for them"] },
-          { q: "What was the immediate result when Adam and Eve ate the fruit?", a: "They felt shame and hid from God", choices: ["They felt shame and hid from God","They became wise immediately","They gained great power","They were struck with sickness"] },
-          { q: "Even in judgment what did God promise about the serpent?", a: "The woman's offspring would crush his head", choices: ["The woman's offspring would crush his head","He would be destroyed immediately","He would be cast into the sea","He would lose his ability to speak"] }
-        ]
-      },
-      {
-        num: 5,
-        title: "Cain and Abel",
-        scene: "cain_abel",
-        narrative: "Adam and Eve left the garden and began a family. Their first son was Cain. Their second was Abel. Cain worked the soil. Abel kept flocks. In time both brought offerings to God. God accepted Abel's offering — he had brought the firstborn of his flock, the best he had. He did not accept Cain's. Why? Not because crops are inferior to animals — but because of the heart behind the gift. Cain was furious. His face fell. God warned him: sin is crouching at your door, it desires to have you, but you must rule over it. Cain did not listen. He invited his brother into the field and killed him. Then came one of the most chilling exchanges in all of Scripture. God: Where is your brother Abel? Cain: I don't know. Am I my brother's keeper? The answer God's whole story would eventually answer — yes. We are our brother's keeper.",
-        verse: "Then the Lord said to Cain, Where is your brother Abel? I don't know, he replied. Am I my brother's keeper?",
-        reference: "Genesis 4:9",
-        questions: [
-          { q: "What was Cain's occupation?", a: "He worked the soil", choices: ["He worked the soil","He kept flocks","He was a hunter","He built cities"] },
-          { q: "Why did God not accept Cain's offering?", a: "Because of the attitude of Cain's heart", choices: ["Because of the attitude of Cain's heart","Because crops were unacceptable","Because Abel offered first","Because Cain offered too little"] },
-          { q: "What did God say was crouching at Cain's door?", a: "Sin", choices: ["Sin","Death","Jealousy","The serpent"] }
-        ]
-      },
-      {
-        num: 6,
-        title: "Noah and the Flood",
-        scene: "noah_flood",
-        narrative: "Generations passed and the earth filled with people — and with violence. Every inclination of the thoughts of the human heart was only evil all the time. God grieved that He had made them. But one man stood apart. Noah was righteous, blameless among the people of his time, and he walked faithfully with God. God warned Noah of a coming flood and gave him precise instructions for building a massive ark. Noah believed God and built it — on dry land, far from any sea, surrounded by people who thought he was insane. He preached righteousness for a hundred years while he built. Then the animals came in pairs. Noah's family entered. God shut the door. The rain fell for forty days and nights. The waters rose until even the mountains were covered. Everything that breathed on land perished — except those in the ark.",
-        verse: "Noah was a righteous man, blameless among the people of his time, and he walked faithfully with God.",
-        reference: "Genesis 6:9",
-        questions: [
-          { q: "Why did God decide to send the flood?", a: "Every inclination of humanity's heart was only evil", choices: ["Every inclination of humanity's heart was only evil","The earth was overpopulated","People had forgotten how to worship","A great war had destroyed the land"] },
-          { q: "How long did the rain fall during the flood?", a: "40 days and nights", choices: ["7 days and nights","40 days and nights","150 days","A full year"] },
-          { q: "How is Noah described in Genesis 6?", a: "Righteous, blameless, walking with God", choices: ["Righteous, blameless, walking with God","A prophet and priest","The wisest man of his age","Chosen from birth"] }
-        ]
-      },
-      {
-        num: 7,
-        title: "The Rainbow Covenant",
-        scene: "noah_rainbow",
-        narrative: "The waters receded. The ark came to rest on the mountains of Ararat. Noah sent out a raven and then a dove. When the dove returned with an olive leaf, Noah knew the earth was recovering. When she didn't return at all, he opened the door. The first thing Noah did when he stepped onto dry ground was build an altar and offer burnt offerings to God. The aroma was pleasing to the Lord. God made a covenant — a binding promise — with Noah and with every living creature on earth: never again would a flood destroy all life. And He set a sign in the clouds — a rainbow. Every time clouds gathered and the bow appeared, it would be God's reminder of His promise. The judgment was over. A new beginning had come.",
-        verse: "I have set my rainbow in the clouds, and it will be the sign of the covenant between me and the earth.",
-        reference: "Genesis 9:13",
-        questions: [
-          { q: "What did Noah do first when he left the ark?", a: "Built an altar and offered burnt offerings", choices: ["Built an altar and offered burnt offerings","Planted a vineyard","Gave thanks and rested","Built a shelter for his family"] },
-          { q: "What was the sign of God's covenant with Noah?", a: "A rainbow", choices: ["A rainbow","A dove","An olive branch","Fire from heaven"] },
-          { q: "What did God promise in the Noahic covenant?", a: "Never again to flood all the earth", choices: ["Never again to flood all the earth","To protect Noah's descendants forever","To give humanity a second chance","To destroy evil from the earth"] }
-        ]
-      },
-      {
-        num: 8,
-        title: "The Tower of Babel",
-        scene: "babel",
-        narrative: "After the flood, Noah's descendants multiplied and spread across the earth. They all spoke one language. They settled on a plain in Shinar and made a decision that revealed the same old problem — human pride. Come, they said, let us build a city with a tower that reaches to the heavens. Let us make a name for ourselves. God came down to see the city and the tower. He was not threatened. He was grieved. The very unity He had given them was being used to exalt themselves rather than to worship Him. So God confused their language. Suddenly neighbors couldn't understand each other. Construction stopped. The people scattered across the earth — which was exactly what God had told them to do in the first place. The place was called Babel — because there God confused the language of the whole world.",
-        verse: "Come, let us go down and confuse their language so they will not understand each other.",
-        reference: "Genesis 11:7",
-        questions: [
-          { q: "What was the stated purpose of the Tower of Babel?", a: "To make a name for themselves and reach the heavens", choices: ["To make a name for themselves and reach the heavens","To worship God from a high place","To protect themselves from another flood","To store grain for famine"] },
-          { q: "What did God do to stop the tower's construction?", a: "Confused their language", choices: ["Confused their language","Destroyed the tower","Scattered them by force","Sent a plague"] },
-          { q: "What does the name Babel mean?", a: "Confused", choices: ["Confused","Great tower","Pride","Scattered"] }
-        ]
-      },
-      {
-        num: 9,
-        title: "From Babel to Ur",
-        scene: "babel_to_ur",
-        narrative: "After Babel, Genesis gives us a genealogy — a list of names that might seem like a detour but is actually a bridge. God scattered the nations, and they spread across the known world, each developing their own languages, cultures, and eventually their own gods. Humanity had walked away from the one true God. But God had not given up on humanity. He was looking for someone. Through ten generations from Noah's son Shem, we arrive at a man named Terah who lived in Ur of the Chaldeans — one of the most sophisticated cities in the ancient world, full of wealth, temples, and idol worship. Terah had three sons: Abram, Nahor, and Haran. Terah set out with his family toward the land of Canaan, but they stopped and settled in Haran. The stage was being set for the most important conversation since Eden.",
-        verse: "This is the account of Shem's family line... the father of Abram.",
-        reference: "Genesis 11:10,27",
-        questions: [
-          { q: "In what city did Abram grow up?", a: "Ur of the Chaldeans", choices: ["Ur of the Chaldeans","Haran","Babel","Canaan"] },
-          { q: "What was Terah's original destination when he left Ur?", a: "The land of Canaan", choices: ["The land of Canaan","Egypt","Haran","The mountains of Ararat"] },
-          { q: "How many generations separated Noah's son Shem from Abram?", a: "10 generations", choices: ["3 generations","5 generations","10 generations","20 generations"] }
-        ]
-      },
-      {
-        num: 10,
-        title: "The Call of Abram",
-        scene: "abram_call",
-        narrative: "Abram was seventy-five years old, settled in Haran, when God spoke to him. It was an extraordinary command with an extraordinary promise. Leave your country, your people and your father's household and go to the land I will show you. No map. No destination given. Just — go. And with the command came a promise that would echo through all of history: I will make you into a great nation. I will bless you. I will make your name great. All peoples on earth will be blessed through you. Abram went. The text is almost breathtaking in its brevity. God said go. Abram went. He took his wife Sarai, his nephew Lot, all their possessions and the people they had acquired in Haran, and he left. He didn't know where he was going. He only knew who was leading him. And that was enough. The history of redemption had begun.",
-        verse: "The Lord had said to Abram, Go from your country, your people and your father's household to the land I will show you.",
-        reference: "Genesis 12:1",
-        questions: [
-          { q: "How old was Abram when God called him to leave Haran?", a: "75", choices: ["50","60","75","100"] },
-          { q: "What did God promise would happen through Abram's offspring?", a: "All peoples on earth would be blessed", choices: ["All peoples on earth would be blessed","A great empire would be built","The flood would never return","The nations would worship one God"] },
-          { q: "What did Abram do when God called him to go?", a: "He went, not knowing where he was going", choices: ["He went, not knowing where he was going","He asked God for a sign first","He waited until the next year","He sent scouts ahead"] }
-        ]
-      }
-    ]
-  },
-  {
-    id: 2,
-    title: "The Patriarchs",
-    subtitle: "Abraham, Isaac, and Jacob",
-    testament: "OT",
-    is_free: true,
-    color: "#4a1a0a",
-    accent: "#d4801a",
-    icon: "⭐",
-    description: "Three generations of faith, failure, and faithfulness. From the stars of Canaan to the banks of Egypt — God builds a nation one family at a time.",
-    chapters: [
-      {
-        num: 1,
-        title: "The Covenant of Stars",
-        scene: "covenant_stars",
-        narrative: "Abram had been in Canaan for years but had no children. The promise of a great nation seemed impossible. He was growing old. His servant would inherit everything he had. Then God came to him in a vision: Do not be afraid, Abram. I am your shield. Abram poured out his heart: What can you give me since I remain childless? God did not answer with an argument. He simply took Abram outside. Look up at the sky, He said. Count the stars — if indeed you can count them. So shall your offspring be. Abram had no evidence. No child. No reason to believe except the word of God. He believed God anyway. And God credited it to him as righteousness. It is the first and greatest statement of salvation by faith in all of Scripture.",
-        verse: "Abram believed the Lord, and he credited it to him as righteousness.",
-        reference: "Genesis 15:6",
-        questions: [
-          { q: "What was Abram's concern when God promised to reward him?", a: "He had no children and his servant would inherit everything", choices: ["He had no children and his servant would inherit everything","He had no land","He was too old to travel","His enemies were too strong"] },
-          { q: "What did God use to illustrate the number of Abram's descendants?", a: "The stars", choices: ["The stars","The sand","Dust","The leaves of trees"] },
-          { q: "What was credited to Abram as righteousness?", a: "His faith — he believed God", choices: ["His faith — he believed God","His obedience","His sacrifice","His prayer"] }
-        ]
-      },
-      {
-        num: 2,
-        title: "Hagar and Ishmael",
-        scene: "hagar",
-        narrative: "Ten years passed with no child. Sarai decided to help God along. She gave her Egyptian servant Hagar to Abram as a wife. Hagar became pregnant and began to despise her mistress. Sarai treated Hagar harshly and Hagar fled into the wilderness. There an angel of the Lord found her by a spring of water and asked: Hagar, where have you come from and where are you going? He told her to return, and promised that her son would be named Ishmael — God hears — because God had heard her misery. Thirteen years later Abram was 99 and Sarai was 90 when God appeared again. He changed their names — Abram became Abraham, Sarai became Sarah — and reaffirmed the covenant. The son of promise would still come through Sarah. Ishmael was loved, but he was not the fulfillment of the promise.",
-        verse: "She gave this name to the Lord who spoke to her: You are the God who sees me.",
-        reference: "Genesis 16:13",
-        questions: [
-          { q: "Why did Sarai give Hagar to Abram?", a: "To try to help God fulfill the promise of a child", choices: ["To try to help God fulfill the promise of a child","Hagar asked to be given to Abram","God commanded it","Abram requested it"] },
-          { q: "What does the name Ishmael mean?", a: "God hears", choices: ["God hears","God sees","God saves","God provides"] },
-          { q: "What name did Hagar give to God when He appeared to her?", a: "The God who sees me", choices: ["The God who sees me","The God who hears","The God of Abraham","The Living God"] }
-        ]
-      },
-      {
-        num: 3,
-        title: "Three Visitors",
-        scene: "three_visitors",
-        narrative: "Abraham was sitting at the entrance to his tent in the heat of the day when three men appeared. He ran to meet them and bowed low. He begged them to stay — to rest, to eat. He rushed to prepare a meal. While they ate, one of the visitors asked: Where is your wife Sarah? She is there in the tent, Abraham said. I will surely return to you about this time next year, the visitor said, and Sarah your wife will have a son. Sarah, listening at the tent entrance, laughed to herself. She was past the age of childbearing. The visitor heard her. Is anything too hard for the Lord? Sarah denied laughing. But she had laughed — and when the son came, they would name him Isaac: laughter. The God of the universe had come to share a meal and announce the impossible.",
-        verse: "Is anything too hard for the Lord? I will return to you at the appointed time next year, and Sarah will have a son.",
-        reference: "Genesis 18:14",
-        questions: [
-          { q: "What was Abraham doing when the three visitors appeared?", a: "Sitting at the entrance to his tent in the heat of the day", choices: ["Sitting at the entrance to his tent in the heat of the day","Praying at an altar","Tending his flocks","Sleeping"] },
-          { q: "Why did Sarah laugh when she heard she would have a son?", a: "She was past the age of childbearing", choices: ["She was past the age of childbearing","She thought it was a joke","She did not believe God existed","She already had many children"] },
-          { q: "What does the name Isaac mean?", a: "Laughter", choices: ["Laughter","Promise","Miracle","Blessing"] }
-        ]
-      },
-      {
-        num: 4,
-        title: "Sodom and Lot",
-        scene: "sodom",
-        narrative: "After the meal, the visitors rose and looked toward Sodom. Abraham walked with them a while. Then God said — Shall I hide from Abraham what I am about to do? He told Abraham that the outcry against Sodom and Gomorrah was great and He was going to destroy the cities. Abraham interceded — an extraordinary negotiation with God. Will you destroy the righteous with the wicked? What if there are fifty righteous people? God agreed to spare the city for fifty. Abraham kept pushing — forty-five, forty, thirty, twenty, ten. God agreed to every number. But there were not even ten righteous people in Sodom. Two angels went in to rescue Abraham's nephew Lot and his family. When Lot hesitated, the angels grabbed his hand and pulled him out. His wife looked back and became a pillar of salt. The cities burned. No place was safe from God's holiness — except those He pulled out by the hand.",
-        verse: "When God destroyed the cities of the plain, he remembered Abraham, and he brought Lot out of the catastrophe.",
-        reference: "Genesis 19:29",
-        questions: [
-          { q: "What did Abraham do when God told him He would destroy Sodom?", a: "He interceded and bargained with God", choices: ["He interceded and bargained with God","He accepted God's decision","He warned the people of Sodom","He sent messengers to Lot"] },
-          { q: "What happened to Lot's wife?", a: "She looked back and became a pillar of salt", choices: ["She looked back and became a pillar of salt","She refused to leave Sodom","She was killed in the fire","She ran back to warn the people"] },
-          { q: "Why did God spare Lot according to Genesis 19?", a: "Because He remembered Abraham", choices: ["Because He remembered Abraham","Because Lot was righteous","Because Lot's daughters prayed","Because the angels liked Lot"] }
-        ]
-      },
-      {
-        num: 5,
-        title: "The Birth of Isaac",
-        scene: "isaac_birth",
-        narrative: "Now the Lord was gracious to Sarah as he had said, and the Lord did for Sarah what he had promised. At the very time God had said it would happen, Sarah became pregnant and bore a son to Abraham in his old age. Abraham was one hundred years old. Sarah said: God has brought me laughter, and everyone who hears about this will laugh with me. Who would have said to Abraham that Sarah would nurse children? Yet I have borne him a son in his old age. They named him Isaac — laughter — because that is what he was. Not the bitter laugh of unbelief, but the overflowing laugh of joy at the impossible made real. The son of promise had finally come. Twenty-five years after God first spoke the promise to Abraham — He kept it. It was one year late by human counting. It was exactly on time by God's.",
-        verse: "Sarah said, God has brought me laughter, and everyone who hears about this will laugh with me.",
-        reference: "Genesis 21:6",
-        questions: [
-          { q: "How old was Abraham when Isaac was born?", a: "100 years old", choices: ["75 years old","86 years old","99 years old","100 years old"] },
-          { q: "How long after God's first promise did Isaac finally arrive?", a: "25 years", choices: ["10 years","15 years","25 years","40 years"] },
-          { q: "What did Sarah say God had brought her?", a: "Laughter", choices: ["Laughter","Joy","Peace","Blessing"] }
-        ]
-      },
-      {
-        num: 6,
-        title: "The Binding of Isaac",
-        scene: "moriah",
-        narrative: "And then God asked the unthinkable. Take your son — your only son Isaac, whom you love — and go to the region of Moriah. Sacrifice him there as a burnt offering. Abraham rose early the next morning. He saddled his donkey and set off. Three days of walking. On the third day Abraham looked up and saw the place in the distance. He told his servants: Stay here while I and the boy go over there. We will worship and then we will come back to you. We. Not I. Abraham believed God could raise the dead. He laid the wood on Isaac. Isaac asked: Father, the fire and wood are here, but where is the lamb? Abraham said: God himself will provide the lamb. He bound Isaac. He raised the knife. Then the angel of the Lord called out: Do not lay a hand on the boy. In the thicket was a ram. God had provided.",
-        verse: "Abraham looked up and there in a thicket he saw a ram caught by its horns. He went over and took the ram and sacrificed it as a burnt offering instead of his son.",
-        reference: "Genesis 22:13",
-        questions: [
-          { q: "What did God command Abraham to do with Isaac?", a: "Offer him as a burnt offering on Mount Moriah", choices: ["Offer him as a burnt offering on Mount Moriah","Send him away","Give him to the priests","Take him to Egypt"] },
-          { q: "When Isaac asked where the lamb was, what did Abraham say?", a: "God himself will provide the lamb", choices: ["God himself will provide the lamb","You are the lamb","We will find one on the mountain","Do not ask me that"] },
-          { q: "What did God provide as a substitute for Isaac?", a: "A ram caught in a thicket", choices: ["A ram caught in a thicket","A lamb","A goat","A bull"] }
-        ]
-      },
-      {
-        num: 7,
-        title: "Isaac and Rebekah",
-        scene: "rebekah_well",
-        narrative: "Sarah died at 127 years old and Abraham buried her in the cave of Machpelah. Then Abraham turned his attention to one last task. Isaac must not marry a Canaanite woman. He sent his chief servant on a journey back to his homeland to find a wife from among his own people. The servant traveled to Mesopotamia and stopped at a well outside the city. He prayed a specific prayer: Lord, may the girl who gives me water and offers to water my camels be the one you have chosen. Before he had even finished praying, Rebekah came to the well. She drew water for him and offered to water all ten camels — a generous and energetic act that meant drawing hundreds of gallons of water. When he asked whose daughter she was, she was from Abraham's own family. The servant bowed down and worshipped. God had answered before the prayer was finished.",
-        verse: "Before he had finished praying, Rebekah came out with her jar on her shoulder.",
-        reference: "Genesis 24:15",
-        questions: [
-          { q: "What was the sign the servant prayed for to identify the right wife for Isaac?", a: "She would offer water for him and his camels", choices: ["She would offer water for him and his camels","She would know Abraham's name","She would be beautiful","She would be from Abraham's tribe"] },
-          { q: "When did Rebekah appear at the well?", a: "Before the servant had finished praying", choices: ["Before the servant had finished praying","The next morning","Three days later","After seven days"] },
-          { q: "What was Rebekah's relationship to Abraham?", a: "She was from his family — his brother's granddaughter", choices: ["She was from his family — his brother's granddaughter","She was a stranger God chose","She was a Canaanite woman","She was Sarah's niece"] }
-        ]
-      },
-      {
-        num: 8,
-        title: "Jacob and Esau",
-        scene: "jacob_esau",
-        narrative: "Isaac and Rebekah had twins. Before they were born, God told Rebekah: Two nations are in your womb. The older will serve the younger. Esau was born first — red and hairy. Jacob came out grasping his brother's heel. Jacob means he grasps the heel — a deceiver. One day Esau came in from hunting, famished. Jacob was cooking stew. Sell me your birthright, Jacob said. Esau despised his birthright and sold it for a bowl of soup. Years later, when Isaac was old and blind, Jacob disguised himself with goatskins to feel like Esau and deceived his father into giving him the blessing intended for the firstborn. Esau wept and begged for a blessing too. When he found out, he planned to kill Jacob. Rebekah sent Jacob away to her brother Laban in Haran. The deceiver had won — but he was about to meet someone craftier than himself.",
-        verse: "The Lord said to her, Two nations are in your womb, and two peoples from within you will be separated; one people will be stronger than the other, and the older will serve the younger.",
-        reference: "Genesis 25:23",
-        questions: [
-          { q: "What did Jacob give Esau in exchange for his birthright?", a: "A bowl of stew", choices: ["A bowl of stew","Silver coins","A flock of sheep","Land in Canaan"] },
-          { q: "How did Jacob deceive Isaac into giving him Esau's blessing?", a: "He wore goatskins to feel hairy like Esau", choices: ["He wore goatskins to feel hairy like Esau","He impersonated Esau's voice","He bribed Isaac's servant","He waited until Isaac was asleep"] },
-          { q: "What does the name Jacob mean?", a: "He grasps the heel — a deceiver", choices: ["He grasps the heel — a deceiver","He who wrestles","Beloved son","Promised one"] }
-        ]
-      },
-      {
-        num: 9,
-        title: "Jacob's Ladder",
-        scene: "jacobs_ladder",
-        narrative: "Jacob fled toward Haran. As the sun set he stopped for the night, took a stone for a pillow and lay down to sleep. He dreamed of a stairway — or ladder — reaching from earth to heaven, with angels ascending and descending on it. At the top stood God. I am the Lord, the God of your father Abraham and the God of Isaac. The land on which you are lying I will give to you and your descendants. Jacob woke up and trembled: Surely God is in this place and I was not aware of it. He set up the stone as a pillar and called the place Bethel — the house of God. Then he wrestled with God at the ford of Jabbok — an all-night struggle that left him with a limp and a new name. You will no longer be called Jacob, the man said. Your name will be Israel — one who struggles with God — because you have struggled with God and with humans and have overcome.",
-        verse: "Your name will no longer be Jacob, but Israel, because you have struggled with God and with humans and have overcome.",
-        reference: "Genesis 32:28",
-        questions: [
-          { q: "What did Jacob see in his dream at Bethel?", a: "A stairway to heaven with angels ascending and descending", choices: ["A stairway to heaven with angels ascending and descending","Stars forming a covenant","A burning bush","God's throne in the clouds"] },
-          { q: "What did Jacob name the place where he had his dream?", a: "Bethel", choices: ["Bethel","Peniel","Mahanaim","Beersheba"] },
-          { q: "What new name did God give Jacob after their wrestling match?", a: "Israel", choices: ["Israel","Abraham","Joshua","Emmanuel"] }
-        ]
-      },
-      {
-        num: 10,
-        title: "Joseph Sold",
-        scene: "joseph_sold",
-        narrative: "Jacob had twelve sons but Joseph was his favorite — the son of his old age. He gave him an ornate robe. His brothers seethed with jealousy. They hated Joseph and could not speak a kind word to him. Joseph also had dreams — sheaves of grain bowing to his, then the sun and moon and stars bowing to him. His brothers hated him more. One day Jacob sent Joseph to check on his brothers in the field. They saw him coming from a distance. Let us kill him, said some. Reuben convinced them not to. Instead they stripped off his robe, threw him into an empty cistern, and sat down to eat. When a caravan of Ishmaelites passed heading to Egypt, Judah said: What will we gain if we kill our brother? Let us sell him. They sold Joseph for twenty pieces of silver. They dipped his robe in goat blood and brought it to Jacob. He mourned for his son for many days. But God had not abandoned Joseph. The next chapter of redemption was already being written.",
-        verse: "So when Joseph came to his brothers, they stripped him of his robe — the ornate robe he was wearing — and they took him and threw him into the cistern.",
-        reference: "Genesis 37:23-24",
-        questions: [
-          { q: "Why did Jacob's sons hate Joseph?", a: "Jacob favored him and gave him an ornate robe", choices: ["Jacob favored him and gave him an ornate robe","Joseph was stronger than them","Joseph reported their wrongdoing","Joseph refused to work with them"] },
-          { q: "How much did Joseph's brothers sell him for?", a: "20 pieces of silver", choices: ["10 pieces of silver","20 pieces of silver","30 pieces of silver","50 pieces of silver"] },
-          { q: "Where was Joseph taken after being sold?", a: "Egypt", choices: ["Egypt","Babylon","Canaan","Midian"] }
-        ]
-      }
-    ]
-  },
-  {
-    id: 3,
-    title: "The Story of Moses",
-    subtitle: "From the Nile to the Promised Land",
-    testament: "OT",
-    is_free: true,
-    color: "#5a2d0c",
-    accent: "#c8841a",
-    icon: "🔥",
-    description: "From a basket on the Nile to the parting of the Red Sea — follow Moses as God uses one man to rescue an entire nation.",
-    chapters: [
-      {
-        num: 1,
-        title: "A Baby in a Basket",
-        scene: "moses_birth",
-        narrative: "Pharaoh was afraid. The Israelites were multiplying so fast that he feared they would one day outnumber the Egyptians and revolt. So he issued a terrible decree — every Hebrew baby boy was to be thrown into the Nile. Into this darkness, a baby was born to a Levite woman named Jochebed. She hid him for three months. When she could hide him no longer, she wove a basket of reeds, waterproofed it with tar and pitch, and placed her son in it among the reeds of the Nile. His sister Miriam watched from a distance. Then Pharaoh's own daughter came to bathe — and heard crying. She opened the basket and saw the child. Her heart went out to him. The very daughter of the man who ordered his death would raise him.",
-        verse: "When she opened it, she saw the baby. He was crying, and she felt sorry for him. This is one of the Hebrew babies, she said.",
-        reference: "Exodus 2:6",
-        questions: [
-          { q: "Why did Pharaoh order Hebrew baby boys to be killed?", a: "He feared the Israelites were growing too numerous", choices: ["He feared the Israelites were growing too numerous","He needed workers for his pyramids","A prophet warned him of danger","He was punishing Israel for rebellion"] },
-          { q: "What was Moses' basket made of?", a: "Reeds waterproofed with tar and pitch", choices: ["Reeds waterproofed with tar and pitch","Cedar wood","Clay and straw","Woven cloth"] },
-          { q: "Who found baby Moses in the basket?", a: "Pharaoh's daughter", choices: ["Pharaoh's daughter","A Hebrew midwife","The wife of a priest","A servant woman"] }
-        ]
-      },
-      {
-        num: 2,
-        title: "The Burning Bush",
-        scene: "burning_bush",
-        narrative: "Forty years had passed. Moses had fled Egypt after killing an Egyptian who was beating a Hebrew slave. He had built a quiet life in Midian, married a woman named Zipporah, and was tending his father-in-law's flocks. One ordinary day, leading the sheep to the far side of the wilderness, he came to Horeb — the mountain of God. There he saw something extraordinary: a bush that was on fire but did not burn up. He turned aside to look. Then God called to him from within the bush — Moses! Moses! Take off your sandals, for the place where you are standing is holy ground. I am the God of Abraham, Isaac and Jacob. I have seen the misery of my people. I have heard them crying out. And I have come down to rescue them.",
-        verse: "I have indeed seen the misery of my people in Egypt. I have heard them crying out because of their slave drivers, and I am concerned about their suffering.",
-        reference: "Exodus 3:7",
-        questions: [
-          { q: "How many years did Moses spend in Midian before the burning bush?", a: "40 years", choices: ["40 years","20 years","10 years","3 years"] },
-          { q: "What was unusual about the burning bush?", a: "It burned but was not consumed", choices: ["It burned but was not consumed","It spoke without fire","It moved toward Moses","It was surrounded by angels"] },
-          { q: "What did God tell Moses to remove at the burning bush?", a: "His sandals", choices: ["His sandals","His staff","His cloak","His ring"] }
-        ]
-      },
-      {
-        num: 3,
-        title: "Let My People Go",
-        scene: "pharaoh_court",
-        narrative: "Moses stood before the most powerful man on earth — Pharaoh of Egypt — and delivered God's message: Let my people go. Pharaoh laughed. Who is this God that I should obey him? Egypt's gods were many and mighty. He did not know the God of Israel. So God sent signs. The Nile turned to blood. Frogs covered the land. Gnats, flies, disease, boils, hail, locusts, darkness — each plague more devastating than the last. And each time Pharaoh hardened his heart. Even as Egypt crumbled around him, he refused. It was a cosmic confrontation — not just between Moses and Pharaoh, but between the living God and all the gods of Egypt. One by one, God was showing them all to be powerless.",
-        verse: "This is what the Lord, the God of Israel, says: Let my people go.",
-        reference: "Exodus 5:1",
-        questions: [
-          { q: "How many plagues did God send on Egypt?", a: "10", choices: ["7","9","10","12"] },
-          { q: "What was the first plague God sent on Egypt?", a: "The Nile turned to blood", choices: ["The Nile turned to blood","Frogs","Darkness","Locusts"] },
-          { q: "What did Pharaoh do after most of the plagues?", a: "He hardened his heart and refused", choices: ["He hardened his heart and refused","He agreed then changed his mind","He sent Moses away","He asked Moses to pray for him"] }
-        ]
-      },
-      {
-        num: 4,
-        title: "The Night of Passover",
-        scene: "passover",
-        narrative: "The final plague would be unlike any other. God would pass through Egypt and every firstborn — from Pharaoh's son to the firstborn of cattle — would die. But He gave His people a way of escape. Each family was to take a lamb without defect, slaughter it at twilight, and paint its blood on the doorposts and lintels of their house. They were to eat the lamb that night, dressed and ready to leave, in haste. When God saw the blood, He would pass over that house. It was a night of terror for Egypt and a night of salvation for Israel. By morning, there was not a house in Egypt without death — except those marked with blood. Pharaoh summoned Moses before dawn: Go. Leave. Take everything.",
-        verse: "The blood will be a sign for you on the houses where you are, and when I see the blood, I will pass over you.",
-        reference: "Exodus 12:13",
-        questions: [
-          { q: "What kind of lamb was to be used for the Passover?", a: "A lamb without defect", choices: ["A lamb without defect","The oldest lamb","The largest lamb","Any lamb available"] },
-          { q: "Where was the blood of the lamb to be placed?", a: "On the doorposts and lintels", choices: ["On the doorposts and lintels","On the ground before the door","On the altar","On the foreheads of the family"] },
-          { q: "What happened to every home NOT marked with blood?", a: "The firstborn died", choices: ["The firstborn died","It was destroyed by fire","It was flooded","Nothing happened"] }
-        ]
-      },
-      {
-        num: 5,
-        title: "Crossing the Red Sea",
-        scene: "red_sea",
-        narrative: "Six hundred thousand men, plus women and children, marched out of Egypt after 430 years of slavery. God led them as a pillar of cloud by day and a pillar of fire by night. But soon they found themselves trapped — the Red Sea before them, the mountains on either side, and the thunder of Pharaoh's army behind them. Six hundred chariots. The people panicked. They cried out to Moses: Was it because there were no graves in Egypt that you brought us here to die? Moses stretched his hand out over the sea. All that night a strong east wind blew. By morning the sea had divided — walls of water on the left and right, and dry ground between. Israel walked through on dry land. When the Egyptians followed, the waters crashed back. Not one of them survived.",
-        verse: "Moses stretched out his hand over the sea, and all that night the Lord drove the sea back with a strong east wind and turned it into dry land.",
-        reference: "Exodus 14:21",
-        questions: [
-          { q: "How did God lead Israel through the wilderness?", a: "Pillar of cloud by day, pillar of fire by night", choices: ["Pillar of cloud by day, pillar of fire by night","An angel walking ahead","The voice of Moses","A bright star"] },
-          { q: "What did God use to part the Red Sea?", a: "A strong east wind", choices: ["A strong east wind","Moses striking the water","An earthquake","Lightning from heaven"] },
-          { q: "How many of Pharaoh's soldiers survived the Red Sea crossing?", a: "None", choices: ["None","A few","Only the commanders","Half of them"] }
-        ]
-      },
-      {
-        num: 6,
-        title: "Bread from Heaven",
-        scene: "manna",
-        narrative: "The wonder of the Red Sea was still fresh when the grumbling began. The people were hungry. If only we had stayed in Egypt, they said. At least there we had bread. God heard their complaints without anger. I will rain down bread from heaven for you, He told Moses. Each morning a fine, flaky substance appeared on the ground like frost. They called it manna — what is it? — because no one had ever seen anything like it. It tasted like wafers made with honey. Every day for forty years, six days a week, God provided exactly what His people needed. On Friday He gave double so they could rest on the Sabbath. It was a daily reminder that God was their provider — and that man does not live on bread alone.",
-        verse: "Then the Lord said to Moses, I will rain down bread from heaven for you.",
-        reference: "Exodus 16:4",
-        questions: [
-          { q: "What did the Israelites call the bread from heaven?", a: "Manna", choices: ["Manna","Shewbread","Heaven bread","Daily bread"] },
-          { q: "How long did God provide manna for Israel?", a: "40 years", choices:["40 years","7 years","20 years","Until they reached Sinai"] },
-          { q: "Why did God provide double manna on Friday?", a: "So they could rest on the Sabbath", choices: ["So they could rest on the Sabbath","Because more people were hungry","To test their faith","To store for the journey ahead"] }
-        ]
-      },
-      {
-        num: 7,
-        title: "The Ten Commandments",
-        scene: "mount_sinai",
-        narrative: "Three months after leaving Egypt, Israel camped at the foot of Mount Sinai. God called Moses up the mountain. The people were to consecrate themselves and wash their clothes. On the third day, thunder and lightning, thick cloud, and a very loud trumpet blast shook the mountain. Smoke billowed up like a furnace. The whole mountain trembled violently. And God spoke the Ten Commandments directly to the people — His covenant charter for the nation He was building. You shall have no other gods before me. Honor your father and mother. Do not murder. Do not commit adultery. Do not steal. Do not lie. The commandments were not a ladder to earn God's favor. They were a portrait of what a people who had been saved by grace looked like.",
-        verse: "I am the Lord your God, who brought you out of Egypt, out of the land of slavery. You shall have no other gods before me.",
-        reference: "Exodus 20:2-3",
-        questions: [
-          { q: "How long after leaving Egypt did Israel arrive at Mount Sinai?", a: "3 months", choices: ["3 months","7 days","1 year","40 days"] },
-          { q: "What accompanied God's presence on Mount Sinai?", a: "Thunder, lightning, thick cloud and trumpet blast", choices: ["Thunder, lightning, thick cloud and trumpet blast","A still small voice","A rainbow","A pillar of fire only"] },
-          { q: "How many commandments did God give Israel at Sinai?", a: "10", choices: ["7","10","12","15"] }
-        ]
-      },
-      {
-        num: 8,
-        title: "The Golden Calf",
-        scene: "golden_calf",
-        narrative: "Moses was on the mountain for forty days. The people grew restless. They went to Aaron and said: Make us gods who will go before us. We don't know what happened to Moses. Aaron — Moses' own brother, the high priest — collected their gold earrings and cast them into the shape of a calf. These are your gods, O Israel, who brought you up out of Egypt. God told Moses what was happening and His anger burned. Moses pleaded for the people. When he came down the mountain and saw the calf and the dancing, he threw down the stone tablets and shattered them. He ground the calf into powder, scattered it on the water, and made Israel drink it. It was one of Israel's darkest moments — turning from the living God to an idol made with their own hands.",
-        verse: "They exchanged their glorious God for an image of a bull, which eats grass.",
-        reference: "Psalm 106:20",
-        questions: [
-          { q: "How long was Moses on Mount Sinai when the people made the golden calf?", a: "40 days", choices: ["40 days","7 days","3 days","1 year"] },
-          { q: "Who made the golden calf for Israel?", a: "Aaron", choices: ["Aaron","Miriam","The elders","Caleb"] },
-          { q: "What did Moses do with the golden calf?", a: "Ground it into powder and made Israel drink it", choices: ["Ground it into powder and made Israel drink it","Burned it completely","Threw it into the sea","Buried it in the wilderness"] }
-        ]
-      },
-      {
-        num: 9,
-        title: "Forty Years in the Wilderness",
-        scene: "wilderness",
-        narrative: "The Promised Land was within reach. Twelve spies went in to scout the land. Ten came back with fear: The people there are giants. We seemed like grasshoppers in our own eyes. Two — Joshua and Caleb — came back with faith: We can certainly do it. God is with us. The people chose fear. They wept and complained and wanted to go back to Egypt. God's judgment was swift: because of their unbelief, that entire generation would wander in the wilderness for forty years — one year for each day the spies were in the land — until every adult who had refused to trust God had died. Their children would inherit the promise they refused. It is one of the most sobering passages in all of Scripture.",
-        verse: "Because of your unbelief you will wander in the wilderness forty years — a year for each of the forty days you explored the land.",
-        reference: "Numbers 14:34",
-        questions: [
-          { q: "How many spies were sent into Canaan?", a: "12", choices: ["10","12","2","40"] },
-          { q: "Which two spies gave a faithful report?", a: "Joshua and Caleb", choices: ["Joshua and Caleb","Moses and Aaron","Gad and Asher","Reuben and Simeon"] },
-          { q: "Why did God sentence Israel to 40 years in the wilderness?", a: "Because of their unbelief", choices: ["Because of their unbelief","Because of the golden calf","Because they disobeyed Moses","Because Pharaoh pursued them"] }
-        ]
-      },
-      {
-        num: 10,
-        title: "The View from Nebo",
-        scene: "mount_nebo",
-        narrative: "Moses never entered the Promised Land. In a moment of frustration at the waters of Meribah, he struck the rock instead of speaking to it as God commanded. It was a small act of disobedience — but for the leader of God's people, it had consequences. God told him: you will see the land, but you will not enter it. Moses spent his final days pouring his life into Joshua, his successor, and pouring his words into the book of Deuteronomy — his final sermon to a nation he had loved and led through fire and wilderness. Then God called him to the top of Mount Nebo. From there he saw the whole land — from Gilead to the Dead Sea to the Mediterranean. And there on the mountain, Moses died. He was 120 years old. His eyes were not dim. His strength had not faded. No one knows where he is buried to this day.",
-        verse: "Moses was a hundred and twenty years old when he died, yet his eyes were not weak nor his strength gone.",
-        reference: "Deuteronomy 34:7",
-        questions: [
-          { q: "Why was Moses not allowed to enter the Promised Land?", a: "He struck the rock instead of speaking to it", choices: ["He struck the rock instead of speaking to it","He refused to lead Israel","He worshipped the golden calf","He disobeyed at the Red Sea"] },
-          { q: "From what mountain did Moses see the Promised Land?", a: "Mount Nebo", choices: ["Mount Nebo","Mount Sinai","Mount Carmel","Mount Zion"] },
-          { q: "How old was Moses when he died?", a: "120", choices: ["80","100","120","969"] }
-        ]
-      }
-    ]
-  },
-  {
-    id: 4,
-    title: "The Life of David",
-    subtitle: "From Shepherd Boy to King of Israel",
-    testament: "OT",
-    is_free: true,
-    color: "#1a3a6e",
-    accent: "#4a8eda",
-    icon: "👑",
-    description: "A shepherd. A giant-slayer. A poet. A sinner. A man after God's own heart. The story of David is one of the most human — and most hopeful — in all of Scripture.",
-    chapters: [
-      {
-        num: 1,
-        title: "The Forgotten Son",
-        scene: "david_shepherd",
-        narrative: "God had rejected King Saul. His disobedience had disqualified him. So God sent the prophet Samuel on a secret mission to Bethlehem — to the house of a man named Jesse, where God had chosen the next king of Israel. Jesse paraded his sons before Samuel one by one. Seven impressive young men. God said no to every one of them. Samuel was confused. Is this all your sons? There is still the youngest, Jesse said, as if it barely mattered. He's out tending the sheep. Send for him. When David finally walked in — ruddy, bright-eyed, handsome — God said: Rise and anoint him. He is the one. The boy nobody thought to invite to the ceremony was the one God had chosen all along. God does not see as man sees. Man looks at the outward appearance, but God looks at the heart.",
-        verse: "The Lord does not look at the things people look at. People look at the outward appearance, but the Lord looks at the heart.",
-        reference: "1 Samuel 16:7",
-        questions: [
-          { q: "Why did God send Samuel to Jesse's house?", a: "To anoint the next king of Israel", choices: ["To anoint the next king of Israel","To deliver a message to Jesse","To judge the sins of Bethlehem","To find a musician for Saul"] },
-          { q: "How many of Jesse's sons did Samuel see before David?", a: "7", choices: ["3","5","7","10"] },
-          { q: "Where was David when Samuel arrived?", a: "Tending the sheep", choices: ["Tending the sheep","Training as a soldier","Studying the law","In the fields harvesting"] }
-        ]
-      },
-      {
-        num: 2,
-        title: "David and Goliath",
-        scene: "david_goliath",
-        narrative: "For forty days the giant had terrorized Israel. Goliath of Gath — over nine feet tall, armored from head to toe, with a spear like a weaver's beam. Every morning and evening he strode to the front lines and bellowed his challenge: Send me a man! The whole Israelite army shook with fear, including King Saul. Then a teenage shepherd boy arrived to bring food to his brothers. He heard the challenge. He felt the shame. Why does no one answer him? He is defying the armies of the living God. David refused armor. He refused a sword. He went to a stream and chose five smooth stones. Then he ran toward the giant — not away from him. You come against me with sword and spear, David shouted. But I come against you in the name of the Lord Almighty. One stone. One throw. Goliath fell face down on the ground.",
-        verse: "You come against me with sword and spear and javelin, but I come against you in the name of the Lord Almighty.",
-        reference: "1 Samuel 17:45",
-        questions: [
-          { q: "How long had Goliath been challenging Israel when David arrived?", a: "40 days", choices: ["7 days","14 days","40 days","3 months"] },
-          { q: "How many stones did David pick up from the stream?", a: "5", choices: ["1","3","5","7"] },
-          { q: "What happened to Goliath when David's stone hit him?", a: "He fell face down on the ground", choices: ["He fell face down on the ground","He fell backward","He stumbled but kept fighting","He ran away"] }
-        ]
-      },
-      {
-        num: 3,
-        title: "A Friendship Like No Other",
-        scene: "david_jonathan",
-        narrative: "After David killed Goliath, he was brought before King Saul. Standing there was Saul's son Jonathan — the crown prince, the heir to the throne. Something remarkable happened. Jonathan's soul was knit to the soul of David. He loved him as himself. Jonathan gave David his own robe, his armor, his sword, his bow, his belt — the symbols of his rank and inheritance. It was an act of extraordinary generosity from the man who had the most to lose. If David became king, Jonathan would not. And Jonathan knew it. He didn't care. Their covenant friendship became one of the most celebrated in all of history — a portrait of loyalty, sacrifice, and love that transcended competition, jealousy, and even death.",
-        verse: "Jonathan became one in spirit with David, and he loved him as himself.",
-        reference: "1 Samuel 18:1",
-        questions: [
-          { q: "What did Jonathan give David as a sign of their covenant?", a: "His robe, armor, sword, bow and belt", choices: ["His robe, armor, sword, bow and belt","A ring and a promise","Land in Bethlehem","Gold and silver"] },
-          { q: "Who was Jonathan's father?", a: "King Saul", choices: ["King Saul","Jesse","Abner","Samuel"] },
-          { q: "How did Jonathan feel about David potentially becoming king?", a: "He willingly gave up his claim and stayed loyal", choices: ["He willingly gave up his claim and stayed loyal","He was angry and plotted against David","He fled to another country","He asked his father to stop David"] }
-        ]
-      },
-      {
-        num: 4,
-        title: "Fugitive in the Wilderness",
-        scene: "david_cave",
-        narrative: "Saul's admiration for David curdled into jealousy. The women sang in the streets: Saul has slain his thousands, and David his tens of thousands. That single song lodged in Saul's heart like a splinter. He threw a spear at David twice. He sent assassins to David's house. He hunted him through the wilderness like an animal. For years David lived as a fugitive — hiding in caves, leading a ragged band of outcasts, constantly moving. Twice God delivered Saul into David's hands. Twice David refused to kill him. You are the Lord's anointed, he said. It is not for me to lift my hand against you. In the wilderness, God was doing something the palace could not — forging David's character in fire. The Psalms of this period ring with both anguish and trust.",
-        verse: "I will not lay my hand on my lord, because he is the Lord's anointed.",
-        reference: "1 Samuel 24:10",
-        questions: [
-          { q: "What made Saul jealous of David?", a: "The people sang that David killed tens of thousands", choices: ["The people sang that David killed tens of thousands","David was more handsome","David married his daughter","Samuel anointed David publicly"] },
-          { q: "How many times did David have Saul in his power but refused to kill him?", a: "Twice", choices: ["Once","Twice","Three times","Never"] },
-          { q: "What did David write many of during his time as a fugitive?", a: "Psalms", choices: ["Psalms","Laws","Prophecies","Letters"] }
-        ]
-      },
-      {
-        num: 5,
-        title: "King at Last",
-        scene: "david_king",
-        narrative: "Saul died in battle against the Philistines on Mount Gilboa. Jonathan died with him. David wept — not with relief but with genuine grief. He composed a lament for Saul and Jonathan that is among the most beautiful elegies in all of literature: How the mighty have fallen. After years in the wilderness, David was anointed king — first over Judah in Hebron, then, seven years later, over all Israel. He was thirty years old. His first great act as king was to capture Jerusalem, a hilltop fortress the Jebusites had held for centuries. He made it his capital. Then he brought the Ark of the Covenant to Jerusalem with such overwhelming joy that he danced before the Lord with all his might. The shepherd boy had become the shepherd king.",
-        verse: "David was thirty years old when he became king, and he reigned forty years.",
-        reference: "2 Samuel 5:4",
-        questions: [
-          { q: "How old was David when he became king?", a: "30", choices: ["20","25","30","40"] },
-          { q: "What did David do when he brought the Ark of the Covenant to Jerusalem?", a: "Danced before the Lord with all his might", choices: ["Danced before the Lord with all his might","Offered a great sacrifice","Built a temple","Sang a new psalm"] },
-          { q: "Over which tribe did David first become king?", a: "Judah", choices: ["Judah","Benjamin","Levi","All Israel at once"] }
-        ]
-      },
-      {
-        num: 6,
-        title: "The Covenant Promise",
-        scene: "david_covenant",
-        narrative: "David sat in his cedar palace and felt uneasy. He had a beautiful house while the Ark of God sat in a tent. He told the prophet Nathan: I want to build God a house. That night God gave Nathan a message for David — one of the most remarkable promises in all of Scripture. David, you will not build Me a house. But I will build YOU a house. Not a building — a dynasty. Your son will build the temple. And from your line will come a king whose throne will be established forever. It was the Davidic Covenant — the promise that the ultimate King, the Messiah, would come from David's bloodline. David was overwhelmed. He went and sat before the Lord and prayed: Who am I, Sovereign Lord, and what is my family, that you have brought me this far?",
-        verse: "Your house and your kingdom will endure forever before me; your throne will be established forever.",
-        reference: "2 Samuel 7:16",
-        questions: [
-          { q: "What did David want to build for God?", a: "A temple to house the Ark", choices: ["A temple to house the Ark","A palace for the priests","An altar on Mount Zion","A city named after God"] },
-          { q: "What did God promise to build for David instead?", a: "A dynasty — a lasting royal house", choices: ["A dynasty — a lasting royal house","A great army","A magnificent palace","A new city"] },
-          { q: "Which of David's descendants would fulfill the eternal throne promise?", a: "Jesus the Messiah", choices: ["Jesus the Messiah","Solomon","Zerubbabel","Hezekiah"] }
-        ]
-      },
-      {
-        num: 7,
-        title: "The Great Sin",
-        scene: "david_sin",
-        narrative: "It was the season when kings go off to war. David stayed home. One evening he walked on his rooftop and saw a beautiful woman bathing. He sent for her. Her name was Bathsheba. She was the wife of Uriah the Hittite — one of David's most loyal soldiers, currently fighting David's battles. David committed adultery with her. When she became pregnant, David tried to cover it up by bringing Uriah home from battle. Uriah refused to sleep with his wife while his comrades were in the field. So David arranged for Uriah to be placed where the fighting was fiercest and then abandoned. Uriah was killed. David then took Bathsheba as his wife. The thing David had done displeased the Lord. The man after God's own heart had committed adultery and murder.",
-        verse: "But the thing David had done displeased the Lord.",
-        reference: "2 Samuel 11:27",
-        questions: [
-          { q: "Who was Bathsheba's husband?", a: "Uriah the Hittite", choices: ["Uriah the Hittite","Joab","Abner","Ittai"] },
-          { q: "How did David arrange for Uriah's death?", a: "Placed him where the fighting was fiercest then withdrew support", choices: ["Placed him where the fighting was fiercest then withdrew support","Sent him on a dangerous mission alone","Had him poisoned","Accused him of treason"] },
-          { q: "What was God's response to what David did?", a: "It displeased the Lord", choices: ["It displeased the Lord","God struck David immediately","God forgave him without consequence","God sent an angel to warn him"] }
-        ]
-      },
-      {
-        num: 8,
-        title: "Broken and Restored",
-        scene: "david_repentance",
-        narrative: "God sent the prophet Nathan to David. Nathan told a story about a rich man who had many flocks, and a poor man who had one beloved little lamb. The rich man took the poor man's lamb to feed a guest. David burned with anger: That man deserves to die! Nathan looked at the king: You are the man. David's sin was exposed. The child Bathsheba carried would die. The sword would not depart from David's house. The consequences were real and lasting. But what happened next defined David forever. He did not make excuses. He did not deflect blame. He said simply: I have sinned against the Lord. Psalm 51 — written in this moment — is the most raw, honest, beautiful prayer of repentance in all of Scripture. Have mercy on me, O God. Create in me a clean heart.",
-        verse: "Create in me a pure heart, O God, and renew a steadfast spirit within me.",
-        reference: "Psalm 51:10",
-        questions: [
-          { q: "How did God confront David about his sin?", a: "Through the prophet Nathan and a parable", choices: ["Through the prophet Nathan and a parable","Through a dream","Through an angel","Through a plague"] },
-          { q: "What was David's response when Nathan said You are the man?", a: "I have sinned against the Lord", choices: ["I have sinned against the Lord","He denied it","He punished Nathan","He offered a sacrifice to cover it"] },
-          { q: "Which Psalm did David write as a prayer of repentance?", a: "Psalm 51", choices: ["Psalm 51","Psalm 23","Psalm 22","Psalm 91"] }
-        ]
-      },
-      {
-        num: 9,
-        title: "The Shepherd Psalm",
-        scene: "david_psalm23",
-        narrative: "Among all the words David ever wrote, none have brought more comfort across more centuries than Psalm 23. He wrote it from the perspective of a sheep — which he understood better than almost anyone. A sheep is utterly dependent. It cannot find its own water. It panics easily. It needs constant guidance. The Lord is my shepherd — I shall not want. David knew both the green pastures and the darkest valleys. He had hidden in caves and walked through the shadow of death. He had enemies who wanted him dead. He had sat at tables God set for him in impossible places. He wrote with the intimacy of someone who had walked with God through everything. Even when I walk through the darkest valley, I will fear no evil, for you are with me.",
-        verse: "Even though I walk through the darkest valley, I will fear no evil, for you are with me; your rod and your staff, they comfort me.",
-        reference: "Psalm 23:4",
-        questions: [
-          { q: "What does David compare himself to in Psalm 23?", a: "A sheep", choices: ["A sheep","A warrior","A pilgrim","A servant"] },
-          { q: "What does David say he shall not want because the Lord is his shepherd?", a: "Nothing — he shall not be in need", choices: ["Nothing — he shall not be in need","Enemies","Wealth","Wisdom"] },
-          { q: "Where does David say God prepares a table for him?", a: "In the presence of his enemies", choices: ["In the presence of his enemies","In the house of the Lord","In the wilderness","In Jerusalem"] }
-        ]
-      },
-      {
-        num: 10,
-        title: "A Man After God's Heart",
-        scene: "david_legacy",
-        narrative: "David reigned for forty years. He was far from perfect — his failures are recorded without softening. But the thing that set him apart from Saul, the thing that made God call him a man after my own heart, was not his successes. It was what he did with his failures. He returned. Every time he fell, he came back to God. He never stopped writing. He never stopped worshipping. Even in his darkest seasons, he turned his face toward God. He prepared the materials for a temple he would never build. He organized the priests, the musicians, the worship. His last words were a psalm. He died at a great age, full of days and honor. And the promise God made to him — that one of his descendants would rule forever — was fulfilled a thousand years later when a baby was born in Bethlehem, the city of David.",
-        verse: "I have found David son of Jesse, a man after my own heart; he will do everything I want him to do.",
-        reference: "Acts 13:22",
-        questions: [
-          { q: "What phrase did God use to describe David?", a: "A man after my own heart", choices: ["A man after my own heart","A perfect servant","A mighty warrior","A faithful priest"] },
-          { q: "How many years did David reign as king?", a: "40 years", choices: ["20 years","30 years","40 years","50 years"] },
-          { q: "How was God's promise of an eternal throne from David's line ultimately fulfilled?", a: "Through Jesus born in Bethlehem", choices: ["Through Jesus born in Bethlehem","Through Solomon's dynasty","Through the return from exile","Through the Maccabees"] }
-        ]
-      }
-    ]
-  },
-  {
-    id: 5,
-    title: "The Gospel Story",
-    subtitle: "From Creation to the Cross",
-    testament: "NT",
-    is_free: true,
-    color: "#1a3d6e",
-    accent: "#4a9eda",
-    icon: "✝️",
-    description: "Follow the greatest story ever told — from the first words of creation to the empty tomb that changed everything.",
-    chapters: [
-      {
-        num: 1,
-        title: "In The Beginning",
-        scene: "creation",
-        narrative: "Before time itself existed, there was only God. Then with a word — just a word — light exploded into the void and creation began. Over six breathtaking days, God shaped the heavens and the seas, the mountains and the valleys, the creatures of the deep and the birds of the air. On the sixth day He stooped to the earth, formed man from the dust, and breathed His own life into him. He stepped back and called it very good. The universe was born from the overflow of His love.",
-        verse: "In the beginning God created the heavens and the earth.",
-        reference: "Genesis 1:1",
-        questions: [
-          { q: "What did God create on the very first day?", a: "Light", choices: ["Light","Sky","Land","Animals"] },
-          { q: "What did God use to form the first man?", a: "Dust from the ground", choices: ["Dust from the ground","Clay from the river","Stone from the mountain","Water from the sea"] },
-          { q: "What did God say about everything He had made?", a: "It was very good", choices: ["It was very good","It was finished","It was perfect","It was beautiful"] }
-        ]
-      },
-      {
-        num: 2,
-        title: "The Fall",
-        scene: "garden",
-        narrative: "The garden was paradise — every tree beautiful, every fruit good, and God Himself walking among them in the cool of the day. But into this perfection slithered a serpent with a question designed to plant doubt: Did God really say? Eve reached for the fruit. Adam followed. In a single moment, something irreversible happened — shame entered the world, and the gap between God and His children began. But even in judgment, God made them coverings. Even then, He promised that one day a seed of the woman would crush the serpent's head.",
-        verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
-        reference: "John 3:16",
-        questions: [
-          { q: "What did the serpent question in the garden?", a: "What God had said", choices: ["What God had said","God's existence","God's power","God's love"] },
-          { q: "What entered the world after Adam and Eve sinned?", a: "Shame and death", choices: ["Shame and death","Sickness","War","Darkness"] },
-          { q: "What did God promise even in the moment of judgment?", a: "That a seed would crush the serpent", choices: ["That a seed would crush the serpent","That He would destroy the serpent","That they could return to Eden","That He would forgive them immediately"] }
-        ]
-      },
-      {
-        num: 3,
-        title: "A Promise to Abraham",
-        scene: "stars",
-        narrative: "Thousands of years after Eden, God chose one man from among all the nations. His name was Abram — later Abraham — and God made him an extraordinary promise: through his descendants, all the nations of the earth would be blessed. Abraham was old. His wife Sarah was barren. The odds were impossible. But God specializes in the impossible. He took Abraham outside and said count the stars if you can — so shall your offspring be. Abraham believed God, and it was credited to him as righteousness. The plan of redemption was unfolding.",
-        verse: "Abraham believed God, and it was credited to him as righteousness.",
-        reference: "Romans 4:3",
-        questions: [
-          { q: "What did God use to illustrate how many descendants Abraham would have?", a: "The stars", choices: ["The stars","The sand","The dust","The leaves"] },
-          { q: "What was unusual about Abraham and Sarah when God promised them a son?", a: "They were very old and Sarah was barren", choices: ["They were very old and Sarah was barren","They were too young","They already had many children","They lived in the wrong land"] },
-          { q: "What was credited to Abraham as righteousness?", a: "His faith", choices: ["His faith","His obedience","His sacrifice","His prayer"] }
-        ]
-      },
-      {
-        num: 4,
-        title: "The Passover",
-        scene: "passover",
-        narrative: "Four hundred years of slavery. Four hundred years of groaning under the whip of Egypt. Then God raised up Moses and sent plague after plague until Pharaoh's pride finally broke. The final plague was the most terrible — the death of every firstborn. But God made a way of escape. Each Israelite family was to slaughter a lamb without blemish, paint its blood on their doorposts, and eat in haste, ready to leave. When the angel of death passed through Egypt that night, every door marked with blood was passed over. The lamb died so the firstborn could live. It was a picture of something greater still to come.",
-        verse: "For Christ, our Passover lamb, has been sacrificed.",
-        reference: "1 Corinthians 5:7",
-        questions: [
-          { q: "How long had the Israelites been enslaved in Egypt?", a: "400 years", choices: ["400 years","200 years","100 years","40 years"] },
-          { q: "What did the Israelites paint on their doorposts?", a: "The blood of a lamb", choices: ["The blood of a lamb","Oil","Water","Ashes"] },
-          { q: "What happened to every home marked with the blood?", a: "The angel of death passed over it", choices: ["The angel of death passed over it","It was protected by fire","It glowed in the night","An angel stood guard"] }
-        ]
-      },
-      {
-        num: 5,
-        title: "The Prophet's Promise",
-        scene: "prophecy",
-        narrative: "Seven hundred years before Jesus was born, a prophet named Isaiah wrote words so precise they sound like eyewitness testimony. He wrote of a servant who would be despised and rejected, a man of sorrows, acquainted with grief. He would be pierced for our transgressions, crushed for our iniquities — and by his wounds we would be healed. Isaiah couldn't have known the details. He was writing about a Messiah who hadn't yet come, describing a crucifixion that hadn't yet been invented. But God knew. Every word was a thread being woven into the tapestry of the greatest story ever told.",
-        verse: "But he was pierced for our transgressions, he was crushed for our iniquities; the punishment that brought us peace was on him, and by his wounds we are healed.",
-        reference: "Isaiah 53:5",
-        questions: [
-          { q: "How many years before Jesus was Isaiah 53 written?", a: "700 years", choices: ["700 years","300 years","100 years","1000 years"] },
-          { q: "Isaiah 53 describes the Messiah as a man of what?", a: "Sorrows", choices: ["Sorrows","Strength","Wisdom","Power"] },
-          { q: "According to Isaiah 53, what brings us healing?", a: "His wounds", choices: ["His wounds","His words","His miracles","His prayers"] }
-        ]
-      },
-      {
-        num: 6,
-        title: "A Child Is Born",
-        scene: "nativity",
-        narrative: "The Creator of the universe chose to enter His creation as a baby. Not in a palace but in a stable. Not announced to kings but to shepherds keeping watch by night. An angel split the darkness with glory and said fear not — for unto you is born this day a Savior. The wise men followed a star across the desert, carrying gold, frankincense, and myrrh — gifts fit for a king, a priest, and a burial. Heaven had come to earth. The Word had become flesh and moved into the neighborhood. Immanuel — God with us.",
-        verse: "The Word became flesh and made his dwelling among us.",
-        reference: "John 1:14",
-        questions: [
-          { q: "To whom did the angel first announce the birth of Jesus?", a: "Shepherds", choices: ["Shepherds","Wise men","Kings","Priests"] },
-          { q: "What does Immanuel mean?", a: "God with us", choices: ["God with us","God saves","God is good","God is king"] },
-          { q: "What gifts did the wise men bring?", a: "Gold, frankincense, and myrrh", choices: ["Gold, frankincense, and myrrh","Gold, silver, and spices","Bread, wine, and oil","Jewels, silks, and perfumes"] }
-        ]
-      },
-      {
-        num: 7,
-        title: "The Servant King",
-        scene: "ministry",
-        narrative: "For three years, Jesus turned the world upside down. He touched lepers that no one else would touch. He stopped and saw the invisible — the widow, the outcast, the child. He spoke with authority that left crowds breathless, teaching that the kingdom of God belonged to the poor in spirit, the meek, the merciful. He healed the blind, calmed storms with a word, fed thousands with a boy's lunch. But more than the miracles, it was the love. He washed his disciples' feet. He ate with sinners. He said the greatest among you must be the servant of all.",
-        verse: "For even the Son of Man did not come to be served, but to serve, and to give his life as a ransom for many.",
-        reference: "Mark 10:45",
-        questions: [
-          { q: "How long did Jesus' public ministry last?", a: "3 years", choices: ["3 years","1 year","7 years","40 days"] },
-          { q: "What did Jesus say about the greatest person among his followers?", a: "They must be a servant", choices: ["They must be a servant","They must be the wisest","They must pray the most","They must fast often"] },
-          { q: "What did Jesus do at the Last Supper that shocked the disciples?", a: "Washed their feet", choices: ["Washed their feet","Wept for them","Sang a hymn","Prayed all night"] }
-        ]
-      },
-      {
-        num: 8,
-        title: "The Cross",
-        scene: "cross",
-        narrative: "They came for him in the night. By morning, after a mockery of a trial, they were nailing him to a cross on a hill called Golgotha — the Place of the Skull. The crowds mocked. The soldiers gambled for his clothes. Even one of the thieves crucified beside him hurled insults. But Jesus prayed: Father, forgive them, for they do not know what they are doing. At noon, darkness fell across the land for three hours. Then Jesus cried out in a loud voice and breathed his last. The curtain of the temple tore in two from top to bottom. The way into God's presence — once blocked — was now open to all.",
-        verse: "God demonstrates his own love for us in this: While we were still sinners, Christ died for us.",
-        reference: "Romans 5:8",
-        questions: [
-          { q: "What was the name of the hill where Jesus was crucified?", a: "Golgotha", choices: ["Golgotha","Gethsemane","Zion","Moriah"] },
-          { q: "What happened to the temple curtain when Jesus died?", a: "It tore in two from top to bottom", choices: ["It tore in two from top to bottom","It caught fire","It turned black","It fell to the ground"] },
-          { q: "What did Jesus pray for those who crucified him?", a: "Father forgive them", choices: ["Father forgive them","Father destroy them","Father judge them","Father help them"] }
-        ]
-      },
-      {
-        num: 9,
-        title: "The Empty Tomb",
-        scene: "resurrection",
-        narrative: "They sealed the tomb with a stone and set a guard. It was over — or so they thought. On the third day, Mary Magdalene came to the tomb while it was still dark. The stone was rolled away. Two angels sat where Jesus had been laid. Mary turned and saw a man she thought was the gardener, and through her tears she asked where they had taken him. Then he said her name — Mary — and in that one word, everything changed. He was alive. Death itself had been defeated. The resurrection wasn't just a miracle. It was the declaration that the grave does not have the final word.",
-        verse: "He is not here; he has risen, just as he said.",
-        reference: "Matthew 28:6",
-        questions: [
-          { q: "Who was the first person to see Jesus after his resurrection?", a: "Mary Magdalene", choices: ["Mary Magdalene","Peter","John","Mary the mother of Jesus"] },
-          { q: "What did Jesus say to Mary that caused her to recognize him?", a: "Her name", choices: ["Her name","Peace be with you","Do not be afraid","I am the resurrection"] },
-          { q: "On what day did Jesus rise from the dead?", a: "The third day", choices: ["The third day","The first day","The seventh day","After 40 days"] }
-        ]
-      },
-      {
-        num: 10,
-        title: "The Great Commission",
-        scene: "commission",
-        narrative: "For forty days after the resurrection, Jesus appeared to his disciples — sometimes to one, sometimes to twelve, once to more than five hundred people at the same time. He opened their minds to understand the Scriptures and showed them how everything had been pointing to him all along. Then he gathered them on a hillside and gave them their mission. Not a suggestion. A commission. Go into all the world and make disciples of all nations. And then — the promise that makes it possible: I am with you always, to the very end of the age. The story wasn't ending. It was just beginning.",
-        verse: "Therefore go and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit.",
-        reference: "Matthew 28:19",
-        questions: [
-          { q: "How many days did Jesus appear to his disciples after the resurrection?", a: "40 days", choices: ["40 days","3 days","7 days","30 days"] },
-          { q: "To how many people did Jesus appear at one time according to Paul?", a: "More than 500", choices: ["More than 500","12","70","120"] },
-          { q: "What promise did Jesus give his disciples at the Great Commission?", a: "I am with you always", choices: ["I am with you always","You will never fail","All nations will hear","The Spirit will speak for you"] }
-        ]
-      }
-    ]
-  }
-];
-let storyV2Session = {
-  pathId: null,
-  chapterNum: 0,
-  questionIndex: 0,
-  answers: [],
-  stars: 0,
-  phase: 'narrative' // narrative, questions, complete
-};
-
-// SVG scenes for story chapters
-function getSceneSVG(scene) {
-  const valid = ['creation','garden','stars','passover','prophecy','nativity','ministry','cross','resurrection','covenant_stars','hagar','three_visitors','sodom','isaac_birth','moriah','rebekah_well','jacob_esau','jacobs_ladder','joseph_sold','creation_light','creation_world','creation_human','cain_abel','noah_flood','noah_rainbow','babel','babel_to_ur','abram_call','rainbow','genealogy','david_shepherd','david_goliath','david_jonathan','david_cave','david_king','david_covenant','david_sin','david_repentance','david_psalm23','david_legacy','burning_bush','moses_birth','pharaoh_court','red_sea','manna','mount_sinai','golden_calf','wilderness','mount_nebo','commission'];
-  if(!valid.includes(scene)) scene = 'creation';
-  return '<img src="/scenes/' + scene + '.svg" width="100%" style="border-radius:10px;display:block;" alt="' + scene + ' illustration">';
+// ── Topic Progress Storage ──
+function getTopicProgress(topicId) {
+  try { return JSON.parse(localStorage.getItem(`te_${topicId}`) || '{}'); }
+  catch(e) { return {}; }
 }
 
+function saveTopicProgress(topicId, roundIdx, score) {
+  const prog = getTopicProgress(topicId);
+  prog[roundIdx] = score;
+  prog.totalScore = Object.values(prog).filter(v => typeof v === 'number' && !isNaN(v)).reduce((a,b)=>a+b,0);
+  localStorage.setItem(`te_${topicId}`, JSON.stringify(prog));
+}
 
-function renderStoryModeV2() {
+function getTopicTotalScore(topicId) {
+  const prog = getTopicProgress(topicId);
+  return prog.totalScore || 0;
+}
+
+function getTopicRoundsCompleted(topicId, totalRounds) {
+  const prog = getTopicProgress(topicId);
+  let count = 0;
+  for(let i = 0; i < totalRounds; i++) {
+    if(typeof prog[i] === 'number') count++;
+  }
+  return count;
+}
+
+function getTopicStars(topicId, totalRounds) {
+  const prog = getTopicProgress(topicId);
+  const done = getTopicRoundsCompleted(topicId, totalRounds);
+  if(done < totalRounds) return 0;
+  const score = prog.totalScore || 0;
+  if(score >= 3000) return 3;
+  if(score >= 1500) return 2;
+  return 1;
+}
+
+// ── TOPIC DATA ──
+const TOPICS = [
+  {
+    id: 'creation',
+    title: 'Creation',
+    subtitle: 'In the beginning God created',
+    randyIntro: "Seven days. Light out of nothing. Order out of chaos. Life where there was none. This is where everything starts — and it turns out, it tells you everything about who God is. Pay attention.",
+    rounds: [
+      { type: 'scout', label: 'Scripture Scout', desc: 'Find 3 creation verses', pts: 1000 },
+      { type: 'trivia', label: 'Bible Trivia', desc: '5 questions about creation', pts: 1500 },
+      { type: 'fillin', label: 'Fill in the Blank', desc: 'Complete 3 key creation verses', pts: 900 },
+    ],
+    triviaIds: ['creation_q1','creation_q2','creation_q3','creation_q4','creation_q5'],
+    scoutBooks: ['Genesis'],
+    fillVerses: [
+      { ref:'Genesis 1:1', text:'In the beginning God created the _____ and the earth.', answer:'heavens', hint:'The sky above' },
+      { ref:'Genesis 1:27', text:'So God created mankind in his own _____.', answer:'image', hint:'A reflection of who He is' },
+      { ref:'Genesis 2:7', text:'Then the Lord God formed a man from the _____ of the ground.', answer:'dust', hint:'What we return to' },
+    ],
+    trivia: [
+      { q:'How many days did God take to create everything?', a:'6', choices:['5','6','7','8'], diff:'easy', ref:'Genesis 1' },
+      { q:'What did God create on the very first day?', a:'Light', choices:['Light','Sky','Land','Stars'], diff:'easy', ref:'Genesis 1:3' },
+      { q:'On which day of creation did God NOT say it was good?', a:'Day 2', choices:['Day 1','Day 2','Day 4','Day 6'], diff:'hard', ref:'Genesis 1' },
+      { q:'From what did God form Adam?', a:'Dust of the ground', choices:['Dust of the ground','Clay','Water','Stone'], diff:'medium', ref:'Genesis 2:7' },
+      { q:'What did God do on the seventh day?', a:'Rested', choices:['Rested','Created the sea','Made the animals','Blessed Adam'], diff:'easy', ref:'Genesis 2:2' },
+    ],
+  },
+];
+
+// ── Current topic session state ──
+let _teCurrentTopic = null;
+let _teCurrentRound = 0;
+let _teSessionScore = 0;
+
+// ── RENDER FUNCTIONS ──
+
+function renderTopicExplorer() {
   showBackBtn(true);
   const root = document.getElementById('root');
-  root.innerHTML = '<div class="fg-book" id="fgBook">'
+  root.innerHTML = buildBookShell(buildTopicListPage());
+}
+
+function buildBookShell(pageHTML) {
+  return '<div class="fg-book">'
     + '<div class="fg-spine">'
     + '<div class="fg-rivet"></div><div class="fg-rivet"></div><div class="fg-rivet"></div>'
     + '<div class="fg-rivet"></div><div class="fg-rivet"></div><div class="fg-rivet"></div>'
     + '</div>'
-    + '<div class="fg-pages" id="fgPages"></div>'
-    + '</div>';
-  renderFieldGuideCover();
-}
-
-function renderFieldGuideCover() {
-  document.getElementById('fgPages').innerHTML =
-    '<div class="fg-cover" onclick="renderFieldGuidePaths()">'
-    + '<div class="fg-cover-emblem">'
-    + '<svg width="52" height="52" viewBox="0 0 44 44" fill="none">'
-    + '<circle cx="22" cy="22" r="18" stroke="rgba(196,160,96,0.45)" stroke-width="1.5" fill="none"/>'
-    + '<path d="M22 7 L25 18 L22 22 L19 18 Z" fill="rgba(196,160,96,0.75)"/>'
-    + '<path d="M22 37 L25 26 L22 22 L19 26 Z" fill="rgba(196,160,96,0.45)"/>'
-    + '<path d="M37 22 L26 25 L22 22 L26 19 Z" fill="rgba(196,160,96,0.45)"/>'
-    + '<path d="M7 22 L18 25 L22 22 L18 19 Z" fill="rgba(196,160,96,0.45)"/>'
-    + '<circle cx="22" cy="22" r="3" fill="rgba(196,160,96,0.65)"/>'
-    + '</svg>'
-    + '</div>'
-    + '<div class="fg-cover-title">Randy\'s Field Guide<br>to Scripture</div>'
-    + '<div class="fg-cover-sub">An explorer\'s companion through<br>the greatest stories ever told</div>'
-    + '<div class="fg-cover-divider"></div>'
-    + '<div class="fg-cover-cta">Tap to open</div>'
+    + '<div class="fg-pages">' + pageHTML + '</div>'
     + '</div>';
 }
 
-function renderFieldGuidePaths() {
-  const paths = STORY_PATHS_V2;
-
-  const entriesHTML = paths.map((path, i) => {
-    const prog = getStoryV2Progress(path.id);
-    const done = prog.filter(x => x.stars > 0).length;
-    const total = path.chapters.length;
-    const isComplete = done === total && total > 0;
-    const prevDone = i === 0 || getStoryV2Progress(paths[i-1].id).filter(x=>x.stars>0).length === paths[i-1].chapters.length;
-    const isActive = !isComplete && prevDone;
-    const isLocked = !isComplete && !isActive;
-    const avgStars = total > 0 && done > 0 ? Math.round(prog.filter(x=>x.stars>0).reduce((a,b)=>a+(b.stars||0),0)/done) : 0;
-
-    const numClass = isComplete ? 'fg-num-done' : isActive ? 'fg-num-active' : 'fg-num-lock';
-    const numContent = isComplete ? '✓' : isActive ? '→' : (i+1);
-    const opacity = isLocked ? 'opacity:0.45;' : '';
-
+function buildTopicListPage() {
+  const entries = TOPICS.map((t, i) => {
+    const done = getTopicRoundsCompleted(t.id, t.rounds.length);
+    const total = t.rounds.length;
+    const stars = getTopicStars(t.id, total);
+    const isComplete = done === total;
+    const isStarted = done > 0 && !isComplete;
+    const numClass = isComplete ? 'fg-num-done' : isStarted ? 'fg-num-active' : 'fg-num-lock';
+    const numContent = isComplete ? '✓' : isStarted ? '→' : (i+1);
+    const opacity = '';
     let metaHTML = '';
     if(isComplete) {
-      const stars = '★'.repeat(avgStars) + '☆'.repeat(3-avgStars);
-      metaHTML = '<span class="fg-stars">' + stars + '</span>'
-        + '<span class="fg-pct">' + done + '/' + total + ' chapters</span>'
+      const starStr = '★'.repeat(stars)+'☆'.repeat(3-stars);
+      metaHTML = '<span class="fg-stars">' + starStr + '</span>'
+        + '<span class="fg-pct">' + done + '/' + total + ' rounds</span>'
         + '<span class="fg-stamp fg-stamp-done">Complete</span>';
-    } else if(isActive) {
-      metaHTML = '<span class="fg-stars">' + (done > 0 ? '★'.repeat(avgStars)+'☆'.repeat(3-avgStars) : '☆☆☆') + '</span>'
-        + '<span class="fg-pct">' + done + '/' + total + ' chapters</span>'
+    } else if(isStarted) {
+      metaHTML = '<span class="fg-pct">' + done + '/' + total + ' rounds</span>'
         + '<span class="fg-stamp">In progress</span>';
     } else {
-      metaHTML = '<span class="fg-lock-text">🔒 Complete previous path to unlock</span>';
+      metaHTML = '<span class="fg-lock-text">Tap to begin</span>';
     }
-
-    return '<div class="fg-path-entry' + (isLocked ? '' : ' fg-path-tappable') + '" style="' + opacity + '" '
-      + (isLocked ? '' : 'onclick="renderFieldGuideChapters(' + i + ')"') + '>'
+    return '<div class="fg-path-entry fg-path-tappable" onclick="renderTopicDetail(\''+t.id+'\')">'
       + '<div style="display:flex;align-items:flex-start;gap:0">'
       + '<div class="fg-num ' + numClass + '">' + numContent + '</div>'
       + '<div class="fg-path-body">'
-      + '<div class="fg-path-title">' + path.title + '</div>'
-      + '<div class="fg-path-sub">' + path.subtitle + '</div>'
+      + '<div class="fg-path-title">' + t.title + '</div>'
+      + '<div class="fg-path-sub">' + t.subtitle + '</div>'
       + '<div class="fg-path-meta">' + metaHTML + '</div>'
       + '</div></div></div>';
   }).join('');
 
-  document.getElementById('fgPages').innerHTML =
-    '<div class="fg-page">'
-    + '<div class="fg-page-lines"></div>'
-    + '<div class="fg-margin-line"></div>'
+  return '<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>'
     + '<div class="fg-page-inner">'
     + '<div class="fg-guide-header">'
-    + '<div class="fg-guide-label">Randy\'s Field Guide to Scripture</div>'
-    + '<div class="fg-guide-title">Story Paths</div>'
-    + '<div class="fg-guide-sub">Five expeditions through the Word</div>'
+    + '<div class="fg-guide-label">Randy\'s Topic Explorer</div>'
+    + '<div class="fg-guide-title">Choose a topic</div>'
+    + '<div class="fg-guide-sub">Study any topic — Randy guides you through three rounds</div>'
     + '</div>'
-    + entriesHTML
-    + '<div class="fg-paw-sig">'
-    + '<svg width="28" height="28" viewBox="0 0 44 44" fill="none">'
-    + '<circle cx="22" cy="28" r="9" fill="#8b4513"/>'
-    + '<circle cx="14" cy="20" r="5" fill="#8b4513"/>'
-    + '<circle cx="22" cy="17" r="5" fill="#8b4513"/>'
-    + '<circle cx="30" cy="20" r="5" fill="#8b4513"/>'
-    + '<circle cx="11" cy="30" r="4" fill="#8b4513"/>'
-    + '<circle cx="33" cy="30" r="4" fill="#8b4513"/>'
-    + '</svg></div>'
+    + entries
+    + '<div class="fg-paw-sig"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="28" r="9" fill="#8b4513"/><circle cx="14" cy="20" r="5" fill="#8b4513"/><circle cx="22" cy="17" r="5" fill="#8b4513"/><circle cx="30" cy="20" r="5" fill="#8b4513"/><circle cx="11" cy="30" r="4" fill="#8b4513"/><circle cx="33" cy="30" r="4" fill="#8b4513"/></svg></div>'
     + '<div class="fg-page-num">p. 1</div>'
     + '</div></div>';
 }
 
-function renderFieldGuideChapters(pathIdx) {
-  const path = STORY_PATHS_V2[pathIdx];
-  const prog = getStoryV2Progress(path.id);
+function renderTopicDetail(topicId) {
+  const t = TOPICS.find(x => x.id === topicId);
+  if(!t) return;
+  _teCurrentTopic = t;
+  const done = getTopicRoundsCompleted(t.id, t.rounds.length);
+  const total = t.rounds.length;
+  const stars = getTopicStars(t.id, total);
+  const totalScore = getTopicTotalScore(t.id);
+  const prog = getTopicProgress(t.id);
 
-  const chaptersHTML = path.chapters.map((ch, i) => {
-    const p = prog.find(x => x.chapter === ch.num);
-    const isDone = p && p.stars > 0;
-    const isNext = !isDone && path.chapters.slice(0,i).every(c => {
-      const pp = prog.find(pp=>pp.chapter===c.num);
-      return pp && pp.stars > 0;
-    });
+  const roundsHTML = t.rounds.map((r, i) => {
+    const roundScore = prog[i];
+    const isDone = typeof roundScore === 'number';
+    const isNext = !isDone && i === done;
     const numClass = isDone ? 'fg-ch-done' : isNext ? 'fg-ch-next' : 'fg-ch-lock';
-    const numContent = isDone ? '✓' : ch.num;
-    const stars = p && p.stars > 0 ? '★'.repeat(p.stars)+'☆'.repeat(3-p.stars) : '';
-    const clickable = isDone || isNext;
-    return '<div class="fg-ch-row' + (clickable ? ' fg-path-tappable' : '') + '" '
-      + (clickable ? 'onclick="closeStoryPanel();startStoryChapterV2(' + path.id + ',' + ch.num + ')"' : '') + '>'
+    const numContent = isDone ? '✓' : (i+1);
+    const pts = isDone ? '+' + roundScore : (isNext ? '' : '');
+    return '<div class="fg-ch-row">'
       + '<div class="fg-ch-n ' + numClass + '">' + numContent + '</div>'
-      + '<div class="fg-ch-title">' + ch.title + '</div>'
-      + '<div class="fg-ch-stars">' + stars + '</div>'
+      + '<div class="fg-ch-title">' + r.label + ' — ' + r.desc + '</div>'
+      + '<div class="fg-ch-stars" style="color:#c8941a;font-size:11px;">' + pts + '</div>'
       + '</div>';
   }).join('');
 
-  const done = prog.filter(x=>x.stars>0).length;
-  const total = path.chapters.length;
-  const nextCh = path.chapters.find((ch,i) => {
-    const p = prog.find(p=>p.chapter===ch.num);
-    return !(p && p.stars > 0);
-  });
+  const nextRound = t.rounds[done];
+  const btnText = done === 0 ? 'Begin Round 1 →'
+    : done >= total ? 'Replay from Start →'
+    : 'Continue Round ' + (done+1) + ' →';
 
-  document.getElementById('fgPages').innerHTML =
-    '<div class="fg-page">'
-    + '<div class="fg-page-lines"></div>'
-    + '<div class="fg-margin-line"></div>'
+  const btnAction = done >= total
+    ? 'restartTopic('+JSON.stringify(t.id)+')'
+    : 'startTopicRound('+JSON.stringify(t.id)+','+done+')';
+
+  const starDisplay = done >= total ? '★'.repeat(stars)+'☆'.repeat(3-stars) : '—';
+
+  const page = '<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>'
     + '<div class="fg-page-inner">'
-    + '<div class="fg-back-btn" onclick="renderFieldGuidePaths()">← back to paths</div>'
+    + '<div class="fg-back-btn" onclick="renderTopicExplorer()">← back to topics</div>'
     + '<div class="fg-guide-header">'
-    + '<div class="fg-guide-title" style="font-size:0.95rem">' + path.title + '</div>'
-    + '<div class="fg-guide-sub">' + path.subtitle + ' · ' + done + '/' + total + ' chapters</div>'
+    + '<div class="fg-guide-title" style="font-size:0.95rem">' + t.title + '</div>'
+    + '<div class="fg-guide-sub">' + t.subtitle + '</div>'
     + '</div>'
-    + chaptersHTML
-    + '<button class="fg-begin-btn" onclick="' + (nextCh ? 'startStoryChapterV2(' + path.id + ',' + nextCh.num + ')' : 'renderFieldGuidePaths()') + '">'
-    + (nextCh ? 'Begin Chapter ' + nextCh.num + ' →' : '★ Path Complete — Back to Guide') + '</button>'
-    + '<div class="fg-page-num">p. ' + (pathIdx+2) + '</div>'
+    + '<div style="background:rgba(139,105,20,0.08);border-left:3px solid #c8941a;border-radius:0 6px 6px 0;padding:10px 12px;margin-bottom:14px;font-family:Georgia,serif;font-size:0.8rem;color:#3a2008;line-height:1.7;font-style:italic;">'
+    + '"' + t.randyIntro + '"'
+    + '</div>'
+    + roundsHTML
+    + '<div class="journal-stats" style="margin:12px 0">'
+    + '<div class="journal-stat"><div class="journal-stat-val">' + totalScore + '</div><div class="journal-stat-label">Score</div></div>'
+    + '<div class="journal-stat"><div class="journal-stat-val">' + starDisplay + '</div><div class="journal-stat-label">Rating</div></div>'
+    + '<div class="journal-stat"><div class="journal-stat-val">' + done + '/' + total + '</div><div class="journal-stat-label">Rounds</div></div>'
+    + '</div>'
+    + '<button class="fg-begin-btn" onclick="' + btnAction + '">' + btnText + '</button>'
+    + '<div class="fg-page-num">p. 2</div>'
     + '</div></div>';
+
+  document.getElementById('root').innerHTML = buildBookShell(page);
 }
 
+function restartTopic(topicId) {
+  localStorage.removeItem('te_' + topicId);
+  startTopicRound(topicId, 0);
+}
 
-function getStoryV2Progress(pathId) {
+function startTopicRound(topicId, roundIdx) {
+  const t = TOPICS.find(x => x.id === topicId);
+  if(!t) return;
+  _teCurrentTopic = t;
+  _teCurrentRound = roundIdx;
+  _teSessionScore = 0;
+
+  const round = t.rounds[roundIdx];
+  if(round.type === 'trivia') renderTopicTrivia(t, roundIdx).catch(e => { console.error(e); finishTopicRound(t.id, roundIdx, 0); });
+  else if(round.type === 'fillin') renderTopicFillin(t, roundIdx);
+  else if(round.type === 'scout') renderTopicScout(t, roundIdx);
+}
+
+function finishTopicRound(topicId, roundIdx, score) {
+  saveTopicProgress(topicId, roundIdx, score);
+  const t = TOPICS.find(x => x.id === topicId);
+  if(!t) return;
+  const nextRound = roundIdx + 1;
+
+  const root = document.getElementById('root');
+  const prog = getTopicProgress(topicId);
+  const done = getTopicRoundsCompleted(topicId, t.rounds.length);
+  const isComplete = done >= t.rounds.length;
+  const stars = getTopicStars(topicId, t.rounds.length);
+  const totalScore = getTopicTotalScore(topicId);
+
+  // Randy closing line
+  const closingLines = [
+    "Not bad. Not bad at all. Randy has seen worse.",
+    "One round down. Keep going.",
+    "That's what studying looks like. Hold that feeling.",
+    "Good. Now do it again with the next one.",
+    "Randy approves. Provisionally.",
+  ];
+  const closing = isComplete
+    ? '"' + t.title + ' — done. You know this topic now. Actually know it. That matters." — Randy'
+    : '"' + closingLines[roundIdx % closingLines.length] + '" — Randy';
+
+  const btnText = isComplete ? 'Choose another topic →' : 'Continue Round ' + (nextRound+1) + ' →';
+  const btnAction = isComplete ? 'renderTopicExplorer()' : 'startTopicRound('+JSON.stringify(topicId)+','+nextRound+')';
+
+  const page = buildBookShell(
+    '<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>'
+    + '<div class="fg-page-inner">'
+    + '<div class="fg-back-btn" onclick="renderTopicDetail(\''+topicId+'\')">← back to topic</div>'
+    + '<div class="fg-guide-header">'
+    + '<div class="fg-guide-title" style="font-size:0.95rem">' + t.title + '</div>'
+    + '<div class="fg-guide-sub">' + (isComplete ? 'All rounds complete!' : 'Round ' + (roundIdx+1) + ' complete') + '</div>'
+    + '</div>'
+    + '<div style="background:rgba(139,105,20,0.08);border-left:3px solid #c8941a;border-radius:0 6px 6px 0;padding:10px 12px;margin-bottom:14px;font-family:Georgia,serif;font-size:0.8rem;color:#3a2008;line-height:1.7;font-style:italic;">'
+    + closing
+    + '</div>'
+    + '<div class="journal-stats" style="margin:12px 0">'
+    + '<div class="journal-stat"><div class="journal-stat-val">+' + score + '</div><div class="journal-stat-label">This round</div></div>'
+    + '<div class="journal-stat"><div class="journal-stat-val">' + totalScore + '</div><div class="journal-stat-label">Total</div></div>'
+    + '<div class="journal-stat"><div class="journal-stat-val">' + done + '/' + t.rounds.length + '</div><div class="journal-stat-label">Rounds</div></div>'
+    + '</div>'
+    + (isComplete ? '<div style="text-align:center;font-size:1.4rem;margin:8px 0;">' + '★'.repeat(stars) + '☆'.repeat(3-stars) + '</div>' : '')
+    + '<button class="fg-begin-btn" onclick="' + btnAction + '">' + btnText + '</button>'
+    + '<div class="fg-page-num">p. ' + (roundIdx+3) + '</div>'
+    + '</div></div>'
+  );
+  root.innerHTML = page;
+
+  // Trigger streak
+  updateStreak();
+}
+
+// ── TRIVIA ROUND ──
+async function renderTopicTrivia(topic, roundIdx) {
+  const root = document.getElementById('root');
+  root.innerHTML = '<div style="text-align:center;padding:40px 16px"><div class="spinner"></div><div style="margin-top:12px;color:var(--text-muted);font-size:0.85rem">Loading questions...</div></div>';
+
+  // Try Supabase first, fall back to local
+  let questions = [];
   try {
-    return JSON.parse(localStorage.getItem(`sv2_${pathId}`) || '[]');
-  } catch(e) { return []; }
-}
-
-function saveStoryV2Progress(pathId, chapterNum, stars) {
-  const progress = getStoryV2Progress(pathId);
-  const idx = progress.findIndex(p => p.chapter === chapterNum);
-  if(idx >= 0) {
-    progress[idx].stars = Math.max(progress[idx].stars, stars);
-  } else {
-    progress.push({ chapter: chapterNum, stars });
+    const rows = await sbFetch(`bible_trivia_questions?topic=eq.${encodeURIComponent(topic.id)}&select=*&limit=20`);
+    if(rows && rows.length >= 3) {
+      questions = shuffle(rows).slice(0, 5).map(r => ({
+        q: r.question,
+        a: r.answer,
+        choices: typeof r.choices === 'string' ? JSON.parse(r.choices) : r.choices,
+        diff: r.difficulty,
+        ref: r.reference,
+      }));
+    }
+  } catch(e) {
+    console.warn('Supabase trivia fetch failed, using local:', e.message);
   }
-  localStorage.setItem(`sv2_${pathId}`, JSON.stringify(progress));
 
-  // Also save to Supabase if logged in
-  if(currentUser && authToken) {
-    fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ user_id: currentUser.id, path_id: pathId, chapter_num: chapterNum, stars, completed: false })
-    }).catch(()=>{});
+  // Fall back to local topic trivia
+  if(questions.length < 3 && topic.trivia && topic.trivia.length > 0) {
+    questions = shuffle([...topic.trivia]).slice(0, 5);
   }
-}
 
-function renderStoryPathV2(pathId) {
-  stopSpeech();
-  showBackBtn(true);
-  const path = STORY_PATHS_V2.find(p => p.id === pathId);
-  if(!path) return;
-  const progress = getStoryV2Progress(pathId);
-  const root = document.getElementById('root');
+  // Last resort — pull from DAILY_TRIVIA_BANK by bucket
+  if(questions.length < 3) {
+    const bucket = topic.bucket || 'general';
+    const pool = DAILY_TRIVIA_BANK.filter(q => q.bucket === bucket || bucket === 'general');
+    questions = shuffle(pool).slice(0, 5).map(q => ({
+      q: q.q, a: q.a, choices: q.choices, diff: q.diff, ref: q.ref
+    }));
+  }
 
-  root.innerHTML = `
-    <div style="background:linear-gradient(135deg,${path.color},${path.color}cc);border-radius:18px;padding:20px;margin-bottom:14px;text-align:center;">
-      <div style="font-size:3rem;margin-bottom:8px;">${path.icon}</div>
-      <div style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;color:white;">${path.title}</div>
-      <div style="font-size:0.8rem;color:rgba(255,255,255,0.7);margin-top:4px;">${path.description}</div>
-    </div>
-
-    ${path.chapters.map((ch, idx) => {
-      const chProgress = progress.find(p => p.chapter === ch.num);
-      const stars = chProgress ? chProgress.stars : 0;
-      const isLocked = idx > 0 && !progress.find(p => p.chapter === idx);
-      const starDisplay = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
-
-      return `
-      <div onclick="${isLocked ? '' : `startStoryChapterV2(${pathId}, ${ch.num})`}"
-        style="background:var(--surface);border:1.5px solid ${stars > 0 ? path.accent : 'var(--border)'};border-radius:14px;padding:14px;margin-bottom:8px;cursor:${isLocked ? 'default' : 'pointer'};opacity:${isLocked ? '0.4' : '1'};display:flex;align-items:center;gap:12px;">
-        <div style="width:36px;height:36px;border-radius:50%;background:${stars > 0 ? path.accent : 'var(--surface-2)'};display:flex;align-items:center;justify-content:center;font-weight:700;color:${stars > 0 ? 'white' : 'var(--text-muted)'};flex-shrink:0;">${ch.num}</div>
-        <div style="flex:1;">
-          <div style="font-size:0.9rem;font-weight:600;color:var(--text);">${ch.title}</div>
-          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${isLocked ? '🔒 Complete previous chapter' : stars > 0 ? starDisplay : '3 questions · tap to begin'}</div>
-        </div>
-        ${stars > 0 ? `<div style="font-size:1.1rem;">${starDisplay}</div>` : ''}
-      </div>`
-    }).join('')}`;
-}
-
-function startStoryChapterV2(pathId, chapterNum) {
-  const path = STORY_PATHS_V2.find(p => p.id === pathId);
-  const chapter = path.chapters.find(c => c.num === chapterNum);
-  if(!path || !chapter) return;
-
-  storyV2Session = { pathId, chapterNum, questionIndex: 0, answers: [], stars: 0, phase: 'narrative', path, chapter };
-  renderStoryNarrative();
-}
-
-function renderStoryNarrative() {
-  const { path, chapter } = storyV2Session;
-  showBackBtn(true);
-  const root = document.getElementById('root');
-
-  root.innerHTML = `
-    <!-- Scene illustration -->
-    <div style="border-radius:16px;overflow:hidden;margin-bottom:14px;border:1.5px solid ${path.accent};">
-      ${getSceneSVG(chapter.scene)}
-    </div>
-
-    <!-- Chapter header -->
-    <div style="margin-bottom:12px;">
-      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:${path.accent};font-weight:700;margin-bottom:4px;">${path.title} · Chapter ${chapter.num}</div>
-      <div style="font-family:Georgia,serif;font-size:1.2rem;font-weight:700;color:var(--text);">${chapter.title}</div>
-    </div>
-
-    <!-- Narrative -->
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;">
-      <div style="font-size:0.88rem;color:var(--text);line-height:1.8;font-family:Georgia,serif;">${chapter.narrative}</div>
-    </div>
-
-    <!-- Key verse -->
-    <div style="background:linear-gradient(135deg,${path.color}22,${path.color}11);border:1.5px solid ${path.accent};border-radius:14px;padding:16px;margin-bottom:16px;position:relative;">
-      <div style="position:absolute;top:8px;left:12px;font-size:32px;color:${path.accent};font-family:Georgia,serif;opacity:0.4;">"</div>
-      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:${path.accent};font-weight:700;margin-bottom:8px;">📖 Key Verse</div>
-      <div style="font-size:0.92rem;color:var(--text);line-height:1.7;font-style:italic;font-family:Georgia,serif;">"${chapter.verse}"</div>
-      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;font-weight:600;text-align:right;">— ${chapter.reference}</div>
-    </div>
-
-    <!-- Continue button -->
-    <button class="btn-next" onclick="renderStoryQuestions()">
-      Continue to Questions →
-    </button>`;
-}
-
-function renderStoryQuestions() {
-  const { path, chapter, questionIndex } = storyV2Session;
-
-  if(questionIndex >= chapter.questions.length) {
-    renderStoryChapterComplete();
+  if(questions.length === 0) {
+    finishTopicRound(topic.id, roundIdx, 0);
     return;
   }
 
-  const q = chapter.questions[questionIndex];
-  const shuffled = [...q.choices].sort(() => Math.random() - 0.5);
-  showBackBtn(true);
-  const root = document.getElementById('root');
+  let qIdx = 0, score = 0, correct = 0;
 
-  root.innerHTML = `
-    <!-- Progress -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div style="font-size:0.78rem;color:var(--text-muted);">Question ${questionIndex + 1} of ${chapter.questions.length}</div>
-      <div style="font-size:0.88rem;">
-        ${'⭐'.repeat(storyV2Session.answers.filter(a=>a).length)}${'☆'.repeat(questionIndex - storyV2Session.answers.filter(a=>a).length)}
-      </div>
-    </div>
-    <div style="height:6px;background:var(--surface-2);border-radius:3px;margin-bottom:16px;overflow:hidden;">
-      <div style="height:100%;background:${path.accent};border-radius:3px;width:${(questionIndex/chapter.questions.length)*100}%;"></div>
-    </div>
+  function renderQ() {
+    if(qIdx >= questions.length) {
+      finishTopicRound(topic.id, roundIdx, score);
+      return;
+    }
+    const q = questions[qIdx];
+    const choices = shuffle([...q.choices]);
+    root.innerHTML = '<div style="max-width:560px;width:100%;margin:0 auto">'
+      + '<div style="text-align:center;margin-bottom:12px;">'
+      + '<div style="font-size:0.72rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">📖 ' + topic.title + ' — Trivia</div>'
+      + '<div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;">Question ' + (qIdx+1) + ' of ' + questions.length + ' · Score: ' + score + '</div>'
+      + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
+      + Array.from({length:questions.length},(_,i)=>'<div style="width:10px;height:10px;border-radius:50%;background:' + (i<qIdx?'#5aaa30':i===qIdx?'#f4b942':'rgba(139,105,20,0.2)') + '"></div>').join('')
+      + '</div></div>'
+      + '<div class="card" style="max-width:560px;width:100%">'
+      + '<div style="font-size:0.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">' + (q.diff||'').toUpperCase() + ' · ' + (q.ref||'') + '</div>'
+      + '<div style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:18px;">' + q.q + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+      + choices.map(c => '<button class="ref-option" data-ans="' + c + '">' + c + '</button>').join('')
+      + '</div>'
+      + '<div class="feedback" id="trivFB"></div>'
+      + '</div></div>';
 
-    <!-- Question -->
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;">
-      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:${path.accent};font-weight:700;margin-bottom:8px;">📖 ${chapter.title}</div>
-      <div style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.5;font-family:Georgia,serif;">${q.q}</div>
-    </div>
-
-    <!-- Choices -->
-    <div style="display:flex;flex-direction:column;gap:8px;" id="storyChoices">
-      ${shuffled.map(c => `
-        <button onclick="checkStoryAnswerV2(this, '${c.replace(/'/g, "\'")}')"
-          style="width:100%;padding:14px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:500;color:var(--text);cursor:pointer;text-align:left;">
-          ${c}
-        </button>`).join('')}
-    </div>`;
+    document.querySelectorAll('.ref-option').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.ref-option').forEach(b => b.disabled = true);
+        const isCorrect = btn.dataset.ans === q.a;
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        const correctBtn = document.querySelector('[data-ans="' + q.a + '"]');
+        if(!isCorrect && correctBtn) correctBtn.classList.add('correct');
+        const pts = (q.diff||'').includes('easy') ? 200 : (q.diff||'').includes('hard') ? 500 : 350;
+        if(isCorrect) { score += pts; correct++; document.getElementById('trivFB').className='feedback correct'; document.getElementById('trivFB').textContent='✓ Correct! +'+pts; }
+        else { document.getElementById('trivFB').className='feedback wrong'; document.getElementById('trivFB').textContent='✗ '+q.a; }
+        setTimeout(() => { qIdx++; renderQ(); }, 1200);
+      };
+    });
+  }
+  renderQ();
 }
 
-function checkStoryAnswerV2(btn, chosen) {
-  const { chapter, questionIndex } = storyV2Session;
-  const q = chapter.questions[questionIndex];
-  const correct = chosen === q.a;
+// ── FILL IN THE BLANK ROUND ──
+function renderTopicFillin(topic, roundIdx) {
+  const verses = topic.fillVerses || [];
+  const root = document.getElementById('root');
+  let vIdx = 0, score = 0;
 
-  document.querySelectorAll('#storyChoices button').forEach(b => {
-    b.disabled = true;
-    const bText = b.textContent.trim();
-    if(bText === q.a) { b.style.background='rgba(45,110,62,0.2)'; b.style.borderColor='#2d6e3e'; b.style.color='#2d6e3e'; }
-    else if(bText === chosen && !correct) { b.style.background='rgba(200,64,26,0.2)'; b.style.borderColor='#c8401a'; b.style.color='#c8401a'; }
-    else { b.style.opacity='0.4'; }
-  });
+  function renderV() {
+    if(vIdx >= verses.length) {
+      finishTopicRound(topic.id, roundIdx, score);
+      return;
+    }
+    const v = verses[vIdx];
+    root.innerHTML = '<div style="max-width:560px;width:100%;margin:0 auto">'
+      + '<div style="text-align:center;margin-bottom:12px;">'
+      + '<div style="font-size:0.72rem;font-weight:700;color:#60A5FA;text-transform:uppercase;letter-spacing:0.1em;">✏️ ' + topic.title + ' — Fill in the Blank</div>'
+      + '<div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;">Verse ' + (vIdx+1) + ' of ' + verses.length + ' · Score: ' + score + '</div>'
+      + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
+      + Array.from({length:verses.length},(_,i)=>'<div style="width:10px;height:10px;border-radius:50%;background:' + (i<vIdx?'#5aaa30':i===vIdx?'#60A5FA':'rgba(139,105,20,0.2)') + '"></div>').join('')
+      + '</div></div>'
+      + '<div class="card" style="max-width:560px;width:100%">'
+      + '<div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);margin-bottom:10px;">' + v.ref + '</div>'
+      + '<div style="font-size:1rem;color:var(--text);line-height:1.7;margin-bottom:18px;font-style:italic;">"' + v.text + '"</div>'
+      + '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">Hint: ' + v.hint + '</div>'
+      + '<input type="text" id="fillInput" placeholder="Type the missing word..." style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:1rem;background:var(--surface);color:var(--text);outline:none;">'
+      + '<div class="feedback" id="fillFB" style="margin-top:10px;"></div>'
+      + '<div style="display:flex;gap:8px;margin-top:12px;">'
+      + '<button id="fillBtn" class="btn" style="flex:1;padding:12px;" onclick="checkTopicFillin()">Check Answer</button>'
+      + '<button id="skipBtn" class="btn" style="padding:12px 16px;opacity:0.6;" onclick="skipTopicFillin()">Skip</button>'
+      + '</div>'
+      + '</div></div>';
 
-  storyV2Session.answers.push(correct);
-  if(correct) { playCorrect(); showRandyReaction('happy'); }
-  else { playWrong(); showRandyReaction('sad'); }
+    document.getElementById('fillInput').addEventListener('keydown', e => { if(e.key==='Enter') checkTopicFillin(); });
+    document.getElementById('fillInput').focus();
 
-  storyV2Session.questionIndex++;
-  setTimeout(() => renderStoryQuestions(), 1200);
+    window._teCurrentVerse = v;
+    window._teFillinScore = () => score;
+    window._teAddFillinScore = (pts) => { score += pts; };
+    window._teNextVerse = () => { vIdx++; renderV(); };
+  }
+  renderV();
 }
 
-async function renderStoryChapterComplete() {
-  const { path, chapter, answers, pathId, chapterNum } = storyV2Session;
-  const correct = answers.filter(a => a).length;
-  const stars = correct;
-  storyV2Session.stars = stars;
+function checkTopicFillin() {
+  const input = document.getElementById('fillInput');
+  const btn = document.getElementById('fillBtn');
+  const skipBtn = document.getElementById('skipBtn');
+  const fb = document.getElementById('fillFB');
+  const v = window._teCurrentVerse;
+  if(!input || !v) return;
+  btn.disabled = true;
+  if(skipBtn) skipBtn.disabled = true;
+  input.disabled = true;
+  const userAns = input.value.trim().toLowerCase().replace(/[^a-z0-9 ]/g,'');
+  const correct = v.answer.toLowerCase().replace(/[^a-z0-9 ]/g,'');
+  // Allow partial match — user answer contains the key word
+  const isCorrect = userAns === correct
+    || userAns.includes(correct)
+    || correct.includes(userAns)
+    || correct.split(' ').some(w => w.length > 3 && userAns.includes(w));
+  const pts = 300;
+  if(isCorrect) {
+    window._teAddFillinScore(pts);
+    fb.className = 'feedback correct';
+    fb.textContent = '✓ Correct! +' + pts;
+  } else {
+    fb.className = 'feedback wrong';
+    fb.textContent = '✗ The answer was: ' + v.answer;
+  }
+  setTimeout(() => window._teNextVerse(), 1400);
+}
 
-  saveStoryV2Progress(pathId, chapterNum, stars);
-  const _sgp = JSON.parse(localStorage.getItem('ss_games_played') || '[]');
-  if(!_sgp.includes('story')) { _sgp.push('story'); localStorage.setItem('ss_games_played', JSON.stringify(_sgp)); }
-  await updateStreak();
-  showBackBtn(true);
+function skipTopicFillin() {
+  const btn = document.getElementById('fillBtn');
+  const skipBtn = document.getElementById('skipBtn');
+  const fb = document.getElementById('fillFB');
+  const input = document.getElementById('fillInput');
+  const v = window._teCurrentVerse;
+  if(!v) return;
+  if(btn) btn.disabled = true;
+  if(skipBtn) skipBtn.disabled = true;
+  if(input) input.disabled = true;
+  fb.className = 'feedback wrong';
+  fb.textContent = '✗ The answer was: ' + v.answer;
+  setTimeout(() => window._teNextVerse(), 1400);
+}
+
+// ── SCOUT ROUND — use existing Scripture Scout with topic filter ──
+// ── TOPIC SCOUT STATE ──
+let _teScoutRoundIdx = 0;
+let _teScoutTopicId = null;
+let _teScoutScore = 0;
+let _teScoutVerse = null;
+let _teScoutPhase = 0; // 0=testament 1=book 2=chapter 3=verse
+let _teScoutCorrects = 0;
+let _teScoutVersesFound = 0;
+let _teScoutVerseScore = 0;
+
+function renderTopicScout(topic, roundIdx) {
+  _teScoutRoundIdx = roundIdx;
+  _teScoutTopicId = topic.id;
+  _teScoutScore = 0;
+  _teScoutVersesFound = 0;
+  fetchTopicScoutVerse(topic);
+}
+
+async function fetchTopicScoutVerse(topic) {
   const root = document.getElementById('root');
-  const randy = stars === 3 ? 'happy' : stars >= 1 ? 'default' : 'sad';
-  const path_obj = STORY_PATHS_V2.find(p => p.id === pathId);
-  const nextChapter = path_obj.chapters.find(c => c.num === chapterNum + 1);
+  root.innerHTML = '<div style="text-align:center;padding:40px 16px"><div class="spinner"></div><div style="margin-top:12px;color:var(--text-muted);font-size:0.85rem">Loading verse...</div></div>';
+  try {
+    const books = topic.scoutBooks || ['Genesis'];
+    const book = books[Math.floor(Math.random()*books.length)];
+    const diffs = ['easy','medium'];
+    const diff = diffs[Math.floor(Math.random()*diffs.length)];
+    const total = DIFF_COUNTS[TRANSLATION][diff] || 100;
+    const offset = Math.floor(Math.random()*Math.min(total,200));
+    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&book=eq.${encodeURIComponent(book)}&difficulty=eq.${diff}&select=*&limit=1&offset=${offset}`);
+    if(!rows || !rows.length) throw new Error('No verse found');
+    const row = rows[0];
+    _teScoutVerse = { t:row.testament, book:row.book, ch:row.chapter, v:row.verse, text:row.text };
+    _teScoutPhase = 0;
+    _teScoutVerseScore = 0;
+    renderTopicScoutCard(topic);
+  } catch(e) {
+    // Fallback to endless verse
+    try {
+      _teScoutVerse = await fetchEndlessVerse();
+      _teScoutPhase = 0;
+      _teScoutVerseScore = 0;
+      renderTopicScoutCard(topic);
+    } catch(e2) {
+      root.innerHTML = '<div class="card" style="text-align:center;padding:24px"><div style="color:var(--text-muted)">Could not load verse. Check connection.</div><button class="btn" style="margin-top:12px" onclick="renderTopicDetail(_teScoutTopicId)">Back</button></div>';
+    }
+  }
+}
 
-  root.innerHTML = `
-    <div style="text-align:center;margin-bottom:16px;">
-      ${getRandyImg(randy, 90)}
-      <div style="font-family:Georgia,serif;font-size:1.3rem;font-weight:700;color:var(--text);margin-top:8px;">
-        ${stars === 3 ? 'Perfect!' : stars === 2 ? 'Well done!' : stars === 1 ? 'Good effort!' : 'Keep trying!'}
-      </div>
-      <div style="font-size:1.8rem;margin-top:6px;">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
-    </div>
+function renderTopicScoutCard(topic) {
+  const root = document.getElementById('root');
+  const v = _teScoutVerse;
+  const versesLeft = 3 - _teScoutVersesFound;
 
-    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;">
-      <div style="font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:4px;">${chapter.title}</div>
-      <div style="font-size:0.8rem;color:var(--text-muted);">${correct} of 3 questions correct</div>
-    </div>
+  root.innerHTML = '<div style="max-width:560px;width:100%;margin:0 auto">'
+    + '<div style="text-align:center;margin-bottom:12px;">'
+    + '<div style="font-size:0.72rem;font-weight:700;color:#34D399;text-transform:uppercase;letter-spacing:0.1em;">🔍 ' + topic.title + ' — Scripture Scout</div>'
+    + '<div style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;">Verse ' + (_teScoutVersesFound+1) + ' of 3 · Score: ' + _teScoutScore + '</div>'
+    + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
+    + [0,1,2].map(i => '<div style="width:10px;height:10px;border-radius:50%;background:' + (i<_teScoutVersesFound?'#5aaa30':i===_teScoutVersesFound?'#34D399':'rgba(139,105,20,0.2)') + '"></div>').join('')
+    + '</div></div>'
+    + '<div class="card">'
+    + '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;text-align:center;">Which book and where is this verse?</div>'
+    + '<div style="font-size:1rem;font-style:italic;color:var(--text);line-height:1.6;margin-bottom:16px;text-align:center;">"' + v.text + '"</div>'
+    + '<div id="teScoutPhaseArea"></div>'
+    + '<div class="feedback" id="teScoutFB"></div>'
+    + '</div></div>';
 
-    <!-- Review key verse again -->
-    <div style="background:linear-gradient(135deg,${path.color}22,${path.color}11);border:1.5px solid ${path.accent};border-radius:14px;padding:14px;margin-bottom:14px;">
-      <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:${path.accent};font-weight:700;margin-bottom:6px;">📖 Remember This</div>
-      <div style="font-size:0.85rem;color:var(--text);line-height:1.6;font-style:italic;font-family:Georgia,serif;">"${chapter.verse}"</div>
-      <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;font-weight:600;text-align:right;">— ${chapter.reference}</div>
-    </div>
+  renderTopicScoutPhase(topic);
+}
 
-    ${nextChapter ? `
-    <button class="btn-next" onclick="startStoryChapterV2(${pathId}, ${nextChapter.num})">
-      Next: ${nextChapter.title} →
-    </button>` : `
-    <div style="background:linear-gradient(135deg,${path.color},${path.color}cc);border-radius:14px;padding:16px;text-align:center;margin-bottom:10px;">
-      <div style="font-size:1.5rem;margin-bottom:4px;">🎉</div>
-      <div style="font-family:Georgia,serif;font-size:1rem;font-weight:700;color:white;">Path Complete!</div>
-      <div style="font-size:0.8rem;color:rgba(255,255,255,0.8);margin-top:4px;">You finished ${path.title}</div>
-    </div>`}
-    ${stars < 3 ? `<button class="btn-change-diff" style="width:100%;margin-top:8px;" onclick="startStoryChapterV2(${pathId}, ${chapterNum})">Try Again for ⭐⭐⭐</button>` : ''}
-    <button class="btn-change-diff" style="width:100%;margin-top:8px;" onclick="renderStoryPathV2(${pathId})">← Back to Path</button>`;
+function renderTopicScoutPhase(topic) {
+  const area = document.getElementById('teScoutPhaseArea');
+  const fb = document.getElementById('teScoutFB');
+  if(!area) return;
+  const v = _teScoutVerse;
+
+  if(_teScoutPhase === 0) {
+    // Testament
+    area.innerHTML = '<div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:10px;">Which Testament?</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+      + '<button class="ref-option" data-ans="OT">Old Testament</button>'
+      + '<button class="ref-option" data-ans="NT">New Testament</button>'
+      + '</div>';
+    area.querySelectorAll('.ref-option').forEach(btn => {
+      btn.onclick = () => {
+        const correct = btn.dataset.ans === v.t;
+        area.querySelectorAll('.ref-option').forEach(b => b.disabled = true);
+        btn.classList.add(correct ? 'correct' : 'wrong');
+        if(!correct) area.querySelector('[data-ans="'+v.t+'"]').classList.add('correct');
+        if(correct) { _teScoutVerseScore += 100; fb.className='feedback correct'; fb.textContent='✓ Correct! +100'; }
+        else { fb.className='feedback wrong'; fb.textContent='✗ ' + (v.t==='OT'?'Old Testament':'New Testament'); }
+        setTimeout(() => { _teScoutPhase=1; fb.textContent=''; renderTopicScoutPhase(topic); }, 1000);
+      };
+    });
+
+  } else if(_teScoutPhase === 1) {
+    // Book
+    const allBooks = (v.t==='OT'?OT_BOOKS:NT_BOOKS).map(b=>b[0]);
+    const wrongBooks = shuffle(allBooks.filter(b=>b!==v.book)).slice(0,5);
+    const choices = shuffle([v.book, ...wrongBooks]);
+    area.innerHTML = '<div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:10px;">Which Book?</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+      + choices.map(b => '<button class="ref-option" data-ans="'+b+'">'+b+'</button>').join('')
+      + '</div>';
+    area.querySelectorAll('.ref-option').forEach(btn => {
+      btn.onclick = () => {
+        const correct = btn.dataset.ans === v.book;
+        area.querySelectorAll('.ref-option').forEach(b => b.disabled = true);
+        btn.classList.add(correct ? 'correct' : 'wrong');
+        const cb = area.querySelector('[data-ans="'+v.book+'"]');
+        if(!correct && cb) cb.classList.add('correct');
+        if(correct) { _teScoutVerseScore += 200; fb.className='feedback correct'; fb.textContent='✓ Correct! +200'; }
+        else { fb.className='feedback wrong'; fb.textContent='✗ ' + v.book; }
+        setTimeout(() => { _teScoutPhase=2; fb.textContent=''; renderTopicScoutPhase(topic); }, 1000);
+      };
+    });
+
+  } else if(_teScoutPhase === 2) {
+    // Chapter
+    const maxCh = (v.t==='OT'?OT_BOOKS:NT_BOOKS).find(b=>b[0]===v.book)?.[1] || 30;
+    const wrongs = [];
+    while(wrongs.length < 3) {
+      const c = Math.max(1, Math.min(maxCh, v.ch + Math.floor(Math.random()*6)-3));
+      if(c !== v.ch && !wrongs.includes(c)) wrongs.push(c);
+    }
+    const choices = shuffle([v.ch, ...wrongs]);
+    area.innerHTML = '<div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:10px;">Which Chapter?</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+      + choices.map(c => '<button class="ref-option" data-ans="'+c+'">Chapter '+c+'</button>').join('')
+      + '</div>';
+    area.querySelectorAll('.ref-option').forEach(btn => {
+      btn.onclick = () => {
+        const correct = parseInt(btn.dataset.ans) === v.ch;
+        area.querySelectorAll('.ref-option').forEach(b => b.disabled = true);
+        btn.classList.add(correct ? 'correct' : 'wrong');
+        const cb = area.querySelector('[data-ans="'+v.ch+'"]');
+        if(!correct && cb) cb.classList.add('correct');
+        if(correct) { _teScoutVerseScore += 300; fb.className='feedback correct'; fb.textContent='✓ Correct! +300'; }
+        else { fb.className='feedback wrong'; fb.textContent='✗ Chapter '+v.ch; }
+        setTimeout(() => { _teScoutPhase=3; fb.textContent=''; renderTopicScoutPhase(topic); }, 1000);
+      };
+    });
+
+  } else if(_teScoutPhase === 3) {
+    // Verse number
+    const wrongs = [];
+    while(wrongs.length < 3) {
+      const vn = Math.max(1, v.v + Math.floor(Math.random()*8)-4);
+      if(vn !== v.v && !wrongs.includes(vn)) wrongs.push(vn);
+    }
+    const choices = shuffle([v.v, ...wrongs]);
+    area.innerHTML = '<div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:10px;">Which Verse?</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+      + choices.map(vn => '<button class="ref-option" data-ans="'+vn+'">Verse '+vn+'</button>').join('')
+      + '</div>';
+    area.querySelectorAll('.ref-option').forEach(btn => {
+      btn.onclick = () => {
+        const correct = parseInt(btn.dataset.ans) === v.v;
+        area.querySelectorAll('.ref-option').forEach(b => b.disabled = true);
+        btn.classList.add(correct ? 'correct' : 'wrong');
+        const cb = area.querySelector('[data-ans="'+v.v+'"]');
+        if(!correct && cb) cb.classList.add('correct');
+        if(correct) { _teScoutVerseScore += 400; fb.className='feedback correct'; fb.textContent='✓ Correct! +400 — Full scout! ' + v.book+' '+v.ch+':'+v.v; }
+        else { fb.className='feedback wrong'; fb.textContent='✗ Verse '+v.v; }
+        _teScoutScore += _teScoutVerseScore;
+        _teScoutVersesFound++;
+        setTimeout(() => {
+          if(_teScoutVersesFound >= 3) {
+            finishTopicRound(_teScoutTopicId, _teScoutRoundIdx, _teScoutScore);
+          } else {
+            fetchTopicScoutVerse(topic);
+          }
+        }, 1400);
+      };
+    });
+  }
+}
+
+// ── Wire renderStoryModeV2 to Topic Explorer ──
+function renderStoryModeV2() {
+  renderTopicExplorer();
 }
 
 // ═══════════════════════════════════════
@@ -5729,11 +5249,11 @@ const BIBLE_TRIVIA = [
   // ── EASY ──
   { q:"How many days did God take to create the world?", a:"6", choices:["5","6","7","8"], diff:"easy", ref:"Genesis 1" },
   { q:"What was the name of the garden where Adam and Eve lived?", a:"Eden", choices:["Eden","Canaan","Galilee","Sinai"], diff:"easy", ref:"Genesis 2" },
-  { q:"How many animals of each kind did Noah take on the ark?", a:"2", choices:["1","2","7","10"], diff:"easy", ref:"Genesis 6" },
+  { q:"How many of each unclean animal did Noah take on the ark?", a:"2", choices:["2","4","7","14"], diff:"easy", ref:"Genesis 7" },
   { q:"What food did God send from heaven in the wilderness?", a:"Manna", choices:["Bread","Manna","Quail","Fish"], diff:"easy", ref:"Exodus 16" },
   { q:"How many commandments did God give Moses on Mount Sinai?", a:"10", choices:["7","10","12","15"], diff:"easy", ref:"Exodus 20" },
   { q:"What giant did David defeat with a sling and stone?", a:"Goliath", choices:["Goliath","Samson","Og","Lahmi"], diff:"easy", ref:"1 Samuel 17" },
-  { q:"Who was swallowed by a great fish?", a:"Jonah", choices:["Jonah","Elijah","Moses","Paul"], diff:"easy", ref:"Jonah 1" },
+  { q:"What is the first book of the New Testament?", a:"Matthew", choices:["Matthew","Mark","Luke","John"], diff:"easy", ref:"Bible" },
   { q:"In what city was Jesus born?", a:"Bethlehem", choices:["Jerusalem","Nazareth","Bethlehem","Jericho"], diff:"easy", ref:"Luke 2" },
   { q:"How many disciples did Jesus choose?", a:"12", choices:["10","11","12","13"], diff:"easy", ref:"Mark 3" },
   { q:"What did Jesus turn water into at the wedding in Cana?", a:"Wine", choices:["Wine","Milk","Juice","Oil"], diff:"easy", ref:"John 2" },
@@ -5761,7 +5281,7 @@ const BIBLE_TRIVIA = [
   { q:"Who was the older brother of Moses?", a:"Aaron", choices:["Aaron","Caleb","Joshua","Miriam"], diff:"easy", ref:"Exodus 4" },
   { q:"What did God use to part the Red Sea for Moses?", a:"A strong east wind", choices:["A strong east wind","Moses' rod","An earthquake","An angel"], diff:"easy", ref:"Exodus 14" },
   { q:"What is the longest book in the Bible?", a:"Psalms", choices:["Isaiah","Psalms","Jeremiah","Genesis"], diff:"easy", ref:"Bible" },
-  { q:"Who was swallowed by a whale after running from God?", a:"Jonah", choices:["Jonah","Elijah","Moses","Ezekiel"], diff:"easy", ref:"Jonah 1" },
+  { q:"What are the two greatest commandments according to Jesus?", a:"Love God and love your neighbor", choices:["Love God and love your neighbor","Keep Sabbath and honor parents","Pray and fast","Give and serve"], diff:"easy", ref:"Matthew 22:37-39" },
   { q:"What were the names of the first two brothers in the Bible?", a:"Cain and Abel", choices:["Cain and Abel","Jacob and Esau","James and John","Moses and Aaron"], diff:"easy", ref:"Genesis 4" },
   { q:"Who led the Israelites into the Promised Land after Moses died?", a:"Joshua", choices:["Joshua","Caleb","Samuel","Gideon"], diff:"easy", ref:"Joshua 1" },
   { q:"What was Jesus' job before he began his ministry?", a:"Carpenter", choices:["Carpenter","Fisherman","Tax collector","Shepherd"], diff:"easy", ref:"Mark 6" },
@@ -5800,12 +5320,12 @@ const BIBLE_TRIVIA = [
   { q:"How many days was Lazarus in the tomb before Jesus raised him?", a:"4", choices:["1","2","3","4"], diff:"medium", ref:"John 11" },
   { q:"What was the name of the Roman governor who sent Jesus to Herod?", a:"Pontius Pilate", choices:["Pontius Pilate","Felix","Festus","Gallio"], diff:"medium", ref:"Luke 23" },
   { q:"Who was the mother of John the Baptist?", a:"Elizabeth", choices:["Elizabeth","Mary","Anna","Salome"], diff:"medium", ref:"Luke 1" },
-  { q:"What was the name of the man whose ear Peter cut off in Gethsemane?", a:"Malchus", choices:["Malchus","Marcus","Matthias","Mnason"], diff:"medium", ref:"John 18" },
+  { q:"What did Jesus do after Peter cut off the servant's ear in Gethsemane?", a:"Healed it", choices:["Healed it","Ignored it","Rebuked Peter and left","Said nothing"], diff:"medium", ref:"Luke 22:51" },
   { q:"What Psalm begins with My God, my God, why have you forsaken me?", a:"Psalm 22", choices:["Psalm 22","Psalm 23","Psalm 51","Psalm 91"], diff:"medium", ref:"Psalm 22" },
   { q:"Who was the first judge of Israel mentioned in the book of Judges?", a:"Othniel", choices:["Othniel","Ehud","Deborah","Gideon"], diff:"medium", ref:"Judges 3" },
   { q:"What was the sign God gave Noah that He would never flood the earth again?", a:"A rainbow", choices:["A rainbow","A dove","An olive branch","A pillar of fire"], diff:"medium", ref:"Genesis 9" },
   { q:"How many times did Joshua and the Israelites march around Jericho on the final day?", a:"7", choices:["1","3","7","12"], diff:"medium", ref:"Joshua 6" },
-  { q:"Who was Boaz's kinsman-redeemer who refused to marry Ruth?", a:"Peloni Almoni", choices:["Peloni Almoni","Elimelech","Mahlon","Chilion"], diff:"medium", ref:"Ruth 4" },
+  { q:"What was the name of Ruth's mother-in-law who returned with her to Bethlehem?", a:"Naomi", choices:["Naomi","Orpah","Miriam","Deborah"], diff:"medium", ref:"Ruth 1" },
   { q:"What was the name of the high priest's servant whose ear Peter cut off?", a:"Malchus", choices:["Malchus","Marcus","Matthias","Mnason"], diff:"medium", ref:"John 18" },
   { q:"Which prophet did not die but was taken to heaven in a chariot of fire?", a:"Elijah", choices:["Elijah","Elisha","Moses","Enoch"], diff:"medium", ref:"2 Kings 2" },
   { q:"What did the Israelites eat for 40 years in the wilderness besides manna?", a:"Quail", choices:["Quail","Fish","Locusts","Figs"], diff:"medium", ref:"Numbers 11" },
@@ -5851,6 +5371,20 @@ const BIBLE_TRIVIA = [
   { q:"What was the name of the king who tried to kill the baby Jesus?", a:"Herod the Great", choices:["Herod the Great","Herod Antipas","Herod Agrippa","Archelaus"], diff:"hard", ref:"Matthew 2" },
   { q:"Who was the author of the book of Hebrews?", a:"Unknown", choices:["Unknown","Paul","Barnabas","Luke"], diff:"hard", ref:"Hebrews" },
   { q:"What was the name of the woman who anointed Jesus' feet with expensive perfume?", a:"Mary of Bethany", choices:["Mary of Bethany","Mary Magdalene","Martha","Salome"], diff:"hard", ref:"John 12" },
+
+  { q:"On which day of creation did God not say it was good?", a:"Day 2", choices:["Day 1","Day 2","Day 4","Day 6"], diff:"hard", ref:"Genesis 1" },
+  { q:"What was the first woman called before she was given a name?", a:"Woman", choices:["Woman","Eve","She","Isha"], diff:"medium", ref:"Genesis 2" },
+  { q:"How old was Enoch when he died?", a:"He never died — God took him", choices:["He never died — God took him","365 years old","777 years old","969 years old"], diff:"medium", ref:"Genesis 5" },
+  { q:"Which of Noah's sons disrespected him after the flood?", a:"Ham", choices:["Ham","Shem","Japheth","Canaan"], diff:"medium", ref:"Genesis 9" },
+  { q:"Which of Noah's sons are the Israelites descended from?", a:"Shem", choices:["Shem","Ham","Japheth","All three"], diff:"medium", ref:"Genesis 11" },
+  { q:"What did Abram tell Pharaoh about Sarai in Egypt?", a:"She is my sister", choices:["She is my sister","She is my servant","She is a widow","She is a prophetess"], diff:"medium", ref:"Genesis 12" },
+  { q:"Who brought out bread and wine and blessed Abram after the battle?", a:"Melchizedek", choices:["Melchizedek","Pharaoh","Abimelech","The king of Sodom"], diff:"hard", ref:"Genesis 14" },
+  { q:"What is the name of Abraham's firstborn son?", a:"Ishmael", choices:["Ishmael","Isaac","Zimran","Midian"], diff:"easy", ref:"Genesis 16" },
+  { q:"What name did Hagar call the LORD after He spoke to her?", a:"El Roi", choices:["El Roi","El Shaddai","Yahweh","Elohim"], diff:"hard", ref:"Genesis 16" },
+  { q:"How old was Abram when Ishmael was born?", a:"86", choices:["75","80","86","99"], diff:"hard", ref:"Genesis 16" },
+  { q:"What name did the LORD use when establishing the covenant of circumcision with Abraham?", a:"El Shaddai", choices:["El Shaddai","El Roi","Yahweh","Adonai"], diff:"hard", ref:"Genesis 17" },
+  { q:"How many princes did God promise would come from Ishmael?", a:"12", choices:["7","10","12","14"], diff:"hard", ref:"Genesis 17" },
+  { q:"How old was Ishmael when he was circumcised?", a:"13", choices:["8 days","1 year","13","17"], diff:"hard", ref:"Genesis 17" },
 ];
 
 let triviaSession = { difficulty:'easy', questions:[], current:0, score:0, correct:0, wrong:0, startTime:null, mode:'normal', _scoreSubmitted:false, _questionStart:null };
@@ -8832,6 +8366,368 @@ const DAILY_TOPICS = ["faith", "prayer", "love", "grace", "hope", "forgiveness",
 let _dailyTopicCache = null;
 let _dailyVersePool = null;
 
+// ═══════════════════════════════════════
+// DAILY TRIVIA TOPIC SYSTEM
+// ═══════════════════════════════════════
+
+// Maps every DAILY_TOPIC to a question bucket
+const TOPIC_BUCKET_MAP = {
+  // creation bucket
+  "creation":"creation","genesis":"creation","light":"creation","darkness":"creation",
+  "rest":"creation","creation care":"creation","stewardship of the earth":"creation",
+  "seasons":"creation","times and purposes":"creation","sovereignty":"creation",
+  "providence":"creation","wonder":"creation","awe":"creation","gods plan":"creation",
+  // faith_prayer bucket
+  "faith":"faith_prayer","prayer":"faith_prayer","trust":"faith_prayer","hope":"faith_prayer",
+  "seeking god":"faith_prayer","hearing god":"faith_prayer","waiting on god":"faith_prayer",
+  "persisting in prayer":"faith_prayer","asking in faith":"faith_prayer",
+  "the lords answer":"faith_prayer","gods silence":"faith_prayer","intercession":"faith_prayer",
+  "dark night of the soul":"faith_prayer","doubt":"faith_prayer","questioning":"faith_prayer",
+  "wrestling with god":"faith_prayer","raw honesty with god":"faith_prayer",
+  "faith to move mountains":"faith_prayer","trusting god":"faith_prayer",
+  "fear of god":"faith_prayer","the fear of the lord":"faith_prayer",
+  // sin_salvation bucket
+  "sin":"sin_salvation","repentance":"sin_salvation","forgiveness":"sin_salvation",
+  "grace":"sin_salvation","salvation":"sin_salvation","redemption":"sin_salvation",
+  "sacrifice":"sin_salvation","the cross":"sin_salvation","blood of jesus":"sin_salvation",
+  "born again":"sin_salvation","new creation":"sin_salvation","sanctification":"sin_salvation",
+  "freedom":"sin_salvation","liberty":"sin_salvation","bondage":"sin_salvation",
+  "slavery":"sin_salvation","deliverance":"sin_salvation","exodus":"sin_salvation",
+  "temptation":"sin_salvation","pride":"sin_salvation",
+  // jesus bucket
+  "jesus":"jesus","following jesus":"jesus","the gospel":"jesus","gospel":"jesus",
+  "resurrection":"jesus","the last supper":"jesus","the lord prayer":"jesus",
+  "beatitudes":"jesus","sermon on mount":"jesus","parables":"jesus",
+  "the prodigal son":"jesus","the good samaritan":"jesus","the lost sheep":"jesus",
+  "the mustard seed":"jesus","bread of life":"jesus","living water":"jesus",
+  "light of world":"jesus","the vine":"jesus","servant leadership":"jesus",
+  "miracles":"jesus","healing":"jesus","the great commandment":"jesus",
+  // holy_spirit bucket
+  "the holy spirit":"holy_spirit","baptism":"holy_spirit","baptism of the spirit":"holy_spirit",
+  "speaking in tongues":"holy_spirit","signs and wonders":"holy_spirit",
+  "spiritual gifts":"holy_spirit","spiritual warfare":"holy_spirit","armor of god":"holy_spirit",
+  "fire":"holy_spirit","wind":"holy_spirit","water":"holy_spirit","anointing":"holy_spirit",
+  // wisdom bucket
+  "wisdom":"wisdom","proverbs":"wisdom","teaching":"wisdom","the word of god":"wisdom",
+  "scripture":"wisdom","bible":"wisdom","meditation":"wisdom","truth":"wisdom",
+  "knowledge":"wisdom","understanding":"wisdom","excellence":"wisdom",
+  // worship bucket
+  "worship":"worship","praise":"worship","thanksgiving":"worship","the psalms":"worship",
+  "lament":"worship","celebration":"worship","glory":"worship","holiness":"worship",
+  "consecration":"worship","dedication":"worship","confession":"worship",
+  "psalms of ascent":"worship","pilgrimage":"worship","the journey":"worship",
+  "walking with god":"worship","enoch":"worship",
+  // character bucket
+  "love":"character","joy":"character","peace":"character","patience":"character",
+  "kindness":"character","mercy":"character","humility":"character","obedience":"character",
+  "righteousness":"character","integrity":"character","honesty":"character",
+  "loyalty":"character","faithfulness":"character","endurance":"character",
+  "perseverance":"character","contentment":"character","gratitude":"character",
+  "running the race":"character","finishing well":"character","courage":"character",
+  "strength":"character","mourning":"character","grief":"character","comfort":"character",
+  // ot_characters bucket
+  "david":"ot_characters","moses":"ot_characters","abraham":"ot_characters",
+  "joseph":"ot_characters","elijah":"ot_characters","angels":"ot_characters",
+  "prophecy":"ot_characters","shepherds":"ot_characters","sheep":"ot_characters",
+  // church_community bucket
+  "the church":"church_community","community":"church_community","unity":"church_community",
+  "the body of christ":"church_community","discipleship":"church_community",
+  "evangelism":"church_community","missions":"church_community",
+  "the great commission":"church_community","the kingdom of god":"church_community",
+  "spiritual authority":"church_community","submission":"church_community",
+  "accountability":"church_community","reconciliation":"church_community",
+  "church discipline":"church_community","encouragement":"church_community",
+  "edification":"church_community","the throne of god":"church_community",
+  // money_stewardship bucket
+  "money":"money_stewardship","giving":"money_stewardship","stewardship":"money_stewardship",
+  "generosity":"money_stewardship","tithing":"money_stewardship",
+  "first fruits":"money_stewardship","offering":"money_stewardship",
+  "laying up treasure":"money_stewardship","eternal perspective":"money_stewardship",
+  "rewards":"money_stewardship","crowns":"money_stewardship","work":"money_stewardship",
+  "work and vocation":"money_stewardship",
+  // relationships bucket
+  "marriage":"relationships","family":"relationships","children":"relationships",
+  "parenting":"relationships","friendship":"relationships","enemies":"relationships",
+  "love your neighbor":"relationships","love for enemies":"relationships",
+  "peacemaking":"relationships","hospitality":"relationships","strangers":"relationships",
+  "widows":"relationships","orphans":"relationships","the poor":"relationships",
+  "justice":"relationships","compassion":"relationships","serving others":"relationships",
+  // spiritual_disciplines bucket
+  "fasting":"spiritual_disciplines","solitude":"spiritual_disciplines",
+  "sabbath":"spiritual_disciplines","the sabbath":"spiritual_disciplines",
+  "bearing fruit":"spiritual_disciplines","abiding in christ":"spiritual_disciplines",
+  "walking in the spirit":"spiritual_disciplines","dying to self":"spiritual_disciplines",
+  "taking up your cross":"spiritual_disciplines","surrendering":"spiritual_disciplines",
+  "letting go":"spiritual_disciplines","crucifying the flesh":"spiritual_disciplines",
+  // heart_mind bucket
+  "the heart":"heart_mind","the mind":"heart_mind","renewing your mind":"heart_mind",
+  "guarding your heart":"heart_mind","thoughts":"heart_mind","words":"heart_mind",
+  "tongue":"heart_mind","speaking life":"heart_mind","anger":"heart_mind",
+  "jealousy":"heart_mind","envy":"heart_mind","greed":"heart_mind","lust":"heart_mind",
+  "gluttony":"heart_mind","sloth":"heart_mind","wrath":"heart_mind",
+  "suffering":"heart_mind","trials":"heart_mind","testing":"heart_mind",
+  // end_times bucket
+  "heaven":"end_times","eternal life":"end_times","the second coming":"end_times",
+  "rapture":"end_times","end times":"end_times","revelation":"end_times",
+  "the new jerusalem":"end_times","eternity":"end_times","hell":"end_times",
+  "judgment":"end_times",
+  // identity bucket
+  "identity in christ":"identity","new life":"identity","transformation":"identity",
+  "renewal":"identity","restoration":"identity","wholeness":"identity",
+  "calling":"identity","purpose":"identity","freedom":"identity",
+  // old_testament bucket
+  "covenant":"old_testament","promise":"old_testament","blessing":"old_testament",
+  "the promised land":"old_testament","wilderness":"old_testament","desert":"old_testament",
+  "provision":"old_testament","guidance":"old_testament","direction":"old_testament",
+  "protection":"old_testament","refuge":"old_testament","paul":"new_testament",
+  "peter":"new_testament","mary":"new_testament",
+  // new_testament bucket
+  "the holy spirit":"new_testament"
+};
+
+// Themed question bank organized by bucket
+// Each question: { q, a, choices, diff, ref, bucket }
+const DAILY_TRIVIA_BANK = [
+  // ── CREATION ──
+  { q:"How many days did God take to create the world?", a:"6", choices:["5","6","7","8"], diff:"easy", ref:"Genesis 1", bucket:"creation" },
+  { q:"What did God create on the first day?", a:"Light", choices:["Light","Sky","Land","Stars"], diff:"easy", ref:"Genesis 1", bucket:"creation" },
+  { q:"What did God rest on after creating the world?", a:"The seventh day", choices:["The sixth day","The seventh day","The eighth day","He never rested"], diff:"easy", ref:"Genesis 2", bucket:"creation" },
+  { q:"What was the name of the garden God planted for Adam and Eve?", a:"Eden", choices:["Eden","Canaan","Galilee","Sinai"], diff:"easy", ref:"Genesis 2", bucket:"creation" },
+  { q:"What did God create on the second day?", a:"The sky and waters", choices:["Animals","The sky and waters","The sun and moon","Plants"], diff:"medium", ref:"Genesis 1", bucket:"creation" },
+  { q:"On which day did God create the sun, moon, and stars?", a:"Fourth", choices:["First","Second","Third","Fourth"], diff:"medium", ref:"Genesis 1", bucket:"creation" },
+  { q:"What were the two trees in the middle of the Garden of Eden?", a:"Tree of Life and Tree of Knowledge", choices:["Tree of Life and Tree of Knowledge","Olive tree and Fig tree","Cedar and Oak","Tree of Wisdom and Tree of Life"], diff:"medium", ref:"Genesis 2", bucket:"creation" },
+  { q:"What did God say after each day of creation?", a:"It was good", choices:["It was good","It was perfect","It was done","It was holy"], diff:"easy", ref:"Genesis 1", bucket:"creation" },
+  { q:"From what did God form Adam?", a:"Dust of the ground", choices:["Clay","Water","Dust of the ground","Stone"], diff:"medium", ref:"Genesis 2", bucket:"creation" },
+  { q:"From what did God form Eve?", a:"Adam's rib", choices:["Adam's rib","Dust","Clay","Adam's hand"], diff:"easy", ref:"Genesis 2", bucket:"creation" },
+
+  // ── FAITH & PRAYER ──
+  { q:"Who is described as the father of faith in the Bible?", a:"Abraham", choices:["Abraham","Moses","David","Paul"], diff:"easy", ref:"Romans 4", bucket:"faith_prayer" },
+  { q:"What is faith defined as in Hebrews 11?", a:"Confidence in what we hope for", choices:["Confidence in what we hope for","Blind belief","Following rules","Going to church"], diff:"medium", ref:"Hebrews 11:1", bucket:"faith_prayer" },
+  { q:"How many times a day did Daniel pray?", a:"3", choices:["1","2","3","7"], diff:"medium", ref:"Daniel 6", bucket:"faith_prayer" },
+  { q:"What does Jesus say will happen when you ask in prayer?", a:"You will receive", choices:["You will receive","You must wait","God will decide","Nothing is guaranteed"], diff:"easy", ref:"Matthew 7:7", bucket:"faith_prayer" },
+  { q:"Who in the Bible is described as a man after God's own heart?", a:"David", choices:["David","Solomon","Abraham","Joseph"], diff:"easy", ref:"1 Samuel 13:14", bucket:"faith_prayer" },
+  { q:"What mustard seed parable teaches about faith?", a:"Small faith can do great things", choices:["Small faith can do great things","Faith must be earned","Faith requires works","Only priests have faith"], diff:"easy", ref:"Matthew 17:20", bucket:"faith_prayer" },
+  { q:"Who said 'Though he slay me, yet will I hope in him'?", a:"Job", choices:["Job","David","Paul","Jeremiah"], diff:"hard", ref:"Job 13:15", bucket:"faith_prayer" },
+  { q:"How did the disciples react when Jesus calmed the storm?", a:"They were amazed and afraid", choices:["They were amazed and afraid","They laughed","They went back to sleep","They worshipped immediately"], diff:"medium", ref:"Mark 4:41", bucket:"faith_prayer" },
+  { q:"What phrase appears 365 times in the Bible relating to fear?", a:"Fear not / Do not be afraid", choices:["Fear not / Do not be afraid","Trust in God","Have faith","Pray always"], diff:"medium", ref:"Bible", bucket:"faith_prayer" },
+  { q:"Who prayed so hard in Gethsemane that his sweat was like drops of blood?", a:"Jesus", choices:["Jesus","Elijah","David","Paul"], diff:"medium", ref:"Luke 22:44", bucket:"faith_prayer" },
+
+  // ── SIN & SALVATION ──
+  { q:"What did God use to cover Adam and Eve after the fall?", a:"Animal skins", choices:["Animal skins","Leaves","Cloth","Nothing"], diff:"medium", ref:"Genesis 3:21", bucket:"sin_salvation" },
+  { q:"What animal did Satan use to tempt Eve?", a:"Serpent", choices:["Serpent","Raven","Donkey","Lion"], diff:"easy", ref:"Genesis 3", bucket:"sin_salvation" },
+  { q:"What is the wages of sin according to Romans 6:23?", a:"Death", choices:["Death","Punishment","Suffering","Exile"], diff:"medium", ref:"Romans 6:23", bucket:"sin_salvation" },
+  { q:"Who was the first murderer in the Bible?", a:"Cain", choices:["Cain","Lamech","Esau","Saul"], diff:"easy", ref:"Genesis 4", bucket:"sin_salvation" },
+  { q:"What did Jesus say he came to do for sinners?", a:"Save them", choices:["Save them","Condemn them","Teach them","Ignore them"], diff:"easy", ref:"Luke 19:10", bucket:"sin_salvation" },
+  { q:"According to John 3:16, what did God give because he loved the world?", a:"His one and only Son", choices:["His one and only Son","The Bible","The Ten Commandments","Angels"], diff:"easy", ref:"John 3:16", bucket:"sin_salvation" },
+  { q:"What Old Testament ritual foreshadowed Christ's sacrifice?", a:"The Passover lamb", choices:["The Passover lamb","The golden calf","The daily manna","The pillar of fire"], diff:"medium", ref:"Exodus 12", bucket:"sin_salvation" },
+  { q:"How many pieces of silver was Joseph sold for by his brothers?", a:"20", choices:["10","20","30","40"], diff:"hard", ref:"Genesis 37", bucket:"sin_salvation" },
+  { q:"What did the prodigal son's father give him when he returned?", a:"A robe, ring, and sandals", choices:["A robe, ring, and sandals","A farm","Money","Nothing"], diff:"medium", ref:"Luke 15", bucket:"sin_salvation" },
+  { q:"What word means being made right with God?", a:"Justification", choices:["Justification","Sanctification","Glorification","Predestination"], diff:"hard", ref:"Romans 5", bucket:"sin_salvation" },
+
+  // ── JESUS ──
+  { q:"In what city was Jesus born?", a:"Bethlehem", choices:["Bethlehem","Nazareth","Jerusalem","Capernaum"], diff:"easy", ref:"Luke 2", bucket:"jesus" },
+  { q:"How many disciples did Jesus choose?", a:"12", choices:["7","10","12","14"], diff:"easy", ref:"Mark 3", bucket:"jesus" },
+  { q:"What did Jesus turn water into at the wedding in Cana?", a:"Wine", choices:["Wine","Milk","Juice","Oil"], diff:"easy", ref:"John 2", bucket:"jesus" },
+  { q:"Who betrayed Jesus for 30 pieces of silver?", a:"Judas", choices:["Judas","Peter","Thomas","James"], diff:"easy", ref:"Matthew 26", bucket:"jesus" },
+  { q:"On what day did Jesus rise from the dead?", a:"The third day", choices:["The second day","The third day","The seventh day","The first day"], diff:"easy", ref:"Luke 24", bucket:"jesus" },
+  { q:"What is the shortest verse in the Bible?", a:"Jesus wept", choices:["Jesus wept","God is love","Fear not","Be still"], diff:"easy", ref:"John 11:35", bucket:"jesus" },
+  { q:"What river was Jesus baptized in?", a:"Jordan", choices:["Jordan","Nile","Euphrates","Tigris"], diff:"easy", ref:"Matthew 3", bucket:"jesus" },
+  { q:"What was Jesus' job before he began his ministry?", a:"Carpenter", choices:["Carpenter","Fisherman","Farmer","Tax collector"], diff:"easy", ref:"Mark 6", bucket:"jesus" },
+  { q:"How many days was Lazarus in the tomb before Jesus raised him?", a:"4", choices:["1","2","3","4"], diff:"medium", ref:"John 11", bucket:"jesus" },
+  { q:"What name means 'God with us'?", a:"Immanuel", choices:["Immanuel","Jesus","Christ","Emmanuel"], diff:"medium", ref:"Matthew 1:23", bucket:"jesus" },
+  { q:"What did Jesus ride into Jerusalem on Palm Sunday?", a:"A donkey", choices:["A donkey","A horse","A camel","He walked"], diff:"easy", ref:"Matthew 21", bucket:"jesus" },
+  { q:"How many loaves of bread did Jesus use to feed 5000 people?", a:"5", choices:["2","5","7","12"], diff:"easy", ref:"John 6", bucket:"jesus" },
+  { q:"What was the name of the hill where Jesus was crucified?", a:"Golgotha", choices:["Golgotha","Calvary","Sinai","Zion"], diff:"medium", ref:"John 19", bucket:"jesus" },
+  { q:"Who carried Jesus' cross on the way to Golgotha?", a:"Simon of Cyrene", choices:["Simon of Cyrene","John","Peter","Nicodemus"], diff:"hard", ref:"Mark 15", bucket:"jesus" },
+  { q:"What did the wise men follow to find Jesus?", a:"A star", choices:["A star","An angel","A dream","A pillar of fire"], diff:"easy", ref:"Matthew 2", bucket:"jesus" },
+
+  // ── HOLY SPIRIT ──
+  { q:"On what Jewish feast day was the Holy Spirit poured out at Pentecost?", a:"Pentecost", choices:["Pentecost","Passover","Tabernacles","Atonement"], diff:"medium", ref:"Acts 2", bucket:"holy_spirit" },
+  { q:"What sign accompanied the coming of the Holy Spirit at Pentecost?", a:"Wind and fire", choices:["Wind and fire","Thunder and lightning","A dove","An earthquake"], diff:"medium", ref:"Acts 2", bucket:"holy_spirit" },
+  { q:"What did Jesus say the Holy Spirit would do?", a:"Guide us into all truth", choices:["Guide us into all truth","Give us wealth","Remove all suffering","Make us perfect"], diff:"medium", ref:"John 16:13", bucket:"holy_spirit" },
+  { q:"How many people were in the upper room on Pentecost?", a:"120", choices:["12","70","120","500"], diff:"hard", ref:"Acts 1", bucket:"holy_spirit" },
+  { q:"What are the fruits of the Spirit listed in Galatians 5?", a:"Love joy peace patience kindness goodness faithfulness gentleness self-control", choices:["Love joy peace patience kindness goodness faithfulness gentleness self-control","Faith hope love mercy grace truth","Wisdom understanding counsel might","Power strength dominion glory"], diff:"medium", ref:"Galatians 5:22-23", bucket:"holy_spirit" },
+  { q:"What symbol appeared when the Holy Spirit descended on Jesus at his baptism?", a:"A dove", choices:["A dove","A flame","A cloud","A rainbow"], diff:"easy", ref:"Matthew 3:16", bucket:"holy_spirit" },
+  { q:"In what form did God lead Israel through the wilderness at night?", a:"Pillar of fire", choices:["Pillar of fire","A star","An angel","The moon"], diff:"medium", ref:"Exodus 13", bucket:"holy_spirit" },
+
+  // ── WISDOM ──
+  { q:"Who wrote most of the book of Proverbs?", a:"Solomon", choices:["Solomon","David","Moses","Ezra"], diff:"easy", ref:"Proverbs 1", bucket:"wisdom" },
+  { q:"What is the beginning of wisdom according to Proverbs?", a:"The fear of the Lord", choices:["The fear of the Lord","Prayer","Reading the Bible","Going to church"], diff:"medium", ref:"Proverbs 9:10", bucket:"wisdom" },
+  { q:"Who asked God for wisdom rather than riches?", a:"Solomon", choices:["Solomon","David","Hezekiah","Josiah"], diff:"easy", ref:"1 Kings 3", bucket:"wisdom" },
+  { q:"What was the queen who came to test Solomon's wisdom?", a:"Queen of Sheba", choices:["Queen of Sheba","Queen Esther","Queen Jezebel","Queen Vashti"], diff:"medium", ref:"1 Kings 10", bucket:"wisdom" },
+  { q:"Which book of the Bible contains 150 chapters?", a:"Psalms", choices:["Psalms","Proverbs","Isaiah","Jeremiah"], diff:"easy", ref:"Bible", bucket:"wisdom" },
+  { q:"How many books are in the Old Testament?", a:"39", choices:["36","39","40","45"], diff:"medium", ref:"Bible", bucket:"wisdom" },
+  { q:"How many books are in the Bible?", a:"66", choices:["60","63","66","72"], diff:"easy", ref:"Bible", bucket:"wisdom" },
+  { q:"Which two books of the Bible don't mention God by name?", a:"Esther and Song of Solomon", choices:["Esther and Song of Solomon","Ruth and Jonah","Job and Ecclesiastes","Nahum and Habakkuk"], diff:"hard", ref:"Bible", bucket:"wisdom" },
+  { q:"What is the longest chapter in the Bible?", a:"Psalm 119", choices:["Psalm 119","Isaiah 53","Numbers 7","Revelation 20"], diff:"hard", ref:"Bible", bucket:"wisdom" },
+  { q:"What book of the Bible asks 'What has been will be again; there is nothing new under the sun'?", a:"Ecclesiastes", choices:["Ecclesiastes","Proverbs","Job","Psalms"], diff:"medium", ref:"Ecclesiastes 1:9", bucket:"wisdom" },
+
+  // ── WORSHIP ──
+  { q:"Who wrote most of the Psalms?", a:"David", choices:["David","Moses","Solomon","Asaph"], diff:"easy", ref:"Psalms", bucket:"worship" },
+  { q:"What Psalm begins 'The Lord is my shepherd'?", a:"Psalm 23", choices:["Psalm 1","Psalm 23","Psalm 91","Psalm 100"], diff:"easy", ref:"Psalm 23", bucket:"worship" },
+  { q:"Which Psalm begins with 'My God, my God, why have you forsaken me'?", a:"Psalm 22", choices:["Psalm 22","Psalm 51","Psalm 88","Psalm 130"], diff:"medium", ref:"Psalm 22", bucket:"worship" },
+  { q:"What instrument did David play?", a:"Harp", choices:["Harp","Lute","Trumpet","Flute"], diff:"easy", ref:"1 Samuel 16", bucket:"worship" },
+  { q:"What is the shortest chapter in the Bible?", a:"Psalm 117", choices:["Psalm 117","Psalm 1","John 11","Obadiah 1"], diff:"hard", ref:"Bible", bucket:"worship" },
+  { q:"Who led the Israelites in a song of praise after crossing the Red Sea?", a:"Miriam", choices:["Miriam","Deborah","Esther","Ruth"], diff:"medium", ref:"Exodus 15", bucket:"worship" },
+  { q:"What did Paul and Silas do while imprisoned in Philippi?", a:"Sang hymns and prayed", choices:["Sang hymns and prayed","Slept","Planned escape","Wept"], diff:"medium", ref:"Acts 16", bucket:"worship" },
+  { q:"How many times per day did David say he praised God?", a:"7", choices:["3","5","7","10"], diff:"hard", ref:"Psalm 119:164", bucket:"worship" },
+
+  // ── CHARACTER ──
+  { q:"What does 1 Corinthians 13 say about love?", a:"Love never fails", choices:["Love never fails","Love conquers all","Love is a feeling","Love is blind"], diff:"medium", ref:"1 Corinthians 13:8", bucket:"character" },
+  { q:"Which fruit of the Spirit is listed first in Galatians 5?", a:"Love", choices:["Love","Joy","Peace","Faithfulness"], diff:"medium", ref:"Galatians 5:22", bucket:"character" },
+  { q:"What does the Bible say is the greatest commandment?", a:"Love God with all your heart", choices:["Love God with all your heart","Honor your father and mother","Do not murder","Keep the Sabbath"], diff:"easy", ref:"Matthew 22:37", bucket:"character" },
+  { q:"What does James say about faith without works?", a:"It is dead", choices:["It is dead","It is weak","It is sufficient","It is pure"], diff:"medium", ref:"James 2:17", bucket:"character" },
+  { q:"What does Paul say love is in 1 Corinthians 13?", a:"Patient and kind", choices:["Patient and kind","Blind and foolish","Weak but true","Strong and proud"], diff:"medium", ref:"1 Corinthians 13:4", bucket:"character" },
+  { q:"According to Micah 6:8, what does God require?", a:"Act justly love mercy walk humbly", choices:["Act justly love mercy walk humbly","Pray fast and give","Love God love neighbor","Keep the commandments"], diff:"medium", ref:"Micah 6:8", bucket:"character" },
+  { q:"What does the Bible say is the root of all kinds of evil?", a:"The love of money", choices:["The love of money","Pride","Laziness","Ignorance"], diff:"medium", ref:"1 Timothy 6:10", bucket:"character" },
+  { q:"What is the second great commandment according to Jesus?", a:"Love your neighbor as yourself", choices:["Love your neighbor as yourself","Honor your parents","Keep the Sabbath","Do not lie"], diff:"easy", ref:"Matthew 22:39", bucket:"character" },
+
+  // ── OT CHARACTERS ──
+  { q:"What were the names of Noah's three sons?", a:"Shem, Ham, Japheth", choices:["Shem, Ham, Japheth","Reuben, Simeon, Levi","Cain, Abel, Seth","Aaron, Moses, Miriam"], diff:"medium", ref:"Genesis 6", bucket:"ot_characters" },
+  { q:"How old was Methuselah when he died?", a:"969", choices:["777","900","969","1000"], diff:"hard", ref:"Genesis 5", bucket:"ot_characters" },
+  { q:"Who was the first king of Israel?", a:"Saul", choices:["Saul","David","Solomon","Samuel"], diff:"easy", ref:"1 Samuel 10", bucket:"ot_characters" },
+  { q:"What giant did David defeat with a sling and stone?", a:"Goliath", choices:["Goliath","Og","Anak","Lahmi"], diff:"easy", ref:"1 Samuel 17", bucket:"ot_characters" },
+  { q:"Who was thrown into a den of lions?", a:"Daniel", choices:["Daniel","Shadrach","Elijah","Jeremiah"], diff:"easy", ref:"Daniel 6", bucket:"ot_characters" },
+  { q:"Who was swallowed by a great fish?", a:"Jonah", choices:["Jonah","Elijah","Elisha","Isaiah"], diff:"easy", ref:"Jonah 1", bucket:"ot_characters" },
+  { q:"What did Elijah call down from heaven to defeat the prophets of Baal?", a:"Fire", choices:["Fire","Rain","Lightning","An angel"], diff:"easy", ref:"1 Kings 18", bucket:"ot_characters" },
+  { q:"What prophet did not die but was taken to heaven in a chariot of fire?", a:"Elijah", choices:["Elijah","Moses","Enoch","Elisha"], diff:"medium", ref:"2 Kings 2", bucket:"ot_characters" },
+  { q:"Who was the older brother of Moses?", a:"Aaron", choices:["Aaron","Joshua","Caleb","Korah"], diff:"easy", ref:"Exodus 4", bucket:"ot_characters" },
+  { q:"Which woman hid the two spies Joshua sent to Jericho?", a:"Rahab", choices:["Rahab","Deborah","Ruth","Abigail"], diff:"medium", ref:"Joshua 2", bucket:"ot_characters" },
+  { q:"What was the name of Abraham's wife?", a:"Sarah", choices:["Sarah","Rebekah","Rachel","Leah"], diff:"easy", ref:"Genesis 17", bucket:"ot_characters" },
+  { q:"Who interpreted Pharaoh's dream about 7 fat and 7 thin cows?", a:"Joseph", choices:["Joseph","Daniel","Moses","Solomon"], diff:"medium", ref:"Genesis 41", bucket:"ot_characters" },
+  { q:"What judge used a fleece to test God?", a:"Gideon", choices:["Gideon","Samson","Jephthah","Othniel"], diff:"medium", ref:"Judges 6", bucket:"ot_characters" },
+  { q:"What was Samson used to kill 1000 Philistines?", a:"Jawbone of a donkey", choices:["Jawbone of a donkey","A sword","A sling","His bare hands"], diff:"medium", ref:"Judges 15", bucket:"ot_characters" },
+  { q:"Which prophet saw the valley of dry bones?", a:"Ezekiel", choices:["Ezekiel","Isaiah","Jeremiah","Daniel"], diff:"medium", ref:"Ezekiel 37", bucket:"ot_characters" },
+  { q:"Who was the first judge of Israel mentioned in Judges?", a:"Othniel", choices:["Othniel","Deborah","Gideon","Samson"], diff:"hard", ref:"Judges 3", bucket:"ot_characters" },
+  { q:"Which woman judged Israel and led them to victory?", a:"Deborah", choices:["Deborah","Miriam","Huldah","Abigail"], diff:"medium", ref:"Judges 4", bucket:"ot_characters" },
+  { q:"Who was Moses' father-in-law?", a:"Jethro", choices:["Jethro","Hobab","Reuel","Zipporah"], diff:"hard", ref:"Exodus 3", bucket:"ot_characters" },
+  { q:"What prophet confronted King David about his sin with Bathsheba?", a:"Nathan", choices:["Nathan","Gad","Samuel","Isaiah"], diff:"medium", ref:"2 Samuel 12", bucket:"ot_characters" },
+  { q:"Who was the high priest when Jesus was arrested?", a:"Caiaphas", choices:["Caiaphas","Annas","Eli","Zadok"], diff:"hard", ref:"Matthew 26", bucket:"ot_characters" },
+
+  // ── CHURCH & COMMUNITY ──
+  { q:"What was Paul's name before his conversion?", a:"Saul", choices:["Saul","Simon","Silas","Sergius"], diff:"medium", ref:"Acts 9", bucket:"church_community" },
+  { q:"Who replaced Judas as the 12th apostle?", a:"Matthias", choices:["Matthias","Barnabas","Stephen","Philip"], diff:"hard", ref:"Acts 1", bucket:"church_community" },
+  { q:"What was Matthew's occupation before following Jesus?", a:"Tax collector", choices:["Tax collector","Fisherman","Carpenter","Shepherd"], diff:"medium", ref:"Matthew 9", bucket:"church_community" },
+  { q:"Who was the first martyr of the Christian church?", a:"Stephen", choices:["Stephen","James","Peter","Paul"], diff:"medium", ref:"Acts 7", bucket:"church_community" },
+  { q:"In what city did Paul preach at the Areopagus?", a:"Athens", choices:["Athens","Rome","Corinth","Ephesus"], diff:"medium", ref:"Acts 17", bucket:"church_community" },
+  { q:"What was the name of the city where Paul and Silas were imprisoned and an earthquake freed them?", a:"Philippi", choices:["Philippi","Corinth","Thessalonica","Berea"], diff:"medium", ref:"Acts 16", bucket:"church_community" },
+  { q:"What Roman centurion was the first Gentile convert?", a:"Cornelius", choices:["Cornelius","Julius","Felix","Festus"], diff:"hard", ref:"Acts 10", bucket:"church_community" },
+  { q:"Which apostle walked on water with Jesus?", a:"Peter", choices:["Peter","James","John","Andrew"], diff:"easy", ref:"Matthew 14", bucket:"church_community" },
+  { q:"Who was Timothy's mother?", a:"Eunice", choices:["Eunice","Lois","Priscilla","Lydia"], diff:"hard", ref:"2 Timothy 1", bucket:"church_community" },
+  { q:"How many times did Peter deny Jesus?", a:"3", choices:["1","2","3","4"], diff:"easy", ref:"Luke 22", bucket:"church_community" },
+
+  // ── MONEY & STEWARDSHIP ──
+  { q:"What does Jesus say about God and money in Matthew 6?", a:"You cannot serve both God and money", choices:["You cannot serve both God and money","Money is the root of evil","Give all your money away","Save for the future"], diff:"medium", ref:"Matthew 6:24", bucket:"money_stewardship" },
+  { q:"What did Zacchaeus do after meeting Jesus?", a:"Gave half his wealth to the poor", choices:["Gave half his wealth to the poor","Quit his job","Became a disciple","Moved to Jerusalem"], diff:"medium", ref:"Luke 19", bucket:"money_stewardship" },
+  { q:"What percentage did the widow give in the temple offering?", a:"100%", choices:["10%","25%","50%","100%"], diff:"medium", ref:"Mark 12", bucket:"money_stewardship" },
+  { q:"What does Malachi say about bringing the full tithe?", a:"Test me and see if I won't open the floodgates of heaven", choices:["Test me and see if I won't open the floodgates of heaven","You will be cursed","It is your duty","Give more than 10%"], diff:"hard", ref:"Malachi 3:10", bucket:"money_stewardship" },
+  { q:"How much did Ananias and Sapphira lie about?", a:"The price of the land they sold", choices:["The price of the land they sold","Their wages","A gift to Paul","Temple taxes"], diff:"hard", ref:"Acts 5", bucket:"money_stewardship" },
+  { q:"What did Jesus say was easier than a rich man entering heaven?", a:"A camel going through the eye of a needle", choices:["A camel going through the eye of a needle","Moving a mountain","Walking on water","Raising the dead"], diff:"medium", ref:"Matthew 19:24", bucket:"money_stewardship" },
+
+  // ── RELATIONSHIPS ──
+  { q:"Who is the great example of a faithful friend in the Bible?", a:"Jonathan to David", choices:["Jonathan to David","Ruth to Naomi","Paul to Timothy","Barnabas to Paul"], diff:"medium", ref:"1 Samuel 18", bucket:"relationships" },
+  { q:"Who said 'Where you go I will go, where you stay I will stay'?", a:"Ruth", choices:["Ruth","Esther","Naomi","Miriam"], diff:"easy", ref:"Ruth 1:16", bucket:"relationships" },
+  { q:"What is the parable about a father who runs to meet his returning son?", a:"The Prodigal Son", choices:["The Prodigal Son","The Lost Sheep","The Good Samaritan","The Sower"], diff:"easy", ref:"Luke 15", bucket:"relationships" },
+  { q:"What does Jesus say about loving your enemies?", a:"Pray for those who persecute you", choices:["Pray for those who persecute you","Avoid them","Report them","Correct them"], diff:"medium", ref:"Matthew 5:44", bucket:"relationships" },
+  { q:"What book in the Bible is about a woman who stayed loyal to her mother-in-law?", a:"Ruth", choices:["Ruth","Esther","Proverbs","Song of Solomon"], diff:"easy", ref:"Ruth", bucket:"relationships" },
+  { q:"Who was Abraham's nephew who chose to live in Sodom?", a:"Lot", choices:["Lot","Ishmael","Nahor","Haran"], diff:"medium", ref:"Genesis 13", bucket:"relationships" },
+  { q:"What is the Good Samaritan parable about?", a:"Helping someone in need regardless of background", choices:["Helping someone in need regardless of background","Being a good neighbor by staying quiet","Giving money to the poor","Going to church regularly"], diff:"easy", ref:"Luke 10", bucket:"relationships" },
+
+  // ── SPIRITUAL DISCIPLINES ──
+  { q:"How many days did Jesus fast in the wilderness?", a:"40", choices:["10","20","30","40"], diff:"easy", ref:"Matthew 4:2", bucket:"spiritual_disciplines" },
+  { q:"What did Jesus say is required to follow him?", a:"Deny yourself and take up your cross", choices:["Deny yourself and take up your cross","Be baptized","Study the scriptures","Give all your money"], diff:"medium", ref:"Matthew 16:24", bucket:"spiritual_disciplines" },
+  { q:"What does Hebrews 12 say we should do with our eyes fixed on Jesus?", a:"Run with perseverance the race marked out for us", choices:["Run with perseverance the race marked out for us","Walk in the light","Stand firm","Rest in peace"], diff:"medium", ref:"Hebrews 12:1-2", bucket:"spiritual_disciplines" },
+  { q:"How many days and nights did Elijah travel to reach Horeb?", a:"40", choices:["7","14","30","40"], diff:"medium", ref:"1 Kings 19", bucket:"spiritual_disciplines" },
+  { q:"What did Jesus do early in the morning before his busy days?", a:"Prayed in a solitary place", choices:["Prayed in a solitary place","Read the scriptures","Gathered the disciples","Preached in the synagogue"], diff:"medium", ref:"Mark 1:35", bucket:"spiritual_disciplines" },
+  { q:"What does the Lord's Prayer begin with?", a:"Our Father in heaven", choices:["Our Father in heaven","Hallowed be your name","Give us this day","Forgive us our debts"], diff:"easy", ref:"Matthew 6:9", bucket:"spiritual_disciplines" },
+
+  // ── HEART & MIND ──
+  { q:"What does the Bible say about the tongue in James 3?", a:"It is a small part but can corrupt the whole person", choices:["It is a small part but can corrupt the whole person","It should never be used","It is always evil","It must be trained"], diff:"medium", ref:"James 3", bucket:"heart_mind" },
+  { q:"What does Paul say to think about in Philippians 4:8?", a:"Whatever is true noble right pure lovely admirable", choices:["Whatever is true noble right pure lovely admirable","Whatever brings joy","Whatever God commands","Whatever the Bible says"], diff:"medium", ref:"Philippians 4:8", bucket:"heart_mind" },
+  { q:"What does God look at according to 1 Samuel 16:7?", a:"The heart", choices:["The heart","Outward appearance","Wealth","Intelligence"], diff:"easy", ref:"1 Samuel 16:7", bucket:"heart_mind" },
+  { q:"What does Proverbs 4:23 say to guard above all else?", a:"Your heart", choices:["Your heart","Your tongue","Your eyes","Your hands"], diff:"medium", ref:"Proverbs 4:23", bucket:"heart_mind" },
+  { q:"What does Romans 12:2 say about transformation?", a:"Be transformed by the renewing of your mind", choices:["Be transformed by the renewing of your mind","Conform to the world","Change your behavior","Study more scripture"], diff:"medium", ref:"Romans 12:2", bucket:"heart_mind" },
+  { q:"What happened to Job after his trials?", a:"God restored him with twice as much", choices:["God restored him with twice as much","He died peacefully","He became a prophet","He moved to Egypt"], diff:"medium", ref:"Job 42", bucket:"heart_mind" },
+  { q:"What does James say about trials?", a:"Consider it pure joy", choices:["Consider it pure joy","Avoid them","Pray they end","Ask why God allows them"], diff:"medium", ref:"James 1:2", bucket:"heart_mind" },
+
+  // ── END TIMES ──
+  { q:"How many elders surround the throne in Revelation?", a:"24", choices:["12","24","70","144"], diff:"hard", ref:"Revelation 4", bucket:"end_times" },
+  { q:"What number is the mark of the beast in Revelation?", a:"666", choices:["444","555","666","777"], diff:"easy", ref:"Revelation 13", bucket:"end_times" },
+  { q:"What does Jesus say about knowing the day or hour of his return?", a:"No one knows — only the Father", choices:["No one knows — only the Father","Only angels know","It is written in Daniel","The disciples were told"], diff:"medium", ref:"Matthew 24:36", bucket:"end_times" },
+  { q:"What does Revelation describe as the final enemy to be destroyed?", a:"Death", choices:["Death","Satan","Sin","The Antichrist"], diff:"medium", ref:"Revelation 20:14", bucket:"end_times" },
+  { q:"In John's vision what was the sea made of before the throne?", a:"Glass clear as crystal", choices:["Glass clear as crystal","Sapphire","Gold","Fire"], diff:"hard", ref:"Revelation 4:6", bucket:"end_times" },
+  { q:"What promise does Jesus give about heaven in John 14?", a:"I am going to prepare a place for you", choices:["I am going to prepare a place for you","You will rest eternally","There will be no more tears","The streets are paved with gold"], diff:"medium", ref:"John 14:2", bucket:"end_times" },
+  { q:"How many seals are opened in Revelation?", a:"7", choices:["4","7","10","12"], diff:"medium", ref:"Revelation 6-8", bucket:"end_times" },
+
+  // ── IDENTITY ──
+  { q:"What does 2 Corinthians 5:17 say about those who are in Christ?", a:"They are a new creation", choices:["They are a new creation","They are forgiven","They are saved","They are holy"], diff:"medium", ref:"2 Corinthians 5:17", bucket:"identity" },
+  { q:"What does Paul say our citizenship is in Philippians 3?", a:"Heaven", choices:["Heaven","The kingdom of God","The church","Jerusalem"], diff:"medium", ref:"Philippians 3:20", bucket:"identity" },
+  { q:"How does Romans 8 describe those led by the Spirit?", a:"Sons of God", choices:["Sons of God","Servants","Disciples","Believers"], diff:"medium", ref:"Romans 8:14", bucket:"identity" },
+  { q:"What does Jeremiah 29:11 say God has for us?", a:"Plans to prosper and not to harm — plans for hope and a future", choices:["Plans to prosper and not to harm — plans for hope and a future","Plans for punishment","Plans for suffering","Plans that are unknown"], diff:"easy", ref:"Jeremiah 29:11", bucket:"identity" },
+  { q:"What does John 1:12 say gives us the right to become children of God?", a:"Receiving and believing in Jesus", choices:["Receiving and believing in Jesus","Being baptized","Going to church","Living righteously"], diff:"medium", ref:"John 1:12", bucket:"identity" },
+
+  // ── OLD TESTAMENT ──
+  { q:"How many years did Israel wander in the wilderness?", a:"40", choices:["20","30","40","50"], diff:"easy", ref:"Numbers 14", bucket:"old_testament" },
+  { q:"How many plagues did God send on Egypt?", a:"10", choices:["7","8","10","12"], diff:"easy", ref:"Exodus 7-12", bucket:"old_testament" },
+  { q:"What city's walls fell after Israel marched around them?", a:"Jericho", choices:["Jericho","Ai","Hebron","Jerusalem"], diff:"easy", ref:"Joshua 6", bucket:"old_testament" },
+  { q:"How many times did Joshua and Israel march around Jericho on the final day?", a:"7", choices:["1","3","5","7"], diff:"medium", ref:"Joshua 6", bucket:"old_testament" },
+  { q:"What was the sign God gave Noah after the flood?", a:"A rainbow", choices:["A rainbow","A dove","A burning bush","A clear sky"], diff:"easy", ref:"Genesis 9", bucket:"old_testament" },
+  { q:"How many years did Solomon's temple take to build?", a:"7", choices:["3","5","7","10"], diff:"hard", ref:"1 Kings 6", bucket:"old_testament" },
+  { q:"Who led Israel into the Promised Land after Moses died?", a:"Joshua", choices:["Joshua","Caleb","Eleazar","Phinehas"], diff:"easy", ref:"Joshua 1", bucket:"old_testament" },
+  { q:"How long did the Israelites serve in Egypt before the Exodus?", a:"430 years", choices:["200 years","300 years","400 years","430 years"], diff:"hard", ref:"Exodus 12", bucket:"old_testament" },
+  { q:"How many sons did Jacob have?", a:"12", choices:["10","11","12","13"], diff:"easy", ref:"Genesis 35", bucket:"old_testament" },
+  { q:"What king had the famous dream of a statue made of different metals?", a:"Nebuchadnezzar", choices:["Nebuchadnezzar","Cyrus","Belshazzar","Darius"], diff:"hard", ref:"Daniel 2", bucket:"old_testament" },
+
+  // ── NEW TESTAMENT ──
+  { q:"How many letters did Paul write to the Corinthians?", a:"2", choices:["1","2","3","4"], diff:"easy", ref:"NT", bucket:"new_testament" },
+  { q:"What book comes after Acts in the New Testament?", a:"Romans", choices:["Romans","Galatians","Ephesians","Corinthians"], diff:"medium", ref:"NT", bucket:"new_testament" },
+  { q:"Which letter of Paul was written to a runaway slave's owner?", a:"Philemon", choices:["Philemon","Colossians","Ephesians","Galatians"], diff:"hard", ref:"Philemon", bucket:"new_testament" },
+  { q:"How many books are in the New Testament?", a:"27", choices:["24","25","27","29"], diff:"medium", ref:"Bible", bucket:"new_testament" },
+  { q:"Who was the author of the Gospel of Luke?", a:"Luke", choices:["Luke","Paul","Mark","John"], diff:"easy", ref:"Luke 1", bucket:"new_testament" },
+  { q:"Who wrote the book of Revelation?", a:"John", choices:["John","Paul","Peter","James"], diff:"easy", ref:"Revelation 1", bucket:"new_testament" },
+  { q:"How many times did Paul receive 39 lashes from the Jews?", a:"5", choices:["2","3","4","5"], diff:"hard", ref:"2 Corinthians 11", bucket:"new_testament" },
+  { q:"Who was the mother of John the Baptist?", a:"Elizabeth", choices:["Elizabeth","Mary","Anna","Joanna"], diff:"medium", ref:"Luke 1", bucket:"new_testament" },
+  { q:"Who was the father of John the Baptist?", a:"Zechariah", choices:["Zechariah","Joseph","Simeon","Eli"], diff:"medium", ref:"Luke 1", bucket:"new_testament" },
+  { q:"Where did Jesus speak to the Samaritan woman?", a:"Jacob's Well", choices:["Jacob's Well","The temple","Sychar","The synagogue"], diff:"hard", ref:"John 4", bucket:"new_testament" },
+  { q:"On which day of creation did God not say it was good?", a:"Day 2", choices:["Day 1","Day 2","Day 4","Day 6"], diff:"hard", ref:"Genesis 1" },
+  { q:"What was the first woman called before she was given a name?", a:"Woman", choices:["Woman","Eve","She","Isha"], diff:"medium", ref:"Genesis 2" },
+  { q:"How old was Enoch when he died?", a:"He never died — God took him", choices:["He never died — God took him","365 years old","777 years old","969 years old"], diff:"medium", ref:"Genesis 5" },
+  { q:"Which of Noah's sons disrespected him after the flood?", a:"Ham", choices:["Ham","Shem","Japheth","Canaan"], diff:"medium", ref:"Genesis 9" },
+  { q:"Which of Noah's sons are the Israelites descended from?", a:"Shem", choices:["Shem","Ham","Japheth","Noah had no other sons"], diff:"medium", ref:"Genesis 11" },
+  { q:"What did Abram tell Pharaoh about Sarai in Egypt?", a:"She is my sister", choices:["She is my sister","She is my servant","She is a widow","She is a prophetess"], diff:"medium", ref:"Genesis 12" },
+  { q:"Who was the king that brought out bread and wine and blessed Abram?", a:"Melchizedek", choices:["Melchizedek","Pharaoh","Abimelech","The king of Sodom"], diff:"hard", ref:"Genesis 14" },
+  { q:"What is the name of Abraham's firstborn son?", a:"Ishmael", choices:["Ishmael","Isaac","Zimran","Midian"], diff:"easy", ref:"Genesis 16" },
+  { q:"What name did Hagar call the LORD after He spoke to her?", a:"El Roi", choices:["El Roi","El Shaddai","Yahweh","Elohim"], diff:"hard", ref:"Genesis 16" },
+  { q:"How old was Abram when Ishmael was born?", a:"86", choices:["75","80","86","99"], diff:"hard", ref:"Genesis 16" },
+  { q:"What name did the LORD call Himself when establishing the covenant of circumcision with Abraham?", a:"El Shaddai", choices:["El Shaddai","El Roi","Yahweh","Adonai"], diff:"hard", ref:"Genesis 17" },
+  { q:"How many princes did God promise would come from Ishmael?", a:"12", choices:["7","10","12","14"], diff:"hard", ref:"Genesis 17" },
+  { q:"How old was Ishmael when he was circumcised?", a:"13", choices:["8 days","1 year","13","17"], diff:"hard", ref:"Genesis 17" },
+];
+
+// Function to get daily trivia questions based on today's topic
+function getDailyTriviaQuestions(topic, count=5) {
+  const bucket = TOPIC_BUCKET_MAP[topic] || 'general';
+  
+  // Get questions from matching bucket
+  let pool = DAILY_TRIVIA_BANK.filter(q => q.bucket === bucket);
+  
+  // If not enough, add from related buckets or general pool
+  if(pool.length < count) {
+    const extra = DAILY_TRIVIA_BANK.filter(q => q.bucket !== bucket);
+    pool = [...pool, ...extra];
+  }
+  
+  // Shuffle and return count questions
+  const shuffled = pool.sort(() => {
+    // Use deterministic seed based on today's date for consistency
+    const seed = getDailySeed(topic);
+    return (seed % 2 === 0 ? 1 : -1) * (Math.random() - 0.5);
+  });
+  
+  return shuffled.slice(0, count);
+}
+
+
 async function getDailyTopicAndVerses() {
   if(_dailyTopicCache && _dailyVersePool) return { topic: _dailyTopicCache, verses: _dailyVersePool };
 
@@ -8981,6 +8877,66 @@ async function renderDailyChallenge() {
 
 let dailyChallengeMode = { active: false, game: null };
 
+function renderDailyTriviaGame(topic) {
+  const questions = getDailyTriviaQuestions(topic, 5);
+  const root = document.getElementById('root');
+  const bucket = TOPIC_BUCKET_MAP[topic] || 'general';
+  const bucketLabel = bucket.replace(/_/g,' ').replace(/\w/g,c=>c.toUpperCase());
+  
+  let qIdx = 0;
+  let score = 0;
+  let correct = 0;
+
+  function renderQ() {
+    if(qIdx >= questions.length) {
+      // Done — show result
+      markDailyCompleted('trivia', score);
+      submitDailyScore('trivia', score);
+      updateStreak();
+      showDailyResult('trivia', score);
+      return;
+    }
+
+    const q = questions[qIdx];
+    const choices = shuffle([...q.choices]);
+
+    root.innerHTML = `
+      <div style="text-align:center;margin-bottom:12px;">
+        <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Bible Trivia</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">Today's theme: <strong>${topic.charAt(0).toUpperCase()+topic.slice(1)}</strong> · Question ${qIdx+1} of ${questions.length}</div>
+      </div>
+      <div class="card" style="max-width:560px;width:100%;">
+        <div style="font-size:0.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">${q.diff.toUpperCase()} · ${q.ref}</div>
+        <div style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:18px;">${q.q}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="choicesGrid">
+          ${choices.map(c=>`<button class="ref-option" data-ans="${c}">${c}</button>`).join('')}
+        </div>
+        <div class="feedback" id="trivFeedback"></div>
+      </div>
+      <div style="text-align:center;margin-top:12px;">
+        <div style="font-size:0.88rem;font-weight:700;color:var(--text);">Score: ${score}</div>
+        <div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">
+          ${Array.from({length:questions.length},(_,i)=>`<div style="width:10px;height:10px;border-radius:50%;background:${i<qIdx?'#5aaa30':i===qIdx?'#f4b942':'rgba(139,105,20,0.2)'}"></div>`).join('')}
+        </div>
+      </div>`;
+
+    document.querySelectorAll('.ref-option').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.ref-option').forEach(b=>b.disabled=true);
+        const isCorrect = btn.dataset.ans === q.a;
+        btn.classList.add(isCorrect?'correct':'wrong');
+        const correctBtn = document.querySelector(`[data-ans="${q.a}"]`);
+        if(!isCorrect && correctBtn) correctBtn.classList.add('correct');
+        const pts = q.diff === 'easy' ? 300 : q.diff === 'medium' ? 500 : 800;
+        if(isCorrect) { score += pts; correct++; document.getElementById('trivFeedback').className='feedback correct'; document.getElementById('trivFeedback').textContent=`✓ Correct! +${pts}`; }
+        else { document.getElementById('trivFeedback').className='feedback wrong'; document.getElementById('trivFeedback').textContent=`✗ ${q.a}`; }
+        setTimeout(()=>{ qIdx++; renderQ(); }, 1200);
+      };
+    });
+  }
+  renderQ();
+}
+
 async function startDailyGame(game) {
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading today's verse…</div></div>`;
@@ -8993,7 +8949,8 @@ async function startDailyGame(game) {
     renderDailyScout(verse);
   } else if(game === 'trivia') {
     dailyChallengeMode = { active: true, game };
-    startTrivia('easy');
+    const { topic } = await getDailyTopicAndVerses();
+    renderDailyTriviaGame(topic);
   } else if(game === 'mia') {
     dailyChallengeMode = { active: true, game };
     renderDailyMIA(verse);
