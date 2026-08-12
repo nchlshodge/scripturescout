@@ -2242,6 +2242,7 @@ function endlessGuess(type, choice) {
 
 function endlessGameOver(lost) {
   endlessMode = false;
+  _endlessStreakTracked = false;
   const card = document.getElementById('card');
   if(!card) return;
   card.innerHTML = `
@@ -2272,6 +2273,7 @@ function endlessGameOver(lost) {
     try {
       await submitScore(name, endlessScore, 'endless');
       document.getElementById('submitEndlessBtn').textContent = '✓ Submitted!';
+      await updateStreak();
       setTimeout(()=>{ lbFilter='endless'; switchTab('leaderboard'); }, 1200);
     } catch(e) {
       const btn = document.getElementById('submitEndlessBtn');
@@ -2293,6 +2295,8 @@ function endlessGameOver(lost) {
       }
     }
   };
+  // Track streak for endless — even if no score submitted
+  if(!_endlessStreakTracked) { _endlessStreakTracked = true; updateStreak(); }
   document.getElementById('playAgainEndlessBtn').onclick = startEndless;
   document.getElementById('chooseDiffEndlessBtn').onclick = ()=>{ endlessMode=false; renderDiffScreen(); };
 }
@@ -5762,6 +5766,7 @@ function rateMemoryEndless(rating) {
 
   if(es.missCount >= 3) {
     // Game over
+    updateStreak();
     document.getElementById('root').innerHTML = `
       <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
         <div class="verse-label">♾️ Endless Memory Trail</div>
@@ -5893,6 +5898,7 @@ function renderBlankInputEndless() {
 
 function endMIAEndless(lost) {
   const es = miaEndlessState;
+  updateStreak();
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div class="verse-label">♾️ Endless Missing in Action</div>
@@ -5999,6 +6005,7 @@ async function renderTrackEndlessCard() {
 
 function endTrackEndless(lost) {
   const es = trackEndlessState;
+  updateStreak();
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div class="verse-label">♾️ Endless Track It Down</div>
