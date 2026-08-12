@@ -4673,7 +4673,6 @@ const TOPICS = [
       { type: 'trivia', label: 'Bible Trivia', desc: '5 questions about creation', pts: 1500 },
       { type: 'fillin', label: 'Fill in the Blank', desc: 'Complete 3 key creation verses', pts: 900 },
     ],
-    triviaIds: ['creation_q1','creation_q2','creation_q3','creation_q4','creation_q5'],
     scoutBooks: ['Genesis'],
     fillVerses: [
       { ref:'Genesis 1:1', text:'In the beginning God created the _____ and the earth.', answer:'heavens', hint:'The sky above' },
@@ -4686,6 +4685,30 @@ const TOPICS = [
       { q:'On which day of creation did God NOT say it was good?', a:'Day 2', choices:['Day 1','Day 2','Day 4','Day 6'], diff:'hard', ref:'Genesis 1' },
       { q:'From what did God form Adam?', a:'Dust of the ground', choices:['Dust of the ground','Clay','Water','Stone'], diff:'medium', ref:'Genesis 2:7' },
       { q:'What did God do on the seventh day?', a:'Rested', choices:['Rested','Created the sea','Made the animals','Blessed Adam'], diff:'easy', ref:'Genesis 2:2' },
+    ],
+  },
+  {
+    id: 'the_fall',
+    title: 'The Fall',
+    subtitle: 'The serpent, the fruit, and the consequences',
+    randyIntro: "Everything was perfect. Then it wasn't. The fall isn't just ancient history — it explains why the world is broken, why relationships are hard, why work is difficult, and why we need a savior. This is where the rescue story begins.",
+    rounds: [
+      { type: 'trivia', label: 'Bible Trivia', desc: '5 questions about the fall', pts: 1500 },
+      { type: 'fillin', label: 'Fill in the Blank', desc: 'Complete 3 key verses', pts: 900 },
+      { type: 'scout', label: 'Scripture Scout', desc: 'Find 3 verses about sin and the fall', pts: 1000 },
+    ],
+    scoutBooks: ['Genesis'],
+    fillVerses: [
+      { ref:'Genesis 3:6', text:'When the woman saw that the fruit of the tree was good for food and pleasing to the eye, and also desirable for gaining _____, she took some and ate it.', answer:'wisdom', hint:'Something the serpent promised' },
+      { ref:'Genesis 3:15', text:'And I will put enmity between you and the woman, and between your offspring and _____; he will crush your head, and you will strike his heel.', answer:'hers', hint:'Her offspring' },
+      { ref:'Genesis 3:19', text:'By the sweat of your brow you will eat your food until you return to the _____, since from it you were taken; for dust you are and to dust you shall return.', answer:'ground', hint:'Where we came from' },
+    ],
+    trivia: [
+      { q:'What animal did Satan use to tempt Eve?', a:'A serpent', choices:['A serpent','A raven','A lion','A wolf'], diff:'easy', ref:'Genesis 3:1' },
+      { q:'What did Eve do after eating the fruit?', a:'Gave some to Adam', choices:['Gave some to Adam','Hid from God','Blamed the serpent','Wept and confessed'], diff:'easy', ref:'Genesis 3:6' },
+      { q:'What did God place east of Eden to guard the tree of life?', a:'Cherubim and a flaming sword', choices:['Cherubim and a flaming sword','A great wall','Angels with spears','A river of fire'], diff:'medium', ref:'Genesis 3:24' },
+      { q:'What curse did God give the serpent?', a:'To crawl on its belly and eat dust', choices:['To crawl on its belly and eat dust','To lose its wings','To become blind','To live in darkness'], diff:'medium', ref:'Genesis 3:14' },
+      { q:'What did God make for Adam and Eve before sending them out of Eden?', a:'Garments of skin', choices:['Garments of skin','Sandals and cloaks','Nothing — they left as they were','Linen robes'], diff:'medium', ref:'Genesis 3:21' },
     ],
   },
 ];
