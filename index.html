@@ -4711,6 +4711,31 @@ const TOPICS = [
       { q:'What did God make for Adam and Eve before sending them out of Eden?', a:'Garments of skin', choices:['Garments of skin','Sandals and cloaks','Nothing — they left as they were','Linen robes'], diff:'medium', ref:'Genesis 3:21' },
     ],
   },
+  {
+    id: 'noah',
+    title: 'Noah and the Flood',
+    subtitle: 'Righteousness, judgment, and a new beginning',
+    randyIntro: "The flood isn't a children's story. It's a story about a holy God who cannot ignore sin, and a faithful man who trusted God when everything around him said not to. It ends with a rainbow — but it starts with courage.",
+    rounds: [
+      { type: 'trivia', label: 'Bible Trivia', desc: '5 questions about Noah', pts: 1500 },
+      { type: 'fillin', label: 'Fill in the Blank', desc: 'Complete 3 key flood verses', pts: 900 },
+      { type: 'scout', label: 'Scripture Scout', desc: 'Find 3 verses about Noah', pts: 1000 },
+    ],
+    scoutBooks: ['Genesis'],
+    fillVerses: [
+      { ref:'Genesis 6:9', text:'Noah was a righteous man, blameless among the people of his time, and he _____ faithfully with God.', answer:'walked', hint:'How Enoch also related to God' },
+      { ref:'Genesis 7:1', text:'The Lord then said to Noah, "Go into the ark, you and your whole family, because I have found you _____ in this generation."', answer:'righteous', hint:'The reason God chose Noah' },
+      { ref:'Genesis 9:13', text:'I have set my _____ in the clouds, and it will be the sign of the covenant between me and the earth.', answer:'rainbow', hint:'A colorful promise in the sky' },
+    ],
+    trivia: [
+      { q:"How many days and nights did it rain during the flood?", a:"40", choices:["7","20","40","150"], diff:"easy", ref:"Genesis 7:12" },
+      { q:"What bird did Noah first send out from the ark?", a:"A raven", choices:["A raven","A dove","A sparrow","A swallow"], diff:"medium", ref:"Genesis 8:7" },
+      { q:"What were the names of Noah's three sons?", a:"Shem, Ham, and Japheth", choices:["Shem, Ham, and Japheth","Cain, Abel, and Seth","Reuben, Simeon, and Levi","Aaron, Moses, and Miriam"], diff:"medium", ref:"Genesis 6:10" },
+      { q:"What was the sign of God's covenant with Noah after the flood?", a:"A rainbow", choices:["A rainbow","A dove","A burning bush","A clear sky"], diff:"easy", ref:"Genesis 9:13" },
+      { q:"How long was Noah on the ark before the waters fully receded?", a:"About a year", choices:["40 days","6 months","About a year","3 years"], diff:"hard", ref:"Genesis 7-8" },
+    ],
+  },
+
 ];
 
 // ── Current topic session state ──
