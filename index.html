@@ -8057,7 +8057,7 @@ async function updateStreak(bonusDay=false) {
     newTokens = 0;
   }
 
-  // Award Sabbath Rest every 5 days
+  // Award Sabbath Rest every 6 days
   if(newStreak % 5 === 0 && newStreak > 0) {
     newTokens = Math.min(3, newTokens + 1);
   }
@@ -8075,7 +8075,7 @@ async function updateStreak(bonusDay=false) {
   });
 
   // Show journal card — only on FIRST play of the day (new streak update)
-  const sabbathEarned = newStreak % 5 === 0 && newTokens > streak.freeze_tokens;
+  const sabbathEarned = newStreak % 6 === 0 && newTokens > streak.freeze_tokens;
   // Small delay so game completion screen shows first
   setTimeout(() => {
     if(usedSabbath) { playStreak(); showJournalCard(newStreak, newLongest, newTokens, false, true, false); }
@@ -8226,8 +8226,8 @@ function getJournalEntry(streak, isSabbathEarned, isSabbathUsed, isReset) {
   if(isSabbathEarned) return {
     tag: '🌿 Sabbath Rest Earned', tagClass: 'journal-tag-green',
     date: dateStr,
-    body: streak === 5
-      ? `Day 5. The Lord rested on the seventh — Randy rests on the fifth.<br><br>A <strong>🌿 Sabbath Rest</strong> added to the pack. If you miss a day, it'll cover you. Use it wisely — or better yet, don't need it at all.`
+    body: streak === 6
+      ? `Day 6. Six days of work, then rest — even God kept that rhythm.<br><br>A <strong>🌿 Sabbath Rest</strong> added to the pack. If you miss a day, it'll cover you. Use it wisely — or better yet, don't need it at all.`
       : `Day ${streak}. Another <strong>🌿 Sabbath Rest</strong> earned.<br><br>At this rate you're going to run out of days to miss. That's called faithfulness.`,
     sign: '<strong>Selah.</strong>',
     sabbath: true
