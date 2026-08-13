@@ -973,7 +973,7 @@ async function showHome() {
 
   // Fetch top 3 scores for mini leaderboard
   let topScores = [];
-  try { topScores = await sbFetch(`leaderboard?difficulty=eq.easy&order=score.desc&limit=3&select=name,score`); } catch(e) {}
+  try { topScores = await sbFetch(`leaderboard?difficulty=eq.easy&order=score.desc&limit=3&select=name,score`); } catch(e) { console.warn("Caught:", e?.message); }
 
   // Fetch user stats if logged in
   let userStats = null;
@@ -987,7 +987,7 @@ async function showHome() {
           streak: calculateStreak(scores)
         };
       }
-    } catch(e) {}
+    } catch(e) { console.warn("Caught:", e?.message); }
   }
 
   const endlessUnlocked = isEndlessUnlocked();
@@ -1206,7 +1206,7 @@ async function showHome() {
   document.getElementById('homeLeaderboardBtn').onclick = () => { showBackBtn(true); renderLeaderboardHub(); };
   document.getElementById('homeStoryBtn').onclick = () => { showBackBtn(true); renderStoryModeV2(); };
 
-  if(completedCount === 4) updateStreak(true);
+  if(completedCount === 4) { updateStreak(true); }
 
   // Fetch daily theme
   try {
@@ -1215,7 +1215,7 @@ async function showHome() {
     const topics = await sbFetch(`verse_topics?order=id&limit=1&offset=${topicIdx}&select=topic`).catch(()=>[]);
     const themeEl = document.getElementById('homeDailyTheme');
     if(themeEl && topics.length) themeEl.textContent = topics[0].topic;
-  } catch(e) {}
+  } catch(e) { console.warn("Caught:", e?.message); }
 }
 
 function calculateStreak(scores) {
@@ -1343,7 +1343,7 @@ async function restoreSession() {
         }
         return true;
       }
-    } catch(e) {}
+    } catch(e) { console.warn("Caught:", e?.message); }
     localStorage.removeItem('ss_token');
     localStorage.removeItem('ss_user');
     localStorage.removeItem('ss_username');
@@ -2240,7 +2240,7 @@ function endlessGuess(type, choice) {
   }
 }
 
-function endlessGameOver(lost) {
+async function endlessGameOver(lost) {
   endlessMode = false;
   _endlessStreakTracked = false;
   const card = document.getElementById('card');
@@ -2296,7 +2296,7 @@ function endlessGameOver(lost) {
     }
   };
   // Track streak for endless — even if no score submitted
-  if(!_endlessStreakTracked) { _endlessStreakTracked = true; updateStreak(); }
+  if(!_endlessStreakTracked) { _endlessStreakTracked = true; await updateStreak(); }
   document.getElementById('playAgainEndlessBtn').onclick = startEndless;
   document.getElementById('chooseDiffEndlessBtn').onclick = ()=>{ endlessMode=false; renderDiffScreen(); };
 }
@@ -2457,10 +2457,10 @@ function renderCard() {
     <div class="phase-label" id="phaseLabel">${stepLabel} <span class="pts-hint">(+${pts} pts)</span></div>
     <div id="choicesArea"></div>
     <div class="feedback" id="feedback"></div>`;
-  renderPhase();
+  _renderCardPhase();
 }
 
-function renderPhase() {
+function _renderCardPhase() {
   const area=document.getElementById('choicesArea');
   if(!area)return;
   const mp=maxPhases();
@@ -2603,7 +2603,7 @@ function awardAndAdvance(correct,pts,reveal,nextPhase){
     }
     document.querySelectorAll('.phase-dot').forEach((d,i)=>{d.className=`phase-dot${i<phase?' done':i===phase?' active':''}`;});
 
-    if(phase<mp)renderPhase();else renderNextButton();
+    if(phase<mp)_renderCardPhase();else renderNextButton();
   },1100);
 }
 
@@ -3476,7 +3476,6 @@ async function renderRefChallengeComplete() {
 let storyProgress = {}; // pathId -> chapterNum completed
 
 async function renderStoryMode() {
-  localStorage.setItem('ss_story_started', '1');
   showBackBtn(true);
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading stories…</div></div>`;
@@ -3484,7 +3483,7 @@ async function renderStoryMode() {
 
   try {
     const paths = await sbFetch('story_paths?order=order_num&select=*');
-    const chapters = await sbFetch('story_chapters?select=id,path_id,chapter_num&order=chapter_num');
+    // story_chapters removed (old story mode)
 
     // Load user progress if logged in
     if(currentUser) {
@@ -3501,7 +3500,7 @@ async function renderStoryMode() {
             storyProgress[key] = p.stars;
           }
         });
-      } catch(e) {}
+      } catch(e) { console.warn("Caught:", e?.message); }
     }
 
     const otPaths = paths.filter(p => p.testament !== 'NT');
@@ -3532,7 +3531,7 @@ async function renderStoryMode() {
     const lastTotal = lastPath ? chapters.filter(c => c.path_id === lastPath.id).length : 0;
     const lastPct = lastTotal > 0 ? Math.round((lastCompleted / lastTotal) * 100) : 0;
 
-    let activeTestament = localStorage.getItem('ss_story_testament') || 'NT';
+    let activeTestament = 'OT';
 
     function renderStoryScreen() {
       const currentPaths = activeTestament === 'NT' ? ntPaths : otPaths;
@@ -3574,13 +3573,11 @@ async function renderStoryMode() {
 
       document.getElementById('storyNTTab').onclick = () => {
         activeTestament = 'NT';
-        localStorage.setItem('ss_story_testament', 'NT');
-        renderStoryScreen();
+              renderStoryScreen();
       };
       document.getElementById('storyOTTab').onclick = () => {
         activeTestament = 'OT';
-        localStorage.setItem('ss_story_testament', 'OT');
-        renderStoryScreen();
+              renderStoryScreen();
       };
       document.querySelectorAll('.story-path-card').forEach(card => {
         card.addEventListener('click', () => {
@@ -3675,7 +3672,7 @@ async function renderStoryChapter(chapter, pathId, completedSoFar) {
   try {
     const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&book=eq.${encodeURIComponent(chapter.book)}&chapter=eq.${chapter.chapter}&verse=eq.${chapter.verse}&select=text&limit=1`);
     if(rows.length) verseText = rows[0].text;
-  } catch(e) {}
+  } catch(e) { console.warn("Caught:", e?.message); }
 
   // Get existing stars for this chapter
   const existingStars = storyProgress[`stars_${pathId}_${chapter.chapter_num}`] || 0;
@@ -4902,7 +4899,7 @@ function startTopicRound(topicId, roundIdx) {
   else if(round.type === 'scout') renderTopicScout(t, roundIdx);
 }
 
-function finishTopicRound(topicId, roundIdx, score) {
+async function finishTopicRound(topicId, roundIdx, score) {
   saveTopicProgress(topicId, roundIdx, score);
   const t = TOPICS.find(x => x.id === topicId);
   if(!t) return;
@@ -4954,7 +4951,7 @@ function finishTopicRound(topicId, roundIdx, score) {
   root.innerHTML = page;
 
   // Trigger streak
-  updateStreak();
+  await updateStreak();
 }
 
 // ── TRIVIA ROUND ──
@@ -5752,7 +5749,7 @@ function renderMemoryEndlessCard() {
   };
 }
 
-function rateMemoryEndless(rating) {
+async function rateMemoryEndless(rating) {
   const es = memoryEndlessState;
   if(rating === 'knew_it') {
     es.streak++;
@@ -5766,7 +5763,7 @@ function rateMemoryEndless(rating) {
 
   if(es.missCount >= 3) {
     // Game over
-    updateStreak();
+    await updateStreak();
     document.getElementById('root').innerHTML = `
       <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
         <div class="verse-label">♾️ Endless Memory Trail</div>
@@ -5896,9 +5893,9 @@ function renderBlankInputEndless() {
   });
 }
 
-function endMIAEndless(lost) {
+async function endMIAEndless(lost) {
   const es = miaEndlessState;
-  updateStreak();
+  await updateStreak();
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div class="verse-label">♾️ Endless Missing in Action</div>
@@ -6003,9 +6000,9 @@ async function renderTrackEndlessCard() {
   });
 }
 
-function endTrackEndless(lost) {
+async function endTrackEndless(lost) {
   const es = trackEndlessState;
-  updateStreak();
+  await updateStreak();
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div class="verse-label">♾️ Endless Track It Down</div>
@@ -6136,7 +6133,7 @@ async function checkForPendingChallenges() {
         setTimeout(() => showChallengeBanner(challenges[0]), 2500);
       }
     }
-  } catch(e) {}
+  } catch(e) { console.warn("Caught:", e?.message); }
 }
 
 async function renderChallenges() {
@@ -6223,7 +6220,7 @@ async function acceptChallenge(challengeId, game, difficulty, challengerScore, b
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
       body: JSON.stringify({ opponent_started_at: startedAt })
     });
-  } catch(e) {}
+  } catch(e) { console.warn("Caught:", e?.message); }
 
   // Fetch the specific verse if provided
   let challengeVerse = null;
@@ -6347,7 +6344,7 @@ function renderChallengeScout(verse) {
   let score = 0;
   let phase = 1;
 
-  function renderPhase() {
+  function _renderCardPhase() {
     root.innerHTML = challengeHUD() + `
       <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
         <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
@@ -6374,7 +6371,7 @@ function renderChallengeScout(verse) {
           if(!isCorrect) area.querySelector(`[data-ans="${correctTestament}"]`).classList.add('correct');
           if(isCorrect) { score+=300; fb.className='feedback correct'; fb.textContent='✓ Correct! +300'; playCorrect(); }
           else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctTestament==='OT'?'Old':'New'} Testament`; playWrong(); }
-          setTimeout(()=>{ phase=2; renderPhase(); }, 1200);
+          setTimeout(()=>{ phase=2; _renderChallengePhase(); }, 1200);
         };
       });
     } else if(phase === 2) {
@@ -6395,7 +6392,7 @@ function renderChallengeScout(verse) {
           if(!isCorrect && correctBookBtn) correctBookBtn.classList.add('correct');
           if(isCorrect) { score+=500; fb.className='feedback correct'; fb.textContent='✓ Correct! +500'; playCorrect(); }
           else { fb.className='feedback wrong'; fb.textContent=`✗ It was ${correctBook}`; playWrong(); }
-          setTimeout(()=>{ phase=3; renderPhase(); }, 1200);
+          setTimeout(()=>{ phase=3; _renderChallengePhase(); }, 1200);
         };
       });
     } else {
@@ -6424,7 +6421,7 @@ function renderChallengeScout(verse) {
       });
     }
   }
-  renderPhase();
+  _renderChallengePhase();
 }
 
 function renderChallengeMIA(verse) {
@@ -6675,7 +6672,7 @@ async function createNotification(userId, type, message, data={}) {
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=minimal' },
       body: JSON.stringify({ user_id: userId, type, message, data })
     });
-  } catch(e) {}
+  } catch(e) { console.warn("Caught:", e?.message); }
 }
 
 async function markNotifRead(id) {
@@ -6685,7 +6682,7 @@ async function markNotifRead(id) {
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
       body: JSON.stringify({ read: true })
     });
-  } catch(e) {}
+  } catch(e) { console.warn("Caught:", e?.message); }
 }
 
 async function renderNotifications() {
@@ -6998,8 +6995,8 @@ function computeBadges(stats, streak, scores) {
   // Exploration badges
   const playedGames = new Set(scores.map(s => s.game || 'scout'));
   if(playedGames.size >= 4 || totalGames >= 4) earned.add('all_games');
-  if(localStorage.getItem('ss_story_started')) earned.add('story_start');
-  if(parseInt(localStorage.getItem('ss_daily_done_count')||0) >= 7) earned.add('daily_7');
+  // story_start badge check removed (old story mode)
+  if(parseInt(localStorage.getItem('ss_daily_completed_count')||0) >= 7) earned.add('daily_7');
 
   return earned;
 }
@@ -7313,7 +7310,7 @@ async function acceptFriend(requestId, fromId, fromUsername) {
     await createNotification(fromId, 'friend_accept', `${currentUsername} accepted your friend request! 🤝`, { from_id: currentUser.id });
     showStreakToast(`You and ${fromUsername} are now friends!`);
     renderFriends();
-  } catch(e) {}
+  } catch(e) { console.warn("Caught:", e?.message); }
 }
 
 async function declineFriend(requestId) {
@@ -7324,7 +7321,7 @@ async function declineFriend(requestId) {
     });
     showStreakToast('Request declined.');
     renderFriends();
-  } catch(e) {}
+  } catch(e) { console.warn("Caught:", e?.message); }
 }
 
 async function challengeFriend(friendId, friendUsername) {
@@ -8223,7 +8220,7 @@ function playTone(frequency, duration, type='sine', volume=0.3, delay=0) {
     gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
     oscillator.start(ctx.currentTime + delay);
     oscillator.stop(ctx.currentTime + delay + duration);
-  } catch(e) {}
+  } catch(e) { console.warn("Caught:", e?.message); }
 }
 
 function playCorrect() {
@@ -8811,7 +8808,7 @@ async function getDailyTopicAndVerses() {
       _dailyTopicCache = topic;
       _dailyVersePool = verses;
       return { topic, verses };
-    } catch(e) {}
+    } catch(e) { console.warn("Caught:", e?.message); }
   }
 
   // Pick today's topic from curated list using day-of-year
@@ -8845,7 +8842,7 @@ async function getDailyTopicAndVerses() {
   _dailyVersePool = pool;
 
   // Cache in localStorage for instant loads today
-  try { localStorage.setItem(cacheKey, JSON.stringify({ topic, verses: pool })); } catch(e) {}
+  try { localStorage.setItem(cacheKey, JSON.stringify({ topic, verses: pool })); } catch(e) { console.warn("Caught:", e?.message); }
 
   return { topic, verses: pool };
 }
@@ -8958,12 +8955,12 @@ function renderDailyTriviaGame(topic) {
   let score = 0;
   let correct = 0;
 
-  function renderQ() {
+  async function _renderDailyTriviaQ() {
     if(qIdx >= questions.length) {
       // Done — show result
       markDailyCompleted('trivia', score);
       submitDailyScore('trivia', score);
-      updateStreak();
+      await updateStreak();
       showDailyResult('trivia', score);
       return;
     }
@@ -9001,11 +8998,11 @@ function renderDailyTriviaGame(topic) {
         const pts = q.diff === 'easy' ? 300 : q.diff === 'medium' ? 500 : 800;
         if(isCorrect) { score += pts; correct++; document.getElementById('trivFeedback').className='feedback correct'; document.getElementById('trivFeedback').textContent=`✓ Correct! +${pts}`; }
         else { document.getElementById('trivFeedback').className='feedback wrong'; document.getElementById('trivFeedback').textContent=`✗ ${q.a}`; }
-        setTimeout(()=>{ qIdx++; renderQ(); }, 1200);
+        setTimeout(()=>{ qIdx++; _renderDailyTriviaQ(); }, 1200);
       };
     });
   }
-  renderQ();
+  _renderDailyTriviaQ();
 }
 
 async function startDailyGame(game) {
@@ -9544,7 +9541,7 @@ const supabaseClient = (typeof supabase !== 'undefined')
           } else {
             playerName = currentUser.email ? currentUser.email.split('@')[0] : 'Scout';
           }
-        } catch(e) {}
+        } catch(e) { console.warn("Caught:", e?.message); }
 
         if(window.location.hash || window.location.search.includes('code=')) {
           window.history.replaceState({}, document.title, window.location.pathname);
