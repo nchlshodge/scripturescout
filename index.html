@@ -892,6 +892,10 @@
 // ═══════════════════════════════════════
 const SUPABASE_URL = 'https://xzkxigwzoznefywsiwmb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6a3hpZ3d6b3puZWZ5d3Npd21iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDU4ODgsImV4cCI6MjA5NjgyMTg4OH0.TGB5L5Tp9ZBK-tj_yPUkNPfUkop4eHUkuBigkeH2Pvs';
+// True once this build is running inside the native Capacitor shell (absent on the plain website).
+const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+// Custom URL scheme the native apps register to catch the OAuth redirect back from the system browser.
+const NATIVE_OAUTH_REDIRECT = 'scripturescout://auth-callback';
 let TRANSLATION = localStorage.getItem('ss_translation') || 'WEB';
 
 const OT_BOOKS = [
@@ -937,6 +941,8 @@ let lbFilter = 'easy';
 let playerName = localStorage.getItem('ss_player_name') || '';
 let currentUser = null;
 let authToken = null;
+let refreshToken = null;
+let tokenRefreshInterval = null;
 let correctCount = 0;
 let currentUsername = localStorage.getItem('ss_username') || '';
 // Endless mode state
@@ -1239,7 +1245,7 @@ function showFullStats() { showBackBtn(true); renderStats(); }
 // ═══════════════════════════════════════
 // SUPABASE HELPERS
 // ═══════════════════════════════════════
-async function sbFetch(path, options={}) {
+async function sbFetch(path, options={}, _retried=false) {
   const token = authToken || SUPABASE_KEY;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     ...options,
@@ -1250,6 +1256,9 @@ async function sbFetch(path, options={}) {
       ...(options.headers || {})
     }
   });
+  if (res.status === 401 && !_retried && authToken && await refreshAuthToken()) {
+    return sbFetch(path, options, true);
+  }
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json();
 }
@@ -1268,6 +1277,38 @@ async function authFetch(endpoint, body) {
   return data;
 }
 
+function storeSession(data) {
+  authToken = data.access_token;
+  refreshToken = data.refresh_token || refreshToken;
+  localStorage.setItem('ss_token', authToken);
+  if (data.refresh_token) localStorage.setItem('ss_refresh_token', data.refresh_token);
+}
+
+// Supabase access tokens expire (default ~1hr) — refresh proactively so long-lived
+// sessions (e.g. a backgrounded mobile app) don't silently start failing every call.
+async function refreshAuthToken() {
+  if (!refreshToken) return false;
+  try {
+    const data = await authFetch('token?grant_type=refresh_token', { refresh_token: refreshToken });
+    if (data.access_token) {
+      storeSession(data);
+      return true;
+    }
+  } catch (e) { console.warn('Token refresh failed:', e?.message); }
+  return false;
+}
+
+function startTokenRefreshTimer() {
+  if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
+  // Refresh well before the ~1hr expiry, and whenever the app returns to the foreground stale.
+  tokenRefreshInterval = setInterval(() => { if (refreshToken) refreshAuthToken(); }, 45 * 60 * 1000);
+}
+
+function stopTokenRefreshTimer() {
+  if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
+  tokenRefreshInterval = null;
+}
+
 async function signUp(email, password) {
   const data = await authFetch('signup', { email, password });
   return data;
@@ -1276,9 +1317,9 @@ async function signUp(email, password) {
 async function signIn(email, password) {
   const data = await authFetch('token?grant_type=password', { email, password });
   currentUser = data.user;
-  authToken = data.access_token;
-  localStorage.setItem('ss_token', authToken);
+  storeSession(data);
   localStorage.setItem('ss_user', JSON.stringify(currentUser));
+  startTokenRefreshTimer();
   // Fetch username from profiles
   try {
     const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username,avatar_icon,avatar_color`);
@@ -1302,8 +1343,11 @@ async function signOut() {
   });
   currentUser = null;
   authToken = null;
+  refreshToken = null;
+  stopTokenRefreshTimer();
   currentUsername = '';
   localStorage.removeItem('ss_token');
+  localStorage.removeItem('ss_refresh_token');
   localStorage.removeItem('ss_user');
   localStorage.removeItem('ss_username');
   renderAuthScreen();
@@ -1312,16 +1356,28 @@ async function signOut() {
 }
 
 async function restoreSession() {
-  const token = localStorage.getItem('ss_token');
+  let token = localStorage.getItem('ss_token');
   const user  = localStorage.getItem('ss_user');
+  const storedRefresh = localStorage.getItem('ss_refresh_token');
   if (token && user) {
     try {
-      const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      refreshToken = storedRefresh || null;
+      let res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
       });
+      if (!res.ok && refreshToken) {
+        // Access token may have expired while the app was closed/backgrounded — try a refresh before giving up.
+        if (await refreshAuthToken()) {
+          token = authToken;
+          res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
+          });
+        }
+      }
       if (res.ok) {
         authToken = token;
         currentUser = JSON.parse(user);
+        startTokenRefreshTimer();
         // Restore username from local storage or fetch from profiles
         const savedUsername = localStorage.getItem('ss_username');
         if(savedUsername) {
@@ -1344,7 +1400,10 @@ async function restoreSession() {
         return true;
       }
     } catch(e) { console.warn("Caught:", e?.message); }
+    authToken = null;
+    refreshToken = null;
     localStorage.removeItem('ss_token');
+    localStorage.removeItem('ss_refresh_token');
     localStorage.removeItem('ss_user');
     localStorage.removeItem('ss_username');
   }
@@ -1527,8 +1586,10 @@ async function handleAuth(mode) {
       const data = await signUp(email, password);
       // If auto-confirmed, create profile immediately
       if(data.user && data.access_token) {
-        authToken = data.access_token;
+        storeSession(data);
         currentUser = data.user;
+        localStorage.setItem('ss_user', JSON.stringify(currentUser));
+        startTokenRefreshTimer();
         await createProfile(data.user.id, username);
         currentUsername = username;
         playerName = username;
@@ -1626,8 +1687,24 @@ async function sendPasswordReset() {
   }
 }
 
-function signInWithGoogle() {
-  // Direct redirect — no fetch needed for OAuth
+async function signInWithGoogle() {
+  // Google blocks its OAuth flow inside embedded/native WebViews ("disallowed_useragent"),
+  // so the native app must hand off to the system browser instead of redirecting in-place.
+  if (IS_NATIVE && supabaseClient && window.Capacitor?.Plugins?.Browser) {
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: NATIVE_OAUTH_REDIRECT, skipBrowserRedirect: true }
+      });
+      if (error || !data?.url) throw error || new Error('No OAuth URL returned');
+      await window.Capacitor.Plugins.Browser.open({ url: data.url });
+    } catch(e) {
+      console.warn('Google sign-in failed to start:', e?.message);
+      showStreakToast('Could not start Google sign-in — check your connection and try again.');
+    }
+    return;
+  }
+  // Plain website — a full-page redirect works fine in a real browser tab.
   window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(window.location.origin)}`;
 }
 
@@ -1662,6 +1739,45 @@ function showApp() {
     if(window._notifPollInterval) clearInterval(window._notifPollInterval);
     window._notifPollInterval = setInterval(() => { if(currentUser) loadNotifications(); }, 15000);
   }
+}
+
+// In-app replacement for window.prompt() — native prompt() renders as a bare,
+// inconsistent OS dialog inside a WebView (and is sometimes disabled outright).
+function showTextInputModal({ title='', desc='', placeholder='', defaultValue='', confirmLabel='OK', icon='✏️' } = {}) {
+  return new Promise(resolve => {
+    const existing = document.getElementById('textInputModalOverlay');
+    if(existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'textInputModalOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+    overlay.innerHTML = `
+      <div style="background:var(--surface);border:1.5px solid var(--fern);border-radius:20px;padding:32px 24px;max-width:400px;width:100%;text-align:center;">
+        ${icon ? `<div style="font-size:2.2rem;margin-bottom:10px;">${icon}</div>` : ''}
+        ${title ? `<div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;">${title}</div>` : ''}
+        ${desc ? `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">${desc}</div>` : ''}
+        <input id="textInputModalField" type="text" maxlength="40" placeholder="${placeholder}"
+          style="width:100%;padding:12px 16px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.95rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:14px;"/>
+        <div style="display:flex;gap:10px;">
+          <button id="textInputModalCancel" style="flex:1;padding:13px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);cursor:pointer;">Cancel</button>
+          <button id="textInputModalOk" style="flex:1;padding:13px;background:linear-gradient(135deg,#4A7C59,#3BBFA0);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;color:white;cursor:pointer;">${confirmLabel}</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    const input = document.getElementById('textInputModalField');
+    input.value = defaultValue || '';
+    const cleanup = (result) => { overlay.remove(); resolve(result); };
+    input.focus();
+    input.select();
+    input.addEventListener('keydown', e => {
+      if(e.key === 'Enter') cleanup(input.value.trim());
+      if(e.key === 'Escape') cleanup(null);
+    });
+    document.getElementById('textInputModalOk').addEventListener('click', () => cleanup(input.value.trim()));
+    document.getElementById('textInputModalCancel').addEventListener('click', () => cleanup(null));
+    overlay.addEventListener('click', e => { if(e.target === overlay) cleanup(null); });
+  });
 }
 
 function showUsernamePrompt() {
@@ -4503,6 +4619,13 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
 const MAX_HEARTS = 3;
 const HEART_REFILL_MS = 30 * 60 * 1000; // 30 minutes
 let heartTimerInterval = null;
+let heartsEmptyOnBack = null;
+
+function goBackFromHeartsEmpty() {
+  const cb = heartsEmptyOnBack;
+  heartsEmptyOnBack = null;
+  if(cb) cb(); else showHome();
+}
 
 function getHeartData() {
   const data = localStorage.getItem('ss_hearts');
@@ -4558,6 +4681,7 @@ function showHeartsEmptyScreen(onBack) {
   const hearts = getCurrentHearts();
   if(hearts > 0) { onBack(); return; } // Hearts refilled while waiting
 
+  heartsEmptyOnBack = onBack;
   const root = document.getElementById('root');
   showBackBtn(false);
 
@@ -4590,7 +4714,7 @@ function showHeartsEmptyScreen(onBack) {
         <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">Coming soon — $2.99 one-time unlock</div>
       </div>
 
-      <button class="btn-change-diff" onclick="${onBack.name ? onBack.name + '()' : 'showHome()'}">← Go Back</button>
+      <button class="btn-change-diff" onclick="goBackFromHeartsEmpty()">← Go Back</button>
     </div>`;
 
   // Start countdown timer
@@ -4604,7 +4728,7 @@ function showHeartsEmptyScreen(onBack) {
     if(current > 0) {
       // Hearts refilled — go back automatically
       clearInterval(heartTimerInterval);
-      showHome();
+      goBackFromHeartsEmpty();
       return;
     }
 
@@ -6834,7 +6958,7 @@ function requirePro(callback) {
       <div style="font-size:2.5rem;margin-bottom:12px;">⭐</div>
       <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px;">Scripture Scout Pro</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">This content is part of Scripture Scout Pro. Support the app to unlock all story paths, game modes and more!</div>
-      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:block;padding:14px;background:linear-gradient(135deg,#B87D0A,#F4B942);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#1a1a2e;margin-bottom:10px;">☕ Support on Buy Me a Coffee</div>
+      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:block;padding:14px;background:linear-gradient(135deg,#B87D0A,#F4B942);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#1a1a2e;margin-bottom:10px;">☕ Support on Buy Me a Coffee</a>
       <button onclick="this.closest('div').parentElement.remove()" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.88rem;color:var(--text-muted);cursor:pointer;">Maybe later</button>
     </div>`;
   document.body.appendChild(overlay);
@@ -7127,7 +7251,7 @@ async function renderProfile(userId=null, username=null) {
 }
 
 async function editUsername() {
-  const newName = prompt('Enter new username:', currentUsername || '');
+  const newName = await showTextInputModal({ title: 'Edit username', placeholder: 'Username', defaultValue: currentUsername || '', confirmLabel: 'Save' });
   if(!newName || newName === currentUsername) return;
   if(newName.length < 3) { showStreakToast('Username must be at least 3 characters!'); return; }
   if(newName.length > 20) { showStreakToast('Username must be 20 characters or less!'); return; }
@@ -7453,7 +7577,7 @@ async function openDirectMessage(friendId, friendUsername) {
 }
 
 async function newGroupChat() {
-  const name = prompt('Group chat name:');
+  const name = await showTextInputModal({ title: 'New group chat', placeholder: 'Group name', confirmLabel: 'Create', icon: '👥' });
   if(!name) return;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/conversations`, {
     method: 'POST',
@@ -7484,7 +7608,7 @@ async function openConversation(convId, convName, convType) {
     reactions.forEach(r => { if(!reactionsByMsg[r.message_id]) reactionsByMsg[r.message_id] = []; reactionsByMsg[r.message_id].push(r); });
 
     root.innerHTML = `
-      <div style="display:flex;flex-direction:column;max-width:560px;width:100%;height:calc(100vh - 120px);">
+      <div id="convScreen_${convId}" style="display:flex;flex-direction:column;max-width:560px;width:100%;height:calc(100vh - 120px);">
         <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
           <div class="conv-avatar ${convType==='group'?'group':''}" style="width:36px;height:36px;font-size:0.9rem;">${convType==='group'?'👥':convName[0]?.toUpperCase()}</div>
           <div style="font-weight:700;font-size:1rem;color:var(--text);">${convName}</div>
@@ -7530,8 +7654,15 @@ async function openConversation(convId, convName, convType) {
   }
 
   await loadAndRender();
-  // Poll for new messages every 5 seconds
-  _convPollInterval = setInterval(loadAndRender, 5000);
+  // Poll for new messages every 5 seconds, but only while this conversation is still on screen
+  _convPollInterval = setInterval(() => {
+    if(!document.getElementById(`convScreen_${convId}`)) {
+      clearInterval(_convPollInterval);
+      _convPollInterval = null;
+      return;
+    }
+    loadAndRender();
+  }, 5000);
 }
 
 async function sendMessage(convId, type='text', content=null, data={}) {
@@ -7584,7 +7715,7 @@ function showReactionPicker(msgId) {
 }
 
 async function addGroupMember(convId) {
-  const username = prompt('Enter username to add:');
+  const username = await showTextInputModal({ title: 'Add member', placeholder: 'Username', confirmLabel: 'Add', icon: '➕' });
   if(!username) return;
   const rows = await sbFetch(`profiles?username=eq.${username}&select=id,username`);
   if(!rows.length) { showStreakToast('User not found!'); return; }
@@ -9516,8 +9647,53 @@ function showChampionModal(month, scout, memory, mia, track) {
 
 // Initialize Supabase client with fallback if library not loaded
 const supabaseClient = (typeof supabase !== 'undefined')
-  ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { flowType: 'pkce' } })
   : null;
+
+if (supabaseClient) {
+  // supabase-js auto-refreshes the underlying session in the background; without this,
+  // our own `authToken` mirror goes stale ~1hr in and every authenticated fetch starts failing.
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      authToken = session.access_token;
+      localStorage.setItem('ss_token', session.access_token);
+    } else if (event === 'SIGNED_OUT') {
+      authToken = null;
+    }
+  });
+}
+
+if (IS_NATIVE && supabaseClient && window.Capacitor?.Plugins?.App) {
+  // Catches the app being re-opened via the scripturescout://auth-callback deep link
+  // after the user finishes Google sign-in in the system browser (see signInWithGoogle()).
+  window.Capacitor.Plugins.App.addListener('appUrlOpen', async ({ url }) => {
+    if (!url || !url.startsWith(NATIVE_OAUTH_REDIRECT)) return;
+    try {
+      window.Capacitor.Plugins.Browser?.close?.();
+      const { data, error } = await supabaseClient.auth.exchangeCodeForSession(url);
+      if (error) throw error;
+      if (data?.session) {
+        authToken = data.session.access_token;
+        currentUser = data.session.user;
+        localStorage.setItem('ss_token', data.session.access_token);
+        localStorage.setItem('ss_user', JSON.stringify(data.session.user));
+        const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username,avatar_icon,avatar_color`).catch(() => []);
+        if (profiles.length) {
+          currentUsername = profiles[0].username;
+          playerName = currentUsername;
+          localStorage.setItem('ss_username', currentUsername);
+        } else {
+          playerName = currentUser.email ? currentUser.email.split('@')[0] : 'Scout';
+        }
+        showApp();
+        if (!currentUsername) setTimeout(showUsernamePrompt, 600);
+      }
+    } catch(e) {
+      console.warn('Google sign-in callback failed:', e?.message);
+      showStreakToast('Google sign-in failed — please try again.');
+    }
+  });
+}
 
 (async () => {
   // Let Supabase JS handle OAuth callback automatically
