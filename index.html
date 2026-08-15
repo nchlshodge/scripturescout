@@ -896,6 +896,8 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 // Custom URL scheme the native apps register to catch the OAuth redirect back from the system browser.
 const NATIVE_OAUTH_REDIRECT = 'scripturescout://auth-callback';
+// Public half of the Web Push VAPID keypair — safe to expose client-side (see send-push Edge Function for the private half).
+const VAPID_PUBLIC_KEY = 'BFOPktzxxx16VFb_posuz0_wdM7BRTMq5rZP7k8_2LZqNWMaOGCX11fZGsRCxZYcrwQQV5wJdMmk5IqfIFNBzeg';
 let TRANSLATION = localStorage.getItem('ss_translation') || 'WEB';
 
 const OT_BOOKS = [
@@ -6789,6 +6791,111 @@ function updateNotifBadge(unread) {
   if(alertBtn) alertBtn.style.borderColor = unread > 0 ? '#E53E3E' : 'var(--border)';
 }
 
+// ═══════════════════════════════════════
+// WEB PUSH (background notifications)
+// ═══════════════════════════════════════
+let swRegistration = null;
+
+function isPushSupported() {
+  return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+async function registerPushServiceWorker() {
+  if (!isPushSupported()) return null;
+  try {
+    swRegistration = await navigator.serviceWorker.register('/sw.js');
+    return swRegistration;
+  } catch(e) { console.warn('Service worker registration failed:', e?.message); return null; }
+}
+
+// 'unsupported' | 'denied' | 'default' | 'granted-not-subscribed' | 'subscribed'
+async function getPushSubscriptionStatus() {
+  if (!isPushSupported()) return 'unsupported';
+  if (Notification.permission !== 'granted') return Notification.permission;
+  try {
+    const reg = swRegistration || await navigator.serviceWorker.getRegistration('/sw.js');
+    const sub = reg && await reg.pushManager.getSubscription();
+    return sub ? 'subscribed' : 'granted-not-subscribed';
+  } catch(e) { return 'granted-not-subscribed'; }
+}
+
+async function subscribeToPush() {
+  if (!currentUser) { showStreakToast('Sign in to enable notifications.'); return false; }
+  if (!isPushSupported()) { showStreakToast('Notifications aren\'t supported in this browser.'); return false; }
+
+  const permission = await Notification.requestPermission();
+  if (permission !== 'granted') {
+    if (permission === 'denied') showStreakToast('Notifications are blocked — enable them in your browser settings.');
+    return false;
+  }
+
+  try {
+    const reg = swRegistration || await registerPushServiceWorker();
+    if (!reg) throw new Error('Service worker unavailable');
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+    const subJson = sub.toJSON();
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`,
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify({ user_id: currentUser.id, endpoint: subJson.endpoint, p256dh: subJson.keys.p256dh, auth: subJson.keys.auth })
+    });
+    if (!res.ok) throw new Error(`Save subscription failed: ${res.status}`);
+    showStreakToast('Notifications enabled! 🔔');
+    return true;
+  } catch(e) {
+    console.warn('Push subscribe failed:', e?.message);
+    showStreakToast('Could not enable notifications.');
+    return false;
+  }
+}
+
+async function unsubscribeFromPush() {
+  if (!isPushSupported()) return;
+  try {
+    const reg = swRegistration || await navigator.serviceWorker.getRegistration('/sw.js');
+    const sub = reg && await reg.pushManager.getSubscription();
+    if (sub) {
+      const endpoint = sub.endpoint;
+      await sub.unsubscribe();
+      if (currentUser) {
+        await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions?endpoint=eq.${encodeURIComponent(endpoint)}`, {
+          method: 'DELETE',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
+        });
+      }
+    }
+    showStreakToast('Notifications turned off.');
+  } catch(e) { console.warn('Push unsubscribe failed:', e?.message); }
+}
+
+async function togglePushNotifications() {
+  const status = await getPushSubscriptionStatus();
+  if (status === 'subscribed') {
+    await unsubscribeFromPush();
+  } else if (status === 'denied') {
+    showStreakToast('Notifications are blocked — enable them in your browser settings.');
+    return;
+  } else {
+    await subscribeToPush();
+  }
+  renderProfile();
+}
+
 async function createNotification(userId, type, message, data={}) {
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/notifications`, {
@@ -7158,6 +7265,7 @@ async function renderProfile(userId=null, username=null) {
   };
 
   const earnedBadges = isOwnProfile ? computeBadges(stats, streak, allScores) : new Set();
+  const pushStatus = isOwnProfile ? await getPushSubscriptionStatus() : 'unsupported';
 
   // Group badges by category
   const cats = { streak:'🔥 Streak', performance:'🎯 Performance', exploration:'🗺️ Exploration' };
@@ -7175,6 +7283,12 @@ async function renderProfile(userId=null, username=null) {
           <div class="profile-joined">Scripture Scout Player</div>
           ${isOwnProfile && !currentUsername ? `<div style="font-size:0.78rem;color:#F4B942;margin-top:4px;">⚠️ Set a username so friends can find you!</div>` : ''}
           ${isOwnProfile ? `<button class="btn-friend-action" style="margin-top:8px;" onclick="editUsername()">${currentUsername ? '✏️ Change Username' : '✏️ Set Username'}</button>` : ''}
+          ${isOwnProfile && pushStatus !== 'unsupported' ? `
+            <button class="btn-friend-action" style="margin-top:8px;" ${pushStatus==='denied'?'':'onclick="togglePushNotifications()"'}>
+              ${pushStatus==='subscribed' ? '🔔 Notifications On — Tap to Turn Off'
+                : pushStatus==='denied' ? '🔕 Notifications Blocked (check browser settings)'
+                : '🔕 Enable Notifications'}
+            </button>` : ''}
         </div>
 
         <hr class="divider" style="margin:0;"/>
@@ -9739,6 +9853,16 @@ if (IS_NATIVE && supabaseClient && window.Capacitor?.Plugins?.App) {
   }
   initTheme();
   initSound();
+
+  if (isPushSupported()) {
+    await registerPushServiceWorker();
+    // If permission was already granted on a previous visit, keep the subscription alive silently
+    // (covers e.g. the browser rotating the push endpoint) without re-prompting the user.
+    if (Notification.permission === 'granted' && currentUser) subscribeToPush();
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data?.type === 'notification-click' && currentUser) renderNotificationHub();
+    });
+  }
 })();
 </script>
 </body>
