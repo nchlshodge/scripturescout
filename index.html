@@ -3630,7 +3630,7 @@ async function renderStoryMode() {
 
   try {
     const paths = await sbFetch('story_paths?order=order_num&select=*');
-    // story_chapters removed (old story mode)
+    const chapters = await sbFetch('story_chapters?select=id,path_id');
 
     // Load user progress if logged in
     if(currentUser) {
@@ -8395,17 +8395,10 @@ function checkAndAwardBadges() {
     newBadges.push('all_games');
   }
 
-  // Story badges
-  const storyStarted = STORY_PATHS_V2.some(p => getStoryV2Progress(p.id).length > 0);
+  // Story badges — based on storyProgress, populated whenever the user has
+  // visited Story Mode this session (see renderStoryMode()/renderStoryPath()).
+  const storyStarted = Object.keys(storyProgress).some(k => !isNaN(parseInt(k)));
   if(storyStarted && !earned.has('story_start')) newBadges.push('story_start');
-
-  const gospelDone = (() => {
-    const gospel = STORY_PATHS_V2.find(p => p.title === 'The Gospel Story');
-    if(!gospel) return false;
-    const prog = getStoryV2Progress(gospel.id);
-    return prog.filter(x => x.stars > 0).length === gospel.chapters.length;
-  })();
-  if(gospelDone && !earned.has('story_done')) newBadges.push('story_done');
 
   // Daily badges
   const dailyCount = parseInt(localStorage.getItem('ss_daily_completed_count') || '0');
