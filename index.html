@@ -4351,7 +4351,7 @@ async function submitGameScore(table, data) {
     if(existing) {
       // Only update if new score is higher
       if(data.score <= existing.score) {
-        showScoreToast(data.score, table, data.difficulty, false);
+        showNotBestToast(existing.score);
         return;
       }
       const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
@@ -4380,13 +4380,25 @@ function showScoreToast(score, table, difficulty, isPersonalBest=false) {
         leaderboard: '📖 Scripture Scout',
         leaderboard_memory: '🗂️ Memory Trail',
         leaderboard_mia: '✏️ Missing in Action',
-        leaderboard_track: '🎯 Track It Down'
+        leaderboard_track: '🎯 Track It Down',
+        leaderboard_trivia: '📚 Bible Trivia'
       };
       const lbDiffs = { easy:'🌱 Easy', medium:'🌿 Medium', hard:'🪨 Hard', endless:'♾️ Endless' };
       showBackBtn(true);
       renderGameLeaderboard(lbNames[table]||'Leaderboard', table, ['easy','medium','hard'], lbDiffs, difficulty);
     };
   }
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.5s'; }, 3000);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// Distinct from showScoreToast — used when a run's score didn't beat the player's
+// existing best, so nothing was actually written to the leaderboard.
+function showNotBestToast(bestScore) {
+  const toast = document.createElement('div');
+  toast.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:10px 20px;font-size:0.85rem;font-weight:600;color:var(--text-muted);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;`;
+  toast.textContent = `Your best is still ${bestScore.toLocaleString()} — keep trying!`;
   document.body.appendChild(toast);
   setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.5s'; }, 3000);
   setTimeout(() => toast.remove(), 3500);
