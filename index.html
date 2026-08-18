@@ -4349,13 +4349,20 @@ async function submitGameScore(table, data) {
     }
 
     if(existing) {
-      // Only update if new score is higher
+      // The "This Week" leaderboard filters on created_at, but this row only ever
+      // holds the player's all-time best — without refreshing created_at on every
+      // play, a player's entry silently ages out of "This Week" the moment a new
+      // week starts, even if they keep playing (and winning) every week.
+      const now = new Date().toISOString();
       if(data.score <= existing.score) {
+        await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
+          method: 'PATCH', headers, body: JSON.stringify({ created_at: now })
+        }).catch(()=>{});
         showNotBestToast(existing.score);
         return;
       }
       const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
-        method: 'PATCH', headers, body: JSON.stringify(safeData)
+        method: 'PATCH', headers, body: JSON.stringify({ ...safeData, created_at: now })
       });
       if(res.ok) showScoreToast(data.score, table, data.difficulty, true);
       else console.error('Score PATCH failed:', res.status, await res.text());
