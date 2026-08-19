@@ -1109,7 +1109,7 @@ async function showHome() {
           ${getFieldIcon('story', 40)}
           <div style="flex:1;">
             <div class="home-game-name">Story Mode</div>
-            <div class="home-game-desc">5 paths · 50 chapters · verse + trivia</div>
+            <div class="home-game-desc">21 paths · 241 chapters · verse + trivia</div>
           </div>
         </div>
         <!-- Small game cards -->
@@ -1216,7 +1216,7 @@ async function showHome() {
   document.getElementById('homeMiaBtn').onclick = () => { showBackBtn(true); renderFillBlankSetup(); };
   document.getElementById('homeTrackBtn').onclick = () => { showBackBtn(true); renderRefChallengeSetup(); };
   document.getElementById('homeLeaderboardBtn').onclick = () => { showBackBtn(true); renderLeaderboardHub(); };
-  document.getElementById('homeStoryBtn').onclick = () => { showBackBtn(true); renderStoryModeV2(); };
+  document.getElementById('homeStoryBtn').onclick = () => { showBackBtn(true); renderStoryMode(); };
 
   if(completedCount === 4) { updateStreak(true); }
 
