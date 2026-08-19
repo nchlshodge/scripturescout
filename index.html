@@ -798,6 +798,43 @@
   .fg-ch-stars { font-size:8px; color:#f4b942; letter-spacing:0.5px; }
   .fg-begin-btn { width:100%; padding:10px; background:linear-gradient(135deg,#7a3810,#5a2808); border:none; border-radius:10px; color:#f4c050; font-size:0.85rem; font-weight:700; cursor:pointer; font-family:Georgia,serif; margin-top:12px; }
 
+  /* ── Re-theme shared gameplay UI when it renders inside the journal page ── */
+  .fg-page-inner {
+    --surface:      #f5e8c8;
+    --surface-2:    #efe0b8;
+    --border:       rgba(139,105,20,0.35);
+    --border-hi:    rgba(139,105,20,0.55);
+    --text:         #2e1c00;
+    --text-muted:   #7a5010;
+    --teal:         #4a7a2a;
+    --teal-dim:     rgba(74,122,42,0.14);
+    --earth:        #b8401a;
+    --earth-dim:    rgba(184,64,26,0.14);
+    --fern:         #5a7a2a;
+  }
+  .fg-page-inner .card { background:transparent; border:none; box-shadow:none; padding:0; }
+  .fg-page-inner .verse-label { font-family:Georgia,serif; }
+  .fg-page-inner .btn-next { font-family:Georgia,serif; background:linear-gradient(135deg,#7a3810,#5a2808); color:#f4c050; }
+  .fg-page-inner .btn-change-diff { font-family:Georgia,serif; color:#7a5010; border-color:rgba(139,105,20,0.4); }
+  .fg-page-inner .chapter-narrative { font-family:Georgia,serif; }
+  .fg-page-inner .chapter-verse-reveal { background:rgba(139,105,20,0.08); border-color:#c8941a; }
+  .fg-page-inner .chapter-verse-label,
+  .fg-page-inner .chapter-verse-ref { font-family:Georgia,serif; color:#9a6028; }
+  .fg-page-inner .chapter-verse-text { font-family:Georgia,serif; }
+  .fg-page-inner .divider { border-top-color:rgba(139,105,20,0.25); }
+  .fg-page-inner .story-round-label { font-family:Georgia,serif; color:#9a6028; }
+  .fg-page-inner .story-round-dot.active { background:#c8941a; box-shadow:0 0 6px rgba(200,148,26,0.6); }
+  .fg-page-inner .story-round-dot.done { background:linear-gradient(90deg,#c8941a,#e8b840); }
+  .fg-page-inner .story-choice { font-family:Georgia,serif; }
+  .fg-page-inner .story-choice:active { border-color:#c8941a; background:rgba(139,105,20,0.1); }
+  .fg-page-inner .story-type-input { font-family:Georgia,serif; }
+  .fg-page-inner .story-type-input:focus { border-color:#c8941a; }
+  .fg-page-inner .word-bank, .fg-page-inner .answer-row { background:var(--surface-2); }
+  .fg-page-inner .word-chip, .fg-page-inner .answer-chip { font-family:Georgia,serif; }
+  .fg-page-inner .word-chip:active { background:rgba(139,105,20,0.14); border-color:#c8941a; }
+  .fg-page-inner .answer-chip { background:linear-gradient(135deg,rgba(139,105,20,0.16),rgba(200,148,26,0.12)); border-color:#c8941a; }
+  .fg-page-inner .blank-verse { font-family:Georgia,serif; }
+
   /* ── Randy's Field Journal ── */
   .journal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;animation:fadeIn 0.25s ease; }
   .journal-card { background:#f5e8c8;border-radius:4px 20px 20px 4px;width:100%;max-width:390px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.4);animation:slideUp 0.35s cubic-bezier(.2,.8,.3,1); }
@@ -3957,11 +3994,12 @@ async function renderStoryRound() {
     refChoicesHtml = `
       <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Type the reference (e.g. John 3:16):</div>
       <input class="story-type-input" id="storyTypeInput" type="text" placeholder="Book Chapter:Verse" autocomplete="off"/>
-      <button class="btn-next" id="storyTypeSubmit" style="background:linear-gradient(135deg,#7C5CFC,#38BDF8);margin-bottom:0;">Check →</button>`;
+      <button class="btn-next" id="storyTypeSubmit" style="background:linear-gradient(135deg,#7a3810,#c8941a);margin-bottom:0;">Check →</button>`;
   }
 
-  root.innerHTML = `
-    <div class="story-screen">
+  const page = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
+    <div class="fg-page-inner">
+      <div class="fg-back-btn" onclick="renderStoryPath(${pathId})">← back to chapters</div>
       <div class="verse-label">Chapter ${chapter.chapter_num} — ${chapter.title}</div>
       <div class="card" style="max-width:560px;width:100%;margin-bottom:12px;">
         <div class="story-round-bar">${roundDots}</div>
@@ -3975,14 +4013,14 @@ async function renderStoryRound() {
         <div class="chapter-verse-reveal" style="margin-bottom:16px;">
           <div class="chapter-verse-label">✨ Key Verse — Read it first</div>
           <div class="chapter-verse-text">"${verseText}"</div>
-          <div class="chapter-verse-ref" style="font-size:0.78rem;color:#A78BFA;font-weight:700;">📖 ${chapter.book} ${chapter.chapter}:${chapter.verse}</div>
+          <div class="chapter-verse-ref" style="font-size:0.78rem;font-weight:700;">📖 ${chapter.book} ${chapter.chapter}:${chapter.verse}</div>
         </div>` : ''}
 
         <hr class="divider"/>
 
         <!-- Step 1: Reference -->
         <div id="storyRefSection">
-          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:600;margin-bottom:10px;">
+          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#9a6028;font-weight:600;margin-bottom:10px;">
             Step 1 — Now, where is this verse from?
           </div>
           ${refChoicesHtml}
@@ -3993,7 +4031,7 @@ async function renderStoryRound() {
         <!-- Step 2: Fill blanks (hidden until ref answered) -->
         <div id="storyBlanksSection" style="display:none;margin-top:16px;">
           <hr class="divider" style="margin-bottom:14px;"/>
-          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:600;margin-bottom:10px;">
+          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#9a6028;font-weight:600;margin-bottom:10px;">
             Step 2 — ${round === 1 ? 'Fill in the missing words' : round === 2 ? 'Tap the key words in order' : 'Type the verse from memory'}
           </div>
           ${round === 1 ? `<div class="blank-verse" id="storyBlankVerse" style="margin-bottom:14px;">${blankHtml}</div>` : ''}
@@ -4004,15 +4042,16 @@ async function renderStoryRound() {
             style="width:100%;min-height:100px;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;resize:none;line-height:1.6;box-sizing:border-box;"
             placeholder="Type the full verse here…"></textarea>
           <div style="font-size:0.72rem;color:var(--text-muted);margin:4px 0 10px;text-align:right;" id="storyVerseWordCount">0 words</div>
-          <button class="btn-next" id="storyVerseSubmitBtn" style="background:linear-gradient(135deg,#7C5CFC,#A78BFA);" disabled>Check Verse ✓</button>
+          <button class="btn-next" id="storyVerseSubmitBtn" style="background:linear-gradient(135deg,#7a3810,#c8941a);" disabled>Check Verse ✓</button>
           ` : `<div id="storyBlankInput"></div>`}
           <div class="story-feedback" id="storyBlankFeedback"></div>
         </div>
 
       </div>
       ${stars > 0 ? `<div style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">Current mastery: ${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>` : ''}
-      <button class="btn-change-diff" onclick="renderStoryPath(${pathId})">← Back to Chapters</button>
-    </div>`;
+    </div>
+  </div>`;
+  root.innerHTML = `<div class="story-screen">${buildBookShell(page)}</div>`;
 
   // Wire up reference answer
   wireStoryRefInputs(correctRef, round);
@@ -4114,7 +4153,7 @@ function checkStoryRef(answer, correct, btn) {
               if(wordCount) wordCount.textContent = words + ' word' + (words===1?'':'s');
               if(submitBtn) { submitBtn.disabled = words < 3; if(words >= 3) submitBtn.onclick = checkStoryTypedVerse; }
             });
-            textarea.addEventListener('focus', () => textarea.style.borderColor = '#A78BFA');
+            textarea.addEventListener('focus', () => textarea.style.borderColor = '#c8941a');
             textarea.addEventListener('blur', () => textarea.style.borderColor = 'var(--border)');
           }
         } else {
@@ -4173,7 +4212,7 @@ function renderStoryBlankInput() {
   storyWordBankData = shuffle(wordList).map((w, i) => ({ word: w, chipIndex: i, used: false }));
 
   area.innerHTML = `
-    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#A78BFA;font-weight:600;margin-bottom:6px;">Your answer:</div>
+    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a6028;font-weight:600;margin-bottom:6px;">Your answer:</div>
     <div id="storyAnswerRow" class="answer-row">
       <span class="answer-placeholder" id="storyAnswerPlaceholder">Tap words below…</span>
     </div>
@@ -4182,7 +4221,7 @@ function renderStoryBlankInput() {
       ${storyWordBankData.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
     <div id="storyCheckBlanksArea">
-      <button class="btn-next" id="storyCheckBlanksBtn" style="background:linear-gradient(135deg,#7C5CFC,#A78BFA);margin-top:8px;" disabled>
+      <button class="btn-next" id="storyCheckBlanksBtn" style="background:linear-gradient(135deg,#7a3810,#c8941a);margin-top:8px;" disabled>
         Check Answers (0/${rs.blanks.length})
       </button>
     </div>`;
@@ -4604,8 +4643,9 @@ function renderStoryRoundComplete(stars) {
   const isMaxStars = stars >= 3;
   const hasNextRound = s.round < 3;
 
-  root.innerHTML = `
-    <div class="story-screen">
+  const page = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
+    <div class="fg-page-inner">
+      <div class="fg-back-btn" onclick="renderStoryPath(${s.pathId})">← all chapters</div>
       <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
         <div style="font-size:2.5rem;margin-bottom:12px;">📜</div>
         <div class="verse-label" style="justify-content:center;">Chapter ${s.chapter.chapter_num} — ${s.chapter.title}</div>
@@ -4626,15 +4666,16 @@ function renderStoryRoundComplete(stars) {
         </div>
 
         ${hasNextRound && !isMaxStars ? `
-        <button class="btn-next" id="nextRoundBtn" style="background:linear-gradient(135deg,#7C5CFC,#38BDF8);margin-bottom:8px;">
+        <button class="btn-next" id="nextRoundBtn" style="background:linear-gradient(135deg,#7a3810,#c8941a);margin-bottom:8px;">
           ⭐ Try Round ${s.round+1} for more stars →
         </button>` : ''}
         <button class="btn-next" id="nextChapterBtn" style="${hasNextRound&&!isMaxStars?'background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);':''}">
           Next Chapter →
         </button>
-        <button class="btn-change-diff" style="margin-top:8px;" onclick="renderStoryPath(${s.pathId})">← All Chapters</button>
       </div>
-    </div>`;
+    </div>
+  </div>`;
+  root.innerHTML = `<div class="story-screen">${buildBookShell(page)}</div>`;
 
   const nextRoundBtn = document.getElementById('nextRoundBtn');
   if(nextRoundBtn) {
