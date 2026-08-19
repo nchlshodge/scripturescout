@@ -1762,7 +1762,7 @@ function showApp() {
       const el = document.getElementById('homeStreakDisplay');
       if(el) el.innerHTML = getStreakDisplay();
       const statEl = document.getElementById('homeStreakStat');
-      if(statEl && currentStreak) statEl.innerHTML = `<div class="home-stat-val">${currentStreak.longest_streak} 🔥</div><div class="home-stat-label">Best Streak</div>`;
+      if(statEl && currentStreak) statEl.innerHTML = `<div class="home-stat-val">${currentStreak.longest_streak} <img src="/icons/streak-fire.svg" width="20" height="20" style="vertical-align:-4px;object-fit:contain;" alt=""></div><div class="home-stat-label">Best Streak</div>`;
     });
     loadNotifications();
     checkForPendingChallenges();
@@ -2087,13 +2087,13 @@ async function renderLeaderboard() {
     <div class="leaderboard-screen">
       <div style="display:flex;gap:6px;margin-bottom:12px;">
         <button class="game-lb-tab ${lbView==='weekly'?'active':''}" id="lbWeeklyTab" onclick="setLbView('weekly')" style="flex:1;">📅 This Week</button>
-        <button class="game-lb-tab ${lbView==='alltime'?'active':''}" id="lbAlltimeTab" onclick="setLbView('alltime')" style="flex:1;">🏆 All Time</button>
+        <button class="game-lb-tab ${lbView==='alltime'?'active':''}" id="lbAlltimeTab" onclick="setLbView('alltime')" style="flex:1;"><img src="/icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> All Time</button>
       </div>
       <div class="lb-diff-tabs">
-        <button class="lb-diff-tab ${lbFilter==='easy'?'active':''}"    id="lbEasy"    onclick="setLbFilter('easy')">🌱 Easy</button>
-        <button class="lb-diff-tab ${lbFilter==='medium'?'active':''}"  id="lbMedium"  onclick="setLbFilter('medium')">🌿 Medium</button>
-        <button class="lb-diff-tab ${lbFilter==='hard'?'active':''}"    id="lbHard"    onclick="setLbFilter('hard')">🪨 Hard</button>
-        <button class="lb-diff-tab ${lbFilter==='endless'?'active':''}" id="lbEndless" onclick="setLbFilter('endless')">♾️</button>
+        <button class="lb-diff-tab ${lbFilter==='easy'?'active':''}"    id="lbEasy"    onclick="setLbFilter('easy')"><img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy</button>
+        <button class="lb-diff-tab ${lbFilter==='medium'?'active':''}"  id="lbMedium"  onclick="setLbFilter('medium')"><img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium</button>
+        <button class="lb-diff-tab ${lbFilter==='hard'?'active':''}"    id="lbHard"    onclick="setLbFilter('hard')"><img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard</button>
+        <button class="lb-diff-tab ${lbFilter==='endless'?'active':''}" id="lbEndless" onclick="setLbFilter('endless')"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""></button>
       </div>
       <div class="lb-diff-desc" id="lbDesc">${lbDiffDesc(lbFilter)}</div>
       <div class="card" id="lbCard">
@@ -2105,10 +2105,10 @@ async function renderLeaderboard() {
 }
 
 function lbDiffDesc(diff) {
-  if(diff==='easy')    return '<span class="badge-easy lb-diff-pill">🌱 Easy</span> Well-known books only';
-  if(diff==='medium')  return '<span class="badge-medium lb-diff-pill">🌿 Medium</span> Full Bible';
-  if(diff==='hard')    return '<span class="badge-hard lb-diff-pill">🪨 Hard</span> Minor prophets &amp; small epistles';
-  if(diff==='endless') return '<span class="endless-badge">♾️ Endless</span> All difficulties — one wrong and it\'s over';
+  if(diff==='easy')    return '<span class="badge-easy lb-diff-pill"><img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy</span> Well-known books only';
+  if(diff==='medium')  return '<span class="badge-medium lb-diff-pill"><img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium</span> Full Bible';
+  if(diff==='hard')    return '<span class="badge-hard lb-diff-pill"><img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard</span> Minor prophets &amp; small epistles';
+  if(diff==='endless') return '<span class="endless-badge"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless</span> All difficulties — one wrong and it\'s over';
   return '';
 }
 
@@ -2168,7 +2168,7 @@ function renderDiffScreen() {
   const unlocked = isEndlessUnlocked();
   const endlessCard = unlocked
     ? `<div class="diff-card" id="endless-btn" style="border-color:#F4B942;background:rgba(244,185,66,0.04);">
-        <div class="diff-icon">♾️</div>
+        <div class="diff-icon"><img src="/icons/diff-endless.svg" width="32" height="32" style="object-fit:contain;" alt="Endless"></div>
         <div class="diff-info">
           <div class="diff-name" style="color:#F4B942;">Endless Mode</div>
           <div class="diff-desc">All difficulties mixed. Get one wrong and it's all over. How far can you go?</div>
@@ -2197,9 +2197,9 @@ function renderDiffScreen() {
       <div class="translation-switcher" id="diffTransSwitcher">${transButtons}</div>
       <p class="diff-intro">Each round you see a verse and guess the Testament, Book, and Chapter — earning more points with each correct step.</p>
       <div class="diff-cards">
-        <div class="diff-card" id="easy-btn"><div class="diff-icon">🌱</div><div class="diff-info"><div class="diff-name">Easy</div><div class="diff-desc">The 100 most recognized verses in the Bible. Hints show the Testament, and chapter choices are narrowed to a small range.</div></div><div class="diff-badge badge-easy">Easy</div></div>
-        <div class="diff-card" id="medium-btn"><div class="diff-icon">🌿</div><div class="diff-info"><div class="diff-name">Medium</div><div class="diff-desc">~6,000 well-known verses from key chapters across the whole Bible. No hints, no shortcuts.</div></div><div class="diff-badge badge-medium">Medium</div></div>
-        <div class="diff-card" id="hard-btn"><div class="diff-icon">🪨</div><div class="diff-info"><div class="diff-name">Hard</div><div class="diff-desc">~27,000 verses from the full Bible including obscure passages. Guess Testament, Book, Chapter, AND verse number.</div></div><div class="diff-badge badge-hard">Hard</div></div>
+        <div class="diff-card" id="easy-btn"><div class="diff-icon"><img src="/icons/diff-easy.svg" width="32" height="32" style="object-fit:contain;" alt="Easy"></div><div class="diff-info"><div class="diff-name">Easy</div><div class="diff-desc">The 100 most recognized verses in the Bible. Hints show the Testament, and chapter choices are narrowed to a small range.</div></div><div class="diff-badge badge-easy">Easy</div></div>
+        <div class="diff-card" id="medium-btn"><div class="diff-icon"><img src="/icons/diff-medium.svg" width="32" height="32" style="object-fit:contain;" alt="Medium"></div><div class="diff-info"><div class="diff-name">Medium</div><div class="diff-desc">~6,000 well-known verses from key chapters across the whole Bible. No hints, no shortcuts.</div></div><div class="diff-badge badge-medium">Medium</div></div>
+        <div class="diff-card" id="hard-btn"><div class="diff-icon"><img src="/icons/diff-hard.svg" width="32" height="32" style="object-fit:contain;" alt="Hard"></div><div class="diff-info"><div class="diff-name">Hard</div><div class="diff-desc">~27,000 verses from the full Bible including obscure passages. Guess Testament, Book, Chapter, AND verse number.</div></div><div class="diff-badge badge-hard">Hard</div></div>
         ${endlessCard}
       </div>
     </div>`;
@@ -2240,7 +2240,7 @@ async function startEndless() {
       <div class="endless-hud-item"><strong id="eScoreDisplay">0</strong> pts</div>
       <div class="endless-hud-item"><span class="multiplier" id="eMultDisplay">×1.0</span> mult</div>
       <div class="endless-hud-item"><strong id="eStreakDisplay">0</strong> streak</div>
-      <div class="endless-hud-item"><span class="endless-badge">♾️ Endless</span></div>
+      <div class="endless-hud-item"><span class="endless-badge"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless</span></div>
     </div>
     <div class="card" id="card"></div>`;
 
@@ -2281,7 +2281,7 @@ function renderEndlessPhase() {
   if(!area) return;
 
   if(phase === 0) {
-    area.innerHTML = `<div class="btn-group"><button class="btn" id="otBtn">📜 Old Testament</button><button class="btn" id="ntBtn">✝️ New Testament</button></div>`;
+    area.innerHTML = `<div class="btn-group"><button class="btn" id="otBtn"><img src="/icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament</button><button class="btn" id="ntBtn"><img src="/icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament</button></div>`;
     document.getElementById('otBtn').onclick = () => endlessGuess('testament', 'OT');
     document.getElementById('ntBtn').onclick = () => endlessGuess('testament', 'NT');
   } else if(phase === 1) {
@@ -2405,7 +2405,7 @@ async function endlessGameOver(lost) {
           value="${currentUser ? currentUser.email.split('@')[0] : playerName}"
           ${currentUser?'readonly style="opacity:0.7;cursor:default;"':''}/>
       </div>
-      <button class="btn-next" id="submitEndlessBtn">Submit Score 🏆</button>
+      <button class="btn-next" id="submitEndlessBtn">Submit Score <img src="/icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""></button>
       <button class="btn-next" id="playAgainEndlessBtn" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;">Play Again</button>
       <button class="btn-change-diff" id="chooseDiffEndlessBtn">← Choose difficulty</button>
     </div>`;
@@ -2451,7 +2451,7 @@ async function endlessGameOver(lost) {
 // ═══════════════════════════════════════
 // GAME
 // ═══════════════════════════════════════
-function diffLabel()      { return difficulty==='easy'?'🌱 Easy':difficulty==='medium'?'🌿 Medium':'🪨 Hard'; }
+function diffLabel()      { return difficulty==='easy'?'<img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy':difficulty==='medium'?'<img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium':'<img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard'; }
 function diffBadgeClass() { return `badge-${difficulty}`; }
 function rankLabel(s) {
   if(difficulty==='hard'){if(s>=14000)return'Theologian of the Ages 📜';if(s>=10000)return'Deep Waters Scholar 🌊';if(s>=6000)return'Diligent Student 📚';return'Keep digging! ⛏️';}
@@ -2626,7 +2626,7 @@ function _renderCardPhase() {
 
   if(phase===0){
     // Testament guess — same for all difficulties
-    area.innerHTML=`<div class="btn-group"><button class="btn" id="otBtn">📜 Old Testament</button><button class="btn" id="ntBtn">✝️ New Testament</button></div>`;
+    area.innerHTML=`<div class="btn-group"><button class="btn" id="otBtn"><img src="/icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament</button><button class="btn" id="ntBtn"><img src="/icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament</button></div>`;
     document.getElementById('otBtn').onclick=()=>guessTestament('OT');
     document.getElementById('ntBtn').onclick=()=>guessTestament('NT');
 
@@ -2789,10 +2789,10 @@ function renderGameOver(card){
             value="${currentUsername || currentUser.email.split('@')[0]}"
             readonly style="opacity:0.7;cursor:default;"/>
         </div>
-        <button class="btn-next" id="submitBtn">Submit Score 🏆</button>
+        <button class="btn-next" id="submitBtn">Submit Score <img src="/icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""></button>
       ` : `
         <div class="guest-submit-box">
-          <div class="guest-submit-icon">🏆</div>
+          <div class="guest-submit-icon"><img src="/icons/trophy.svg" width="32" height="32" style="object-fit:contain;" alt=""></div>
           <p class="guest-submit-title">Want to save your score?</p>
           <p class="guest-submit-desc">Create a free account to get on the leaderboard, track your progress, and compete with others.</p>
           <button class="btn-next" id="signUpToSubmitBtn">Create Free Account →</button>
@@ -2934,7 +2934,7 @@ function renderFillBlankSetup() {
   const miaEndlessUnlocked = perfectHardMIA >= 3;
   const miaEndlessCard = miaEndlessUnlocked
     ? `<div class="diff-card" id="miaEndlessBtn" style="border-color:#F4B942;background:rgba(244,185,66,0.04);margin-bottom:12px;cursor:pointer;">
-          <div class="diff-icon">♾️</div>
+          <div class="diff-icon"><img src="/icons/diff-endless.svg" width="32" height="32" style="object-fit:contain;" alt="Endless"></div>
           <div class="diff-info"><div class="diff-name" style="color:#F4B942;">Endless Missing in Action</div>
           <div class="diff-desc">Keep going until you get a word wrong. One mistake ends the run!</div></div>
           <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:#F4B942;border:1px solid #F4B942;">LIVE</div>
@@ -2960,9 +2960,9 @@ function renderFillBlankSetup() {
         <div class="setup-section">
           <div class="setup-label">Difficulty</div>
           <div class="setup-options" id="fitbDiffOptions">
-            <button class="setup-btn selected" data-diff="easy">🌱 Easy — 3 blanks</button>
-            <button class="setup-btn" data-diff="medium">🌿 Medium — 5 blanks</button>
-            <button class="setup-btn" data-diff="hard">🪨 Hard — 7 blanks</button>
+            <button class="setup-btn selected" data-diff="easy"><img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy — 3 blanks</button>
+            <button class="setup-btn" data-diff="medium"><img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium — 5 blanks</button>
+            <button class="setup-btn" data-diff="hard"><img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard — 7 blanks</button>
           </div>
         </div>
         <div class="setup-section">
@@ -2972,7 +2972,7 @@ function renderFillBlankSetup() {
           </div>
         </div>
         <button class="btn-next" id="startFitbBtn">Start →</button>
-        <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderLeaderboardHub()">🏆 View Leaderboards</button>
+        <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderLeaderboardHub()"><img src="/icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> View Leaderboards</button>
         <button class="btn-change-diff" style="margin-top:8px;" onclick="renderTrainScreen()">← Back</button>
       </div>
     </div>`;
@@ -3115,7 +3115,7 @@ function renderFillBlankCard() {
       <div class="flashcard-hud-item"><strong>${s.current+1}/${s.verses.length}</strong> verse</div>
       <div class="flashcard-hud-item"><strong style="color:var(--teal);">${s.correct}</strong> correct</div>
       <div class="flashcard-hud-item"><strong style="color:var(--teal);">${s.score}</strong> pts</div>
-      <div class="flashcard-hud-item"><span class="endless-badge">${s.difficulty === 'easy' ? '🌱 Easy' : '🌿 Medium'}</span></div>
+      <div class="flashcard-hud-item"><span class="endless-badge">${s.difficulty === 'easy' ? '<img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy' : '<img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium'}</span></div>
     </div>
     <div class="flashcard-progress-bar"><div class="flashcard-progress-fill" style="width:${progress}%"></div></div>
     <div class="card" style="max-width:560px;width:100%;">
@@ -3349,10 +3349,10 @@ async function renderFillBlankComplete() {
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:24px;">${s.correct} words correct</div>
       <div id="miaMiniLB"></div>
       <button class="btn-next" onclick="startFillBlank('${s.difficulty}', ${s.verses.length})">Study Again</button>
-      <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderGameLeaderboard('✏️ Missing in Action','leaderboard_mia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.difficulty}')">View Full Leaderboard →</button>
+      <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderGameLeaderboard('✏️ Missing in Action','leaderboard_mia',['easy','medium','hard'],{easy:'<img src=&quot;/icons/diff-easy.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Easy',medium:'<img src=&quot;/icons/diff-medium.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Medium',hard:'<img src=&quot;/icons/diff-hard.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Hard'},'${s.difficulty}')">View Full Leaderboard →</button>
       <button class="btn-change-diff" style="margin-top:8px;" onclick="renderFillBlankSetup()">← Change Settings</button>
     </div>`;
-  showMiniLB('miaMiniLB', 'leaderboard_mia', s.difficulty, `renderGameLeaderboard('✏️ Missing in Action','leaderboard_mia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.difficulty}')`);
+  showMiniLB('miaMiniLB', 'leaderboard_mia', s.difficulty, `renderGameLeaderboard('✏️ Missing in Action','leaderboard_mia',['easy','medium','hard'],{easy:'<img src=&quot;/icons/diff-easy.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Easy',medium:'<img src=&quot;/icons/diff-medium.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Medium',hard:'<img src=&quot;/icons/diff-hard.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Hard'},'${s.difficulty}')`);
 
 }
 
@@ -3368,7 +3368,7 @@ function renderRefChallengeSetup() {
   const trackEndlessUnlocked = perfectHardTrack >= 3;
   const trackEndlessCard = trackEndlessUnlocked
     ? `<div class="diff-card" id="trackEndlessBtn" style="border-color:#F4B942;background:rgba(244,185,66,0.04);margin-bottom:12px;cursor:pointer;">
-          <div class="diff-icon">♾️</div>
+          <div class="diff-icon"><img src="/icons/diff-endless.svg" width="32" height="32" style="object-fit:contain;" alt="Endless"></div>
           <div class="diff-info"><div class="diff-name" style="color:#F4B942;">Endless Track It Down</div>
           <div class="diff-desc">Keep going until you pick a wrong reference. Multiplier increases each round!</div></div>
           <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:#F4B942;border:1px solid #F4B942;">LIVE</div>
@@ -3383,7 +3383,7 @@ function renderRefChallengeSetup() {
   root.innerHTML = `
     <div class="flashcard-setup">
       <div class="card">
-        <div class="verse-label">🎯 Track It Down Setup</div>
+        <div class="verse-label"><img src="/icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Track It Down Setup</div>
         ${trackEndlessCard}
         <div class="setup-section">
           <div class="setup-label">Translation</div>
@@ -3394,9 +3394,9 @@ function renderRefChallengeSetup() {
         <div class="setup-section">
           <div class="setup-label">Difficulty</div>
           <div class="setup-options" id="rcDiffOptions">
-            <button class="setup-btn selected" data-diff="easy">🌱 Easy</button>
-            <button class="setup-btn" data-diff="medium">🌿 Medium</button>
-            <button class="setup-btn" data-diff="hard">🪨 Hard</button>
+            <button class="setup-btn selected" data-diff="easy"><img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy</button>
+            <button class="setup-btn" data-diff="medium"><img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium</button>
+            <button class="setup-btn" data-diff="hard"><img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard</button>
           </div>
         </div>
         <div class="setup-section">
@@ -3406,7 +3406,7 @@ function renderRefChallengeSetup() {
           </div>
         </div>
         <button class="btn-next" id="startRcBtn">Start →</button>
-        <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderLeaderboardHub()">🏆 View Leaderboards</button>
+        <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderLeaderboardHub()"><img src="/icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> View Leaderboards</button>
         <button class="btn-change-diff" style="margin-top:8px;" onclick="renderTrainScreen()">← Back</button>
       </div>
     </div>`;
@@ -3526,11 +3526,11 @@ async function renderRefChallengeCard() {
       <div class="flashcard-hud-item"><strong>${s.current+1}/${s.verses.length}</strong> verse</div>
       <div class="flashcard-hud-item"><strong style="color:var(--teal);">${s.correct}</strong> correct</div>
       <div class="flashcard-hud-item"><strong style="color:var(--teal);">${s.score}</strong> pts</div>
-      <div class="flashcard-hud-item"><span class="endless-badge">${s.difficulty === 'easy' ? '🌱 Easy' : '🌿 Medium'}</span></div>
+      <div class="flashcard-hud-item"><span class="endless-badge">${s.difficulty === 'easy' ? '<img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy' : '<img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium'}</span></div>
     </div>
     <div class="flashcard-progress-bar"><div class="flashcard-progress-fill" style="width:${progress}%"></div></div>
     <div class="card" style="max-width:560px;width:100%;">
-      <div class="verse-label">🎯 Track It Down — where is this verse?</div>
+      <div class="verse-label"><img src="/icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Track It Down — where is this verse?</div>
       <div class="verse-text" style="margin-bottom:16px;">"${v.text}"</div>
       <hr class="divider"/>
       <div class="ref-options" id="refOptions">
@@ -3597,9 +3597,9 @@ async function renderRefChallengeComplete() {
 
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-      <div class="verse-label">🎯 Track It Down Complete</div>
+      <div class="verse-label"><img src="/icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Track It Down Complete</div>
       ${justUnlockedTrack ? `<div style="background:rgba(244,185,66,0.1);border:1px solid #F4B942;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;font-size:0.85rem;color:#F4B942;font-weight:600;">🔓 Endless Track It Down Unlocked!</div>` : ''}
-      <div style="font-size:2.5rem;margin:12px 0;">🎯</div>
+      <div style="margin:12px 0;"><img src="/icons/target.svg" width="40" height="40" style="object-fit:contain;" alt=""></div>
       <h2 style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:6px;">${pct >= 80 ? 'Sharp as a sword!' : pct >= 60 ? 'Good work!' : 'Keep studying!'}</h2>
       <div style="font-size:3rem;font-weight:700;background:linear-gradient(135deg,#8FD9A8,#3BBFA0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:12px 0;">${pct}%</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:24px;">${s.correct} of ${s.verses.length} correct</div>
@@ -3610,10 +3610,10 @@ async function renderRefChallengeComplete() {
       </div>
       <div id="trackMiniLB"></div>
       <button class="btn-next" onclick="startRefChallenge('${s.difficulty}', ${s.verses.length})">Play Again</button>
-      <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderGameLeaderboard('🎯 Track It Down','leaderboard_track',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.difficulty}')">View Full Leaderboard →</button>
+      <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderGameLeaderboard('<img src=&quot;/icons/target.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Track It Down','leaderboard_track',['easy','medium','hard'],{easy:'<img src=&quot;/icons/diff-easy.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Easy',medium:'<img src=&quot;/icons/diff-medium.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Medium',hard:'<img src=&quot;/icons/diff-hard.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Hard'},'${s.difficulty}')">View Full Leaderboard →</button>
       <button class="btn-change-diff" style="margin-top:8px;" onclick="renderRefChallengeSetup()">← Change Settings</button>
     </div>`;
-  showMiniLB('trackMiniLB', 'leaderboard_track', s.difficulty, `renderGameLeaderboard('🎯 Track It Down','leaderboard_track',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.difficulty}')`);
+  showMiniLB('trackMiniLB', 'leaderboard_track', s.difficulty, `renderGameLeaderboard('<img src=&quot;/icons/target.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Track It Down','leaderboard_track',['easy','medium','hard'],{easy:'<img src=&quot;/icons/diff-easy.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Easy',medium:'<img src=&quot;/icons/diff-medium.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Medium',hard:'<img src=&quot;/icons/diff-hard.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Hard'},'${s.difficulty}')`);
 
 }
 
@@ -3729,8 +3729,8 @@ async function renderStoryMode() {
             </div>
           </div>
           <div style="display:flex;gap:8px;margin-bottom:16px;">
-            <button class="game-lb-tab ${activeTestament==='NT'?'active':''}" id="storyNTTab" style="flex:1;">✝️ New Testament</button>
-            <button class="game-lb-tab ${activeTestament==='OT'?'active':''}" id="storyOTTab" style="flex:1;">📜 Old Testament</button>
+            <button class="game-lb-tab ${activeTestament==='NT'?'active':''}" id="storyNTTab" style="flex:1;"><img src="/icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament</button>
+            <button class="game-lb-tab ${activeTestament==='OT'?'active':''}" id="storyOTTab" style="flex:1;"><img src="/icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament</button>
           </div>
           ${buildBookShell(bookPage)}
         </div>`;
@@ -4411,10 +4411,10 @@ function showScoreToast(score, table, difficulty, isPersonalBest=false) {
         leaderboard: '📖 Scripture Scout',
         leaderboard_memory: '🗂️ Memory Trail',
         leaderboard_mia: '✏️ Missing in Action',
-        leaderboard_track: '🎯 Track It Down',
+        leaderboard_track: '<img src="/icons/target.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Track It Down',
         leaderboard_trivia: '📚 Bible Trivia'
       };
-      const lbDiffs = { easy:'🌱 Easy', medium:'🌿 Medium', hard:'🪨 Hard', endless:'♾️ Endless' };
+      const lbDiffs = { easy:'<img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy', medium:'<img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium', hard:'<img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard', endless:'<img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless' };
       showBackBtn(true);
       renderGameLeaderboard(lbNames[table]||'Leaderboard', table, ['easy','medium','hard'], lbDiffs, difficulty);
     };
@@ -4446,11 +4446,11 @@ function renderLeaderboardHub() {
   const root = document.getElementById('root');
   root.innerHTML = `
     <div class="story-screen">
-      <div class="verse-label">🏆 Leaderboards</div>
+      <div class="verse-label"><img src="/icons/trophy.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Leaderboards</div>
       <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;line-height:1.5;">Select a game to see the top scores.</p>
       <div class="chapter-list">
         <div class="chapter-item unlocked" id="lbDailyBtn" style="border-color:#A78BFA;background:rgba(167,139,250,0.04);">
-          <div class="chapter-num current">⚡</div>
+          <div class="chapter-num current">${getFieldIcon('daily',22)}</div>
           <div class="chapter-info">
             <div class="chapter-title" style="color:#A78BFA;">Daily Challenge</div>
             <div class="chapter-ref">Today's top scores across all games</div>
@@ -4458,7 +4458,7 @@ function renderLeaderboardHub() {
           <div class="chapter-lock">▶️</div>
         </div>
         <div class="chapter-item unlocked" id="lbScriptureBtn">
-          <div class="chapter-num current">📖</div>
+          <div class="chapter-num current">${getFieldIcon('scout',22)}</div>
           <div class="chapter-info">
             <div class="chapter-title">Scripture Scout</div>
             <div class="chapter-ref">Easy · Medium · Hard · Endless</div>
@@ -4466,7 +4466,7 @@ function renderLeaderboardHub() {
           <div class="chapter-lock">▶️</div>
         </div>
         <div class="chapter-item unlocked" id="lbTriviaBtn">
-          <div class="chapter-num current">📚</div>
+          <div class="chapter-num current">${getFieldIcon('trivia',22)}</div>
           <div class="chapter-info">
             <div class="chapter-title">Bible Trivia</div>
             <div class="chapter-ref">Easy · Medium · Hard</div>
@@ -4474,7 +4474,7 @@ function renderLeaderboardHub() {
           <div class="chapter-lock">▶️</div>
         </div>
         <div class="chapter-item unlocked" id="lbMiaBtn">
-          <div class="chapter-num current">✏️</div>
+          <div class="chapter-num current">${getFieldIcon('mia',22)}</div>
           <div class="chapter-info">
             <div class="chapter-title">Missing in Action</div>
             <div class="chapter-ref">Easy · Medium · Hard</div>
@@ -4482,7 +4482,7 @@ function renderLeaderboardHub() {
           <div class="chapter-lock">▶️</div>
         </div>
         <div class="chapter-item unlocked" id="lbTrackBtn">
-          <div class="chapter-num current">🎯</div>
+          <div class="chapter-num current">${getFieldIcon('track',22)}</div>
           <div class="chapter-info">
             <div class="chapter-title">Track It Down</div>
             <div class="chapter-ref">Easy · Medium · Hard</div>
@@ -4495,9 +4495,9 @@ function renderLeaderboardHub() {
 
   document.getElementById('lbDailyBtn').onclick = () => { showBackBtn(true); renderFullDailyLeaderboard(); };
   document.getElementById('lbScriptureBtn').onclick = () => { showBackBtn(true); renderLeaderboard(); };
-  document.getElementById('lbTriviaBtn').onclick = () => renderGameLeaderboard('📚 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
-  document.getElementById('lbMiaBtn').onclick = () => renderGameLeaderboard('✏️ Missing in Action','leaderboard_mia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
-  document.getElementById('lbTrackBtn').onclick = () => renderGameLeaderboard('🎯 Track It Down','leaderboard_track',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy');
+  document.getElementById('lbTriviaBtn').onclick = () => renderGameLeaderboard('📚 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'<img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy',medium:'<img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium',hard:'<img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard'},'easy');
+  document.getElementById('lbMiaBtn').onclick = () => renderGameLeaderboard('✏️ Missing in Action','leaderboard_mia',['easy','medium','hard'],{easy:'<img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy',medium:'<img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium',hard:'<img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard'},'easy');
+  document.getElementById('lbTrackBtn').onclick = () => renderGameLeaderboard('<img src="/icons/target.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Track It Down','leaderboard_track',['easy','medium','hard'],{easy:'<img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy',medium:'<img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium',hard:'<img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard'},'easy');
 }
 
 async function fetchGameLBFiltered(table, diff, limit=10, weeksBack=null) {
@@ -4533,7 +4533,7 @@ async function renderGameLeaderboard(title, table, difficulties, diffLabels, cur
         <div class="verse-label">${title} Leaderboard</div>
         <div style="display:flex;gap:6px;margin-bottom:12px;">
           <button class="game-lb-tab ${activeView==='weekly'?'active':''}" id="weeklyTab" style="flex:1;">📅 This Week</button>
-          <button class="game-lb-tab ${activeView==='alltime'?'active':''}" id="alltimeTab" style="flex:1;">🏆 All Time</button>
+          <button class="game-lb-tab ${activeView==='alltime'?'active':''}" id="alltimeTab" style="flex:1;"><img src="/icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> All Time</button>
         </div>
         <div class="game-lb-tabs">${diffTabs}</div>
         <div class="card" style="max-width:560px;width:100%;padding:0;overflow:hidden;">
@@ -4567,7 +4567,7 @@ async function showMiniLB(container, table, diff, onViewAll) {
   el.innerHTML = `
     <div class="mini-results-lb">
       <div class="mini-results-lb-title">
-        <span>🏆 Top Scores</span>
+        <span><img src="/icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Top Scores</span>
         <button onclick="${onViewAll}">See All →</button>
       </div>
       ${rows.map((r,i) => `
@@ -4782,7 +4782,7 @@ function showHeartsEmptyScreen(onBack) {
       </div>
 
       <div class="pro-tease-box">
-        <div class="pro-tease-title">♾️ Never Run Out of Hearts</div>
+        <div class="pro-tease-title"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Never Run Out of Hearts</div>
         <div class="pro-tease-desc">Scripture Scout Pro gives you unlimited hearts so you can study without interruption. Plus unlock all story paths, game modes, and more.</div>
         <button class="btn-pro" onclick="showProComingSoon()">Get Scripture Scout Pro →</button>
         <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">Coming soon — $2.99 one-time unlock</div>
@@ -5664,17 +5664,17 @@ function renderTriviaSetup() {
     <div class="setup-section">
       <div class="setup-label">Difficulty</div>
       <div class="setup-options" id="triviaDiff">
-        <button class="setup-btn selected" data-diff="easy">🌱 Easy</button>
-        <button class="setup-btn" data-diff="medium">🌿 Medium</button>
-        <button class="setup-btn" data-diff="hard">🪨 Hard</button>
-        <button class="setup-btn" data-diff="endless">♾️ Endless</button>
+        <button class="setup-btn selected" data-diff="easy"><img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy</button>
+        <button class="setup-btn" data-diff="medium"><img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium</button>
+        <button class="setup-btn" data-diff="hard"><img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard</button>
+        <button class="setup-btn" data-diff="endless"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless</button>
       </div>
     </div>
     <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:0.8rem;color:var(--text-muted);line-height:1.6;">
       <strong style="color:var(--text);">How it works:</strong> 10 multiple choice questions per round. Answer quickly for bonus points. Endless mode keeps going until you get one wrong!
     </div>
     <button class="btn-next" id="startTriviaBtn">Start Trivia →</button>
-    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('📚 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'easy')">🏆 View Leaderboard</button>`;
+    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('📚 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'<img src=&quot;/icons/diff-easy.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Easy',medium:'<img src=&quot;/icons/diff-medium.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Medium',hard:'<img src=&quot;/icons/diff-hard.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Hard'},'easy')"><img src="/icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> View Leaderboard</button>`;
 
   let selectedDiff = 'easy';
   document.querySelectorAll('#triviaDiff .setup-btn').forEach(btn => {
@@ -5798,7 +5798,7 @@ function renderTriviaQuestion() {
     </div>
     <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;">
       <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:700;margin-bottom:8px;">
-        ${q.diff==='easy'?'🌱 Easy · +100pts':q.diff==='medium'?'🌿 Medium · +200pts':'🪨 Hard · +300pts'}
+        ${q.diff==='easy'?'<img src="/icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy · +100pts':q.diff==='medium'?'<img src="/icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium · +200pts':'<img src="/icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard · +300pts'}
       </div>
       <div style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.5;font-family:Georgia,serif;">${q.q}</div>
     </div>
@@ -5864,7 +5864,7 @@ async function renderTriviaComplete() {
     </div>
     <button class="btn-next" onclick="startTrivia('${s.difficulty}')">Play Again →</button>
     <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="renderTriviaSetup()">← Change Difficulty</button>
-    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('📚 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'🌱 Easy',medium:'🌿 Medium',hard:'🪨 Hard'},'${s.difficulty==='endless'?'easy':s.difficulty}')">🏆 View Leaderboard →</button>`;
+    <button class="btn-change-diff" style="margin-top:8px;width:100%;" onclick="showBackBtn(true);renderGameLeaderboard('📚 Bible Trivia','leaderboard_trivia',['easy','medium','hard'],{easy:'<img src=&quot;/icons/diff-easy.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Easy',medium:'<img src=&quot;/icons/diff-medium.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Medium',hard:'<img src=&quot;/icons/diff-hard.svg&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;vertical-align:-3px;object-fit:contain;&quot; alt=&quot;&quot;> Hard'},'${s.difficulty==='endless'?'easy':s.difficulty}')"><img src="/icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> View Leaderboard →</button>`;
 
   if(currentUser && s.score>0 && s.difficulty!=='endless') {
     await submitGameScore('leaderboard_trivia',{user_id:currentUser.id,player_name:currentUsername||playerName,score:s.score,difficulty:s.difficulty,correct:s.correct});
@@ -5923,12 +5923,12 @@ function renderMemoryEndlessCard() {
       <div class="endless-hud-item"><strong id="emScoreDisplay">${es.score.toLocaleString()}</strong> pts</div>
       <div class="endless-hud-item"><strong id="emStreakDisplay">${es.streak}</strong> streak</div>
       <div class="endless-hud-item">${heartDisplay}</div>
-      <div class="endless-hud-item"><span class="endless-badge">♾️ Memory</span></div>
+      <div class="endless-hud-item"><span class="endless-badge"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Memory</span></div>
     </div>
     <div class="card" id="card">
       <div class="flashcard-label">Can you recall this verse?</div>
       <div class="flashcard-reference">${v.book} ${v.chapter}:${v.verse}</div>
-      <div class="flashcard-book">${v.testament === 'OT' ? '📜 Old Testament' : '✝️ New Testament'}</div>
+      <div class="flashcard-book">${v.testament === 'OT' ? '<img src="/icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament' : '<img src="/icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament'}</div>
       <div class="flashcard-tap-hint">Rate yourself after flipping</div>
       <hr class="divider" style="margin:14px 0;"/>
       <div id="memoryFlipArea">
@@ -5964,7 +5964,7 @@ async function rateMemoryEndless(rating) {
     await updateStreak();
     document.getElementById('root').innerHTML = `
       <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-        <div class="verse-label">♾️ Endless Memory Trail</div>
+        <div class="verse-label"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless Memory Trail</div>
         <div class="endless-final">${es.score.toLocaleString()}</div>
         <div class="endless-streak-display">Run ended after 3 misses</div>
         <button class="btn-next" onclick="startMemoryEndless()">Play Again</button>
@@ -6024,7 +6024,7 @@ function renderMIAEndlessCard() {
       <div class="endless-hud-item"><strong>${es.score.toLocaleString()}</strong> pts</div>
       <div class="endless-hud-item"><strong>${es.streak}</strong> streak</div>
       <div class="endless-hud-item"><span class="multiplier">×${(1+es.streak*0.1).toFixed(1)}</span> mult</div>
-      <div class="endless-hud-item"><span class="endless-badge">♾️ MIA</span></div>
+      <div class="endless-hud-item"><span class="endless-badge"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> MIA</span></div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label">✏️ Endless Missing in Action</div>
@@ -6096,7 +6096,7 @@ async function endMIAEndless(lost) {
   await updateStreak();
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-      <div class="verse-label">♾️ Endless Missing in Action</div>
+      <div class="verse-label"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless Missing in Action</div>
       <div style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">${lost ? '💀 Run Ended!' : '🏦 Score Banked!'}</div>
       <div class="endless-final">${es.score.toLocaleString()}</div>
       <div class="endless-streak-display">${es.streak} verse${es.streak===1?'':'s'} completed</div>
@@ -6148,10 +6148,10 @@ async function renderTrackEndlessCard() {
       <div class="endless-hud-item"><strong>${es.score.toLocaleString()}</strong> pts</div>
       <div class="endless-hud-item"><span class="multiplier">×${es.multiplier.toFixed(1)}</span> mult</div>
       <div class="endless-hud-item"><strong>${es.streak}</strong> streak</div>
-      <div class="endless-hud-item"><span class="endless-badge">♾️ Track</span></div>
+      <div class="endless-hud-item"><span class="endless-badge"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Track</span></div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
-      <div class="verse-label">🎯 Endless Track It Down <span class="pts-hint">(+${pts} pts)</span></div>
+      <div class="verse-label"><img src="/icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Endless Track It Down <span class="pts-hint">(+${pts} pts)</span></div>
       <div class="verse-text" style="margin-bottom:16px;">"${v.text}"</div>
       <hr class="divider"/>
       <div class="ref-options" id="trackRefOptions">
@@ -6203,7 +6203,7 @@ async function endTrackEndless(lost) {
   await updateStreak();
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-      <div class="verse-label">♾️ Endless Track It Down</div>
+      <div class="verse-label"><img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless Track It Down</div>
       <div style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">${lost ? '💀 Run Ended!' : '🏦 Score Banked!'}</div>
       <div class="endless-final">${es.score.toLocaleString()}</div>
       <div class="endless-streak-display">${es.streak} verse${es.streak===1?'':'s'} correct</div>
@@ -6558,8 +6558,8 @@ function renderChallengeScout(verse) {
       area.innerHTML = `
         <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Testament?</div>
         <div style="display:flex;gap:10px;">
-          <button class="ref-option" style="flex:1;" data-ans="OT">📜 Old Testament</button>
-          <button class="ref-option" style="flex:1;" data-ans="NT">✝️ New Testament</button>
+          <button class="ref-option" style="flex:1;" data-ans="OT"><img src="/icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament</button>
+          <button class="ref-option" style="flex:1;" data-ans="NT"><img src="/icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament</button>
         </div>`;
       area.querySelectorAll('.ref-option').forEach(btn => {
         btn.onclick = () => {
@@ -6738,7 +6738,7 @@ async function renderChallengeTrack(verse) {
 
   root.innerHTML = challengeHUD() + `
     <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
-      <div class="verse-label">🎯 Where is this verse from?</div>
+      <div class="verse-label"><img src="/icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Where is this verse from?</div>
       <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
       <hr class="divider"/>
       <div id="challengeTrackOptions">
@@ -6771,7 +6771,7 @@ function renderChallengeMemory(verse) {
     <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
       <div class="flashcard-label">Can you recall this verse?</div>
       <div class="flashcard-reference">${verse.book} ${verse.chapter}:${verse.verse}</div>
-      <div class="flashcard-book">${verse.testament==='OT'?'📜 Old Testament':'✝️ New Testament'}</div>
+      <div class="flashcard-book">${verse.testament==='OT'?'<img src="/icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament':'<img src="/icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament'}</div>
       <hr class="divider" style="margin:14px 0;"/>
       <div id="challengeMemFlip">
         <button class="btn-next" id="challengeFlipBtn">Flip to see verse →</button>
@@ -7370,7 +7370,7 @@ async function renderProfile(userId=null, username=null) {
           <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Stats</div>
           <div class="profile-stats-grid">
             <div class="profile-stat">
-              <div class="profile-stat-val">${streak.current_streak||0}🔥</div>
+              <div class="profile-stat-val">${streak.current_streak||0} <img src="/icons/streak-fire.svg" width="20" height="20" style="vertical-align:-4px;object-fit:contain;" alt=""></div>
               <div class="profile-stat-label">Current Streak</div>
             </div>
             <div class="profile-stat">
@@ -7644,22 +7644,22 @@ async function challengeFriend(friendId, friendUsername) {
       <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Pick a game to challenge them on. You play first then they have 24 hours to beat your score!</p>
       <div class="chapter-list">
         <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','scout','hard')">
-          <div class="chapter-num current">📖</div>
+          <div class="chapter-num current">${getFieldIcon('scout',22)}</div>
           <div class="chapter-info"><div class="chapter-title">Scripture Scout</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
         <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','mia','hard')">
-          <div class="chapter-num current">✏️</div>
+          <div class="chapter-num current">${getFieldIcon('mia',22)}</div>
           <div class="chapter-info"><div class="chapter-title">Missing in Action</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
         <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','track','hard')">
-          <div class="chapter-num current">🎯</div>
+          <div class="chapter-num current">${getFieldIcon('track',22)}</div>
           <div class="chapter-info"><div class="chapter-title">Track It Down</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
         <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','trivia','easy')">
-          <div class="chapter-num current">🗂️</div>
+          <div class="chapter-num current">${getFieldIcon('trivia',22)}</div>
           <div class="chapter-info"><div class="chapter-title">Memory Trail</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
@@ -8303,7 +8303,7 @@ const BADGE_JOURNAL_ENTRIES = {
     sign: '<strong>Hard mode. Three times perfect. Legendary.</strong>'
   },
   endless: {
-    tag: '♾️ Endless Explorer', tagClass: 'journal-tag-blue',
+    tag: '<img src="/icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless Explorer', tagClass: 'journal-tag-blue',
     body: "Endless Mode unlocked. No finish line. No final score. Just you and the Word for as long as you want to go.<br><br>Most people need a finish line to keep moving. You don't.<br><br>That's the definition of an explorer.",
     sign: '<strong>The trail has no end. Neither do you.</strong>'
   },
@@ -8688,7 +8688,7 @@ function getStreakDisplay() {
   return `
     ${atRisk && current_streak > 0 ? `<div class="streak-warning">⚠️ Play today to keep your ${current_streak} day streak!</div>` : ''}
     <div class="streak-bar">
-      <div class="streak-fire">${playedToday ? '🔥' : '💤'}</div>
+      <div class="streak-fire">${playedToday ? '<img src="/icons/streak-fire.svg" width="28" height="28" style="object-fit:contain;" alt="">' : '💤'}</div>
       <div class="streak-info">
         <div class="streak-count">${current_streak} day${current_streak !== 1 ? 's' : ''}</div>
         <div class="streak-label">${playedToday ? 'Streak active today' : 'Current streak'}</div>
@@ -9376,8 +9376,8 @@ async function renderDailyScout(verse) {
       area.innerHTML = `
         <div style="font-size:0.82rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;">Which Testament?</div>
         <div style="display:flex;gap:10px;">
-          <button class="ref-option" style="flex:1;" data-ans="OT">📜 Old Testament</button>
-          <button class="ref-option" style="flex:1;" data-ans="NT">✝️ New Testament</button>
+          <button class="ref-option" style="flex:1;" data-ans="OT"><img src="/icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament</button>
+          <button class="ref-option" style="flex:1;" data-ans="NT"><img src="/icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament</button>
         </div>`;
       area.querySelectorAll('.ref-option').forEach(btn => {
         btn.onclick = () => {
@@ -9461,7 +9461,7 @@ function renderDailyMemory(verse) {
     <div class="card" style="max-width:560px;width:100%;">
       <div class="flashcard-label">Can you recall this verse?</div>
       <div class="flashcard-reference">${verse.book} ${verse.chapter}:${verse.verse}</div>
-      <div class="flashcard-book">${verse.testament==='OT'?'📜 Old Testament':'✝️ New Testament'}</div>
+      <div class="flashcard-book">${verse.testament==='OT'?'<img src="/icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament':'<img src="/icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament'}</div>
       <hr class="divider" style="margin:14px 0;"/>
       <div id="dailyMemFlip">
         <button class="btn-next" id="dailyFlipBtn">Flip to see verse →</button>
@@ -9628,7 +9628,7 @@ async function renderDailyTrack(verse) {
       <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Track It Down</div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
-      <div class="verse-label">🎯 Where is this verse from?</div>
+      <div class="verse-label"><img src="/icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Where is this verse from?</div>
       <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
       <hr class="divider"/>
       <div id="dailyTrackOptions">
@@ -9814,14 +9814,14 @@ function showChampionModal(month, scout, memory, mia, track) {
   modal.innerHTML = `
     <div class="champion-card">
       <div class="champion-header">
-        <div class="champion-icon">🏆</div>
+        <div class="champion-icon"><img src="/icons/trophy.svg" width="48" height="48" style="object-fit:contain;" alt=""></div>
         <div class="champion-title">${month} Champions!</div>
         <div class="champion-subtitle">Congratulations to last month's top Scripture Scouts!</div>
       </div>
       ${section('📖 Scripture Scout', scout)}
       ${section('🗂️ Memory Trail', memory)}
       ${section('✏️ Missing in Action', mia)}
-      ${section('🎯 Track It Down', track)}
+      ${section('<img src="/icons/target.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Track It Down', track)}
       <button class="btn-champion-close" onclick="document.getElementById('championModal').remove()">
         🎉 Let's Play!
       </button>
