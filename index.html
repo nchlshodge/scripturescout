@@ -3653,21 +3653,33 @@ async function renderStoryMode() {
     const otPaths = paths.filter(p => p.testament !== 'NT');
     const ntPaths = paths.filter(p => p.testament === 'NT');
 
-    function renderPathCard(path) {
+    function renderPathEntry(path, i) {
       const pathChapters = chapters.filter(c => c.path_id === path.id);
       const total = pathChapters.length;
-      const completed = storyProgress[path.id] || 0;
-      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      const completed = Math.min(storyProgress[path.id] || 0, total);
+      const isComplete = total > 0 && completed === total;
+      const isStarted = completed > 0 && !isComplete;
+      const numClass = isComplete ? 'fg-num-done' : isStarted ? 'fg-num-active' : 'fg-num-lock';
+      const numContent = isComplete ? '✓' : isStarted ? '→' : (i+1);
+      let metaHTML;
+      if(isComplete) {
+        metaHTML = `<span class="fg-pct">${total}/${total} chapters</span><span class="fg-stamp fg-stamp-done">Complete</span>`;
+      } else if(isStarted) {
+        metaHTML = `<span class="fg-pct">${completed}/${total} chapters</span><span class="fg-stamp">In progress</span>`;
+      } else {
+        metaHTML = `<span class="fg-lock-text">Tap to begin</span>`;
+      }
+      const proStamp = path.is_free ? '' : `<span class="fg-stamp" style="border-color:var(--earth);color:var(--earth);margin-left:4px;">Pro</span>`;
       return `
-        <div class="story-path-card" data-path="${path.id}" data-slug="${path.slug}">
-          <div class="story-path-icon">${path.icon}</div>
-          <div class="story-path-info">
-            <div class="story-path-title">${path.title}</div>
-            <div class="story-path-desc">${path.description}</div>
-            <div class="story-path-progress"><div class="story-path-progress-fill" style="width:${pct}%"></div></div>
-            <div class="story-path-progress-label">${completed} of ${total} chapters complete</div>
+        <div class="fg-path-entry fg-path-tappable" data-path="${path.id}">
+          <div style="display:flex;align-items:flex-start;gap:0">
+            <div class="fg-num ${numClass}">${numContent}</div>
+            <div class="fg-path-body">
+              <div class="fg-path-title">${path.icon} ${path.title}</div>
+              <div class="fg-path-sub">${path.description}</div>
+              <div class="fg-path-meta">${metaHTML}${proStamp}</div>
+            </div>
           </div>
-          ${path.is_free ? '<div class="story-path-badge">Free</div>' : '<div class="story-path-badge" style="background:rgba(200,135,58,0.15);color:var(--earth);border-color:var(--earth);">Pro</div>'}
         </div>`;
     }
 
@@ -3676,46 +3688,51 @@ async function renderStoryMode() {
     const lastPath = lastPathId ? paths.find(p => p.id === parseInt(lastPathId)) : null;
     const lastCompleted = lastPath ? (storyProgress[lastPath.id] || 0) : 0;
     const lastTotal = lastPath ? chapters.filter(c => c.path_id === lastPath.id).length : 0;
-    const lastPct = lastTotal > 0 ? Math.round((lastCompleted / lastTotal) * 100) : 0;
 
     let activeTestament = 'OT';
 
     function renderStoryScreen() {
       const currentPaths = activeTestament === 'NT' ? ntPaths : otPaths;
+      const sectionLabel = activeTestament === 'NT' ? 'New Testament Stories' : 'Old Testament Stories';
+      const sectionChapterCount = currentPaths.reduce((sum,p) => sum + chapters.filter(c=>c.path_id===p.id).length, 0);
+
+      const continueHTML = (lastPath && lastCompleted > 0 && lastCompleted < lastTotal) ? `
+        <div class="fg-path-entry fg-path-tappable" data-path="${lastPath.id}" style="background:rgba(122,58,16,0.06);border-radius:8px;padding:8px;margin:-8px -8px 6px;">
+          <div style="display:flex;align-items:flex-start;gap:0">
+            <div class="fg-num fg-num-active">▶</div>
+            <div class="fg-path-body">
+              <div class="fg-path-title">Continue: ${lastPath.icon} ${lastPath.title}</div>
+              <div class="fg-path-sub">Chapter ${lastCompleted + 1} of ${lastTotal}</div>
+            </div>
+          </div>
+        </div>` : '';
+
+      const bookPage = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
+        <div class="fg-page-inner">
+          <div class="fg-guide-header">
+            <div class="fg-guide-label">📜 Randy's Field Guide</div>
+            <div class="fg-guide-title">${sectionLabel}</div>
+            <div class="fg-guide-sub">${currentPaths.length} paths · ${sectionChapterCount} chapters</div>
+          </div>
+          ${continueHTML}
+          ${currentPaths.map(renderPathEntry).join('') || '<div class="fg-lock-text" style="display:block;padding:12px 0;">No stories yet in this testament.</div>'}
+          <div class="fg-paw-sig"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="28" r="9" fill="#8b4513"/><circle cx="14" cy="20" r="5" fill="#8b4513"/><circle cx="22" cy="17" r="5" fill="#8b4513"/><circle cx="30" cy="20" r="5" fill="#8b4513"/><circle cx="11" cy="30" r="4" fill="#8b4513"/><circle cx="33" cy="30" r="4" fill="#8b4513"/></svg></div>
+          <div class="fg-page-num">${activeTestament === 'NT' ? 'New Testament' : 'Old Testament'}</div>
+        </div></div>`;
 
       root.innerHTML = `
         <div class="story-screen">
-          <div class="verse-label">📜 Story Mode</div>
-
-          ${lastPath && lastCompleted > 0 && lastCompleted < lastTotal ? `
-          <div style="background:linear-gradient(135deg,rgba(167,139,250,0.1),rgba(56,189,248,0.05));border:1.5px solid #A78BFA;border-radius:14px;padding:16px;margin-bottom:16px;cursor:pointer;" onclick="renderStoryPath(${lastPath.id})">
-            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:700;margin-bottom:6px;">▶️ Continue where you left off</div>
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="font-size:1.8rem;">${lastPath.icon}</div>
-              <div style="flex:1;">
-                <div style="font-size:0.92rem;font-weight:700;color:var(--text);">${lastPath.title}</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">Chapter ${lastCompleted + 1} of ${lastTotal}</div>
-                <div class="story-path-progress" style="margin-top:6px;"><div class="story-path-progress-fill" style="width:${lastPct}%"></div></div>
-              </div>
-              <div style="color:#A78BFA;font-weight:700;font-size:1.2rem;">→</div>
-            </div>
-          </div>` : ''}
-
-          <div style="margin-bottom:16px;">
+          <div style="margin-bottom:12px;">
             <div class="trans-label">Translation</div>
             <div class="translation-switcher" style="max-width:100%;">
               ${TRANSLATIONS.map(t=>`<button class="trans-btn ${TRANSLATION===t.code?'active':''}" onclick="setTranslation('${t.code}');renderStoryMode();">${t.short} — ${t.name}</button>`).join('')}
             </div>
           </div>
-
           <div style="display:flex;gap:8px;margin-bottom:16px;">
             <button class="game-lb-tab ${activeTestament==='NT'?'active':''}" id="storyNTTab" style="flex:1;">✝️ New Testament</button>
             <button class="game-lb-tab ${activeTestament==='OT'?'active':''}" id="storyOTTab" style="flex:1;">📜 Old Testament</button>
           </div>
-
-          <div id="storyPathList">
-            ${currentPaths.map(renderPathCard).join('')}
-          </div>
+          ${buildBookShell(bookPage)}
         </div>`;
 
       document.getElementById('storyNTTab').onclick = () => {
@@ -3726,7 +3743,7 @@ async function renderStoryMode() {
         activeTestament = 'OT';
               renderStoryScreen();
       };
-      document.querySelectorAll('.story-path-card').forEach(card => {
+      document.querySelectorAll('.fg-path-entry[data-path]').forEach(card => {
         card.addEventListener('click', () => {
           const pathId = parseInt(card.dataset.path);
           const path = paths.find(p => p.id === pathId);
@@ -3757,42 +3774,49 @@ async function renderStoryPath(pathId) {
     const chapters = await sbFetch(`story_chapters?path_id=eq.${pathId}&order=chapter_num&select=*`);
     const completed = storyProgress[pathId] || 0;
 
-    root.innerHTML = `
-      <div class="story-screen">
-        <div class="verse-label">${path.icon} ${path.title}</div>
-        <div class="chapter-list">
-          ${chapters.map(ch => {
-            const isDone = ch.chapter_num <= completed;
-            const isCurrent = ch.chapter_num === completed + 1;
-            const isLocked = ch.chapter_num > completed + 1;
-            return `
-              <div class="chapter-item ${isDone ? 'completed' : isCurrent ? 'unlocked' : 'locked'}" data-chapter="${ch.id}" data-num="${ch.chapter_num}" data-locked="${isLocked}">
-                <div class="chapter-num ${isDone ? 'completed' : isCurrent ? 'current' : ''}">
-                  ${isDone ? '✓' : ch.chapter_num}
-                </div>
-                <div class="chapter-info">
-                  <div class="chapter-title">${ch.title}</div>
-                  <div class="chapter-ref">${ch.book} ${ch.chapter}:${ch.verse}</div>
-                </div>
-                <div class="chapter-lock">
-                  ${isDone
-                    ? ('⭐'.repeat(storyProgress[`stars_${pathId}_${ch.chapter_num}`]||1) + '☆'.repeat(3-(storyProgress[`stars_${pathId}_${ch.chapter_num}`]||1)))
-                    : isCurrent ? '▶️' : '🔒'}
-                </div>
-              </div>`;
-          }).join('')}
-        </div>
-        <button class="btn-change-diff" style="margin-top:16px;" onclick="renderStoryMode()">← All Stories</button>
-      </div>`;
+    const nextChapter = chapters.find(c => c.chapter_num === completed + 1);
+    const beginBtnText = completed === 0 ? 'Begin Chapter 1 →' : completed >= chapters.length ? 'Story Complete ✓' : `Continue Chapter ${completed+1} →`;
 
-    document.querySelectorAll('.chapter-item:not(.locked)').forEach(item => {
+    const chapterRowsHTML = chapters.map(ch => {
+      const isDone = ch.chapter_num <= completed;
+      const isCurrent = ch.chapter_num === completed + 1;
+      const isLocked = ch.chapter_num > completed + 1;
+      const numClass = isDone ? 'fg-ch-done' : isCurrent ? 'fg-ch-next' : 'fg-ch-lock';
+      const stars = storyProgress[`stars_${pathId}_${ch.chapter_num}`] || 0;
+      const starsHtml = isDone ? '⭐'.repeat(stars||1) + '☆'.repeat(3-(stars||1)) : (isCurrent ? '▶' : '🔒');
+      return `
+        <div class="fg-ch-row ${isLocked ? '' : 'fg-path-tappable'}" ${isLocked ? '' : `data-chapter="${ch.id}"`}>
+          <div class="fg-ch-n ${numClass}">${isDone ? '✓' : ch.chapter_num}</div>
+          <div class="fg-ch-title">${ch.title} <span style="opacity:0.6;font-size:0.7rem;">— ${ch.book} ${ch.chapter}:${ch.verse}</span></div>
+          <div class="fg-ch-stars">${starsHtml}</div>
+        </div>`;
+    }).join('');
+
+    const page = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
+      <div class="fg-page-inner">
+        <div class="fg-back-btn" onclick="renderStoryMode()">← back to stories</div>
+        <div class="fg-guide-header">
+          <div class="fg-guide-label">📜 Randy's Field Guide</div>
+          <div class="fg-guide-title">${path.icon} ${path.title}</div>
+          <div class="fg-guide-sub">${path.description}</div>
+        </div>
+        ${chapterRowsHTML}
+        ${nextChapter ? `<button class="fg-begin-btn" id="fgBeginChapterBtn">${beginBtnText}</button>` : ''}
+        <div class="fg-paw-sig"><svg width="28" height="28" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="28" r="9" fill="#8b4513"/><circle cx="14" cy="20" r="5" fill="#8b4513"/><circle cx="22" cy="17" r="5" fill="#8b4513"/><circle cx="30" cy="20" r="5" fill="#8b4513"/><circle cx="11" cy="30" r="4" fill="#8b4513"/><circle cx="33" cy="30" r="4" fill="#8b4513"/></svg></div>
+        <div class="fg-page-num">${completed} of ${chapters.length} complete</div>
+      </div></div>`;
+
+    root.innerHTML = `<div class="story-screen">${buildBookShell(page)}</div>`;
+
+    document.querySelectorAll('.fg-ch-row[data-chapter]').forEach(item => {
       item.addEventListener('click', () => {
         const chapterId = parseInt(item.dataset.chapter);
-        const chapterNum = parseInt(item.dataset.num);
         const chapter = chapters.find(c => c.id === chapterId);
         if(chapter) renderStoryChapter(chapter, pathId, completed);
       });
     });
+    const beginBtn = document.getElementById('fgBeginChapterBtn');
+    if(beginBtn && nextChapter) beginBtn.onclick = () => renderStoryChapter(nextChapter, pathId, completed);
   } catch(e) {
     root.innerHTML = `<div class="error-box">⚠️ ${e.message}</div><button class="btn-next" onclick="renderStoryMode()">Back</button>`;
   }
