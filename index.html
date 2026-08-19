@@ -7953,7 +7953,7 @@ async function updateStreak(bonusDay=false) {
   }
 
   // Award Sabbath Rest every 6 days
-  if(newStreak % 5 === 0 && newStreak > 0) {
+  if(newStreak % 6 === 0 && newStreak > 0) {
     newTokens = Math.min(3, newTokens + 1);
   }
 
