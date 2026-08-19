@@ -3675,7 +3675,7 @@ async function renderStoryMode() {
           <div style="display:flex;align-items:flex-start;gap:0">
             <div class="fg-num ${numClass}">${numContent}</div>
             <div class="fg-path-body">
-              <div class="fg-path-title">${path.icon} ${path.title}</div>
+              <div class="fg-path-title">${getStoryPathIcon(path)} ${path.title}</div>
               <div class="fg-path-sub">${path.description}</div>
               <div class="fg-path-meta">${metaHTML}${proStamp}</div>
             </div>
@@ -3701,7 +3701,7 @@ async function renderStoryMode() {
           <div style="display:flex;align-items:flex-start;gap:0">
             <div class="fg-num fg-num-active">▶</div>
             <div class="fg-path-body">
-              <div class="fg-path-title">Continue: ${lastPath.icon} ${lastPath.title}</div>
+              <div class="fg-path-title">Continue: ${getStoryPathIcon(lastPath)} ${lastPath.title}</div>
               <div class="fg-path-sub">Chapter ${lastCompleted + 1} of ${lastTotal}</div>
             </div>
           </div>
@@ -3797,7 +3797,7 @@ async function renderStoryPath(pathId) {
         <div class="fg-back-btn" onclick="renderStoryMode()">← back to stories</div>
         <div class="fg-guide-header">
           <div class="fg-guide-label">📜 Randy's Field Guide</div>
-          <div class="fg-guide-title">${path.icon} ${path.title}</div>
+          <div class="fg-guide-title">${getStoryPathIcon(path, 32)} ${path.title}</div>
           <div class="fg-guide-sub">${path.description}</div>
         </div>
         ${chapterRowsHTML}
@@ -8482,6 +8482,12 @@ function getFieldIcon(game, size=40) {
   const valid = ['scout','trivia','story','mia','track','leaderboard','daily'];
   if(!valid.includes(game)) return '<span style="font-size:' + size + 'px">📖</span>';
   return '<img src="/icons/' + game + '.svg" width="' + size + '" height="' + size + '" style="object-fit:contain;flex-shrink:0;" alt="' + game + ' icon">';
+}
+
+const STORY_PATH_ICONS = ['creation-story','noah-story','tower-of-babel','abraham-1','abraham-2','abraham-3','isaac','jacob-1','jacob-2','joseph-1','joseph-2','moses-1','moses-2','moses-3','moses-4','joshua-story','gospel-story','sermon-on-the-mount','acts-1','acts-2','acts-3'];
+function getStoryPathIcon(path, size=28) {
+  if(!STORY_PATH_ICONS.includes(path.slug)) return '<span style="font-size:' + size + 'px">' + path.icon + '</span>';
+  return '<img src="/story-icons/' + path.slug + '.svg" width="' + size + '" height="' + size + '" style="object-fit:contain;flex-shrink:0;vertical-align:middle;" alt="' + path.title + ' icon">';
 }
 
 
