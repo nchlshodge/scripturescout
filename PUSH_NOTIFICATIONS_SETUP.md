@@ -102,3 +102,39 @@ If nothing arrives, check **Database → Webhooks → (the hook) → Logs** in t
 Supabase Dashboard to see whether the webhook fired and what the function
 returned, and check **Edge Functions → send-push → Logs** for errors from the
 function itself.
+
+Note: in practice the `notifications`/`messages` → `send-push` wiring above
+ended up done as direct SQL (a `trigger_send_push()` Postgres function using
+`pg_net.http_post`, attached as an `AFTER INSERT` trigger on both tables)
+rather than through the Dashboard's Webhooks UI, since that UI wasn't showing
+up. Functionally identical — same headers, same secret check — just set up
+via `supabase db query` instead of the Dashboard.
+
+## 8. Daily "come play" reminder (separate from the above)
+
+A second Edge Function, `send-daily-reminders`, sends a once-a-day nudge to
+every user who has a stored push subscription but hasn't played yet today
+(checked against `streaks.last_played_date`). Unlike the notifications above,
+this isn't triggered by a database write — it's triggered by a `pg_cron` job
+that fires on a fixed schedule and does a single `pg_net.http_post` to the
+function (mirroring the same `x-webhook-secret` check as `send-push`).
+
+- Deploy: `supabase functions deploy send-daily-reminders --no-verify-jwt`
+- Uses the same `VAPID_*` and `PUSH_WEBHOOK_SECRET` secrets as `send-push` —
+  nothing new to configure there.
+- The `pg_cron` job (`daily-scout-reminder`) is scheduled at `0 22 * * *`
+  (22:00 UTC = 6 PM Eastern **during EDT**). Because the cron schedule is a
+  fixed UTC time and doesn't know about Daylight Saving, it'll effectively
+  fire at 5 PM Eastern once EST resumes in November — re-run the schedule
+  command below with `'0 23 * * *'` at that point if you want to hold it at
+  6 PM year-round:
+  ```sql
+  select cron.unschedule('daily-scout-reminder');
+  select cron.schedule('daily-scout-reminder', '0 23 * * *', $$select net.http_post(
+    url:='https://xzkxigwzoznefywsiwmb.supabase.co/functions/v1/send-daily-reminders',
+    headers:=jsonb_build_object('Content-Type','application/json','x-webhook-secret','<the webhook secret from chat>'),
+    body:='{}'::jsonb
+  );$$);
+  ```
+- Check `select * from cron.job;` and `select * from cron.job_run_details order by start_time desc limit 5;`
+  in the SQL Editor to see whether it's scheduled and how recent runs went.
