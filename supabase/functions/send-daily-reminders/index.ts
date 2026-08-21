@@ -34,7 +34,17 @@ async function deleteSubscription(endpoint: string) {
 }
 
 async function fetchUsersNeedingReminder() {
-  const today = new Date().toISOString().split("T")[0];
+  // The app records last_played_date using each player's own LOCAL clock, but this
+  // function only knows the server's UTC date, which can drift a day either direction
+  // from a player's local date depending on their timezone (ahead of UTC → their local
+  // date can already be "tomorrow"; behind UTC → it can still be "yesterday"). Treat the
+  // full [yesterday, today, tomorrow] UTC window as "already played" — cheap insurance
+  // against double-pinging anyone near the day boundary, regardless of timezone.
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  const yesterday = new Date(now.getTime() - 86400000).toISOString().split("T")[0];
+  const tomorrow = new Date(now.getTime() + 86400000).toISOString().split("T")[0];
+
   // Every subscribed user, with their streak row (if any) left-joined via a second query —
   // PostgREST can't left join, so fetch subscriptions + streaks separately and combine here.
   const [subs, streaks] = await Promise.all([
@@ -46,7 +56,7 @@ async function fetchUsersNeedingReminder() {
   const byUser = new Map<string, { subs: any[]; streak: any }>();
   for (const sub of subs) {
     const streak = streakByUser.get(sub.user_id);
-    if (streak && streak.last_played_date === today) continue; // already played today
+    if (streak && [yesterday, today, tomorrow].includes(streak.last_played_date)) continue; // already played today (allowing for UTC/local date drift)
     if (!byUser.has(sub.user_id)) byUser.set(sub.user_id, { subs: [], streak });
     byUser.get(sub.user_id)!.subs.push(sub);
   }
