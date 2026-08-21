@@ -1146,7 +1146,7 @@ async function showHome() {
           ${getFieldIcon('story', 40)}
           <div style="flex:1;">
             <div class="home-game-name">Story Mode</div>
-            <div class="home-game-desc">21 paths · 241 chapters · verse + trivia</div>
+            <div class="home-game-desc">21 paths · 212 chapters · verse + trivia</div>
           </div>
         </div>
         <!-- Small game cards -->
@@ -4693,10 +4693,100 @@ function renderStoryRoundComplete(stars) {
     if(nextChapter) {
       renderStoryChapter(nextChapter, s.pathId, s.chapter.chapter_num);
     } else {
-      // No more chapters — path complete!
-      renderStoryPath(s.pathId);
+      // No more chapters — path complete! One last recap quiz first.
+      renderStoryPathRecap(s.pathId);
     }
   };
+}
+
+let storyRecapQuiz = null;
+
+async function renderStoryPathRecap(pathId) {
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Preparing your recap…</div></div>`;
+
+  const paths = await sbFetch(`story_paths?id=eq.${pathId}&select=*`);
+  const path = paths[0];
+  const pool = await sbFetch(`bible_trivia_questions?story_path_slug=eq.${path.slug}&select=*`);
+
+  if(!pool.length) { renderStoryPath(pathId); return; }
+
+  storyRecapQuiz = { pathId, path, questions: shuffle(pool).slice(0, 5), idx: 0, correct: 0 };
+  renderStoryRecapQuestion();
+}
+
+function renderStoryRecapQuestion() {
+  const rq = storyRecapQuiz;
+  const root = document.getElementById('root');
+  const q = rq.questions[rq.idx];
+  const choices = shuffle(q.choices);
+
+  const page = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
+    <div class="fg-page-inner">
+      <div class="fg-guide-header">
+        <div class="fg-guide-label">📜 Randy's Field Guide</div>
+        <div class="fg-guide-title">Recap: ${rq.path.title}</div>
+        <div class="fg-guide-sub">Question ${rq.idx + 1} of ${rq.questions.length}</div>
+      </div>
+      <div class="story-round-bar">${rq.questions.map((_,i) => `<div class="story-round-dot ${i < rq.idx ? 'done' : i === rq.idx ? 'active' : ''}"></div>`).join('')}</div>
+      <div class="card" style="max-width:560px;width:100%;">
+        <div class="chapter-narrative" style="font-size:0.95rem;font-weight:700;margin-bottom:14px;">${q.question}</div>
+        <div id="storyRecapChoices">
+          ${choices.map(c => `<button class="story-choice" data-choice="${encodeURIComponent(c)}">${c}</button>`).join('')}
+        </div>
+        <div class="story-feedback" id="storyRecapFeedback"></div>
+      </div>
+    </div>
+  </div>`;
+  root.innerHTML = `<div class="story-screen">${buildBookShell(page)}</div>`;
+
+  document.querySelectorAll('#storyRecapChoices .story-choice').forEach(btn => {
+    btn.addEventListener('click', () => checkStoryRecapAnswer(btn, decodeURIComponent(btn.dataset.choice), q.answer));
+  });
+}
+
+function checkStoryRecapAnswer(btn, chosen, correct) {
+  const rq = storyRecapQuiz;
+  const fb = document.getElementById('storyRecapFeedback');
+  const isCorrect = chosen === correct;
+  document.querySelectorAll('#storyRecapChoices .story-choice').forEach(b => {
+    b.disabled = true;
+    if(decodeURIComponent(b.dataset.choice) === correct) b.classList.add('correct');
+    else if(b === btn) b.classList.add('wrong');
+  });
+  if(isCorrect) rq.correct++;
+  if(fb) { fb.className = `story-feedback ${isCorrect ? 'correct' : 'wrong'}`; fb.textContent = isCorrect ? '✓ Correct!' : `✗ Correct answer: ${correct}`; }
+
+  setTimeout(() => {
+    rq.idx++;
+    if(rq.idx < rq.questions.length) renderStoryRecapQuestion();
+    else renderStoryRecapComplete();
+  }, 1600);
+}
+
+function renderStoryRecapComplete() {
+  const rq = storyRecapQuiz;
+  const root = document.getElementById('root');
+  const total = rq.questions.length;
+  const pct = Math.round((rq.correct / total) * 100);
+  const flavor = pct === 100 ? 'You know this story inside and out!' :
+    pct >= 60 ? 'Solid recall — nicely done.' :
+    'Good effort — the story will stick more each time you visit it.';
+
+  const page = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
+    <div class="fg-page-inner">
+      <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
+        <div style="font-size:2.5rem;margin-bottom:12px;">🏆</div>
+        <div class="verse-label" style="justify-content:center;">${rq.path.title} — Recap Complete</div>
+        <h2 style="font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:6px;">${rq.correct}/${total} correct</h2>
+        <p style="font-size:0.84rem;color:var(--text-muted);line-height:1.6;margin-bottom:20px;">${flavor}</p>
+        <button class="btn-next" id="storyRecapDoneBtn">Continue →</button>
+      </div>
+    </div>
+  </div>`;
+  root.innerHTML = `<div class="story-screen">${buildBookShell(page)}</div>`;
+
+  document.getElementById('storyRecapDoneBtn').onclick = () => renderStoryPath(rq.pathId);
 }
 
 async function completeStoryChapter(pathId, chapterNum, stars) {
