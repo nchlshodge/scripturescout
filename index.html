@@ -9986,7 +9986,11 @@ if (IS_NATIVE && supabaseClient && window.Capacitor?.Plugins?.App) {
     if (!url || !url.startsWith(NATIVE_OAUTH_REDIRECT)) return;
     try {
       window.Capacitor.Plugins.Browser?.close?.();
-      const { data, error } = await supabaseClient.auth.exchangeCodeForSession(url);
+      const params = new URL(url).searchParams;
+      const authCode = params.get('code');
+      if (!authCode) throw new Error(params.get('error_description') || params.get('error') || 'No auth code in callback URL');
+      // exchangeCodeForSession expects just the extracted code, not the full callback URL.
+      const { data, error } = await supabaseClient.auth.exchangeCodeForSession(authCode);
       if (error) throw error;
       if (data?.session) {
         authToken = data.session.access_token;
