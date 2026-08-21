@@ -1,0 +1,33 @@
+{
+  "name": "scripture-scout",
+  "version": "1.0.0",
+  "description": "Scripture Scout — a Bible verse and trivia game.",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sync-www": "bash scripts/sync-www.sh",
+    "cap:sync": "npm run sync-www && npx cap sync",
+    "cap:ios": "npm run sync-www && npx cap sync ios && npx cap open ios",
+    "cap:android": "npm run sync-www && npx cap sync android && npx cap open android"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nchlshodge/scripturescout.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nchlshodge/scripturescout/issues"
+  },
+  "homepage": "https://github.com/nchlshodge/scripturescout#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.0"
+  }
+}

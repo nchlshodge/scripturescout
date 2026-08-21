@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Scripture Scout</string>
+    <string name="title_activity_main">Scripture Scout</string>
+    <string name="package_name">com.scripturescout.app</string>
+    <string name="custom_url_scheme">com.scripturescout.app</string>
+</resources>
