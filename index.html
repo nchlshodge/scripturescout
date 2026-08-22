@@ -938,6 +938,9 @@ const SUPABASE_URL = 'https://xzkxigwzoznefywsiwmb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6a3hpZ3d6b3puZWZ5d3Npd21iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDU4ODgsImV4cCI6MjA5NjgyMTg4OH0.TGB5L5Tp9ZBK-tj_yPUkNPfUkop4eHUkuBigkeH2Pvs';
 // True once this build is running inside the native Capacitor shell (absent on the plain website).
 const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+// Android uses FCM (via @capacitor/push-notifications) instead of Web Push — see subscribeToPushNative().
+// iOS push (APNs) isn't wired up yet since it needs a paid Apple Developer account.
+const IS_ANDROID_NATIVE = IS_NATIVE && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android';
 // Custom URL scheme the native apps register to catch the OAuth redirect back from the system browser.
 const NATIVE_OAUTH_REDIRECT = 'scripturescout://auth-callback';
 // Public half of the Web Push VAPID keypair — safe to expose client-side (see send-push Edge Function for the private half).
@@ -7107,6 +7110,7 @@ function updateNotifBadge(unread) {
 let swRegistration = null;
 
 function isPushSupported() {
+  if (IS_ANDROID_NATIVE) return !!window.Capacitor?.Plugins?.PushNotifications;
   return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 }
 
@@ -7129,6 +7133,13 @@ async function registerPushServiceWorker() {
 
 // 'unsupported' | 'denied' | 'default' | 'granted-not-subscribed' | 'subscribed'
 async function getPushSubscriptionStatus() {
+  if (IS_ANDROID_NATIVE) {
+    if (!isPushSupported()) return 'unsupported';
+    const perm = await window.Capacitor.Plugins.PushNotifications.checkPermissions();
+    if (perm.receive === 'denied') return 'denied';
+    if (perm.receive !== 'granted') return 'default';
+    return localStorage.getItem('ss_fcm_token') ? 'subscribed' : 'granted-not-subscribed';
+  }
   if (!isPushSupported()) return 'unsupported';
   if (Notification.permission !== 'granted') return Notification.permission;
   try {
@@ -7138,8 +7149,30 @@ async function getPushSubscriptionStatus() {
   } catch(e) { return 'granted-not-subscribed'; }
 }
 
+// Registers with FCM; the actual token save to push_subscriptions happens in the
+// 'registration' listener wired at bootstrap, once Android/Google Play services resolves it.
+async function subscribeToPushNative() {
+  const PushNotifications = window.Capacitor?.Plugins?.PushNotifications;
+  if (!PushNotifications) return false;
+  try {
+    let perm = await PushNotifications.checkPermissions();
+    if (perm.receive !== 'granted') perm = await PushNotifications.requestPermissions();
+    if (perm.receive !== 'granted') {
+      if (perm.receive === 'denied') showStreakToast('Notifications are blocked — enable them in your device settings.');
+      return false;
+    }
+    await PushNotifications.register();
+    return true;
+  } catch(e) {
+    console.warn('Native push subscribe failed:', e?.message);
+    showStreakToast('Could not enable notifications.');
+    return false;
+  }
+}
+
 async function subscribeToPush() {
   if (!currentUser) { showStreakToast('Sign in to enable notifications.'); return false; }
+  if (IS_ANDROID_NATIVE) return subscribeToPushNative();
   if (!isPushSupported()) { showStreakToast('Notifications aren\'t supported in this browser.'); return false; }
 
   const permission = await Notification.requestPermission();
@@ -7175,6 +7208,21 @@ async function subscribeToPush() {
 }
 
 async function unsubscribeFromPush() {
+  if (IS_ANDROID_NATIVE) {
+    const token = localStorage.getItem('ss_fcm_token');
+    try {
+      await window.Capacitor?.Plugins?.PushNotifications?.unregister?.();
+      if (token && currentUser) {
+        await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions?fcm_token=eq.${encodeURIComponent(token)}`, {
+          method: 'DELETE',
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
+        });
+      }
+      localStorage.removeItem('ss_fcm_token');
+      showStreakToast('Notifications turned off.');
+    } catch(e) { console.warn('Native push unsubscribe failed:', e?.message); }
+    return;
+  }
   if (!isPushSupported()) return;
   try {
     const reg = swRegistration || await navigator.serviceWorker.getRegistration('/sw.js');
@@ -10128,6 +10176,37 @@ if (IS_NATIVE && supabaseClient && window.Capacitor?.Plugins?.App) {
       console.warn('Google sign-in callback failed:', e?.message);
       showStreakToast('Google sign-in failed — please try again.');
     }
+  });
+}
+
+if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
+  const PushNotifications = window.Capacitor.Plugins.PushNotifications;
+  // Fires some time after register() (called from subscribeToPushNative()) once
+  // Google Play services actually hands back a device token.
+  PushNotifications.addListener('registration', async (token) => {
+    localStorage.setItem('ss_fcm_token', token.value);
+    if (!currentUser || !authToken) return;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions?on_conflict=fcm_token`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`,
+          'Prefer': 'resolution=merge-duplicates,return=minimal'
+        },
+        body: JSON.stringify({ user_id: currentUser.id, platform: 'android', fcm_token: token.value })
+      });
+      if (!res.ok) throw new Error(`Save FCM token failed: ${res.status}`);
+      showStreakToast('Notifications enabled! 🔔');
+    } catch(e) { console.warn('Save FCM token failed:', e?.message); }
+  });
+  PushNotifications.addListener('registrationError', (err) => {
+    console.warn('FCM registration error:', err?.error);
+    showStreakToast('Could not enable notifications.');
+  });
+  // Tapping a delivered notification opens the app — land on Notifications so
+  // the user can see what it was about (friend request, challenge, message, etc.).
+  PushNotifications.addListener('pushNotificationActionPerformed', () => {
+    if (currentUser) renderNotifications();
   });
 }
 

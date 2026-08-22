@@ -27,3 +27,6 @@ android/build/
 android/local.properties
 android/.idea/
 *.iml
+
+# Firebase config — tied to your specific Firebase project, not shared source
+android/app/google-services.json

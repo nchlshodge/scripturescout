@@ -138,3 +138,62 @@ function (mirroring the same `x-webhook-secret` check as `send-push`).
   ```
 - Check `select * from cron.job;` and `select * from cron.job_run_details order by start_time desc limit 5;`
   in the SQL Editor to see whether it's scheduled and how recent runs went.
+
+## 9. Android native push (Firebase Cloud Messaging)
+
+Everything above is Web Push, which doesn't work inside the Android app's
+native WebView. Android instead uses Firebase Cloud Messaging (FCM) via the
+`@capacitor/push-notifications` plugin — already installed and wired up in
+`index.html` (see `IS_ANDROID_NATIVE`, `subscribeToPushNative()`, and the
+`PushNotifications` listeners near the bottom of the file) and in
+`send-push`/`send-daily-reminders` (they now branch on each subscription's
+`platform` column and deliver Android ones through FCM instead of VAPID).
+
+FCM is entirely free (no billing account needed). Two things only you can do,
+since they need your own Google account:
+
+**A. Create the Firebase project and Android app**
+1. Go to the [Firebase Console](https://console.firebase.google.com/) and
+   create a new project (any name, e.g. "Scripture Scout").
+2. Inside it, click **Add app → Android**.
+3. Android package name: `com.scripturescout.app` (must match exactly).
+4. Skip the SHA-1 fingerprint field for now — only needed for Dynamic Links /
+   Google Sign-In via Firebase, not for push.
+5. Download the generated **`google-services.json`** and save it to
+   `android/app/google-services.json` in this project (already gitignored —
+   it's tied to your specific Firebase project, so it doesn't get committed).
+
+**B. Generate a service account key (lets the Edge Functions send via FCM)**
+1. In the Firebase Console: **Project settings (gear icon) → Service accounts**.
+2. Click **Generate new private key** — downloads a JSON file.
+3. Open that file and copy its *entire* contents (starts with `{"type": "service_account", ...}`).
+4. Set it as a Supabase secret (same pattern as the VAPID keys — paste the
+   real JSON directly into this command in your terminal, never into a file
+   in this repo):
+   ```bash
+   supabase secrets set FIREBASE_SERVICE_ACCOUNT_JSON='<paste the full JSON here>'
+   ```
+5. Redeploy both functions so they pick up the new secret:
+   ```bash
+   supabase functions deploy send-push --no-verify-jwt
+   supabase functions deploy send-daily-reminders --no-verify-jwt
+   ```
+
+**C. Run the database migration**
+
+In the Dashboard → SQL Editor, run [`fcm_push_migration.sql`](fcm_push_migration.sql)
+once — it adds the `platform`/`fcm_token` columns to `push_subscriptions`
+that both Edge Functions and the client now expect.
+
+**D. Build and test**
+
+This needs the Android build tooling (Android Studio + a JDK) set up locally
+first, and a real device or emulator — Android emulators, unlike some iOS
+Simulator behavior, do receive real FCM pushes. Once that's in place:
+```bash
+npm run cap:android
+```
+then in your Profile screen tap **"🔕 Enable Notifications"** and confirm the
+permission prompt. A friend request, challenge, or chat message from another
+account should arrive as a real Android notification, including with the app
+fully closed.
