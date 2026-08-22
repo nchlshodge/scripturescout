@@ -4850,7 +4850,11 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
     const totalChapters = pathChapters.length ? pathChapters[0].chapter_num : 10;
     const isCompleted = chapterNum >= totalChapters;
 
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/story_progress`, {
+    // upsert_story_progress (not a raw insert) so replaying a chapter updates
+    // the existing row instead of piling up a new one every time — stars only
+    // ever move up (GREATEST) and completed only ever moves to true (OR), so a
+    // lower-scoring replay can't regress an already-recorded best.
+    await fetch(`${SUPABASE_URL}/rest/v1/rpc/upsert_story_progress`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
@@ -4859,14 +4863,13 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
         'Prefer': 'return=minimal'
       },
       body: JSON.stringify({
-        user_id: currentUser.id,
-        path_id: pathId,
-        chapter_num: chapterNum,
-        stars,
-        completed: isCompleted
+        p_path_id: pathId,
+        p_chapter_num: chapterNum,
+        p_stars: stars,
+        p_completed: isCompleted
       })
     });
-    
+
   } catch(e) { console.error('Story save error:', e); }
 }
 

@@ -1,10 +1,18 @@
 // Supabase Edge Function: delete-account
 //
 // Called by the client (see deleteAccount() in index.html) when a signed-in
-// user taps "Delete Account" in their Profile. Deleting the auth.users row
-// alone wouldn't remove anything else — nothing in this schema has a foreign
-// key back to auth.users, so every table that stores per-user data has to be
-// cleaned up explicitly here before the auth user itself is deleted.
+// user taps "Delete Account" in their Profile. Most tables with a user_id
+// column DO have an ON DELETE CASCADE foreign key back to auth.users, so
+// deleting the auth user alone would clean most of this up automatically —
+// but three don't (checked directly against pg_constraint, not assumed):
+// flashcard_progress.user_id, story_progress.user_id, and
+// conversations.created_by are all ON DELETE "NO ACTION", meaning
+// admin.deleteUser() fails outright with a foreign key violation if any rows
+// referencing that user still exist there. Deleting conversations also
+// cascades to conversation_members and messages for that conversation, so a
+// deleted user's chats disappear for the other party too, not just for them.
+// Every other table below is deleted explicitly anyway rather than relying on
+// the cascade, so this keeps working even if a cascade rule ever changes.
 //
 // verify_jwt is left on (the default) since this is called by a real signed-in
 // user, not a webhook/cron job — Supabase rejects the request before it even
@@ -72,6 +80,9 @@ Deno.serve(async (req) => {
   await admin.from("friends").delete().eq("friend_id", userId);
   await admin.from("challenges").delete().eq("challenger_id", userId);
   await admin.from("challenges").delete().eq("opponent_id", userId);
+  // conversations.created_by is ON DELETE NO ACTION — without this,
+  // deleteUser() below fails for anyone who has ever started a chat.
+  await admin.from("conversations").delete().eq("created_by", userId);
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
   if (deleteError) {
