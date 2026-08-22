@@ -910,6 +910,9 @@
     </g>
   </svg>
 </div>
+<div id="offlineBanner" style="display:none;position:fixed;top:0;left:0;width:100%;padding:8px 12px;background:#7a3a10;color:#f4c050;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;text-align:center;z-index:10000;box-sizing:border-box;">
+  📡 You're offline — scores and progress will save once you're back online.
+</div>
 <div id="topBar" style="display:none;width:100%;max-width:560px;display:none;position:relative;z-index:1;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
     <div id="userBar" style="flex:1;"></div>
@@ -940,6 +943,18 @@ const NATIVE_OAUTH_REDIRECT = 'scripturescout://auth-callback';
 // Public half of the Web Push VAPID keypair — safe to expose client-side (see send-push Edge Function for the private half).
 const VAPID_PUBLIC_KEY = 'BFOPktzxxx16VFb_posuz0_wdM7BRTMq5rZP7k8_2LZqNWMaOGCX11fZGsRCxZYcrwQQV5wJdMmk5IqfIFNBzeg';
 let TRANSLATION = localStorage.getItem('ss_translation') || 'WEB';
+
+// Offline banner — the app makes no attempt at true offline-first behavior
+// (every screen depends on live Supabase calls, by design — see sw.js), so
+// this is just honest, persistent feedback that a real request is unlikely
+// to succeed right now, rather than a silent hang or a confusing error deep
+// inside some unrelated screen.
+function updateOnlineStatus() {
+  const banner = document.getElementById('offlineBanner');
+  if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
 
 const OT_BOOKS = [
   ["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],
@@ -1437,16 +1452,44 @@ async function deleteAccount() {
   }
 }
 
+function restoreSessionOptimistically(token, user) {
+  // No network reachable at all — trust the locally stored session rather
+  // than treating "couldn't check" the same as "checked and it's invalid."
+  // Signing someone out just because they opened the app offline would be
+  // far worse than occasionally trusting a stale (but almost always still
+  // valid, since tokens are refreshed proactively while online) local copy.
+  // A real request succeeding later re-verifies it properly either way.
+  authToken = token;
+  currentUser = JSON.parse(user);
+  currentUsername = localStorage.getItem('ss_username') || '';
+  playerName = currentUsername || (currentUser.email ? currentUser.email.split('@')[0] : 'Scout');
+  startTokenRefreshTimer();
+  return true;
+}
+
 async function restoreSession() {
   let token = localStorage.getItem('ss_token');
   const user  = localStorage.getItem('ss_user');
   const storedRefresh = localStorage.getItem('ss_refresh_token');
   if (token && user) {
+    if (!navigator.onLine) return restoreSessionOptimistically(token, user);
+
+    refreshToken = storedRefresh || null;
+    let res;
     try {
-      refreshToken = storedRefresh || null;
-      let res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${token}` }
       });
+    } catch(networkError) {
+      // fetch() itself threw — the request never reached the server (no
+      // connectivity, DNS failure, etc.), as opposed to the server actually
+      // responding that the session is invalid. Same reasoning as the
+      // navigator.onLine check above.
+      console.warn('Could not verify session, restoring optimistically:', networkError?.message);
+      return restoreSessionOptimistically(token, user);
+    }
+
+    try {
       if (!res.ok && refreshToken) {
         // Access token may have expired while the app was closed/backgrounded — try a refresh before giving up.
         if (await refreshAuthToken()) {
@@ -1481,7 +1524,16 @@ async function restoreSession() {
         }
         return true;
       }
-    } catch(e) { console.warn("Caught:", e?.message); }
+    } catch(e) {
+      // Something failed partway through the refresh/profile-fetch dance
+      // (which may itself be a network error) rather than the server
+      // cleanly telling us the session is invalid — don't wipe on that either.
+      console.warn('Session restore incomplete, restoring optimistically:', e?.message);
+      return restoreSessionOptimistically(token, user);
+    }
+    // Only reachable with a real, non-network-error response saying the
+    // session truly isn't valid (401 even after attempting a refresh) —
+    // safe to clear it here.
     authToken = null;
     refreshToken = null;
     localStorage.removeItem('ss_token');
@@ -10080,6 +10132,8 @@ if (IS_NATIVE && supabaseClient && window.Capacitor?.Plugins?.App) {
 }
 
 (async () => {
+  updateOnlineStatus();
+
   // Let Supabase JS handle OAuth callback automatically
   if(supabaseClient) {
     try {
