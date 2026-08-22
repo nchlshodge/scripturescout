@@ -1398,6 +1398,45 @@ async function signOut() {
   document.getElementById('userBar').style.display = 'none';
 }
 
+async function deleteAccount() {
+  const confirmation = await showTextInputModal({
+    icon: '⚠️',
+    title: 'Delete your account?',
+    desc: 'This permanently deletes your account, scores, streaks, friends, and all progress. This cannot be undone. Type DELETE to confirm.',
+    placeholder: 'Type DELETE',
+    confirmLabel: 'Delete Forever'
+  });
+  if (confirmation === null) return;
+  if (confirmation.toUpperCase() !== 'DELETE') {
+    showStreakToast("Account not deleted — you need to type DELETE exactly.");
+    return;
+  }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Delete failed');
+    currentUser = null;
+    authToken = null;
+    refreshToken = null;
+    stopTokenRefreshTimer();
+    currentUsername = '';
+    localStorage.removeItem('ss_token');
+    localStorage.removeItem('ss_refresh_token');
+    localStorage.removeItem('ss_user');
+    localStorage.removeItem('ss_username');
+    renderAuthScreen();
+    document.getElementById('navTabs').style.display = 'none';
+    document.getElementById('userBar').style.display = 'none';
+    showStreakToast('Your account has been deleted.');
+  } catch(e) {
+    console.warn('Delete account failed:', e?.message);
+    showStreakToast('Could not delete account — please try again.');
+  }
+}
+
 async function restoreSession() {
   let token = localStorage.getItem('ss_token');
   const user  = localStorage.getItem('ss_user');
@@ -1574,6 +1613,10 @@ function renderAuthScreen(mode='login') {
         </div>
 
       </div>
+
+      <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:14px;">
+        By continuing, you agree to our <button class="auth-link" style="font-size:11px;" onclick="openPrivacyPolicy()">Privacy Policy</button>.
+      </div>
     </div>`;
 
   // Allow enter key to submit
@@ -1731,6 +1774,15 @@ async function sendPasswordReset() {
     errEl.style.display = 'block';
     btn.textContent = 'Send Reset Link →';
     btn.disabled = false;
+  }
+}
+
+const PRIVACY_POLICY_URL = 'https://nchlshodge.github.io/scripturescout/privacy.html';
+function openPrivacyPolicy() {
+  if (IS_NATIVE && window.Capacitor?.Plugins?.Browser) {
+    window.Capacitor.Plugins.Browser.open({ url: PRIVACY_POLICY_URL });
+  } else {
+    window.open(PRIVACY_POLICY_URL, '_blank');
   }
 }
 
@@ -7561,6 +7613,15 @@ async function renderProfile(userId=null, username=null) {
               <div class="recent-score-date">${timeAgo(s.created_at)}</div>
             </div>
           </div>`).join('') : `<div class="empty-state" style="padding:16px;">No scores yet — start playing!</div>`}
+
+        ${isOwnProfile ? `
+        <hr class="divider" style="margin:0;"/>
+        <div style="padding:16px;">
+          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Account</div>
+          <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openPrivacyPolicy()">Privacy Policy</button>
+          <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="signOut()">Sign Out</button>
+          <button class="btn-friend-action" style="width:100%;border-color:var(--earth);color:var(--earth);" onclick="deleteAccount()">Delete Account</button>
+        </div>` : ''}
 
       </div>
       <button class="btn-change-diff" style="margin-top:12px;" onclick="showHome()">← Home</button>
