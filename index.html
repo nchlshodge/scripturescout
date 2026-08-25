@@ -4925,6 +4925,8 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
       })
     });
 
+    await updateStreak();
+
   } catch(e) { console.error('Story save error:', e); }
 }
 
