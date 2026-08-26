@@ -1666,7 +1666,7 @@ function renderAuthScreen(mode='login') {
       </div>
 
       <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:14px;">
-        By continuing, you agree to our <button class="auth-link" style="font-size:11px;" onclick="openPrivacyPolicy()">Privacy Policy</button>.
+        By continuing, you agree to our <button class="auth-link" style="font-size:11px;" onclick="openTermsOfService()">Terms of Service</button> and <button class="auth-link" style="font-size:11px;" onclick="openPrivacyPolicy()">Privacy Policy</button>.
       </div>
     </div>`;
 
@@ -1834,6 +1834,15 @@ function openPrivacyPolicy() {
     window.Capacitor.Plugins.Browser.open({ url: PRIVACY_POLICY_URL });
   } else {
     window.open(PRIVACY_POLICY_URL, '_blank');
+  }
+}
+
+const TERMS_OF_SERVICE_URL = 'https://nchlshodge.github.io/scripturescout/terms.html';
+function openTermsOfService() {
+  if (IS_NATIVE && window.Capacitor?.Plugins?.Browser) {
+    window.Capacitor.Plugins.Browser.open({ url: TERMS_OF_SERVICE_URL });
+  } else {
+    window.open(TERMS_OF_SERVICE_URL, '_blank');
   }
 }
 
@@ -7703,6 +7712,7 @@ async function renderProfile(userId=null, username=null) {
         <hr class="divider" style="margin:0;"/>
         <div style="padding:16px;">
           <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Account</div>
+          <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openTermsOfService()">Terms of Service</button>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openPrivacyPolicy()">Privacy Policy</button>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="signOut()">Sign Out</button>
           <button class="btn-friend-action" style="width:100%;border-color:var(--earth);color:var(--earth);" onclick="deleteAccount()">Delete Account</button>
