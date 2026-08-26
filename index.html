@@ -1403,6 +1403,7 @@ async function signOut() {
   refreshToken = null;
   stopTokenRefreshTimer();
   currentUsername = '';
+  blockedUserIds = new Set();
   localStorage.removeItem('ss_token');
   localStorage.removeItem('ss_refresh_token');
   localStorage.removeItem('ss_user');
@@ -1914,6 +1915,7 @@ function showApp() {
       if(statEl && currentStreak) statEl.innerHTML = `<div class="home-stat-val">${currentStreak.longest_streak} <img src="icons/streak-fire.svg" width="20" height="20" style="vertical-align:-4px;object-fit:contain;" alt=""></div><div class="home-stat-label">Best Streak</div>`;
     });
     loadNotifications();
+    loadBlockedUsers();
     checkForPendingChallenges();
     // Poll notifications every 30 seconds
     if(window._notifPollInterval) clearInterval(window._notifPollInterval);
@@ -7399,6 +7401,128 @@ const AVATAR_COLORS = [
 let currentAvatarIcon = null;
 let currentAvatarColor = 'purple';
 let currentUserPro = false;
+// Users the signed-in player has blocked — populated by loadBlockedUsers(), checked
+// before sending messages/friend requests and when filtering a conversation's messages.
+let blockedUserIds = new Set();
+
+async function loadBlockedUsers() {
+  if (!currentUser) { blockedUserIds = new Set(); return; }
+  try {
+    const rows = await sbFetch(`blocked_users?blocker_id=eq.${currentUser.id}&select=blocked_id`);
+    blockedUserIds = new Set(rows.map(r => r.blocked_id));
+  } catch(e) { console.warn('loadBlockedUsers failed:', e?.message); }
+}
+
+function isBlocked(userId) {
+  return blockedUserIds.has(userId);
+}
+
+async function blockUser(userId, username) {
+  if (!currentUser || userId === currentUser.id) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/blocked_users`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+      body: JSON.stringify({ blocker_id: currentUser.id, blocked_id: userId })
+    });
+    blockedUserIds.add(userId);
+    // Blocking also ends any existing friendship between the two of you.
+    await fetch(`${SUPABASE_URL}/rest/v1/friends?or=(and(user_id.eq.${currentUser.id},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${currentUser.id}))`, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
+    }).catch(()=>{});
+    showStreakToast(`🚫 Blocked ${username}. They can no longer message or friend-request you.`);
+    renderProfile(userId, username);
+  } catch(e) {
+    console.warn('blockUser failed:', e?.message);
+    showStreakToast('Could not block — try again.');
+  }
+}
+
+async function unblockUser(userId, username) {
+  if (!currentUser) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/blocked_users?blocker_id=eq.${currentUser.id}&blocked_id=eq.${userId}`, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
+    });
+    blockedUserIds.delete(userId);
+    showStreakToast(`Unblocked ${username}.`);
+    if (document.getElementById('blockedUsersList')) renderBlockedUsersList();
+    else renderProfile(userId, username);
+  } catch(e) {
+    console.warn('unblockUser failed:', e?.message);
+    showStreakToast('Could not unblock — try again.');
+  }
+}
+
+async function renderBlockedUsersList() {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading…</div></div>`;
+  const rows = await sbFetch(`blocked_users?blocker_id=eq.${currentUser.id}&select=blocked_id,created_at&order=created_at.desc`);
+  const ids = rows.map(r => r.blocked_id);
+  const profiles = ids.length ? await sbFetch(`profiles?id=in.(${ids.join(',')})&select=id,username`) : [];
+  const nameById = Object.fromEntries(profiles.map(p => [p.id, p.username || 'Scout']));
+
+  root.innerHTML = `
+    <div class="friends-screen" id="blockedUsersList">
+      <button class="btn-friend-action" onclick="renderProfile()">← Back to Profile</button>
+      <div class="verse-label" style="margin-top:14px;">🚫 Blocked Users</div>
+      ${rows.length ? rows.map(r => `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
+          <div style="font-weight:600;color:var(--text);">${nameById[r.blocked_id] || 'Scout'}</div>
+          <button class="btn-friend-action" onclick="unblockUser('${r.blocked_id}','${(nameById[r.blocked_id]||'Scout').replace(/'/g,"\\'")}')">Unblock</button>
+        </div>`).join('') : `<div class="empty-state" style="padding:16px;">You haven't blocked anyone.</div>`}
+    </div>`;
+}
+
+function showReportModal(userId, username) {
+  const existing = document.getElementById('reportModalOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'reportModalOverlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border:1.5px solid var(--earth);border-radius:20px;padding:32px 24px;max-width:400px;width:100%;">
+      <div style="font-size:2rem;margin-bottom:10px;text-align:center;">⚠️</div>
+      <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;text-align:center;">Report ${username}</div>
+      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;line-height:1.5;text-align:center;">We'll review this. You can also block them so they can't reach you anymore.</div>
+      <select id="reportReasonField" style="width:100%;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:10px;">
+        <option value="Harassment">Harassment or bullying</option>
+        <option value="Spam">Spam</option>
+        <option value="Inappropriate content">Inappropriate content</option>
+        <option value="Impersonation">Impersonation</option>
+        <option value="Other">Other</option>
+      </select>
+      <textarea id="reportDetailsField" maxlength="500" placeholder="Add details (optional)" rows="3"
+        style="width:100%;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:14px;resize:vertical;"></textarea>
+      <div style="display:flex;gap:10px;">
+        <button onclick="document.getElementById('reportModalOverlay').remove();" style="flex:1;padding:13px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);cursor:pointer;">Cancel</button>
+        <button onclick="submitReport('${userId}','${username.replace(/'/g,"\\'")}')" style="flex:1;padding:13px;background:linear-gradient(135deg,#B87D0A,#F4B942);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;color:#1a1a2e;cursor:pointer;">Submit</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
+}
+
+async function submitReport(userId, username) {
+  const reason = document.getElementById('reportReasonField')?.value || 'Other';
+  const details = document.getElementById('reportDetailsField')?.value?.trim() || null;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/user_reports`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ reporter_id: currentUser.id, reported_user_id: userId, reported_username: username, reason, details })
+    });
+    document.getElementById('reportModalOverlay')?.remove();
+    showStreakToast(`Report submitted. Thanks for letting us know.`);
+  } catch(e) {
+    console.warn('submitReport failed:', e?.message);
+    showStreakToast('Could not submit report — try again.');
+  }
+}
 
 function isPro() {
   return currentUserPro || !currentUser; // Pro if logged in as pro, or guest (guests can play freely during beta)
@@ -7638,6 +7762,13 @@ async function renderProfile(userId=null, username=null) {
                 : pushStatus==='denied' ? '🔕 Notifications Blocked (check browser settings)'
                 : '🔕 Enable Notifications'}
             </button>` : ''}
+          ${!isOwnProfile ? `
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
+              <button class="btn-friend-action" onclick="${isBlocked(profileId) ? `unblockUser('${profileId}','${profileUsername.replace(/'/g,"\\'")}')` : `blockUser('${profileId}','${profileUsername.replace(/'/g,"\\'")}')`}">
+                ${isBlocked(profileId) ? '✅ Unblock' : '🚫 Block'}
+              </button>
+              <button class="btn-friend-action" style="border-color:var(--earth);color:var(--earth);" onclick="showReportModal('${profileId}','${profileUsername.replace(/'/g,"\\'")}')">⚠️ Report</button>
+            </div>` : ''}
         </div>
 
         <hr class="divider" style="margin:0;"/>
@@ -7712,6 +7843,7 @@ async function renderProfile(userId=null, username=null) {
         <hr class="divider" style="margin:0;"/>
         <div style="padding:16px;">
           <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Account</div>
+          <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderBlockedUsersList()">🚫 Blocked Users</button>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openTermsOfService()">Terms of Service</button>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openPrivacyPolicy()">Privacy Policy</button>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="signOut()">Sign Out</button>
@@ -7883,6 +8015,7 @@ async function renderFriends(startTab=null) {
 }
 
 async function sendFriendRequest(friendId, friendUsername) {
+  if (isBlocked(friendId)) { showStreakToast(`You've blocked ${friendUsername} — unblock them first to send a request.`); return; }
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/friends`, {
       method: 'POST',
@@ -8072,10 +8205,12 @@ async function openConversation(convId, convName, convType) {
   const root = document.getElementById('root');
 
   async function loadAndRender() {
-    const [msgs, reactions] = await Promise.all([
+    const [msgsRaw, reactions] = await Promise.all([
       sbFetch(`messages?conversation_id=eq.${convId}&order=created_at.asc&limit=50&select=*`),
       sbFetch(`message_reactions?message_id=in.(${(await sbFetch(`messages?conversation_id=eq.${convId}&select=id`)).map(m=>m.id).join(',') || '0'})&select=*`).catch(()=>[])
     ]);
+    // Blocking someone hides their messages from you, even in a conversation you already share.
+    const msgs = msgsRaw.filter(m => !isBlocked(m.sender_id));
 
     const reactionsByMsg = {};
     reactions.forEach(r => { if(!reactionsByMsg[r.message_id]) reactionsByMsg[r.message_id] = []; reactionsByMsg[r.message_id].push(r); });
