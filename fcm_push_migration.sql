@@ -18,5 +18,10 @@ alter table push_subscriptions
     or (platform = 'android' and fcm_token is not null)
   );
 
-create unique index if not exists push_subscriptions_fcm_token_idx
-  on push_subscriptions(fcm_token) where fcm_token is not null;
+-- A plain unique constraint (not a partial index) — Postgres already allows multiple
+-- NULLs under a unique constraint, and PostgREST's on_conflict=fcm_token upsert needs
+-- a real constraint/non-partial index as its arbiter, not a `where fcm_token is not null`
+-- partial index (which caused a real "no unique or exclusion constraint matching the
+-- ON CONFLICT specification" 400 on every Android registration until this was fixed).
+alter table push_subscriptions
+  add constraint push_subscriptions_fcm_token_key unique (fcm_token);
