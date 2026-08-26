@@ -393,10 +393,6 @@
   .hearts-timer-countdown { font-size:2rem; font-weight:700; color:var(--teal); font-family:'DM Sans',sans-serif; letter-spacing:-0.02em; }
   .hearts-timer-next { font-size:0.8rem; color:var(--text-muted); margin-top:4px; }
   .hearts-display { display:flex; justify-content:center; gap:8px; margin-bottom:16px; font-size:1.8rem; }
-  .pro-tease-box { background:rgba(167,139,250,0.08); border:1.5px solid #A78BFA; border-radius:14px; padding:20px; margin-bottom:16px; }
-  .pro-tease-title { font-size:1rem; font-weight:700; color:#A78BFA; margin-bottom:6px; }
-  .pro-tease-desc { font-size:0.82rem; color:var(--text-muted); line-height:1.5; margin-bottom:12px; }
-  .btn-pro { width:100%; padding:13px; background:linear-gradient(135deg,#7C5CFC,#A78BFA); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:700; color:white; cursor:pointer; margin-bottom:8px; }
   .heart-refill-bar { display:flex; gap:4px; margin:12px 0; }
   .heart-refill-slot { flex:1; height:6px; border-radius:3px; }
   .heart-refill-slot.full { background:var(--earth); }
@@ -5024,13 +5020,6 @@ function showHeartsEmptyScreen(onBack) {
         <div class="hearts-timer-next" id="heartTimerNext">Full hearts in ${nextRefill ? formatCountdown(nextRefill + (MAX_HEARTS - heartData.hearts - 1) * HEART_REFILL_MS) : '--:--'}</div>
       </div>
 
-      <div class="pro-tease-box">
-        <div class="pro-tease-title"><img src="icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Never Run Out of Hearts</div>
-        <div class="pro-tease-desc">Scripture Scout Pro gives you unlimited hearts so you can study without interruption. Plus unlock all story paths, game modes, and more.</div>
-        <button class="btn-pro" onclick="showProComingSoon()">Get Scripture Scout Pro →</button>
-        <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">Coming soon — $2.99 one-time unlock</div>
-      </div>
-
       <button class="btn-change-diff" onclick="goBackFromHeartsEmpty()">← Go Back</button>
     </div>`;
 
@@ -5055,15 +5044,6 @@ function showHeartsEmptyScreen(onBack) {
       timerNext.textContent = `Full hearts in ${formatCountdown(next + (MAX_HEARTS - hd.hearts - 1) * HEART_REFILL_MS)}`;
     }
   }, 1000);
-}
-
-function showProComingSoon() {
-  const fb = document.querySelector('.pro-tease-box');
-  if(fb) {
-    fb.innerHTML = `
-      <div class="pro-tease-title">🙏 Thanks for your interest!</div>
-      <div class="pro-tease-desc">Scripture Scout Pro is coming soon. Keep playing and we'll let you know when it launches!</div>`;
-  }
 }
 
 // Check hearts before starting a story round
