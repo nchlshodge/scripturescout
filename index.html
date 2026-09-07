@@ -998,6 +998,11 @@ let lbFilter = 'easy';
 let playerName = localStorage.getItem('ss_player_name') || '';
 let currentUser = null;
 let authToken = null;
+// Set true when the Supabase client reports a PASSWORD_RECOVERY auth event
+// (user arrived via a "reset your password" email link). Checked by the boot
+// sequence below so it shows the new-password screen instead of jumping
+// straight into the app on the strength of the recovery session.
+let passwordRecoveryPending = false;
 let refreshToken = null;
 let tokenRefreshInterval = null;
 let correctCount = 0;
@@ -1810,12 +1815,13 @@ async function sendPasswordReset() {
   btn.disabled = true;
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, gotrue_meta_security: {}, redirect_to: currentAppUrl() })
-    });
-    // Supabase always returns 200 for security (doesn't reveal if email exists)
+    // Must go through the SDK, not a raw /auth/v1/recover fetch — same PKCE
+    // reasoning as signInWithGoogle(): this generates and stores the
+    // code_verifier needed to redeem the ?code= in the emailed link. A raw
+    // fetch skips that, so the link would come back with a token format this
+    // PKCE-configured client can't consume.
+    await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: currentAppUrl() });
+    // Supabase always returns success for security (doesn't reveal if email exists)
     sucEl.textContent = "✓ Check your inbox! If that email is registered you'll get a reset link shortly.";
     sucEl.style.display = 'block';
     btn.textContent = 'Sent!';
@@ -1825,6 +1831,76 @@ async function sendPasswordReset() {
     errEl.textContent = `⚠️ Something went wrong — please try again.`;
     errEl.style.display = 'block';
     btn.textContent = 'Send Reset Link →';
+    btn.disabled = false;
+  }
+}
+
+// Shown instead of the normal boot screen when the Supabase client reports a
+// PASSWORD_RECOVERY event (see passwordRecoveryPending) — i.e. the user just
+// arrived via the link from sendPasswordReset()'s email.
+function renderNewPasswordScreen() {
+  const topBar = document.getElementById('topBar');
+  if(topBar) topBar.style.display = 'none';
+  const masthead = document.querySelector('.masthead');
+  if(masthead) masthead.style.display = 'none';
+  document.getElementById('root').innerHTML = `
+    <div class="auth-screen">
+      <div class="auth-card">
+        <div style="margin-bottom:20px;">
+          <p style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;">🔐 Set a new password</p>
+          <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;">Choose a new password for your account.</p>
+        </div>
+        <div class="auth-error" id="newPasswordError"></div>
+        <div class="auth-field">
+          <label>New Password</label>
+          <input class="auth-input" id="newPassword" type="password" placeholder="••••••••" autocomplete="new-password"/>
+        </div>
+        <div class="auth-field">
+          <label>Confirm Password</label>
+          <input class="auth-input" id="newPasswordConfirm" type="password" placeholder="••••••••" autocomplete="new-password"/>
+        </div>
+        <button class="btn-next" id="newPasswordBtn" onclick="handleSetNewPassword()">Save New Password →</button>
+      </div>
+    </div>`;
+  document.getElementById('newPasswordConfirm').addEventListener('keydown', e => {
+    if(e.key === 'Enter') handleSetNewPassword();
+  });
+}
+
+async function handleSetNewPassword() {
+  const pw  = document.getElementById('newPassword').value;
+  const pw2 = document.getElementById('newPasswordConfirm').value;
+  const errEl = document.getElementById('newPasswordError');
+  const btn   = document.getElementById('newPasswordBtn');
+
+  errEl.style.display = 'none';
+
+  if(!pw || pw.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if(pw !== pw2) {
+    errEl.textContent = 'Passwords do not match.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    const { error } = await supabaseClient.auth.updateUser({ password: pw });
+    if(error) throw error;
+    passwordRecoveryPending = false;
+    // Clean reload — the session persists (supabase-js stores it in
+    // localStorage), so this lands back on the normal boot path, which picks
+    // up the existing session and takes the user straight into the app.
+    window.location.href = currentAppUrl();
+  } catch(e) {
+    errEl.textContent = `⚠️ ${e.message}`;
+    errEl.style.display = 'block';
+    btn.textContent = 'Save New Password →';
     btn.disabled = false;
   }
 }
@@ -10292,6 +10368,14 @@ if (supabaseClient) {
     } else if (event === 'SIGNED_OUT') {
       authToken = null;
     }
+    if (event === 'PASSWORD_RECOVERY') {
+      // Fires while redeeming the code from a "reset your password" email
+      // link. Show the new-password screen instead of letting the boot
+      // sequence below treat this like an ordinary sign-in and drop the
+      // user straight into the app.
+      passwordRecoveryPending = true;
+      renderNewPasswordScreen();
+    }
   });
 }
 
@@ -10369,6 +10453,11 @@ if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
   if(supabaseClient) {
     try {
       const { data: { session } } = await supabaseClient.auth.getSession();
+      // The onAuthStateChange listener above already swapped in
+      // renderNewPasswordScreen() if this session came from a password-reset
+      // link — don't let this boot path override it and drop the user
+      // straight into the app before they've set a new password.
+      if (passwordRecoveryPending) return;
       if (session) {
         authToken   = session.access_token;
         currentUser = session.user;
