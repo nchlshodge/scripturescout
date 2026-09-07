@@ -2311,7 +2311,7 @@ async function submitScore(name, scoreVal, diff) {
 
   // Build safe body matching leaderboard schema
   const lbBody = {
-    player_name: name,
+    name: name,
     score: scoreVal,
     difficulty: diff,
   };
@@ -4638,13 +4638,18 @@ async function submitGameScore(table, data) {
     'Prefer': 'return=minimal'
   };
 
-  // Only send columns that exist on all leaderboard tables
+  // Only send columns that exist on all leaderboard tables. The name column
+  // itself isn't consistent across tables (leaderboard_mia/leaderboard_track
+  // use `name`, leaderboard_trivia uses `player_name`) — forward whichever
+  // one the caller actually passed instead of hardcoding one, which used to
+  // silently drop the name entirely for callers using the other key.
   const safeData = {
     user_id: data.user_id,
-    player_name: data.player_name,
     score: data.score,
     difficulty: data.difficulty
   };
+  if(data.name !== undefined) safeData.name = data.name;
+  if(data.player_name !== undefined) safeData.player_name = data.player_name;
 
   try {
     // Check for existing score — wrap separately so failure here doesn't block insert
