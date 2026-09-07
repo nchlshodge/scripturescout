@@ -1874,8 +1874,18 @@ async function signInWithGoogle() {
     }
     return;
   }
-  // Plain website — a full-page redirect works fine in a real browser tab.
-  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(currentAppUrl())}`;
+  // Plain website — let the SDK redirect. It must own this call (not a raw
+  // `/auth/v1/authorize` redirect) because the client below is configured for
+  // the PKCE flow: it generates and stores a code_verifier before navigating
+  // away, which is required to exchange the `?code=` this app gets redirected
+  // back with. A raw redirect skips that, so Supabase falls back to the old
+  // implicit grant (`#access_token=` in the hash) — a token this PKCE-mode
+  // client then can't pick up, leaving the user stuck on the sign-in screen
+  // even though the OAuth round trip itself succeeded.
+  await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: currentAppUrl() }
+  });
 }
 
 async function signInWithApple() {
@@ -1895,8 +1905,13 @@ async function signInWithApple() {
     }
     return;
   }
-  // Plain website — a full-page redirect works fine in a real browser tab.
-  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=apple&redirect_to=${encodeURIComponent(currentAppUrl())}`;
+  // Plain website — same PKCE reasoning as signInWithGoogle(): let the SDK
+  // own the redirect so it stores the code_verifier this client needs to
+  // exchange the returned `?code=` for a session.
+  await supabaseClient.auth.signInWithOAuth({
+    provider: 'apple',
+    options: { redirectTo: currentAppUrl() }
+  });
 }
 
 function skipAuth() {
