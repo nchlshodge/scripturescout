@@ -4646,7 +4646,8 @@ async function submitGameScore(table, data) {
   const safeData = {
     user_id: data.user_id,
     score: data.score,
-    difficulty: data.difficulty
+    difficulty: data.difficulty,
+    correct: data.correct
   };
   if(data.name !== undefined) safeData.name = data.name;
   if(data.player_name !== undefined) safeData.player_name = data.player_name;
