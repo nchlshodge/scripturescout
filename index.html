@@ -1813,7 +1813,7 @@ async function sendPasswordReset() {
     const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, gotrue_meta_security: {}, redirect_to: window.location.origin })
+      body: JSON.stringify({ email, gotrue_meta_security: {}, redirect_to: currentAppUrl() })
     });
     // Supabase always returns 200 for security (doesn't reveal if email exists)
     sucEl.textContent = "✓ Check your inbox! If that email is registered you'll get a reset link shortly.";
@@ -1836,6 +1836,16 @@ function openPrivacyPolicy() {
   } else {
     window.open(PRIVACY_POLICY_URL, '_blank');
   }
+}
+
+// window.location.origin alone drops the path when the app is served from a
+// subpath (e.g. GitHub Pages' github.io/scripturescout/) rather than a domain
+// root — OAuth/password-reset redirects using just the origin land on a 404
+// instead of back in the app. This preserves whatever directory the app is
+// actually running from, working the same at a subpath, a domain root, or
+// localhost during dev.
+function currentAppUrl() {
+  return window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
 }
 
 const TERMS_OF_SERVICE_URL = 'https://nchlshodge.github.io/scripturescout/terms.html';
@@ -1865,7 +1875,7 @@ async function signInWithGoogle() {
     return;
   }
   // Plain website — a full-page redirect works fine in a real browser tab.
-  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(window.location.origin)}`;
+  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(currentAppUrl())}`;
 }
 
 async function signInWithApple() {
@@ -1886,7 +1896,7 @@ async function signInWithApple() {
     return;
   }
   // Plain website — a full-page redirect works fine in a real browser tab.
-  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=apple&redirect_to=${encodeURIComponent(window.location.origin)}`;
+  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=apple&redirect_to=${encodeURIComponent(currentAppUrl())}`;
 }
 
 function skipAuth() {
