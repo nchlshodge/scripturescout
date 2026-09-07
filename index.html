@@ -1789,7 +1789,7 @@ async function handleAuth(mode) {
           playerName = pendingUsername;
           localStorage.setItem('ss_username', pendingUsername);
           localStorage.removeItem('ss_pending_username');
-        } catch(e) { /* profile may already exist */ }
+        } catch(e) { console.warn('Could not create pending profile:', e?.message); }
       }
       showApp();
     }
@@ -6755,7 +6755,7 @@ async function renderChallenges() {
           <div style="display:flex;align-items:center;font-size:1.2rem;color:var(--text-muted);">⚔️</div>
           <div class="challenge-score-box">
             <div class="challenge-score-val" style="color:#F4B942;">${(isMine ? (c.opponent_score ?? '—') : c.challenger_score).toLocaleString?.() || '—'}</div>
-            <div class="challenge-score-label">${theirName.split(' ')[0]}'s Score</div>
+            <div class="challenge-score-label">${escapeHtml(theirName.split(' ')[0])}'s Score</div>
           </div>
         </div>
         <div class="challenge-result ${resultClass}">${resultText}</div>
@@ -7452,13 +7452,13 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
       <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:600;margin-bottom:8px;">👋 Friend Requests (${friendRequests.length})</div>
       ${friendRequests.map(r => `
         <div class="friend-card" style="margin-bottom:8px;">
-          <div class="friend-avatar">${getReqName(r.user_id)[0]?.toUpperCase()}</div>
+          <div class="friend-avatar">${escapeHtml(getReqName(r.user_id)[0]?.toUpperCase())}</div>
           <div>
-            <div class="friend-name">${getReqName(r.user_id)}</div>
+            <div class="friend-name">${escapeHtml(getReqName(r.user_id))}</div>
             <div class="friend-meta">${timeAgo(r.created_at)}</div>
           </div>
           <div class="friend-actions">
-            <button class="btn-friend-action accept" onclick="acceptFriend('${r.id}','${r.user_id}','${getReqName(r.user_id)}');renderNotificationHub();">✓ Accept</button>
+            <button class="btn-friend-action accept" onclick="acceptFriend('${r.id}','${r.user_id}','${escapeJsAttr(getReqName(r.user_id))}');renderNotificationHub();">✓ Accept</button>
             <button class="btn-friend-action decline" onclick="declineFriend('${r.id}');renderNotificationHub();">✗</button>
           </div>
         </div>`).join('')}
@@ -7608,8 +7608,8 @@ async function renderBlockedUsersList() {
       <div class="verse-label" style="margin-top:14px;">🚫 Blocked Users</div>
       ${rows.length ? rows.map(r => `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
-          <div style="font-weight:600;color:var(--text);">${nameById[r.blocked_id] || 'Scout'}</div>
-          <button class="btn-friend-action" onclick="unblockUser('${r.blocked_id}','${(nameById[r.blocked_id]||'Scout').replace(/'/g,"\\'")}')">Unblock</button>
+          <div style="font-weight:600;color:var(--text);">${escapeHtml(nameById[r.blocked_id] || 'Scout')}</div>
+          <button class="btn-friend-action" onclick="unblockUser('${r.blocked_id}','${escapeJsAttr(nameById[r.blocked_id]||'Scout')}')">Unblock</button>
         </div>`).join('') : `<div class="empty-state" style="padding:16px;">You haven't blocked anyone.</div>`}
     </div>`;
 }
@@ -10484,6 +10484,17 @@ if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
 
 (async () => {
   updateOnlineStatus();
+  // Independent of auth state — must run on every boot path (OAuth/persisted
+  // session, manual token restore, or logged out), not just the fallback
+  // branch below. Previously initTheme/initSound/push-registration only ran
+  // when the Supabase session check found nothing, so anyone with a
+  // persisted session (the common case, not just OAuth) got dark mode and
+  // sound preference silently ignored, and push subscriptions never got
+  // re-registered, on every normal reload.
+  initTheme();
+  initSound();
+
+  let bootHandled = false;
 
   // Let Supabase JS handle OAuth callback automatically
   if(supabaseClient) {
@@ -10519,20 +10530,20 @@ if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
 
         showApp();
         if(!currentUsername) setTimeout(showUsernamePrompt, 600);
-        return;
+        bootHandled = true;
       }
     } catch(e) { console.log('Supabase session check failed:', e.message); }
   }
 
-  // Fallback — try manual token restore
-  const hasSession = await restoreSession();
-  if (hasSession) {
-    showApp();
-  } else {
-    renderAuthScreen();
+  if (!bootHandled) {
+    // Fallback — try manual token restore
+    const hasSession = await restoreSession();
+    if (hasSession) {
+      showApp();
+    } else {
+      renderAuthScreen();
+    }
   }
-  initTheme();
-  initSound();
 
   if (isPushSupported()) {
     await registerPushServiceWorker();
