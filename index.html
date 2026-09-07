@@ -1305,6 +1305,36 @@ function showLeaderboard() { showBackBtn(true); renderLeaderboard(); }
 function showFullStats() { showBackBtn(true); renderStats(); }
 
 // ═══════════════════════════════════════
+// HTML ESCAPING (XSS prevention)
+// ═══════════════════════════════════════
+// Every piece of text that ultimately comes from another user (username, chat
+// message, report/challenge text, leaderboard name, etc.) must go through this
+// before being interpolated into an innerHTML template literal.
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+// For the same untrusted text when it's also passed as a string argument
+// inside an inline onclick="...('${x}')" handler. HTML-escaping alone is NOT
+// enough there — the browser HTML-decodes the attribute value *before*
+// handing it to the JS parser, so an escaped "&#39;" would decode back into a
+// literal `'` and still break out of the JS string. This escapes backslashes
+// and quotes for the JS-string layer first, then HTML-escapes what's left for
+// the surrounding double-quoted attribute layer.
+function escapeJsAttr(str) {
+  return String(str ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ═══════════════════════════════════════
 // SUPABASE HELPERS
 // ═══════════════════════════════════════
 async function sbFetch(path, options={}, _retried=false) {
@@ -2381,7 +2411,7 @@ async function loadLbScores() {
           ${scores.map((s,i)=>`
             <tr class="lb-row">
               <td>${rankIcon(i)}</td>
-              <td class="lb-name">${s.name}</td>
+              <td class="lb-name">${escapeHtml(s.name)}</td>
               <td>${s.score.toLocaleString()}</td>
             </tr>`).join('')}
         </tbody>
@@ -4795,7 +4825,7 @@ async function renderGameLeaderboard(title, table, difficulties, diffLabels, cur
             <div class="game-lb-row">
               <span class="game-lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
               <div style="flex:1;">
-                <div class="game-lb-name">${r.name||r.player_name||r.username||'Scout'}</div>
+                <div class="game-lb-name">${escapeHtml(r.name||r.player_name||r.username||'Scout')}</div>
                 ${r.streak ? `<div class="game-lb-diff">Streak: ${r.streak}</div>` : `<div class="game-lb-diff">${r.correct ? r.correct+' correct' : ''}</div>`}
               </div>
               <span class="game-lb-score">${r.score.toLocaleString()}</span>
@@ -4827,7 +4857,7 @@ async function showMiniLB(container, table, diff, onViewAll) {
       ${rows.map((r,i) => `
         <div class="game-lb-row">
           <span class="game-lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
-          <span class="game-lb-name">${r.name}</span>
+          <span class="game-lb-name">${escapeHtml(r.name)}</span>
           <span class="game-lb-score">${r.score.toLocaleString()}</span>
         </div>`).join('')}
     </div>`;
@@ -6634,7 +6664,7 @@ function showChallengeBanner(challenge) {
     <div class="challenge-banner-card">
       <div class="challenge-banner-swords">⚔️</div>
       <div class="challenge-banner-title">You've Been<br>Challenged!</div>
-      <div class="challenge-banner-subtitle">${fromName} wants to battle</div>
+      <div class="challenge-banner-subtitle">${escapeHtml(fromName)} wants to battle</div>
       <div class="challenge-banner-from">${icon} ${game} · ${challenge.difficulty} difficulty</div>
       <div class="challenge-banner-score">
         <div class="challenge-banner-score-val">${score.toLocaleString()}</div>
@@ -6707,7 +6737,7 @@ async function renderChallenges() {
           <div class="challenge-icon">${gameIcons[c.game]||'🎮'}</div>
           <div>
             <div class="challenge-title">${gameNames[c.game]||c.game} — ${c.difficulty}</div>
-            <div class="challenge-meta">${isMine ? 'You challenged' : 'Challenge from'} ${theirName} · ${timeAgo(c.created_at)}</div>
+            <div class="challenge-meta">${isMine ? 'You challenged' : 'Challenge from'} ${escapeHtml(theirName)} · ${timeAgo(c.created_at)}</div>
             ${c.verse_book ? `<div class="challenge-meta">📖 ${c.verse_book} ${c.verse_chapter}:${c.verse_verse}</div>` : ''}
           </div>
         </div>
@@ -7048,7 +7078,7 @@ function renderChallengeMIA(verse) {
       }).join('');
     }
     const checkArea = document.getElementById('challengeCheckArea');
-    if(checkArea) checkArea.innerHTML = `<button class="btn-next" style="margin-top:8px;" onclick="completeChallengeGame(${challengeScore}, ${JSON.stringify(verse).replace(/"/g,'&quot;')})">See Results →</button>`;
+    if(checkArea) checkArea.innerHTML = `<button class="btn-next" style="margin-top:8px;" onclick="completeChallengeGame(${challengeScore}, ${escapeHtml(JSON.stringify(verse))})">See Results →</button>`;
   }
 
   document.querySelectorAll('#challengeWordBank .word-chip').forEach(btn => {
@@ -7433,15 +7463,15 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
       ${pendingChallenges.map(c => {
         const hoursLeft = Math.max(0, Math.floor((new Date(c.expires_at) - new Date()) / 3600000));
         return `
-        <div class="challenge-card pending" style="margin-bottom:8px;cursor:pointer;" onclick="showChallengeBanner(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+        <div class="challenge-card pending" style="margin-bottom:8px;cursor:pointer;" onclick="showChallengeBanner(${escapeHtml(JSON.stringify(c))})">
           <div class="challenge-header">
             <div class="challenge-icon">⚔️</div>
             <div>
-              <div class="challenge-title">${c.challenger_name} challenged you!</div>
+              <div class="challenge-title">${escapeHtml(c.challenger_name)} challenged you!</div>
               <div class="challenge-meta">${gameNames[c.game]||c.game} · Beat ${c.challenger_score.toLocaleString()} pts · ⏰ ${hoursLeft}h left</div>
             </div>
           </div>
-          <button class="btn-next" style="margin-top:4px;" onclick="event.stopPropagation();showChallengeBanner(${JSON.stringify(c).replace(/"/g,'&quot;')})">⚔️ Accept Challenge!</button>
+          <button class="btn-next" style="margin-top:4px;" onclick="event.stopPropagation();showChallengeBanner(${escapeHtml(JSON.stringify(c))})">⚔️ Accept Challenge!</button>
         </div>`;
       }).join('')}
       <hr class="divider" style="margin:12px 0;"/>` : ''}
@@ -7452,7 +7482,7 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
           <div class="notif-item">
             <div class="notif-icon">${n.type==='friend_request'?'👋':n.type==='friend_accept'?'🤝':n.type==='challenge'?'⚔️':n.type==='challenge_result'?'🏆':'💬'}</div>
             <div>
-              <div class="notif-text">${n.message}</div>
+              <div class="notif-text">${escapeHtml(n.message)}</div>
               <div class="notif-time">${timeAgo(n.created_at)}</div>
             </div>
           </div>`).join('') : `<div class="empty-state">No notifications yet!</div>`}
@@ -7588,7 +7618,7 @@ function showReportModal(userId, username) {
   overlay.innerHTML = `
     <div style="background:var(--surface);border:1.5px solid var(--earth);border-radius:20px;padding:32px 24px;max-width:400px;width:100%;">
       <div style="font-size:2rem;margin-bottom:10px;text-align:center;">⚠️</div>
-      <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;text-align:center;">Report ${username}</div>
+      <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;text-align:center;">Report ${escapeHtml(username)}</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;line-height:1.5;text-align:center;">We'll review this. You can also block them so they can't reach you anymore.</div>
       <select id="reportReasonField" style="width:100%;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:10px;">
         <option value="Harassment">Harassment or bullying</option>
@@ -7601,7 +7631,7 @@ function showReportModal(userId, username) {
         style="width:100%;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:14px;resize:vertical;"></textarea>
       <div style="display:flex;gap:10px;">
         <button onclick="document.getElementById('reportModalOverlay').remove();" style="flex:1;padding:13px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);cursor:pointer;">Cancel</button>
-        <button onclick="submitReport('${userId}','${username.replace(/'/g,"\\'")}')" style="flex:1;padding:13px;background:linear-gradient(135deg,#B87D0A,#F4B942);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;color:#1a1a2e;cursor:pointer;">Submit</button>
+        <button onclick="submitReport('${userId}','${escapeJsAttr(username)}')" style="flex:1;padding:13px;background:linear-gradient(135deg,#B87D0A,#F4B942);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;color:#1a1a2e;cursor:pointer;">Submit</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -7850,10 +7880,10 @@ async function renderProfile(userId=null, username=null) {
 
         <div class="profile-header">
           <div style="position:relative;display:inline-block;margin-bottom:12px;">
-            ${renderAvatarEl(isOwnProfile?currentAvatarIcon:null, isOwnProfile?currentAvatarColor:'purple', profileUsername[0]?.toUpperCase(), 80, '2rem')}
+            ${renderAvatarEl(isOwnProfile?currentAvatarIcon:null, isOwnProfile?currentAvatarColor:'purple', escapeHtml(profileUsername[0]?.toUpperCase()), 80, '2rem')}
             ${isOwnProfile ? `<button onclick="showAvatarPicker()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#A78BFA;border:2px solid var(--surface);color:white;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✏️</button>` : ''}
           </div>
-          <div class="profile-username">${profileUsername || '(no username set)'} ${isOwnProfile && currentUserPro ? '<span style="font-size:0.65rem;background:linear-gradient(135deg,#B87D0A,#F4B942);color:#1a1a2e;padding:2px 8px;border-radius:10px;font-weight:700;vertical-align:middle;">PRO</span>' : ''}</div>
+          <div class="profile-username">${escapeHtml(profileUsername || '(no username set)')} ${isOwnProfile && currentUserPro ? '<span style="font-size:0.65rem;background:linear-gradient(135deg,#B87D0A,#F4B942);color:#1a1a2e;padding:2px 8px;border-radius:10px;font-weight:700;vertical-align:middle;">PRO</span>' : ''}</div>
           <div class="profile-joined">Scripture Scout Player</div>
           ${isOwnProfile && !currentUsername ? `<div style="font-size:0.78rem;color:#F4B942;margin-top:4px;">⚠️ Set a username so friends can find you!</div>` : ''}
           ${isOwnProfile ? `<button class="btn-friend-action" style="margin-top:8px;" onclick="editUsername()">${currentUsername ? '✏️ Change Username' : '✏️ Set Username'}</button>` : ''}
@@ -7865,10 +7895,10 @@ async function renderProfile(userId=null, username=null) {
             </button>` : ''}
           ${!isOwnProfile ? `
             <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
-              <button class="btn-friend-action" onclick="${isBlocked(profileId) ? `unblockUser('${profileId}','${profileUsername.replace(/'/g,"\\'")}')` : `blockUser('${profileId}','${profileUsername.replace(/'/g,"\\'")}')`}">
+              <button class="btn-friend-action" onclick="${isBlocked(profileId) ? `unblockUser('${profileId}','${escapeJsAttr(profileUsername)}')` : `blockUser('${profileId}','${escapeJsAttr(profileUsername)}')`}">
                 ${isBlocked(profileId) ? '✅ Unblock' : '🚫 Block'}
               </button>
-              <button class="btn-friend-action" style="border-color:var(--earth);color:var(--earth);" onclick="showReportModal('${profileId}','${profileUsername.replace(/'/g,"\\'")}')">⚠️ Report</button>
+              <button class="btn-friend-action" style="border-color:var(--earth);color:var(--earth);" onclick="showReportModal('${profileId}','${escapeJsAttr(profileUsername)}')">⚠️ Report</button>
             </div>` : ''}
         </div>
 
@@ -8021,18 +8051,18 @@ async function renderFriends(startTab=null) {
             const uname = getUsername(fId);
             return `
               <div class="friend-card">
-                <div class="friend-avatar" style="font-size:${uname[0]?'1.1rem':'1.4rem'}">${uname[0]?.toUpperCase()}</div>
+                <div class="friend-avatar" style="font-size:${uname[0]?'1.1rem':'1.4rem'}">${escapeHtml(uname[0]?.toUpperCase())}</div>
                 <div>
-                  <div class="friend-name">${uname}</div>
+                  <div class="friend-name">${escapeHtml(uname)}</div>
                   <div class="friend-meta">Scripture Scout friend</div>
                 </div>
                 <div class="friend-actions">
-                  <button class="btn-friend-action" onclick="showBackBtn(true);renderProfile('${fId}','${uname}')" style="display:flex;align-items:center;gap:4px;">
+                  <button class="btn-friend-action" onclick="showBackBtn(true);renderProfile('${fId}','${escapeJsAttr(uname)}')" style="display:flex;align-items:center;gap:4px;">
                     <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="11" r="7" fill="#d4a830" opacity="0.4" stroke="#7a4a08" stroke-width="2"/><path d="M4 28 Q4 20 16 20 Q28 20 28 28" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/></svg>
                     Profile
                   </button>
-                  <button class="btn-friend-action message" onclick="openDirectMessage('${fId}','${uname}')">💬</button>
-                  <button class="btn-friend-action challenge" onclick="challengeFriend('${fId}','${uname}')">⚔️</button>
+                  <button class="btn-friend-action message" onclick="openDirectMessage('${fId}','${escapeJsAttr(uname)}')">💬</button>
+                  <button class="btn-friend-action challenge" onclick="challengeFriend('${fId}','${escapeJsAttr(uname)}')">⚔️</button>
                 </div>
               </div>`;
           }).join('') : `<div class="empty-state">No friends yet!<br>Search for friends by username to get started.</div>`}
@@ -8041,13 +8071,13 @@ async function renderFriends(startTab=null) {
             <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:#A78BFA;font-weight:600;margin-bottom:8px;">👋 Incoming Requests</div>
             ${requests.map(r => `
             <div class="friend-card">
-              <div class="friend-avatar">${getUsername(r.user_id)[0]?.toUpperCase()}</div>
+              <div class="friend-avatar">${escapeHtml(getUsername(r.user_id)[0]?.toUpperCase())}</div>
               <div>
-                <div class="friend-name">${getUsername(r.user_id)}</div>
+                <div class="friend-name">${escapeHtml(getUsername(r.user_id))}</div>
                 <div class="friend-meta">Wants to be your friend! · ${timeAgo(r.created_at)}</div>
               </div>
               <div class="friend-actions">
-                <button class="btn-friend-action accept" onclick="acceptFriend('${r.id}','${r.user_id}','${getUsername(r.user_id)}')">✓ Accept</button>
+                <button class="btn-friend-action accept" onclick="acceptFriend('${r.id}','${r.user_id}','${escapeJsAttr(getUsername(r.user_id))}')">✓ Accept</button>
                 <button class="btn-friend-action decline" onclick="declineFriend('${r.id}')">✗</button>
               </div>
             </div>`).join('')}` : ''}
@@ -8056,9 +8086,9 @@ async function renderFriends(startTab=null) {
             <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:12px 0 8px;">⏳ Sent — Waiting for Response</div>
             ${sentRequests.map(r => `
             <div class="friend-card" style="opacity:0.7;">
-              <div class="friend-avatar">${getUsername(r.friend_id)[0]?.toUpperCase()}</div>
+              <div class="friend-avatar">${escapeHtml(getUsername(r.friend_id)[0]?.toUpperCase())}</div>
               <div>
-                <div class="friend-name">${getUsername(r.friend_id)}</div>
+                <div class="friend-name">${escapeHtml(getUsername(r.friend_id))}</div>
                 <div class="friend-meta">Request sent · ${timeAgo(r.created_at)}</div>
               </div>
               <div class="friend-actions">
@@ -8098,15 +8128,15 @@ async function renderFriends(startTab=null) {
           const filtered = rows.filter(r => r.id !== currentUser.id);
           results.innerHTML = filtered.length ? filtered.map(r => `
             <div class="friend-card">
-              <div class="friend-avatar">${r.username[0]?.toUpperCase()}</div>
+              <div class="friend-avatar">${escapeHtml(r.username[0]?.toUpperCase())}</div>
               <div>
-                <div class="friend-name">${r.username}</div>
+                <div class="friend-name">${escapeHtml(r.username)}</div>
                 <div class="friend-meta">Scripture Scout player</div>
               </div>
               <div class="friend-actions">
-                <button class="btn-friend-action accept" onclick="sendFriendRequest('${r.id}','${r.username}')">+ Add</button>
+                <button class="btn-friend-action accept" onclick="sendFriendRequest('${r.id}','${escapeJsAttr(r.username)}')">+ Add</button>
               </div>
-            </div>`).join('') : `<div class="empty-state">No users found for "<strong>${q}</strong>"</div>`;
+            </div>`).join('') : `<div class="empty-state">No users found for "<strong>${escapeHtml(q)}</strong>"</div>`;
         });
       }
     }
@@ -8161,25 +8191,25 @@ async function challengeFriend(friendId, friendUsername) {
   showBackBtn(true);
   root.innerHTML = `
     <div class="friends-screen">
-      <div class="verse-label">⚔️ Challenge ${friendUsername}</div>
+      <div class="verse-label">⚔️ Challenge ${escapeHtml(friendUsername)}</div>
       <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Pick a game to challenge them on. You play first then they have 24 hours to beat your score!</p>
       <div class="chapter-list">
-        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','scout','hard')">
+        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${escapeJsAttr(friendUsername)}','scout','hard')">
           <div class="chapter-num current">${getFieldIcon('scout',22)}</div>
           <div class="chapter-info"><div class="chapter-title">Scripture Scout</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
-        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','mia','hard')">
+        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${escapeJsAttr(friendUsername)}','mia','hard')">
           <div class="chapter-num current">${getFieldIcon('mia',22)}</div>
           <div class="chapter-info"><div class="chapter-title">Missing in Action</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
-        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','track','hard')">
+        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${escapeJsAttr(friendUsername)}','track','hard')">
           <div class="chapter-num current">${getFieldIcon('track',22)}</div>
           <div class="chapter-info"><div class="chapter-title">Track It Down</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
-        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${friendUsername}','trivia','easy')">
+        <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${escapeJsAttr(friendUsername)}','trivia','easy')">
           <div class="chapter-num current">${getFieldIcon('trivia',22)}</div>
           <div class="chapter-info"><div class="chapter-title">Memory Trail</div><div class="chapter-ref">Hard difficulty</div></div>
           <div class="chapter-lock">▶️</div>
@@ -8206,7 +8236,7 @@ async function startChallengeGame(friendId, friendUsername, game, difficulty) {
   root.innerHTML = `
     <div style="text-align:center;padding:20px 16px 8px;">
       <div style="font-size:0.78rem;font-weight:700;color:#F4B942;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">⚔️ Challenge Mode</div>
-      <div style="font-size:0.85rem;color:var(--text-muted);">Play your best — ${friendUsername} will try to beat you!</div>
+      <div style="font-size:0.85rem;color:var(--text-muted);">Play your best — ${escapeHtml(friendUsername)} will try to beat you!</div>
     </div>`;
 
   if(game === 'scout') await startChallengeScout(verse, difficulty);
@@ -8236,10 +8266,10 @@ async function renderMessages() {
         ${memberships.length ? memberships.map(m => {
           const conv = m.conversations;
           return `
-            <div class="conv-item" onclick="openConversation('${conv.id}','${conv.name || 'Direct Message'}','${conv.type}')">
-              <div class="conv-avatar ${conv.type==='group'?'group':''}">${conv.type==='group'?'👥':(conv.name||'?')[0].toUpperCase()}</div>
+            <div class="conv-item" onclick="openConversation('${conv.id}','${escapeJsAttr(conv.name || 'Direct Message')}','${conv.type}')">
+              <div class="conv-avatar ${conv.type==='group'?'group':''}">${conv.type==='group'?'👥':escapeHtml((conv.name||'?')[0].toUpperCase())}</div>
               <div style="flex:1;min-width:0;">
-                <div class="conv-name">${conv.name || 'Direct Message'}</div>
+                <div class="conv-name">${escapeHtml(conv.name || 'Direct Message')}</div>
                 <div class="conv-preview">Tap to open</div>
               </div>
               <div class="conv-time">${timeAgo(conv.created_at)}</div>
@@ -8319,8 +8349,8 @@ async function openConversation(convId, convName, convType) {
     root.innerHTML = `
       <div id="convScreen_${convId}" style="display:flex;flex-direction:column;max-width:560px;width:100%;height:calc(100vh - 120px);">
         <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
-          <div class="conv-avatar ${convType==='group'?'group':''}" style="width:36px;height:36px;font-size:0.9rem;">${convType==='group'?'👥':convName[0]?.toUpperCase()}</div>
-          <div style="font-weight:700;font-size:1rem;color:var(--text);">${convName}</div>
+          <div class="conv-avatar ${convType==='group'?'group':''}" style="width:36px;height:36px;font-size:0.9rem;">${convType==='group'?'👥':escapeHtml(convName[0]?.toUpperCase() || '?')}</div>
+          <div style="font-weight:700;font-size:1rem;color:var(--text);">${escapeHtml(convName)}</div>
           ${convType==='group'?`<button class="btn-friend-action" style="margin-left:auto;" onclick="addGroupMember('${convId}')">+ Add</button>`:''}
         </div>
         <div id="msgList" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;">
@@ -8334,13 +8364,13 @@ async function openConversation(convId, convName, convType) {
             if(m.type==='verse') bubbleClass += ' verse-share';
             return `
               <div style="display:flex;flex-direction:column;align-items:${isMine?'flex-end':'flex-start'};">
-                ${!isMine?`<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:2px;">${m.data?.username||'Friend'}</div>`:''}
+                ${!isMine?`<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:2px;">${escapeHtml(m.data?.username||'Friend')}</div>`:''}
                 <div class="msg-bubble ${bubbleClass}" ondblclick="showReactionPicker(${m.id})">
-                  ${m.type==='score'?`🏆 <strong>${m.data?.game||'Game'}</strong><br>${m.data?.score?.toLocaleString()} pts`:''}
-                  ${m.type==='verse'?`📖 <strong>${m.data?.ref||''}</strong><br><em>${m.content}</em>`:''}
-                  ${m.type==='text'?m.content:''}
+                  ${m.type==='score'?`🏆 <strong>${escapeHtml(m.data?.game||'Game')}</strong><br>${escapeHtml(m.data?.score?.toLocaleString())} pts`:''}
+                  ${m.type==='verse'?`📖 <strong>${escapeHtml(m.data?.ref||'')}</strong><br><em>${escapeHtml(m.content)}</em>`:''}
+                  ${m.type==='text'?escapeHtml(m.content):''}
                 </div>
-                ${Object.keys(rxnGroups).length?`<div class="msg-reactions">${Object.entries(rxnGroups).map(([e,c])=>`<span class="reaction-chip ${rxns.find(r=>r.emoji===e&&r.user_id===currentUser.id)?'mine':''}" onclick="toggleReaction(${m.id},'${e}')">${e} ${c}</span>`).join('')}</div>`:''}
+                ${Object.keys(rxnGroups).length?`<div class="msg-reactions">${Object.entries(rxnGroups).map(([e,c])=>`<span class="reaction-chip ${rxns.find(r=>r.emoji===e&&r.user_id===currentUser.id)?'mine':''}" onclick="toggleReaction(${m.id},'${escapeJsAttr(e)}')">${escapeHtml(e)} ${c}</span>`).join('')}</div>`:''}
                 <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px;">${timeAgo(m.created_at)}</div>
               </div>`;
           }).join('') : `<div class="empty-state">No messages yet — say hello! 👋</div>`}
@@ -8426,7 +8456,7 @@ function showReactionPicker(msgId) {
 async function addGroupMember(convId) {
   const username = await showTextInputModal({ title: 'Add member', placeholder: 'Username', confirmLabel: 'Add', icon: '➕' });
   if(!username) return;
-  const rows = await sbFetch(`profiles?username=eq.${username}&select=id,username`);
+  const rows = await sbFetch(`profiles?username=eq.${encodeURIComponent(username)}&select=id,username`);
   if(!rows.length) { showStreakToast('User not found!'); return; }
   await fetch(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: rows[0].id, username }) });
   showStreakToast(`${username} added to the group!`);
@@ -10206,7 +10236,7 @@ async function showDailyResult(game, score) {
           ${rows.length ? rows.map((r,i) => `
             <div class="daily-lb-row ${r.score===score&&!r._marked?'highlight':''}">
               <span style="font-size:1rem;width:28px;text-align:center;">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
-              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${r.name}</span>
+              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${escapeHtml(r.name)}</span>
               <span style="font-size:0.88rem;font-weight:700;color:var(--teal);">${r.score.toLocaleString()}</span>
             </div>`).join('') : `<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.85rem;">You're the first to play today!</div>`}
         </div>
@@ -10254,7 +10284,7 @@ async function renderFullDailyLeaderboard() {
           ${rows.length ? rows.map((r,i) => `
             <div class="daily-lb-row">
               <span style="font-size:1rem;width:28px;text-align:center;">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
-              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${r.name}</span>
+              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${escapeHtml(r.name)}</span>
               <span style="font-size:0.88rem;font-weight:700;color:var(--teal);">${r.score.toLocaleString()}</span>
             </div>`).join('') : `<div style="padding:14px;text-align:center;color:var(--text-muted);font-size:0.85rem;">No scores yet today — be the first!</div>`}
         </div>
@@ -10325,7 +10355,7 @@ function showChampionModal(month, scout, memory, mia, track) {
         ${rows.map((r,i) => `
           <div class="champion-row">
             <span class="champion-rank">${rankIcon(i)}</span>
-            <span class="champion-name">${r.name}</span>
+            <span class="champion-name">${escapeHtml(r.name)}</span>
             <span class="champion-score">${r.score.toLocaleString()}</span>
           </div>`).join('')}
       </div>`;
