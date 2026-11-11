@@ -44,6 +44,67 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+  /* ── Home screen ───────────────────────────────────────────── */
+  :root { --nav-active:#8b4513; --nav-pill:rgba(139,69,19,0.13); }
+  .dark-mode { --nav-active:#f4c050; --nav-pill:rgba(244,192,80,0.16); }
+  .hm { width:100%; max-width:560px; display:flex; flex-direction:column; gap:24px; }
+  :where(.hm button) { font:inherit; color:inherit; }
+  .hm-head { display:flex; align-items:center; gap:12px; }
+  .hm-head > img { flex:none; }
+  .hm-head-text { flex:1; min-width:0; }
+  .hm-greeting { font-family:Georgia,'Times New Roman',serif; font-size:1.25rem; font-weight:700; line-height:1.2; color:var(--text); overflow-wrap:anywhere; text-wrap:balance; }
+  .hm-sub { font-size:0.85rem; line-height:1.4; color:var(--text-muted); margin-top:2px; }
+  .hm-sub.warn { color:var(--earth-text); font-weight:600; }
+  .hm-streak { display:flex; align-items:center; gap:4px; padding:5px 14px 5px 8px; border-radius:999px; background:var(--surface); border:1.5px solid var(--border); font-family:Georgia,serif; font-weight:700; font-size:1.2rem; color:var(--text); }
+  .hm-streak img { filter:grayscale(1) opacity(0.45); }
+  .hm-streak.lit { border-color:#e8791a; }
+  .hm-streak.lit img { filter:none; }
+  .hm-signin { padding:0 18px; min-height:44px; border-radius:12px; border:1.5px solid var(--nav-active); background:transparent; color:var(--nav-active); font-weight:700; font-size:0.9rem; cursor:pointer; }
+
+  .hm-daily { border:3px solid #c4a030; border-radius:20px; overflow:hidden; background:#1e4a10; box-shadow:0 6px 18px rgba(0,0,0,0.25); cursor:pointer; }
+  .hm-daily-top { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; background:linear-gradient(135deg,#7a3810,#5a2808); }
+  .hm-daily-title { font-family:Georgia,serif; font-size:1.4rem; font-weight:700; line-height:1.15; color:#fff8ee; }
+  .hm-daily-theme { font-size:0.85rem; color:#ecd2ac; margin-top:3px; }
+  .hm-daily-theme span { font-weight:700; color:#f4c050; }
+  .hm-daily-count { font-family:Georgia,serif; font-size:1.9rem; font-weight:700; line-height:1; color:#f4c050; text-align:right; }
+  .hm-daily-count small { display:block; font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:500; color:#e0b888; margin-top:3px; }
+  .hm-daily-body { display:grid; gap:14px; padding:16px; }
+  .hm-progress { height:8px; border-radius:4px; background:rgba(0,0,0,0.28); overflow:hidden; }
+  .hm-progress-fill { height:100%; width:0; border-radius:4px; background:linear-gradient(90deg,#c8901a,#f4c050); transition:width 0.8s cubic-bezier(0.16,1,0.3,1); }
+  .hm-tiles { list-style:none; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .hm-tile { position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 4px 8px; border-radius:12px; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.12); font-size:0.8rem; font-weight:700; color:#d3e9bf; }
+  .hm-tile.done { background:rgba(130,210,60,0.2); border-color:rgba(150,225,80,0.55); color:#eaffd2; }
+  .hm-check { position:absolute; top:-6px; right:-6px; }
+  .hm-cta { min-height:50px; border:0; border-radius:14px; background:#f4b942; color:#3a2000; font-weight:700; font-size:1.02rem; cursor:pointer; box-shadow:0 2px 0 #b98418; transition:transform 0.12s, box-shadow 0.12s; }
+  .hm-cta:active { transform:translateY(2px); box-shadow:0 0 0 #b98418; }
+  .hm-reset { text-align:center; font-size:0.8rem; color:#a9d27e; margin-top:-4px; }
+
+  .hm-label { font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; }
+  .hm-verse blockquote { margin:0; }
+  .hm-verse p { font-family:Georgia,serif; font-style:italic; font-size:1.02rem; line-height:1.65; color:var(--text); max-width:62ch; }
+  .hm-verse cite { display:block; font-style:normal; font-size:0.85rem; font-weight:600; color:var(--text-muted); margin-top:6px; }
+  .hm-h { font-family:Georgia,serif; font-size:1.15rem; font-weight:700; color:var(--text); margin-bottom:10px; }
+  .hm-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .hm-game { display:flex; flex-direction:column; align-items:flex-start; gap:12px; text-align:left; min-height:112px; padding:14px; border-radius:16px; border:1.5px solid var(--border); background:var(--surface); cursor:pointer; transition:transform 0.12s, border-color 0.12s; }
+  .hm-game:active { transform:scale(0.98); }
+  .hm-game.wide { grid-column:1/-1; flex-direction:row; align-items:center; gap:14px; min-height:0; padding:14px 16px; border-color:var(--border-hi); }
+  .hm-game-text { display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .hm-game-name { font-weight:700; font-size:0.98rem; line-height:1.2; color:var(--text); }
+  .hm-game-desc { font-size:0.82rem; line-height:1.4; color:var(--text-muted); }
+  .hm-support { align-self:center; padding:10px 14px; font-size:0.85rem; font-weight:600; color:var(--text-muted); text-decoration:underline; text-underline-offset:3px; }
+  @media (hover:hover) and (pointer:fine) { .hm-game:hover { border-color:var(--nav-active); } .hm-cta:hover { filter:brightness(1.06); } }
+
+  /* Bottom navigation (main screens only) */
+  #bottomNav { position:fixed; left:0; right:0; bottom:0; z-index:500; display:none; background:var(--surface); border-top:1.5px solid var(--border); padding:4px 8px calc(4px + env(safe-area-inset-bottom)); box-shadow:0 -4px 16px rgba(0,0,0,0.1); }
+  #bottomNav.show { display:block; }
+  #bottomNav .bn-inner { display:grid; grid-template-columns:repeat(5,1fr); max-width:560px; margin:0 auto; }
+  .bn-item { display:flex; flex-direction:column; align-items:center; gap:2px; min-height:56px; padding:6px 2px; border:0; background:none; border-radius:12px; color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer; }
+  .bn-ico { display:flex; align-items:center; justify-content:center; width:52px; height:30px; border-radius:15px; transition:background 0.2s; }
+  .bn-ico svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .bn-item[aria-current=page] { color:var(--nav-active); font-weight:700; }
+  .bn-item[aria-current=page] .bn-ico { background:var(--nav-pill); }
+  body.has-nav { padding-bottom:calc(92px + env(safe-area-inset-bottom)); }
+
   /* Mobile baseline: stop iOS zooming into small inputs, no rubber-band page bounce, snappier taps,
      and no accidental text selection on controls. */
   html { overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
@@ -142,14 +203,6 @@
   /* Card */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 0 0 1px rgba(74,124,89,0.06), 0 20px 40px rgba(0,0,0,0.5); width: 100%; max-width: 560px; padding: 28px 24px 22px; }
   .rope-card { border-radius:16px; background:var(--surface) padding-box, repeating-linear-gradient(45deg,#9b7520 0,#9b7520 4px,#d4aa50 4px,#d4aa50 8px,#b08830 8px,#b08830 12px,#d4aa50 12px,#d4aa50 16px) border-box; border:3px solid transparent; padding:14px 16px; margin-bottom:12px; }
-  .rope-card-green { border-radius:18px; overflow:hidden; margin-bottom:12px; border:3px solid #c4a030; box-shadow:0 4px 20px rgba(0,0,0,0.2); }
-  .rope-card-green-header { background:linear-gradient(135deg,#7a3810,#5a2808); padding:14px 18px; display:flex; align-items:center; justify-content:space-between; }
-  .rope-card-green-body { background:#1e4a10; padding:14px 16px; position:relative; overflow:hidden; }
-  .dark-mode .rope-card-green { border-color:#8a6018; }
-  .dark-mode .rope-card-green-header { background:linear-gradient(135deg,#5a2808,#3a1804); }
-  .dark-mode .rope-card-green-body { background:#162e0a; }
-  .rope-divider { display:flex; align-items:center; gap:10px; margin:14px 0 10px; color:#6b4a10; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.14em; }
-  .rope-divider-line { flex:1; height:6px; background:repeating-linear-gradient(90deg,#9b7520 0,#9b7520 4px,#d4aa50 4px,#d4aa50 8px,#b08830 8px,#b08830 12px,#d4aa50 12px,#d4aa50 16px); border-radius:3px; opacity:0.6; }
 
   .verse-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
   .verse-label::after { content:''; flex:1; height:1px; background:var(--border); }
@@ -331,31 +384,16 @@
   .apple-icon { width:16px; height:16px; flex-shrink:0; }
 
   /* Home screen */
-  .home-screen { width:100%; max-width:560px; }
-  .home-section-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-muted); font-weight:600; margin:20px 0 10px; display:flex; align-items:center; gap:8px; }
-  .home-section-label::after { content:''; flex:1; height:1px; background:var(--border); }
-  .home-game-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px; }
   .home-game-card { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:16px; cursor:pointer; transition:all 0.18s; display:flex; flex-direction:column; gap:8px; position:relative; overflow:hidden; }
   .home-game-card:active { transform:scale(0.97); }
   .home-game-card.featured { grid-column:1/-1; flex-direction:row; align-items:center; gap:14px; border-color:var(--fern); }
   .home-game-card.featured:active { border-color:var(--teal); }
   .home-game-card.locked { opacity:0.5; cursor:default; }
-  .home-game-icon { font-size:1.8rem; }
-  .home-game-icon.small { font-size:1.4rem; }
-  .home-game-name { font-size:0.95rem; font-weight:700; color:var(--text); line-height:1.2; }
-  .home-game-desc { font-size:0.75rem; color:var(--text-muted); line-height:1.4; }
-  .home-game-badge { position:absolute; top:10px; right:10px; font-size:0.75rem; font-weight:700; padding:2px 7px; border-radius:10px; text-transform:uppercase; letter-spacing:0.05em; }
   .home-game-card.featured .home-game-badge { position:static; margin-left:auto; flex-shrink:0; }
-  .home-play-btn { margin-top:auto; padding:8px 12px; background:linear-gradient(135deg,#4A7C59,#3BBFA0); border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:700; color:white; cursor:pointer; text-align:center; }
 
   /* Home stats */
-  .home-stats { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 20px; margin-top:4px; }
-  .home-stats-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-  .home-stats-row:last-child { margin-bottom:0; }
-  .home-stat-item { text-align:center; flex:1; }
   .home-stat-val { font-size:1.4rem; font-weight:700; color:var(--teal-text); line-height:1; margin-bottom:2px; }
   .home-stat-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); font-weight:600; }
-  .home-stat-divider { width:1px; height:36px; background:var(--border); }
 
   /* Mini leaderboard */
   .mini-lb { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-top:4px; }
@@ -540,15 +578,7 @@
   .empty-state { text-align:center; padding:32px 16px; color:var(--text-muted); font-size:0.88rem; line-height:1.6; }
 
   /* Streak System */
-  .streak-bar { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-bottom:12px; }
   .streak-fire { font-size:1.8rem; }
-  .streak-info { flex:1; }
-  .streak-count { font-size:1.4rem; font-weight:700; color:var(--earth-text); line-height:1; }
-  .streak-label { font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; font-weight:600; }
-  .streak-tokens { display:flex; gap:6px; align-items:center; }
-  .streak-token { font-size:1.2rem; }
-  .streak-token.empty { opacity:0.25; filter:grayscale(1); }
-  .streak-warning { background:rgba(244,185,66,0.1); border:1px solid #F4B942; border-radius:10px; padding:10px 14px; font-size:0.82rem; color:#F4B942; font-weight:600; text-align:center; margin-bottom:12px; }
   .streak-milestone { background:rgba(59,191,160,0.1); border:1px solid var(--teal); border-radius:10px; padding:12px 16px; font-size:0.85rem; color:var(--teal-text); font-weight:600; text-align:center; margin-top:12px; }
 
   /* Daily Challenge */
@@ -935,11 +965,11 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
     <div id="userBar" style="flex:1;"></div>
     <div style="display:flex;align-items:center;gap:4px;">
-      <button id="themeToggleBtn" onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;padding:6px;line-height:1;" title="Toggle light/dark mode" aria-label="Dark mode" aria-pressed="false">🌙</button>
-      <button id="soundToggleBtn" onclick="toggleSound()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;padding:6px;line-height:1;" title="Toggle sound effects" aria-label="Sound effects" aria-pressed="false">🔇</button>
+      <button id="themeToggleBtn" onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;padding:0;width:44px;height:44px;line-height:1;" title="Toggle light/dark mode" aria-label="Dark mode" aria-pressed="false">🌙</button>
+      <button id="soundToggleBtn" onclick="toggleSound()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;padding:0;width:44px;height:44px;line-height:1;" title="Toggle sound effects" aria-label="Sound effects" aria-pressed="false">🔇</button>
       <div style="position:relative;display:none;" id="notifBellWrap">
-        <button onclick="renderNotificationHub()" aria-label="Notifications" style="background:none;border:none;cursor:pointer;font-size:1.3rem;padding:6px;line-height:1;">🔔</button>
-        <span id="notifBadge" style="display:none;position:absolute;top:0;right:0;background:#E53E3E;color:white;font-size:0.75rem;font-weight:700;border-radius:10px;padding:2px 5px;min-width:16px;text-align:center;line-height:1.4;">0</span>
+        <button onclick="renderNotificationHub()" aria-label="Notifications" style="background:none;border:none;cursor:pointer;font-size:1.3rem;padding:0;width:44px;height:44px;line-height:1;">🔔</button>
+        <span id="notifBadge" style="display:none;position:absolute;top:0;right:0;background:#C53030;color:white;font-size:0.75rem;font-weight:700;border-radius:10px;padding:2px 5px;min-width:16px;text-align:center;line-height:1.4;">0</span>
       </div>
     </div>
   </div>
@@ -949,6 +979,15 @@
 
 <h1 class="sr-only">Scripture Scout</h1>
 <main id="root" tabindex="-1"></main>
+<nav id="bottomNav" aria-label="Main">
+  <div class="bn-inner">
+    <button type="button" class="bn-item" data-hub="home" onclick="showHome()"><span class="bn-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.5 9.8V20h13V9.8"/><path d="M10 20v-5.5h4V20"/></svg></span>Home</button>
+    <button type="button" class="bn-item" data-hub="ranks" onclick="navGo('ranks')"><span class="bn-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.5 4M17 6h2.5a2.5 2.5 0 0 1-2.5 4"/><path d="M12 14v3.5M8.5 20h7M10 17.5h4"/></svg></span>Ranks</button>
+    <button type="button" class="bn-item" data-hub="friends" onclick="navGo('friends')"><span class="bn-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9.5" r="2.5"/><path d="M17.5 14.2c2.3.2 3.8 1.9 3.8 4.3"/></svg></span>Friends</button>
+    <button type="button" class="bn-item" data-hub="duels" onclick="navGo('duels')"><span class="bn-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 18.5 5.5M14 4.5l5.5-.5-.5 5.5"/><path d="M19 19 5.5 5.5M10 4.5 4.5 4l.5 5.5"/><path d="M4 18l2 2M20 18l-2 2"/></svg></span>Duels</button>
+    <button type="button" class="bn-item" data-hub="me" onclick="navGo('me')"><span class="bn-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.7"/><path d="M4.5 20c0-4 3.4-6.3 7.5-6.3s7.5 2.3 7.5 6.3"/></svg></span>Me</button>
+  </div>
+</nav>
 
 <script>
 // ═══════════════════════════════════════
@@ -1059,6 +1098,30 @@ function switchTab(tab) {
 function showBackBtn(show) {
   const btn = document.getElementById('backHomeBtn');
   if(btn) btn.style.display = show ? 'block' : 'none';
+  // Any screen that asks for a back button is a detail/game screen, so the main navigation steps aside.
+  if(show) setHub(null);
+}
+
+// Main screens (Home, Ranks, Friends, Duels, Me) show the bottom navigation; everything else hides it.
+// A screen calls setHub('name') right after showBackBtn(true), which is how detail screens hide it.
+function setHub(name) {
+  const nav = document.getElementById('bottomNav');
+  if(!nav) return;
+  nav.classList.toggle('show', !!name);
+  document.body.classList.toggle('has-nav', !!name);
+  nav.querySelectorAll('.bn-item').forEach(b => {
+    if(b.dataset.hub === name) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
+  if(name) { const back = document.getElementById('backHomeBtn'); if(back) back.style.display = 'none'; }
+}
+
+function navGo(hub) {
+  if(!currentUser && (hub === 'friends' || hub === 'duels' || hub === 'me')) {
+    showStreakToast('Sign in to use this');
+    showBackBtn(true); renderAuthScreen(); return;
+  }
+  showBackBtn(true);
+  ({ ranks: renderLeaderboardHub, friends: () => renderFriends(), duels: renderChallenges, me: () => renderProfile() })[hub]();
 }
 
 async function showHome() {
@@ -1087,185 +1150,69 @@ async function showHome() {
   const hLeft = Math.floor(msLeft/3600000);
   const mLeft = Math.floor((msLeft%3600000)/60000);
 
+  const name = escapeHtml(currentUsername || (currentUser ? currentUser.email.split('@')[0] : '') || 'Scout');
+  const hero = completedCount === 0
+    ? { cta: "Start today's challenge" }
+    : completedCount < 4 ? { cta: `Continue · ${completedCount} of 4 done` } : { cta: "See today's results" };
+  const ico = (g, size) => `<img src="icons/${g}.svg" width="${size}" height="${size}" alt="" style="object-fit:contain;flex-shrink:0;">`;
+  const check = '<svg class="hm-check" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#8ade50"/><path d="M4.5 8.3l2.3 2.3 4.7-5" fill="none" stroke="#14340a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
   root.innerHTML = `
-    <div class="home-screen">
+    <div class="hm">
 
-      <!-- 1. Randy Welcome Card -->
-      <div style="background:linear-gradient(135deg,#8b4513,#6b3410);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;">
-        ${getRandySVG(80)}
-        <div style="flex:1;">
-          <div style="color:#f4b942;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">${currentUser ? 'Welcome back, Scout' : 'Welcome, Scout!'}</div>
-          <div style="color:#fff8f0;font-size:1.1rem;font-weight:700;margin:3px 0;font-family:Georgia,serif;">${currentUser ? `Hey ${currentUsername || 'Scout'}! 👋` : "Let's Scout the Scriptures!"}</div>
-          <div style="color:#d4a87a;font-size:0.78rem;">${currentUser ? "Ready for today's expedition?" : 'Sign in to track your progress'}</div>
+      <header class="hm-head">
+        ${getRandySVG(56)}
+        <div class="hm-head-text">
+          <h2 class="hm-greeting">${currentUser ? `Hey, ${name}` : 'Welcome, Scout'}</h2>
+          <p class="hm-sub" id="homeStreakLine">${currentUser ? "Ready for today's expedition?" : 'Sign in to save your streak and scores.'}</p>
         </div>
-      </div>
+        ${currentUser
+          ? `<div id="homeStreakDisplay">${renderHomeStreak()}</div>`
+          : `<button type="button" class="hm-signin" onclick="renderAuthScreen()">Sign in</button>`}
+      </header>
 
-      <!-- 2. Streak -->
-      ${currentUser ? `
-      <div id="homeStreakDisplay" style="margin-bottom:12px;">${getStreakDisplay()}</div>` : ''}
-
-      <!-- 3. Verse of the Day -->
-      <div id="verseOfDayCard" style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;position:relative;">
-        <div style="position:absolute;top:4px;left:12px;font-size:40px;color:var(--border);font-family:Georgia,serif;line-height:1;opacity:0.6;">"</div>
-        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);font-weight:700;margin-bottom:6px;">📖 Verse of the Day</div>
-        <div id="votdText" style="font-size:0.85rem;color:var(--text);line-height:1.7;font-style:italic;font-family:Georgia,serif;">"Loading today's verse…"</div>
-        <div id="votdRef" style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;font-weight:600;text-align:right;"></div>
-      </div>
-
-      <!-- 4. Daily Challenge Hero -->
-      <div class="rope-card-green" id="homeDailyBtn" style="cursor:pointer;">
-        <!-- Leather brown header -->
-        <div class="rope-card-green-header">
+      <section class="hm-daily" id="homeDailyCard" aria-labelledby="hmDailyTitle">
+        <div class="hm-daily-top">
           <div>
-            <div style="color:#f4c050;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.14em;font-weight:700;margin-bottom:3px;">⚡ Daily Challenge</div>
-            <div id="homeDailyTheme" style="color:#fff8ee;font-size:1.15rem;font-weight:700;font-family:Georgia,serif;">Today's Challenge</div>
+            <h2 class="hm-daily-title" id="hmDailyTitle">Daily Challenge</h2>
+            <p class="hm-daily-theme">Today's theme: <span id="homeDailyTheme">…</span></p>
           </div>
-          <div style="text-align:right;">
-            <div style="color:#f4c050;font-size:1.5rem;font-weight:800;font-family:Georgia,serif;line-height:1;">${completedCount}</div>
-            <div style="color:#c89060;font-size:0.75rem;">of 4 done</div>
-          </div>
+          <div class="hm-daily-count" aria-label="${completedCount} of 4 games done">${completedCount}<small>of 4</small></div>
         </div>
-        <!-- Green body -->
-        <div class="rope-card-green-body">
-          <div style="position:absolute;right:10px;top:8px;font-size:44px;opacity:0.07;">🧭</div>
-          <div style="height:7px;background:rgba(0,0,0,0.2);border-radius:4px;overflow:hidden;margin-bottom:14px;border:1px solid rgba(255,255,255,0.08);">
-            <div style="height:100%;background:linear-gradient(90deg,#c8901a,#f4c050);border-radius:4px;width:${dailyPct}%;transition:width 0.5s;"></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            ${gameInfo.map(g => {
-              const done = isDailyCompleted(g.id);
-              return `<div style="border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;background:${done ? 'rgba(100,200,50,0.2)' : 'rgba(255,255,255,0.07)'};border:1.5px solid ${done ? 'rgba(100,200,50,0.5)' : 'rgba(255,255,255,0.15)'};cursor:pointer;">
-                ${getFieldIcon(g.id, 22)}
-                <div style="flex:1;">
-                  <div style="color:${done ? '#d8ffb0' : '#a0c888'};font-size:0.82rem;font-weight:700;">${g.name}</div>
-                  <div style="color:${done ? '#70b840' : '#587848'};font-size:0.75rem;margin-top:1px;">${done ? 'Complete ✓' : 'Tap to play'}</div>
-                </div>
-              </div>`;
-            }).join('')}
-          </div>
-          <div style="color:#60a030;font-size:0.75rem;margin-top:12px;text-align:center;font-weight:600;">⏰ Resets in ${hLeft}h ${mLeft}m</div>
+        <div class="hm-daily-body">
+          <div class="hm-progress" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${completedCount}" aria-label="Daily challenge progress"><div class="hm-progress-fill" data-pct="${dailyPct}"></div></div>
+          <ul class="hm-tiles">
+            ${gameInfo.map(g => { const done = isDailyCompleted(g.id); return `
+            <li class="hm-tile${done ? ' done' : ''}">${ico(g.id, 28)}<span>${g.name}</span>${done ? check : ''}<span class="sr-only">${done ? 'done' : 'not played yet'}</span></li>`; }).join('')}
+          </ul>
+          <button type="button" class="hm-cta" id="homeDailyBtn">${hero.cta}</button>
+          <p class="hm-reset">Resets in ${hLeft}h ${mLeft}m</p>
         </div>
-      </div>
+      </section>
 
-      <!-- 5. Games Grid -->
-      <div class="rope-divider"><div class="rope-divider-line"></div><span>🌾 Game Modes 🌾</span><div class="rope-divider-line"></div></div>
-      <div class="home-game-grid">
-        <!-- Scripture Scout — flagship full width -->
-        <div class="home-game-card featured" id="homePlayBtn" style="grid-column:1/-1;background:var(--surface) padding-box,repeating-linear-gradient(45deg,#7a4810 0,#7a4810 4px,#c48828 4px,#c48828 8px,#6a3808 8px,#6a3808 12px,#c48828 12px,#c48828 16px) border-box;border:3px solid transparent;">
-          ${getFieldIcon('scout', 44)}
-          <div style="flex:1;">
-            <div style="font-size:0.75rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">FLAGSHIP</div>
-            <div class="home-game-name">Scripture Scout</div>
-            <div class="home-game-desc">Navigate the Word — Easy to Endless</div>
-          </div>
+      <section aria-labelledby="hmGamesH">
+        <h2 class="hm-h" id="hmGamesH">Choose a game</h2>
+        <div class="hm-grid">
+          <button type="button" class="hm-game wide" id="homePlayBtn">
+            ${ico('scout', 44)}
+            <span class="hm-game-text"><span class="hm-game-name">Scripture Scout</span><span class="hm-game-desc">Guess the testament, book and chapter. Easy to Endless.</span></span>
+          </button>
+          <button type="button" class="hm-game" id="homeMemoryBtn">${ico('trivia', 36)}<span class="hm-game-text"><span class="hm-game-name">Bible Trivia</span><span class="hm-game-desc">150+ questions at every level</span></span></button>
+          <button type="button" class="hm-game" id="homeStoryBtn">${ico('story', 36)}<span class="hm-game-text"><span class="hm-game-name">Story Mode</span><span class="hm-game-desc">21 paths, 212 chapters</span></span></button>
+          <button type="button" class="hm-game" id="homeMiaBtn">${ico('mia', 36)}<span class="hm-game-text"><span class="hm-game-name">Missing in Action</span><span class="hm-game-desc">Fill in the missing words</span></span></button>
+          <button type="button" class="hm-game" id="homeTrackBtn">${ico('track', 36)}<span class="hm-game-text"><span class="hm-game-name">Track It Down</span><span class="hm-game-desc">Find the right reference</span></span></button>
         </div>
-        <!-- Bible Trivia — featured full width -->
-        <div class="home-game-card featured" id="homeMemoryBtn" onclick="showBackBtn(true);renderTriviaSetup();" style="grid-column:1/-1;background:var(--surface) padding-box,repeating-linear-gradient(45deg,#602008 0,#602008 4px,#984018 4px,#984018 8px,#602008 8px,#602008 12px,#984018 12px,#984018 16px) border-box;border:3px solid transparent;">
-          ${getFieldIcon('trivia', 44)}
-          <div style="flex:1;">
-            <div style="font-size:0.75rem;background:#8b4513;color:#f4b942;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;font-weight:700;">NEW</div>
-            <div class="home-game-name">Bible Trivia</div>
-            <div class="home-game-desc">150+ questions · Easy, Medium, Hard & Endless</div>
-          </div>
-        </div>
-        <!-- Story Mode — full width -->
-        <div class="home-game-card featured" id="homeStoryBtn" style="grid-column:1/-1;background:var(--surface) padding-box,repeating-linear-gradient(45deg,#6a5808 0,#6a5808 4px,#a89028 4px,#a89028 8px,#6a5808 8px,#6a5808 12px,#a89028 12px,#a89028 16px) border-box;border:3px solid transparent;">
-          ${getFieldIcon('story', 40)}
-          <div style="flex:1;">
-            <div class="home-game-name">Story Mode</div>
-            <div class="home-game-desc">21 paths · 212 chapters · verse + trivia</div>
-          </div>
-        </div>
-        <!-- Small game cards -->
-        <div class="home-game-card" id="homeMiaBtn" onclick="showBackBtn(true);renderFillBlankSetup();" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;">
-          ${getFieldIcon('mia', 36)}
-          <div class="home-game-name">Missing in Action</div>
-          <div class="home-game-desc">Fill the blanks</div>
-        </div>
-        <div class="home-game-card" id="homeTrackBtn" onclick="showBackBtn(true);renderRefChallengeSetup();" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;">
-          ${getFieldIcon('track', 36)}
-          <div class="home-game-name">Track It Down</div>
-          <div class="home-game-desc">Find the reference</div>
-        </div>
-        <div class="home-game-card" id="homeLeaderboardBtn" style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;">
-          ${getFieldIcon('leaderboard', 36)}
-          <div class="home-game-name">Leaderboard</div>
-          <div class="home-game-desc">Top scores</div>
-        </div>
-      </div>
+      </section>
 
-      <!-- 6. Account strip -->
-      ${currentUser ? `
-      <div style="border-radius:16px;background:var(--surface) padding-box,var(--rope) border-box;border:3px solid transparent;padding:14px 16px;margin-top:4px;">
-        <!-- User info row -->
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-          <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#8b4513,#6b3410);display:flex;align-items:center;justify-content:center;color:#f4b942;font-weight:700;font-size:18px;flex-shrink:0;border:2px solid #c4a060;">${(currentUsername||'S')[0].toUpperCase()}</div>
-          <div style="flex:1;">
-            <div style="font-size:0.92rem;font-weight:700;color:var(--text);">${currentUsername || 'Scout'}</div>
-            <div style="font-size:0.75rem;color:var(--text-muted);">Scripture Scout Player</div>
-          </div>
-        </div>
-        <!-- Action buttons row -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
-          <!-- Profile -->
-          <button onclick="showBackBtn(true);renderProfile()" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;background:#f0e4c8;border:2px solid #c4a060;border-radius:14px;cursor:pointer;">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <circle cx="16" cy="11" r="7" fill="#d4a830" opacity="0.3" stroke="#7a4a08" stroke-width="2"/>
-              <circle cx="16" cy="11" r="7" fill="none" stroke="#c8941a" stroke-width="1" stroke-dasharray="2 3"/>
-              <ellipse cx="12" cy="10" rx="2" ry="2.5" fill="#7a4a08" opacity="0.5"/>
-              <ellipse cx="20" cy="10" rx="2" ry="2.5" fill="#7a4a08" opacity="0.5"/>
-              <path d="M13 14 Q16 16.5 19 14" stroke="#7a4a08" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-              <path d="M4 28 Q4 20 16 20 Q28 20 28 28" fill="#d4a830" opacity="0.2" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <span style="font-size:0.75rem;font-weight:700;color:#6b4a10;font-family:'DM Sans',sans-serif;">Profile</span>
-          </button>
-          <!-- Alerts -->
-          <button id="homeNotifBtn" onclick="showBackBtn(true);renderNotificationHub()" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;background:#f0e4c8;border:2px solid #c4a060;border-radius:14px;cursor:pointer;position:relative;">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <path d="M16 3 Q23 3 25 10 L26 22 L6 22 L7 10 Q9 3 16 3 Z" fill="#f4c840" opacity="0.35" stroke="#7a4a08" stroke-width="2" stroke-linejoin="round"/>
-              <line x1="16" y1="3" x2="16" y2="7" stroke="#7a4a08" stroke-width="1.5" stroke-linecap="round"/>
-              <path d="M6 22 L26 22 L28 26 L4 26 Z" fill="#c8941a" opacity="0.8" stroke="#7a4a08" stroke-width="1.5"/>
-              <path d="M13 26 Q13 29 16 29 Q19 29 19 26" fill="none" stroke="#7a4a08" stroke-width="1.5"/>
-              <line x1="12" y1="13" x2="20" y2="13" stroke="#7a4a08" stroke-width="1" stroke-linecap="round" stroke-dasharray="2 2"/>
-              <line x1="12" y1="17" x2="18" y2="17" stroke="#7a4a08" stroke-width="1" stroke-linecap="round" stroke-dasharray="2 2"/>
-            </svg>
-            <span style="font-size:0.75rem;font-weight:700;color:#6b4a10;font-family:'DM Sans',sans-serif;">Alerts</span>
-            <span id="homeNotifCount" style="display:none;position:absolute;top:5px;right:5px;background:#c8401a;color:white;font-size:0.75rem;font-weight:700;border-radius:8px;padding:1px 4px;line-height:1.4;">0</span>
-          </button>
-          <!-- Friends -->
-          <button onclick="showBackBtn(true);renderFriends()" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;background:#f0e4c8;border:2px solid #c4a060;border-radius:14px;cursor:pointer;">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <circle cx="10" cy="11" r="5.5" fill="#d4a830" opacity="0.3" stroke="#7a4a08" stroke-width="2"/>
-              <circle cx="22" cy="11" r="5.5" fill="#d4a830" opacity="0.3" stroke="#7a4a08" stroke-width="2"/>
-              <path d="M1 28 Q1 20 10 20 Q14 20 16 22" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/>
-              <path d="M16 22 Q18 20 22 20 Q31 20 31 28" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/>
-              <path d="M13 10 Q16 12 19 10" stroke="#7a4a08" stroke-width="1" fill="none" stroke-linecap="round"/>
-            </svg>
-            <span style="font-size:0.75rem;font-weight:700;color:#6b4a10;font-family:'DM Sans',sans-serif;">Friends</span>
-          </button>
-          <!-- Duel -->
-          <button onclick="showBackBtn(true);renderChallenges()" style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;background:linear-gradient(160deg,#6b2e08,#4a1e04);border:2px solid #d4a030;border-radius:14px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,0.25);">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-              <line x1="5" y1="27" x2="27" y2="5" stroke="#f4c050" stroke-width="3" stroke-linecap="round"/>
-              <path d="M25 5 L29 3 L27 7 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1"/>
-              <rect x="3.5" y="23.5" width="9" height="3" rx="1.5" fill="#c8941a" stroke="#f4c050" stroke-width="1" transform="rotate(-45 8 25)"/>
-              <line x1="27" y1="27" x2="5" y2="5" stroke="#f4c050" stroke-width="3" stroke-linecap="round"/>
-              <path d="M7 5 L3 3 L5 7 Z" fill="#f4c050" stroke="#c8901a" stroke-width="1"/>
-              <rect x="19.5" y="23.5" width="9" height="3" rx="1.5" fill="#c8941a" stroke="#f4c050" stroke-width="1" transform="rotate(45 24 25)"/>
-              <circle cx="16" cy="16" r="2.5" fill="#f4c050" opacity="0.8"/>
-            </svg>
-            <span style="font-size:0.75rem;font-weight:700;color:#f4b942;font-family:'DM Sans',sans-serif;">Duel</span>
-          </button>
-        </div>
-      </div>` : `
-      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:16px;text-align:center;margin-top:4px;">
-        <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Sign in to track your progress and appear on the leaderboard!</div>
-        <button class="btn-next" onclick="renderAuthScreen()">Sign In / Create Account</button>
-      </div>`}
+      <section class="hm-verse" id="verseOfDayCard" aria-labelledby="hmVerseH">
+        <h3 class="hm-label" id="hmVerseH">Verse of the day</h3>
+        <blockquote>
+          <p id="votdText">Loading today's verse…</p>
+          <cite id="votdRef"></cite>
+        </blockquote>
+      </section>
 
-      ${IS_IOS_NATIVE ? '' : `      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:11px;background:rgba(122,58,16,0.07);border:2px dashed rgba(122,58,16,0.28);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:600;color:#7a3a10;">
-        ☕ Support Scripture Scout
-      </a>`}
+      ${IS_IOS_NATIVE ? '' : `<a class="hm-support" href="https://buymeacoffee.com/hodgepodge" target="_blank" rel="noopener">Support Scripture Scout</a>`}
 
     </div>`;
 
@@ -1273,13 +1220,20 @@ async function showHome() {
   fetchVerseOfDay();
 
   // Wire up buttons
-  document.getElementById('homePlayBtn').onclick = () => { showBackBtn(true); renderDiffScreen(); };
-  document.getElementById('homeDailyBtn').onclick = () => { showBackBtn(true); renderDailyChallenge(); };
-  document.getElementById('homeMemoryBtn').onclick = () => { showBackBtn(true); renderTriviaSetup(); };
-  document.getElementById('homeMiaBtn').onclick = () => { showBackBtn(true); renderFillBlankSetup(); };
-  document.getElementById('homeTrackBtn').onclick = () => { showBackBtn(true); renderRefChallengeSetup(); };
-  document.getElementById('homeLeaderboardBtn').onclick = () => { showBackBtn(true); renderLeaderboardHub(); };
-  document.getElementById('homeStoryBtn').onclick = () => { showBackBtn(true); renderStoryMode(); };
+  const go = fn => () => { showBackBtn(true); fn(); };
+  document.getElementById('homePlayBtn').onclick = go(renderDiffScreen);
+  document.getElementById('homeDailyBtn').onclick = go(renderDailyChallenge);
+  document.getElementById('homeDailyCard').addEventListener('click', e => { if(!e.target.closest('button')) { showBackBtn(true); renderDailyChallenge(); } });
+  document.getElementById('homeMemoryBtn').onclick = go(renderTriviaSetup);
+  document.getElementById('homeMiaBtn').onclick = go(renderFillBlankSetup);
+  document.getElementById('homeTrackBtn').onclick = go(renderRefChallengeSetup);
+  document.getElementById('homeStoryBtn').onclick = go(renderStoryMode);
+  setHub('home');
+  // The one authored moment: the daily progress bar fills in.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const f = document.querySelector('.hm-progress-fill'); if(f) f.style.width = f.dataset.pct + '%';
+  }));
+  refreshHomeStreak();
 
   if(completedCount === 4) { updateStreak(true); }
 
@@ -1289,6 +1243,30 @@ async function showHome() {
     const t = getTodaysTopic();
     themeEl.textContent = t.charAt(0).toUpperCase() + t.slice(1);
   }
+}
+
+// Compact streak badge + one-line status for the home header.
+function renderHomeStreak() {
+  if(!currentUser || !currentStreak) return '';
+  const n = currentStreak.current_streak || 0;
+  const playedToday = currentStreak.last_played_date === getDailyKey();
+  return `<div class="hm-streak${playedToday ? ' lit' : ''}" role="img" aria-label="${n} day streak${playedToday ? ', played today' : ''}"><img src="icons/streak-fire.svg" alt="" width="26" height="26"><span>${n}</span></div>`;
+}
+function homeStreakLine() {
+  if(!currentUser || !currentStreak) return null;
+  const { current_streak: n = 0, freeze_tokens: rests = 0, last_played_date } = currentStreak;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const playedToday = last_played_date === getDailyKey();
+  if(!playedToday && last_played_date === yesterday && n > 0) return { text: `Play today to keep your ${n}-day streak`, warn: true };
+  if(n === 0) return { text: 'Play today to start a streak' };
+  return { text: `${n}-day streak${rests ? ` · ${rests} Sabbath rest${rests !== 1 ? 's' : ''}` : ''}` };
+}
+function refreshHomeStreak() {
+  const chip = document.getElementById('homeStreakDisplay');
+  if(chip) chip.innerHTML = renderHomeStreak();
+  const line = document.getElementById('homeStreakLine');
+  const info = homeStreakLine();
+  if(line && info) { line.textContent = info.text; line.classList.toggle('warn', !!info.warn); }
 }
 
 function calculateStreak(scores) {
@@ -1614,6 +1592,7 @@ function getAuthHeaders() {
 // AUTH SCREEN
 // ═══════════════════════════════════════
 function renderAuthScreen(mode='login') {
+  setHub(null);
   const topBar = document.getElementById('topBar');
   if(topBar) topBar.style.display = 'none';
   // Hide masthead on login screen
@@ -1874,6 +1853,7 @@ async function sendPasswordReset() {
 // PASSWORD_RECOVERY event (see passwordRecoveryPending) — i.e. the user just
 // arrived via the link from sendPasswordReset()'s email.
 function renderNewPasswordScreen() {
+  setHub(null);
   const topBar = document.getElementById('topBar');
   if(topBar) topBar.style.display = 'none';
   const masthead = document.querySelector('.masthead');
@@ -2045,8 +2025,7 @@ function showApp() {
   // Load streak in background and update display when ready
   if(currentUser) {
     loadStreak().then(() => {
-      const el = document.getElementById('homeStreakDisplay');
-      if(el) el.innerHTML = getStreakDisplay();
+      refreshHomeStreak();
       const statEl = document.getElementById('homeStreakStat');
       if(statEl && currentStreak) statEl.innerHTML = `<div class="home-stat-val">${currentStreak.longest_streak} <img src="icons/streak-fire.svg" width="20" height="20" style="vertical-align:-4px;object-fit:contain;" alt=""></div><div class="home-stat-label">Best Streak</div>`;
     });
@@ -4693,7 +4672,7 @@ async function submitGameScore(table, data) {
 
 function showScoreToast(score, table, difficulty, isPersonalBest=false) {
   const toast = document.createElement('div');
-  toast.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--teal);border-radius:12px;padding:10px 20px;font-size:0.85rem;font-weight:600;color:var(--teal-text);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;cursor:pointer;`;
+  toast.style.cssText = `position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--teal);border-radius:12px;padding:10px 20px;font-size:0.85rem;font-weight:600;color:var(--teal-text);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;cursor:pointer;`;
   toast.textContent = `🏆 Score of ${score.toLocaleString()} submitted! Tap to view leaderboard`;
   if(table && difficulty) {
     toast.onclick = () => {
@@ -4719,7 +4698,7 @@ function showScoreToast(score, table, difficulty, isPersonalBest=false) {
 // existing best, so nothing was actually written to the leaderboard.
 function showNotBestToast(bestScore) {
   const toast = document.createElement('div');
-  toast.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:10px 20px;font-size:0.85rem;font-weight:600;color:var(--text-muted);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;`;
+  toast.style.cssText = `position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:10px 20px;font-size:0.85rem;font-weight:600;color:var(--text-muted);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;`;
   toast.textContent = `Your best is still ${bestScore.toLocaleString()} — keep trying!`;
   document.body.appendChild(toast);
   setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity 0.5s'; }, 3000);
@@ -4734,6 +4713,7 @@ async function fetchGameLB(table, diff, limit=10) {
 
 function renderLeaderboardHub() {
   showBackBtn(true);
+  setHub('ranks');
   const root = document.getElementById('root');
   root.innerHTML = `
     <div class="story-screen">
@@ -6708,6 +6688,7 @@ async function checkForPendingChallenges() {
 
 async function renderChallenges() {
   showBackBtn(true);
+  setHub('duels');
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading challenges…</div></div>`;
 
@@ -7828,6 +7809,7 @@ async function renderProfile(userId=null, username=null) {
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading profile…</div></div>`;
 
   const isOwnProfile = !userId || userId === currentUser?.id;
+  if(isOwnProfile) setHub('me');
   const profileId = userId || currentUser?.id;
   const profileUsername = username || currentUsername || 'Scout';
 
@@ -7995,6 +7977,7 @@ async function editUsername() {
 
 async function renderFriends(startTab=null) {
   showBackBtn(true);
+  setHub('friends');
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading friends…</div></div>`;
 
@@ -8448,7 +8431,7 @@ function showReactionPicker(msgId) {
   if(existing) existing.remove();
   const picker = document.createElement('div');
   picker.id = 'reactionPicker';
-  picker.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--border);border-radius:40px;padding:8px 16px;display:flex;gap:12px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+  picker.style.cssText = 'position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--border);border-radius:40px;padding:8px 16px;display:flex;gap:12px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
   picker.innerHTML = EMOJI_REACTIONS.map(e => `<span style="font-size:1.5rem;cursor:pointer;" onclick="toggleReaction(${msgId},'${e}');this.parentElement.remove();">${e}</span>`).join('');
   document.body.appendChild(picker);
   setTimeout(() => picker.remove(), 3000);
@@ -9139,6 +9122,8 @@ function playFlip() {
   playTone(550, 0.08, 'sine', 0.1, 0.06);
 }
 
+const VOTD_REFS = [["John",3,16],["Psalms",23,1],["Philippians",4,13],["Jeremiah",29,11],["Romans",8,28],["Isaiah",41,10],["Proverbs",3,5],["Joshua",1,9],["Psalms",46,1],["Matthew",11,28],["Romans",12,2],["Philippians",4,6],["Psalms",119,105],["Isaiah",40,31],["Lamentations",3,22],["Psalms",27,1],["Matthew",6,33],["2 Corinthians",5,7],["Hebrews",11,1],["Galatians",5,22],["Ephesians",2,8],["1 John",4,19],["Psalms",34,8],["Proverbs",16,3],["Romans",5,8],["Matthew",28,20],["Psalms",121,1],["Isaiah",26,3],["John",14,27],["2 Timothy",1,7],["Psalms",37,4],["Colossians",3,23],["1 Corinthians",13,4],["James",1,5],["Micah",6,8],["Psalms",91,1],["Matthew",5,16],["John",15,5],["Psalms",118,24],["Zephaniah",3,17],["Deuteronomy",31,6],["Psalms",56,3],["1 Peter",5,7],["Philippians",4,4],["Proverbs",18,10],["Isaiah",43,2],["Romans",15,13],["John",8,12],["Psalms",139,14],["Numbers",6,24],["Psalms",100,5],["Revelation",21,4],["Matthew",7,7]];
+
 async function fetchVerseOfDay() {
   const today = getDailyKey();
   const cacheKey = `ss_votd_${today}`;
@@ -9160,17 +9145,21 @@ async function fetchVerseOfDay() {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
     const dayOfYear = Math.floor((now - start) / 86400000);
-    const offset = (dayOfYear * 137) % 5000;
-    // Use anon key directly so it works even before login
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/verses?translation=eq.WEB&select=book,chapter,verse,text&limit=1&offset=${offset}`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-    });
-    if(res.ok) {
-      const rows = await res.json();
-      if(rows.length) {
-        localStorage.setItem(cacheKey, JSON.stringify(rows[0]));
-        updateVOTD(rows[0]);
-      }
+    const headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }; // anon key so it works before login
+    // A hand-picked list of well-loved verses, rotated by day (the old version took an arbitrary row
+    // from the verse table, which could land on something like a ceremonial law).
+    const [book, chapter, verse] = VOTD_REFS[dayOfYear % VOTD_REFS.length];
+    let row = null;
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/verses?translation=eq.WEB&book=eq.${encodeURIComponent(book)}&chapter=eq.${chapter}&verse=eq.${verse}&select=book,chapter,verse,text&limit=1`, { headers });
+    if(res.ok) row = (await res.json())[0] || null;
+    if(!row) { // fallback: the old arbitrary-row pick
+      const offset = (dayOfYear * 137) % 5000;
+      const r2 = await fetch(`${SUPABASE_URL}/rest/v1/verses?translation=eq.WEB&select=book,chapter,verse,text&limit=1&offset=${offset}`, { headers });
+      if(r2.ok) row = (await r2.json())[0] || null;
+    }
+    if(row) {
+      localStorage.setItem(cacheKey, JSON.stringify(row));
+      updateVOTD(row);
     }
   } catch(e) { console.log('VOTD error:', e); }
 }
@@ -9179,7 +9168,7 @@ function updateVOTD(v) {
   const textEl = document.getElementById('votdText');
   const refEl = document.getElementById('votdRef');
   if(!textEl || !v || !v.text) return;
-  textEl.textContent = `"${v.text}"`;
+  textEl.textContent = v.text;
   if(refEl) refEl.textContent = `— ${v.book} ${v.chapter}:${v.verse}`;
 }
 
@@ -9220,38 +9209,11 @@ function initTheme() {
 
 function showStreakToast(msg) {
   const toast = document.createElement('div');
-  toast.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--teal);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:600;color:var(--text);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;`;
+  toast.style.cssText = `position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--teal);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:600;color:var(--text);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;`;
   toast.textContent = msg;
   document.body.appendChild(toast);
   setTimeout(() => toast.style.opacity='0', 2500);
   setTimeout(() => toast.remove(), 3000);
-}
-
-function getStreakDisplay() {
-  if(!currentStreak) return '';
-  const { current_streak, freeze_tokens, last_played_date } = currentStreak;
-  const today = getDailyKey();
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  const playedToday = last_played_date === today;
-  const atRisk = last_played_date === yesterday && !playedToday;
-
-  const tokens = [0,1,2].map(i =>
-    `<span class="streak-token ${i < freeze_tokens ? '' : 'empty'}">🌿</span>`
-  ).join('');
-
-  return `
-    ${atRisk && current_streak > 0 ? `<div class="streak-warning">⚠️ Play today to keep your ${current_streak} day streak!</div>` : ''}
-    <div class="streak-bar">
-      <div class="streak-fire">${playedToday ? '<img src="icons/streak-fire.svg" width="28" height="28" style="object-fit:contain;" alt="">' : '💤'}</div>
-      <div class="streak-info">
-        <div class="streak-count">${current_streak} day${current_streak !== 1 ? 's' : ''}</div>
-        <div class="streak-label">${playedToday ? 'Streak active today' : 'Current streak'}</div>
-      </div>
-      <div>
-        <div class="streak-tokens">${tokens}</div>
-        <div style="font-size:0.75rem;color:var(--text-muted);text-align:right;margin-top:2px;">Sabbath Rests</div>
-      </div>
-    </div>`;
 }
 
 async function useSabbathRest() {
