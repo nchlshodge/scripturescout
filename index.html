@@ -1221,6 +1221,7 @@ async function showHome() {
       </section>
 
       ${IS_IOS_NATIVE ? '' : `<a class="hm-support" href="https://buymeacoffee.com/hodgepodge" target="_blank" rel="noopener">Support Scripture Scout</a>`}
+      <a class="hm-support" href="mailto:nick@rochesterchristian.church?subject=Scripture%20Scout%20support">Contact us</a>
 
     </div>`;
 
@@ -7962,6 +7963,7 @@ async function renderProfile(userId=null, username=null) {
         <div style="padding:16px;">
           <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Account</div>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderBlockedUsersList()">🚫 Blocked Users</button>
+          <a class="btn-friend-action" style="display:block;box-sizing:border-box;width:100%;margin-bottom:8px;text-align:center;text-decoration:none;" href="mailto:nick@rochesterchristian.church?subject=Scripture%20Scout%20support">Contact Support</a>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openTermsOfService()">Terms of Service</button>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openPrivacyPolicy()">Privacy Policy</button>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="signOut()">Sign Out</button>
