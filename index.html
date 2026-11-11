@@ -937,6 +937,9 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 // Android uses FCM (via @capacitor/push-notifications) instead of Web Push — see subscribeToPushNative().
 // iOS push (APNs) isn't wired up yet since it needs a paid Apple Developer account.
+// Apple only allows in-app payments/tips through its own IAP (guideline 3.1.1), so external
+// donation links are hidden in the iOS build and shown on web/Android/Amazon.
+const IS_IOS_NATIVE = IS_NATIVE && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios';
 const IS_ANDROID_NATIVE = IS_NATIVE && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android';
 // Custom URL scheme the native apps register to catch the OAuth redirect back from the system browser.
 const NATIVE_OAUTH_REDIRECT = 'scripturescout://auth-callback';
@@ -1197,7 +1200,6 @@ async function showHome() {
             <div style="font-size:0.92rem;font-weight:700;color:var(--text);">${currentUsername || 'Scout'}</div>
             <div style="font-size:0.72rem;color:var(--text-muted);">Scripture Scout Player</div>
           </div>
-          ${currentUserPro ? `<div style="background:#f4b942;color:#3a2000;font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:20px;">PRO</div>` : ''}
         </div>
         <!-- Action buttons row -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
@@ -1257,9 +1259,9 @@ async function showHome() {
         <button class="btn-next" onclick="renderAuthScreen()">Sign In / Create Account</button>
       </div>`}
 
-      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:11px;background:rgba(122,58,16,0.07);border:2px dashed rgba(122,58,16,0.28);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:600;color:#7a3a10;">
+      ${IS_IOS_NATIVE ? '' : `      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:11px;background:rgba(122,58,16,0.07);border:2px dashed rgba(122,58,16,0.28);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:600;color:#7a3a10;">
         ☕ Support Scripture Scout
-      </a>
+      </a>`}
 
     </div>`;
 
@@ -3952,7 +3954,6 @@ async function renderStoryMode() {
       } else {
         metaHTML = `<span class="fg-lock-text">Tap to begin</span>`;
       }
-      const proStamp = path.is_free ? '' : `<span class="fg-stamp" style="border-color:var(--earth);color:var(--earth);margin-left:4px;">Pro</span>`;
       return `
         <div class="fg-path-entry fg-path-tappable" data-path="${path.id}">
           <div style="display:flex;align-items:flex-start;gap:0">
@@ -3960,7 +3961,7 @@ async function renderStoryMode() {
             <div class="fg-path-body">
               <div class="fg-path-title">${getStoryPathIcon(path)} ${path.title}</div>
               <div class="fg-path-sub">${path.description}</div>
-              <div class="fg-path-meta">${metaHTML}${proStamp}</div>
+              <div class="fg-path-meta">${metaHTML}</div>
             </div>
           </div>
         </div>`;
@@ -4030,11 +4031,7 @@ async function renderStoryMode() {
         card.addEventListener('click', () => {
           const pathId = parseInt(card.dataset.path);
           const path = paths.find(p => p.id === pathId);
-          if(path && !path.is_free && !isPro()) {
-            requirePro(() => renderStoryPath(pathId));
-          } else {
-            renderStoryPath(pathId);
-          }
+          renderStoryPath(pathId);
         });
       });
     }
@@ -7538,7 +7535,6 @@ const AVATAR_COLORS = [
 
 let currentAvatarIcon = null;
 let currentAvatarColor = 'purple';
-let currentUserPro = false;
 // Users the signed-in player has blocked — populated by loadBlockedUsers(), checked
 // before sending messages/friend requests and when filtering a conversation's messages.
 let blockedUserIds = new Set();
@@ -7660,26 +7656,6 @@ async function submitReport(userId, username) {
     console.warn('submitReport failed:', e?.message);
     showStreakToast('Could not submit report — try again.');
   }
-}
-
-function isPro() {
-  return currentUserPro || !currentUser; // Pro if logged in as pro, or guest (guests can play freely during beta)
-}
-
-function requirePro(callback) {
-  if(isPro()) { callback(); return; }
-  // Show upgrade prompt
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
-  overlay.innerHTML = `
-    <div style="background:var(--surface);border:1.5px solid #F4B942;border-radius:20px;padding:32px 24px;max-width:400px;width:100%;text-align:center;">
-      <div style="font-size:2.5rem;margin-bottom:12px;">⭐</div>
-      <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px;">Scripture Scout Pro</div>
-      <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">This content is part of Scripture Scout Pro. Support the app to unlock all story paths, game modes and more!</div>
-      <a href="https://buymeacoffee.com/hodgepodge" target="_blank" style="display:block;padding:14px;background:linear-gradient(135deg,#B87D0A,#F4B942);border-radius:12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#1a1a2e;margin-bottom:10px;">☕ Support on Buy Me a Coffee</a>
-      <button onclick="this.closest('div').parentElement.remove()" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.88rem;color:var(--text-muted);cursor:pointer;">Maybe later</button>
-    </div>`;
-  document.body.appendChild(overlay);
 }
 
 function getAvatarGradient(colorId) {
@@ -7890,7 +7866,7 @@ async function renderProfile(userId=null, username=null) {
             ${renderAvatarEl(isOwnProfile?currentAvatarIcon:null, isOwnProfile?currentAvatarColor:'purple', escapeHtml(profileUsername[0]?.toUpperCase()), 80, '2rem')}
             ${isOwnProfile ? `<button onclick="showAvatarPicker()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#A78BFA;border:2px solid var(--surface);color:white;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✏️</button>` : ''}
           </div>
-          <div class="profile-username">${escapeHtml(profileUsername || '(no username set)')} ${isOwnProfile && currentUserPro ? '<span style="font-size:0.65rem;background:linear-gradient(135deg,#B87D0A,#F4B942);color:#1a1a2e;padding:2px 8px;border-radius:10px;font-weight:700;vertical-align:middle;">PRO</span>' : ''}</div>
+          <div class="profile-username">${escapeHtml(profileUsername || '(no username set)')}</div>
           <div class="profile-joined">Scripture Scout Player</div>
           ${isOwnProfile && !currentUsername ? `<div style="font-size:0.78rem;color:#F4B942;margin-top:4px;">⚠️ Set a username so friends can find you!</div>` : ''}
           ${isOwnProfile ? `<button class="btn-friend-action" style="margin-top:8px;" onclick="editUsername()">${currentUsername ? '✏️ Change Username' : '✏️ Set Username'}</button>` : ''}
