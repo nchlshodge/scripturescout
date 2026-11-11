@@ -9091,7 +9091,18 @@ function playTone(frequency, duration, type='sine', volume=0.3, delay=0) {
   } catch(e) { console.warn("Caught:", e?.message); }
 }
 
+// Short buzz on Android/Chrome (iOS Safari doesn't support it). Skipped for reduced-motion users.
+function haptic(pattern) {
+  try {
+    if (!navigator.vibrate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    navigator.vibrate(pattern);
+  } catch(e) {}
+}
+
+let _lastSfxAt = 0;
 function playCorrect() {
+  _lastSfxAt = Date.now();
+  haptic(18);
   // Bright ascending chime
   playTone(523, 0.15, 'sine', 0.25, 0);    // C5
   playTone(659, 0.15, 'sine', 0.25, 0.08); // E5
@@ -9099,12 +9110,15 @@ function playCorrect() {
 }
 
 function playWrong() {
+  _lastSfxAt = Date.now();
+  haptic([30, 40, 30]);
   // Soft low thud — not harsh
   playTone(220, 0.2, 'sine', 0.2, 0);    // A3
   playTone(185, 0.3, 'sine', 0.15, 0.1); // F#3
 }
 
 function playStreak() {
+  haptic([20, 30, 20, 30, 40]);
   // Celebratory ascending arpeggio
   playTone(523, 0.12, 'sine', 0.25, 0);    // C5
   playTone(659, 0.12, 'sine', 0.25, 0.1);  // E5
@@ -9136,6 +9150,30 @@ function playFlip() {
   playTone(440, 0.08, 'sine', 0.15, 0);
   playTone(550, 0.08, 'sine', 0.1, 0.06);
 }
+
+// Safety net: any answer element that turns .correct/.wrong gets sound + buzz, even in modes
+// that don't call playCorrect()/playWrong() themselves. Skips if one already played just now.
+(function(){
+  const SEL = '.btn,.book-btn,.chapter-btn,.blank-option,.ref-option,.story-choice,.word-chip,.blank-word';
+  let pend = null;
+  new MutationObserver(muts => {
+    for (const m of muts) {
+      const el = m.target;
+      if (!(el instanceof Element) || !el.matches(SEL)) continue;
+      const was = (m.oldValue || '').split(/\s+/);
+      const gotC = el.classList.contains('correct') && !was.includes('correct');
+      const gotW = el.classList.contains('wrong') && !was.includes('wrong');
+      if (gotC) pend = pend || 'c';
+      if (gotW) pend = 'w';
+    }
+    if (!pend) return;
+    setTimeout(() => {
+      const kind = pend; pend = null;
+      if (!kind || Date.now() - _lastSfxAt < 400) return;
+      if (kind === 'c') playCorrect(); else playWrong();
+    }, 60);
+  }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+})();
 
 const VOTD_REFS = [["John",3,16],["Psalms",23,1],["Philippians",4,13],["Jeremiah",29,11],["Romans",8,28],["Isaiah",41,10],["Proverbs",3,5],["Joshua",1,9],["Psalms",46,1],["Matthew",11,28],["Romans",12,2],["Philippians",4,6],["Psalms",119,105],["Isaiah",40,31],["Lamentations",3,22],["Psalms",27,1],["Matthew",6,33],["2 Corinthians",5,7],["Hebrews",11,1],["Galatians",5,22],["Ephesians",2,8],["1 John",4,19],["Psalms",34,8],["Proverbs",16,3],["Romans",5,8],["Matthew",28,20],["Psalms",121,1],["Isaiah",26,3],["John",14,27],["2 Timothy",1,7],["Psalms",37,4],["Colossians",3,23],["1 Corinthians",13,4],["James",1,5],["Micah",6,8],["Psalms",91,1],["Matthew",5,16],["John",15,5],["Psalms",118,24],["Zephaniah",3,17],["Deuteronomy",31,6],["Psalms",56,3],["1 Peter",5,7],["Philippians",4,4],["Proverbs",18,10],["Isaiah",43,2],["Romans",15,13],["John",8,12],["Psalms",139,14],["Numbers",6,24],["Psalms",100,5],["Revelation",21,4],["Matthew",7,7]];
 
