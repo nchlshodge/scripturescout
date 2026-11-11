@@ -15,16 +15,14 @@ cp index.html www/
 cp sw.js www/
 cp site.webmanifest www/
 cp favicon.ico www/
-cp favicon.svg www/
 cp favicon-96x96.png www/
 cp apple-touch-icon.png www/
 cp web-app-manifest-192x192.png www/
 cp web-app-manifest-512x512.png www/
-cp randy-default-transparent.png www/
-cp randy-happy-transparent.png www/
-cp randy-sad-transparent.png www/
-cp randy-thinking-transparent.png www/
-cp randy-icon-master-1024.png www/
+cp randy-default.webp www/
+cp randy-happy.webp www/
+cp randy-sad.webp www/
+cp randy-thinking.webp www/
 
 cp -R icons www/icons
 cp -R story-icons www/story-icons
