@@ -1281,14 +1281,12 @@ async function showHome() {
 
   if(completedCount === 4) { updateStreak(true); }
 
-  // Fetch daily theme
-  try {
-    const dayNum = Math.floor(Date.now() / 86400000);
-    const topicIdx = dayNum % 255;
-    const topics = await sbFetch(`verse_topics?order=id&limit=1&offset=${topicIdx}&select=topic`).catch(()=>[]);
-    const themeEl = document.getElementById('homeDailyTheme');
-    if(themeEl && topics.length) themeEl.textContent = topics[0].topic;
-  } catch(e) { console.warn("Caught:", e?.message); }
+  // Today's theme — the same topic the Daily Challenge itself uses (no network call needed).
+  const themeEl = document.getElementById('homeDailyTheme');
+  if(themeEl) {
+    const t = getTodaysTopic();
+    themeEl.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+  }
 }
 
 function calculateStreak(scores) {
@@ -9661,6 +9659,15 @@ function getDailyTriviaQuestions(topic, count=5) {
 }
 
 
+// Today's topic from the curated list, picked by day-of-year. Shared by the home screen
+// theme label and the Daily Challenge so they always agree.
+function getTodaysTopic() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  return DAILY_TOPICS[dayOfYear % DAILY_TOPICS.length];
+}
+
 async function getDailyTopicAndVerses() {
   if(_dailyTopicCache && _dailyVersePool) return { topic: _dailyTopicCache, verses: _dailyVersePool };
 
@@ -9676,11 +9683,7 @@ async function getDailyTopicAndVerses() {
     } catch(e) { console.warn("Caught:", e?.message); }
   }
 
-  // Pick today's topic from curated list using day-of-year
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((now - start) / 86400000);
-  const topic = DAILY_TOPICS[dayOfYear % DAILY_TOPICS.length];
+  const topic = getTodaysTopic();
   _dailyTopicCache = topic;
 
   // Fetch top verse references for this topic
