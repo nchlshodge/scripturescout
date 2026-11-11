@@ -7610,7 +7610,8 @@ async function renderBlockedUsersList() {
     </div>`;
 }
 
-function showReportModal(userId, username) {
+function showReportModal(userId, username, msgId = null) {
+  window._reportMsgId = msgId;
   const existing = document.getElementById('reportModalOverlay');
   if (existing) existing.remove();
 
@@ -7620,7 +7621,7 @@ function showReportModal(userId, username) {
   overlay.innerHTML = `
     <div style="background:var(--surface);border:1.5px solid var(--earth);border-radius:20px;padding:32px 24px;max-width:400px;width:100%;">
       <div style="font-size:2rem;margin-bottom:10px;text-align:center;">⚠️</div>
-      <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;text-align:center;">Report ${escapeHtml(username)}</div>
+      <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;text-align:center;">${msgId ? 'Report this message' : 'Report ' + escapeHtml(username)}</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;line-height:1.5;text-align:center;">We'll review this. You can also block them so they can't reach you anymore.</div>
       <select id="reportReasonField" style="width:100%;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:10px;">
         <option value="Harassment">Harassment or bullying</option>
@@ -7643,12 +7644,15 @@ function showReportModal(userId, username) {
 async function submitReport(userId, username) {
   const reason = document.getElementById('reportReasonField')?.value || 'Other';
   const details = document.getElementById('reportDetailsField')?.value?.trim() || null;
+  const msgId = window._reportMsgId || null;
+  const excerpt = msgId ? (document.querySelector(`.msg-bubble[data-msg-id="${msgId}"]`)?.textContent || '').trim().slice(0, 300) || null : null;
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/user_reports`, {
+    const rres = await fetch(`${SUPABASE_URL}/rest/v1/user_reports`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ reporter_id: currentUser.id, reported_user_id: userId, reported_username: username, reason, details })
+      body: JSON.stringify({ reporter_id: currentUser.id, reported_user_id: userId, reported_username: username, reason, details, message_id: msgId, message_excerpt: excerpt })
     });
+    if (!rres.ok) throw new Error('HTTP ' + rres.status);
     document.getElementById('reportModalOverlay')?.remove();
     showStreakToast(`Report submitted. Thanks for letting us know.`);
   } catch(e) {
@@ -8356,10 +8360,10 @@ async function openConversation(convId, convName, convType) {
             return `
               <div style="display:flex;flex-direction:column;align-items:${isMine?'flex-end':'flex-start'};">
                 ${!isMine?`<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px;">${escapeHtml(m.data?.username||'Friend')}</div>`:''}
-                <div class="msg-bubble ${bubbleClass}" data-msg-id="${m.id}" ondblclick="showReactionPicker(${m.id})" title="Press and hold to react">
+                <div class="msg-bubble ${bubbleClass}" data-msg-id="${m.id}" data-sender="${escapeHtml(m.sender_id||'')}" data-sname="${escapeHtml(m.data?.username||'Friend')}" ondblclick="showReactionPicker(${m.id})" title="Press and hold to react or report">
                   ${m.type==='score'?`🏆 <strong>${escapeHtml(m.data?.game||'Game')}</strong><br>${escapeHtml(m.data?.score?.toLocaleString())} pts`:''}
                   ${m.type==='verse'?`📖 <strong>${escapeHtml(m.data?.ref||'')}</strong><br><em>${escapeHtml(m.content)}</em>`:''}
-                  ${m.type==='text'?escapeHtml(m.content):''}
+                  ${m.type==='text'?escapeHtml(maskObjectionable(m.content)):''}
                 </div>
                 ${Object.keys(rxnGroups).length?`<div class="msg-reactions">${Object.entries(rxnGroups).map(([e,c])=>`<span class="reaction-chip ${rxns.find(r=>r.emoji===e&&r.user_id===currentUser.id)?'mine':''}" onclick="toggleReaction(${m.id},'${escapeJsAttr(e)}')">${escapeHtml(e)} ${c}</span>`).join('')}</div>`:''}
                 <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">${timeAgo(m.created_at)}</div>
@@ -8399,17 +8403,40 @@ async function openConversation(convId, convName, convType) {
   }, 5000);
 }
 
+// ── Chat moderation ──────────────────────────────────────────────
+// Mirrors the server-side trigger on public.messages (reject_objectionable_message), which is the
+// real enforcement; this gives instant feedback and masks anything that slips through on display.
+const OBJECTIONABLE_RE = /\b(fuck\w*|shit\w*|bitch\w*|cunt|nigg\w*|fag+(ot)?s?|whore|slut|dick\s?head|asshole|bastard|retard\w*|rape|kill\s+yourself|kys)\b/gi;
+function _deobfuscate(t) { return t.replace(/[@01$5!3]/g, c => ({'@':'a','0':'o','1':'i','$':'s','5':'s','!':'i','3':'e'}[c])); }
+function isObjectionable(text) { OBJECTIONABLE_RE.lastIndex = 0; return OBJECTIONABLE_RE.test(_deobfuscate(String(text||''))); }
+function maskObjectionable(text) {
+  const src = String(text||''), norm = _deobfuscate(src);
+  let out = '', last = 0;
+  OBJECTIONABLE_RE.lastIndex = 0;
+  for (const m of norm.matchAll(OBJECTIONABLE_RE)) { out += src.slice(last, m.index) + '*'.repeat(m[0].length); last = m.index + m[0].length; }
+  return out + src.slice(last);
+}
+
 async function sendMessage(convId, type='text', content=null, data={}) {
   const input = document.getElementById('msgInput');
   const text = content || (input ? input.value.trim() : '');
   if(!text) return;
+  if(type === 'text' && isObjectionable(text)) {
+    showStreakToast('That message has language we don\'t allow here. Please reword it.');
+    return;
+  }
   if(input) input.value = '';
 
-  await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=minimal' },
     body: JSON.stringify({ conversation_id: convId, sender_id: currentUser.id, content: text, type, data: { ...data, username: currentUsername } })
-  });
+  }).catch(() => null);
+  if(!res || !res.ok) {
+    if(input) input.value = text;
+    showStreakToast(res && res.status === 400 ? 'That message has language we don\'t allow here.' : 'Could not send — try again.');
+    return;
+  }
 
   // Reload messages
   openConversation(convId, '', '');
@@ -8447,9 +8474,13 @@ function showReactionPicker(msgId) {
   const picker = document.createElement('div');
   picker.id = 'reactionPicker';
   picker.style.cssText = 'position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--border);border-radius:40px;padding:8px 16px;display:flex;gap:12px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
-  picker.innerHTML = EMOJI_REACTIONS.map(e => `<span style="font-size:1.5rem;cursor:pointer;" onclick="toggleReaction(${msgId},'${e}');this.parentElement.remove();">${e}</span>`).join('');
+  const bubble = document.querySelector(`.msg-bubble[data-msg-id="${msgId}"]`);
+  const senderId = bubble?.dataset.sender;
+  const canReport = senderId && currentUser && senderId !== currentUser.id;
+  picker.innerHTML = EMOJI_REACTIONS.map(e => `<span style="font-size:1.5rem;cursor:pointer;" onclick="toggleReaction(${msgId},'${e}');this.parentElement.remove();">${e}</span>`).join('')
+    + (canReport ? `<button type="button" aria-label="Report this message" style="border:none;border-left:1px solid var(--border);background:none;padding:0 0 0 12px;font:600 0.8rem 'DM Sans',sans-serif;color:var(--earth-text);cursor:pointer;" onclick="this.parentElement.remove();showReportModal(document.querySelector('.msg-bubble[data-msg-id=&quot;${msgId}&quot;]').dataset.sender, document.querySelector('.msg-bubble[data-msg-id=&quot;${msgId}&quot;]').dataset.sname, ${msgId})">Report</button>` : '');
   document.body.appendChild(picker);
-  setTimeout(() => picker.remove(), 3000);
+  setTimeout(() => picker.remove(), canReport ? 5000 : 3000);
 }
 
 async function addGroupMember(convId) {
