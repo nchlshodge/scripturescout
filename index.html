@@ -204,9 +204,8 @@
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 0 0 1px rgba(74,124,89,0.06), 0 20px 40px rgba(0,0,0,0.5); width: 100%; max-width: 560px; padding: 28px 24px 22px; }
   .rope-card { border-radius:16px; background:var(--surface) padding-box, repeating-linear-gradient(45deg,#9b7520 0,#9b7520 4px,#d4aa50 4px,#d4aa50 8px,#b08830 8px,#b08830 12px,#d4aa50 12px,#d4aa50 16px) border-box; border:3px solid transparent; padding:14px 16px; margin-bottom:12px; }
 
-  .verse-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
-  .verse-label::after { content:''; flex:1; height:1px; background:var(--border); }
-  .verse-text { font-family: 'DM Mono', monospace; font-size: clamp(0.9rem, 2.4vw, 1.05rem); line-height: 1.8; color: var(--text); font-style: italic; margin-bottom: 8px; min-height: 88px; }
+  .verse-label { font-family: Georgia,'Times New Roman',serif; font-size: 1rem; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+  .verse-text { font-family: Georgia,'Times New Roman',serif; font-size: clamp(1rem, 2.8vw, 1.15rem); line-height: 1.7; color: var(--text); font-style: italic; margin-bottom: 8px; min-height: 88px; }
 
   .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px 0; min-height: 88px; }
   .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--fern); border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -264,9 +263,10 @@
   @keyframes pop { 0%{transform:scale(0.5);opacity:0} 60%{transform:scale(1.25)} 100%{transform:scale(1);opacity:1} }
 
   .divider { border:none; border-top:1px solid var(--border); margin:18px 0 14px; }
-  .btn-next { width:100%; padding:14px; background:linear-gradient(135deg, #4A7C59 0%, #3BBFA0 100%); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:700; color:white; cursor:pointer; display:block; margin-bottom:8px; }
-  .btn-next:active { opacity:0.85; }
-  .btn-change-diff { width:100%; padding:10px; background:transparent; border:1.5px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600; color:var(--text-muted); cursor:pointer; display:block; }
+  .btn-next { width:100%; min-height:50px; padding:12px; background:#f4b942; border:none; border-radius:14px; box-shadow:0 2px 0 #b98418; font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:700; color:#3a2000; cursor:pointer; display:block; margin-bottom:8px; transition:transform 0.12s, box-shadow 0.12s; }
+  .btn-next:active { transform:translateY(2px); box-shadow:0 0 0 #b98418; }
+  .btn-next:disabled { opacity:0.55; cursor:default; }
+  .btn-change-diff { width:100%; min-height:44px; padding:10px; background:transparent; border:1.5px solid var(--border); border-radius:14px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; color:var(--text); cursor:pointer; display:block; }
 
   /* Game over */
   .game-over { text-align:center; padding:16px 0 6px; }
@@ -437,7 +437,7 @@
   .chapter-narrative { font-size:0.95rem; line-height:1.9; color:var(--text); margin-bottom:20px; }
   .chapter-verse-reveal { background:var(--surface-2); border:1.5px solid #A78BFA; border-radius:12px; padding:20px; margin-bottom:20px; text-align:center; }
   .chapter-verse-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:#A78BFA; font-weight:600; margin-bottom:10px; }
-  .chapter-verse-text { font-family:'DM Mono',monospace; font-size:clamp(0.88rem,2.2vw,1rem); line-height:1.8; color:var(--text); font-style:italic; margin-bottom:8px; }
+  .chapter-verse-text { font-family:Georgia,'Times New Roman',serif; font-size:clamp(1rem,2.6vw,1.1rem); line-height:1.7; color:var(--text); font-style:italic; margin-bottom:8px; }
   .chapter-verse-ref { font-size:0.85rem; font-weight:700; color:#A78BFA; }
   .chapter-complete-badge { text-align:center; padding:16px; background:rgba(167,139,250,0.08); border:1px solid #A78BFA; border-radius:12px; margin-bottom:16px; }
 
@@ -696,11 +696,10 @@
   /* Flashcard setup */
   .flashcard-setup { width:100%; max-width:560px; }
   .setup-section { margin-bottom:20px; }
-  .setup-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
-  .setup-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .setup-label { font-family:Georgia,'Times New Roman',serif; font-size:0.95rem; color:var(--text); font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
   .setup-options { display:flex; flex-wrap:wrap; gap:7px; }
-  .setup-btn { padding:8px 14px; border:1.5px solid var(--border); background:var(--surface-2); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all 0.15s; }
-  .setup-btn.selected { border-color:var(--teal); color:var(--teal-text); background:var(--teal-dim); }
+  .setup-btn { min-height:44px; padding:10px 16px; border:1.5px solid var(--border); background:var(--surface-2); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all 0.15s; }
+  .setup-btn.selected { border-color:var(--nav-active); color:var(--nav-active); background:var(--nav-pill); }
   .setup-btn:active { border-color:var(--fern); }
 
   /* Flashcard */
@@ -779,7 +778,7 @@
   .guest-submit-or { font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin:12px 0; }
 
   /* Share */
-  .btn-share { width:100%; padding:11px; background:transparent; border:1.5px solid var(--border); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .btn-share { width:100%; min-height:44px; padding:10px; background:transparent; border:1.5px solid var(--border); border-radius:14px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; color:var(--text); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:8px; }
   @media (hover:hover) and (pointer:fine) {.btn-share:hover { border-color:var(--fern); color:var(--text); }}
   .btn-share:active { background:rgba(107,175,122,0.07); }
   .share-toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%); background:#1C2820; border:1px solid var(--fern); border-radius:10px; padding:12px 24px; font-size:0.85rem; font-weight:600; color:var(--teal-text); z-index:999; animation:toastIn 0.3s ease; white-space:nowrap; }
@@ -973,7 +972,7 @@
       </div>
     </div>
   </div>
-  <button id="backHomeBtn" onclick="showHome()" style="display:none;width:100%;padding:9px;background:transparent;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:var(--text-muted);cursor:pointer;margin-bottom:12px;">← Back to Home</button>
+  <button id="backHomeBtn" onclick="showHome()" style="display:none;width:fit-content;min-height:44px;padding:0 12px;margin:0 0 8px -12px;background:none;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--nav-active);cursor:pointer;">← Home</button>
 </div>
 <div id="shareBar" style="display:none;"></div>
 
@@ -1286,6 +1285,13 @@ function calculateStreak(scores) {
 
 function showLeaderboard() { showBackBtn(true); renderLeaderboard(); }
 function showFullStats() { showBackBtn(true); renderStats(); }
+
+// Verse text sometimes arrives with its own quotation marks and sometimes without, so strip any
+// and wrap once in typographic quotes (avoids doubled quotes like ""word"").
+function quoteVerse(t) {
+  const clean = String(t ?? '').trim().replace(/^["'\u201C\u2018]+/, '').replace(/["'\u201D\u2019]+$/, '');
+  return '\u201C' + clean + '\u201D';
+}
 
 // ═══════════════════════════════════════
 // HTML ESCAPING (XSS prevention)
@@ -2534,7 +2540,7 @@ function renderEndlessCard() {
   const pts = Math.round(ENDLESS_BASE_POINTS * endlessMultiplier);
   card.innerHTML = `
     <div class="endless-verse-label">Question ${endlessStreak+1} <span style="color:#F4B942;font-size:0.75rem;margin-left:4px">+${pts} pts per step</span></div>
-    <div class="verse-text">"${currentVerse.text}"</div>
+    <div class="verse-text">${quoteVerse(currentVerse.text)}</div>
     <hr class="divider"/>
     <div class="phase-bar">${dots}</div>
     <div class="phase-label" id="phaseLabel">${getStepLabel(phase)} <span class="pts-hint">(+${pts} pts)</span></div>
@@ -2865,7 +2871,7 @@ function renderCard() {
 
   card.innerHTML=`
     <div class="verse-label">Verse ${round} of ${TOTAL_ROUNDS}</div>
-    <div class="verse-text">"${currentVerse.text}"</div>
+    <div class="verse-text">${quoteVerse(currentVerse.text)}</div>
     <hr class="divider"/>
     <div class="phase-bar">${dots}</div>
     <div class="phase-label" id="phaseLabel">${stepLabel} <span class="pts-hint">(+${pts} pts)</span></div>
@@ -3798,7 +3804,7 @@ async function renderRefChallengeCard() {
     <div class="flashcard-progress-bar"><div class="flashcard-progress-fill" style="width:${progress}%"></div></div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label"><img src="icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Track It Down — where is this verse?</div>
-      <div class="verse-text" style="margin-bottom:16px;">"${v.text}"</div>
+      <div class="verse-text" style="margin-bottom:16px;">${quoteVerse(v.text)}</div>
       <hr class="divider"/>
       <div class="ref-options" id="refOptions">
         ${options.map((opt, i) => `
@@ -6290,7 +6296,7 @@ function renderMemoryEndlessCard() {
 
   document.getElementById('memoryFlipBtn').onclick = () => {
     document.getElementById('memoryFlipArea').innerHTML = `
-      <div class="flashcard-verse" style="margin-bottom:14px;">"${v.text}"</div>
+      <div class="flashcard-verse" style="margin-bottom:14px;">${quoteVerse(v.text)}</div>
       <div class="rating-btns">
         <button class="rating-btn rating-didnt" onclick="rateMemoryEndless('didnt_know')"><span class="rating-icon">😬</span>Didn't Know</button>
         <button class="rating-btn rating-almost" onclick="rateMemoryEndless('almost')"><span class="rating-icon">🤔</span>Almost</button>
@@ -6504,7 +6510,7 @@ async function renderTrackEndlessCard() {
     </div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label"><img src="icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Endless Track It Down <span class="pts-hint">(+${pts} pts)</span></div>
-      <div class="verse-text" style="margin-bottom:16px;">"${v.text}"</div>
+      <div class="verse-text" style="margin-bottom:16px;">${quoteVerse(v.text)}</div>
       <hr class="divider"/>
       <div class="ref-options" id="trackRefOptions">
         ${options.map((opt,i) => `
@@ -6898,7 +6904,7 @@ function renderChallengeScout(verse) {
   function _renderChallengePhase() {
     root.innerHTML = challengeHUD() + `
       <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
-        <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
+        <div class="verse-text" style="margin-bottom:16px;">${quoteVerse(verse.text)}</div>
         <hr class="divider"/>
         <div id="challengePhaseArea"></div>
         <div class="feedback" id="challengeFeedback" role="status" aria-live="polite"></div>
@@ -7092,7 +7098,7 @@ async function renderChallengeTrack(verse) {
   root.innerHTML = challengeHUD() + `
     <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
       <div class="verse-label"><img src="icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Where is this verse from?</div>
-      <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
+      <div class="verse-text" style="margin-bottom:16px;">${quoteVerse(verse.text)}</div>
       <hr class="divider"/>
       <div id="challengeTrackOptions">
         ${options.map((opt,i)=>`<button class="ref-option" data-ref="${opt}"><span class="ref-option-letter">${letters[i]}</span>${opt}</button>`).join('')}
@@ -7133,7 +7139,7 @@ function renderChallengeMemory(verse) {
 
   document.getElementById('challengeFlipBtn').onclick = () => {
     document.getElementById('challengeMemFlip').innerHTML = `
-      <div class="flashcard-verse" style="margin-bottom:14px;">"${verse.text}"</div>
+      <div class="flashcard-verse" style="margin-bottom:14px;">${quoteVerse(verse.text)}</div>
       <div class="rating-btns">
         <button class="rating-btn rating-didnt" onclick="completeChallengeGame(0,null)"><span class="rating-icon">😬</span>Didn't Know</button>
         <button class="rating-btn rating-almost" onclick="completeChallengeGame(100,null)"><span class="rating-icon">🤔</span>Almost</button>
@@ -9884,7 +9890,7 @@ async function renderDailyScout(verse) {
         <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Scripture Scout</div>
       </div>
       <div class="card" style="max-width:560px;width:100%;">
-        <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
+        <div class="verse-text" style="margin-bottom:16px;">${quoteVerse(verse.text)}</div>
         <hr class="divider"/>
         <div id="scoutPhaseArea"></div>
         <div class="feedback" id="scoutFeedback" role="status" aria-live="polite"></div>
@@ -9991,7 +9997,7 @@ function renderDailyMemory(verse) {
 
   document.getElementById('dailyFlipBtn').onclick = () => {
     document.getElementById('dailyMemFlip').innerHTML = `
-      <div class="flashcard-verse" style="margin-bottom:14px;">"${verse.text}"</div>
+      <div class="flashcard-verse" style="margin-bottom:14px;">${quoteVerse(verse.text)}</div>
       <div class="rating-btns">
         <button class="rating-btn rating-didnt" onclick="completeDailyMIA('didnt_know',0)"><span class="rating-icon">😬</span>Didn't Know</button>
         <button class="rating-btn rating-almost" onclick="completeDailyMIA('almost',100)"><span class="rating-icon">🤔</span>Almost</button>
@@ -10150,7 +10156,7 @@ async function renderDailyTrack(verse) {
     </div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label"><img src="icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Where is this verse from?</div>
-      <div class="verse-text" style="margin-bottom:16px;">"${verse.text}"</div>
+      <div class="verse-text" style="margin-bottom:16px;">${quoteVerse(verse.text)}</div>
       <hr class="divider"/>
       <div id="dailyTrackOptions">
         ${options.map((opt,i)=>`
