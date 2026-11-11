@@ -1447,6 +1447,93 @@ async function signOut() {
   document.getElementById('userBar').style.display = 'none';
 }
 
+// ═══════════════════════════════════════
+// AGE CHECK (13+)
+// ═══════════════════════════════════════
+const MIN_AGE = 13;
+const _MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function ageFieldsHtml(prefix) {
+  const fieldStyle = "padding:11px 12px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;box-sizing:border-box;";
+  const y = new Date().getFullYear();
+  let years = '<option value="">Year</option>';
+  for (let i = y; i >= y - 100; i--) years += `<option value="${i}">${i}</option>`;
+  return `<div style="display:flex;gap:8px;">
+    <select id="${prefix}Month" aria-label="Birth month" style="${fieldStyle}flex:1.4;"><option value="">Month</option>${_MONTHS.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('')}</select>
+    <select id="${prefix}Year" aria-label="Birth year" style="${fieldStyle}flex:1;">${years}</select>
+  </div>`;
+}
+function readAgeFields(prefix) {
+  const m = parseInt(document.getElementById(prefix + 'Month')?.value, 10);
+  const y = parseInt(document.getElementById(prefix + 'Year')?.value, 10);
+  return (m && y) ? { month: m, year: y } : null;
+}
+// Month precision, rounded conservatively: must be at least MIN_AGE years and a month past the birth month.
+function meetsMinAge({ month, year }) {
+  const now = new Date();
+  return (now.getFullYear() - year) * 12 + (now.getMonth() + 1 - month) > MIN_AGE * 12;
+}
+async function saveAgeCheck(userId, { month, year }) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/age_checks`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json', 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+    body: JSON.stringify({ user_id: userId, birth_year: year, birth_month: month })
+  });
+  if (!res.ok) throw new Error('age save failed ' + res.status);
+  try { localStorage.setItem('ss_age_ok_' + userId, '1'); } catch(e) {}
+}
+// Runs after sign-in for every account (email, Google, and accounts created before this check existed).
+async function ensureAgeConfirmed() {
+  if (!currentUser || !authToken) return;
+  const uid = currentUser.id;
+  try { if (localStorage.getItem('ss_age_ok_' + uid)) return; } catch(e) {}
+  try {
+    const rows = await sbFetch(`age_checks?user_id=eq.${uid}&select=user_id`);
+    if (rows.length) { try { localStorage.setItem('ss_age_ok_' + uid, '1'); } catch(e) {} return; }
+    const pending = JSON.parse(localStorage.getItem('ss_pending_age') || 'null');
+    if (pending && meetsMinAge(pending)) { await saveAgeCheck(uid, pending); localStorage.removeItem('ss_pending_age'); return; }
+  } catch(e) { console.warn('Age check lookup failed, not blocking:', e?.message); return; }
+  showAgeGate();
+}
+function showAgeGate() {
+  document.getElementById('ageGateOverlay')?.remove();
+  const o = document.createElement('div');
+  o.id = 'ageGateOverlay';
+  o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-labelledby', 'ageGateTitle');
+  o.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;overflow-y:auto;';
+  o.innerHTML = `
+    <div style="max-width:400px;width:100%;text-align:center;">
+      <h2 id="ageGateTitle" style="font-family:Georgia,serif;font-size:1.4rem;color:var(--text);margin:0 0 8px;">When were you born?</h2>
+      <p style="font-size:0.9rem;color:var(--text-muted);line-height:1.5;margin:0 0 18px;">We ask everyone once. It stays private and is only used to confirm you're old enough to have an account.</p>
+      ${ageFieldsHtml('ageGate')}
+      <div id="ageGateError" role="alert" style="color:var(--earth-text);font-size:0.85rem;min-height:20px;margin:10px 0;"></div>
+      <button id="ageGateBtn" class="btn-next" style="width:100%;" onclick="submitAgeGate()">Continue</button>
+      <button class="auth-link" style="margin-top:14px;" onclick="document.getElementById('ageGateOverlay').remove();signOut()">Sign out</button>
+    </div>`;
+  document.body.appendChild(o);
+}
+async function submitAgeGate() {
+  const err = document.getElementById('ageGateError'), btn = document.getElementById('ageGateBtn');
+  const dob = readAgeFields('ageGate');
+  if (!dob) { err.textContent = 'Please choose your birth month and year.'; return; }
+  btn.disabled = true;
+  if (!meetsMinAge(dob)) {
+    // Under 13: we can't keep an account for them. Remove it and everything attached to it.
+    try { localStorage.setItem('ss_age_blocked', '1'); } catch(e) {}
+    try { await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` } }); } catch(e) { console.warn('delete-account failed:', e?.message); }
+    document.getElementById('ageGateOverlay')?.remove();
+    await signOut();
+    showStreakToast('Accounts are for ages 13 and up, so yours has been removed. You can still play without one.');
+    return;
+  }
+  try {
+    await saveAgeCheck(currentUser.id, dob);
+    document.getElementById('ageGateOverlay')?.remove();
+  } catch(e) {
+    err.textContent = 'Could not save — check your connection and try again.';
+    btn.disabled = false;
+  }
+}
+
 async function deleteAccount() {
   const confirmation = await showTextInputModal({
     icon: '⚠️',
@@ -1650,6 +1737,13 @@ function renderAuthScreen(mode='login') {
           <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">This is how you'll appear on the leaderboard</div>
         </div>`:''}
 
+        ${mode==='signup'?`
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">Birth month and year</label>
+          ${ageFieldsHtml('authAge')}
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Private. Accounts are for ages 13 and up.</div>
+        </div>`:''}
+
         <!-- Password -->
         <div style="margin-bottom:14px;">
           <label style="display:block;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">Password</label>
@@ -1749,6 +1843,22 @@ async function handleAuth(mode) {
         btn.disabled = false;
         return;
       }
+      const dob = readAgeFields('authAge');
+      if(!dob) {
+        errEl.textContent = 'Please choose your birth month and year.';
+        errEl.style.display = 'block';
+        btn.textContent = 'Create Account →';
+        btn.disabled = false;
+        return;
+      }
+      if(!meetsMinAge(dob) || localStorage.getItem('ss_age_blocked')) {
+        try { localStorage.setItem('ss_age_blocked', '1'); } catch(e) {}
+        errEl.textContent = 'Accounts are for ages 13 and up. You can still play without one.';
+        errEl.style.display = 'block';
+        btn.textContent = 'Create Account →';
+        btn.disabled = false;
+        return;
+      }
       // Check username availability first
       const existing = await sbFetch(`profiles?username=eq.${encodeURIComponent(username)}&select=id`);
       if(existing.length) {
@@ -1760,6 +1870,7 @@ async function handleAuth(mode) {
       }
       // Store username temporarily to use after email confirmation
       localStorage.setItem('ss_pending_username', username);
+      localStorage.setItem('ss_pending_age', JSON.stringify(dob));
       const data = await signUp(email, password);
       // If auto-confirmed, create profile immediately
       if(data.user && data.access_token) {
@@ -1768,6 +1879,7 @@ async function handleAuth(mode) {
         localStorage.setItem('ss_user', JSON.stringify(currentUser));
         startTokenRefreshTimer();
         await createProfile(data.user.id, username);
+        try { await saveAgeCheck(data.user.id, dob); localStorage.removeItem('ss_pending_age'); } catch(e) { console.warn(e?.message); }
         currentUsername = username;
         playerName = username;
         localStorage.setItem('ss_username', username);
@@ -2034,6 +2146,7 @@ function showApp() {
   // Show home immediately — no waiting
   showHome();
 
+  if(currentUser) ensureAgeConfirmed();
   if(currentUser && !currentUsername) setTimeout(showUsernamePrompt, 500);
   if(currentUser) setTimeout(checkMonthlyChampion, 2000);
   prefetchDailyChallenge();
