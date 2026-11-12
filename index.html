@@ -136,6 +136,8 @@
   }
   .dark-mode #leafBg { opacity: 0.5; }
 
+  /* Opaque strip behind the status bar / notch so scrolled content doesn't run underneath the clock */
+  body::before { content:''; position:fixed; top:0; left:0; right:0; height:env(safe-area-inset-top); background:var(--bg); z-index:50; pointer-events:none; }
   body {
     background: var(--bg);
     transition: background 0.3s ease, color 0.3s ease;
@@ -289,6 +291,7 @@
   .lb-diff-tabs { display:flex; gap:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:12px; }
   .lb-diff-tab { flex:1; padding:11px 8px; text-align:center; font-size:0.82rem; font-weight:600; color:var(--text-muted); cursor:pointer; border:none; background:transparent; font-family:'DM Sans',sans-serif; transition:all 0.15s; border-right:1px solid var(--border); }
   .lb-diff-tab:last-child { border-right:none; }
+  .lb-diff-tab { white-space:nowrap; padding-left:4px; padding-right:4px; }
   .lb-diff-tab.active { background:var(--surface-2); color:var(--teal-text); }
   .lb-diff-desc { font-size:0.78rem; color:var(--text-muted); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
   .lb-diff-pill { font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.06em; }
@@ -2489,7 +2492,7 @@ async function renderLeaderboard() {
         <button class="lb-diff-tab ${lbFilter==='easy'?'active':''}"    id="lbEasy"    onclick="setLbFilter('easy')"><img src="icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy</button>
         <button class="lb-diff-tab ${lbFilter==='medium'?'active':''}"  id="lbMedium"  onclick="setLbFilter('medium')"><img src="icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium</button>
         <button class="lb-diff-tab ${lbFilter==='hard'?'active':''}"    id="lbHard"    onclick="setLbFilter('hard')"><img src="icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard</button>
-        <button class="lb-diff-tab ${lbFilter==='endless'?'active':''}" id="lbEndless" onclick="setLbFilter('endless')"><img src="icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""></button>
+        <button class="lb-diff-tab ${lbFilter==='endless'?'active':''}" id="lbEndless" onclick="setLbFilter('endless')"><img src="icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless</button>
       </div>
       <div class="lb-diff-desc" id="lbDesc">${lbDiffDesc(lbFilter)}</div>
       <div class="card" id="lbCard">
@@ -9367,7 +9370,7 @@ function updateVOTD(v) {
   const textEl = document.getElementById('votdText');
   const refEl = document.getElementById('votdRef');
   if(!textEl || !v || !v.text) return;
-  textEl.textContent = v.text;
+  textEl.textContent = String(v.text).trim().replace(/^["“”]+|["“”]+$/g, '');
   if(refEl) refEl.textContent = `— ${v.book} ${v.chapter}:${v.verse}`;
 }
 
