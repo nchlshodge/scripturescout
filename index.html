@@ -50,10 +50,17 @@
 
   /* ── Home screen ───────────────────────────────────────────── */
   :root { --nav-active:#8b4513; --nav-pill:rgba(139,69,19,0.13); }
-  :root { --accent-rgb:139,69,19; }
+  :root { --accent-rgb:139,69,19; --gold-text:#7a5200; }
+  .hint-btn { min-height:44px; }
+  .word-chip { min-height:44px; }
+  .blank-word { min-height:40px; padding-top:6px; padding-bottom:6px; }
+  .game-lb-tab { min-height:44px; }
+  .fg-back-btn { min-height:44px; padding:0 10px; margin-left:-10px; }
+  .fg-begin-btn { min-height:48px; }
+  [tabindex="-1"]:focus { outline:none; }
   .ico { display:inline-block; vertical-align:-0.2em; flex-shrink:0; }
   .btn-friend-action .ico, .btn-share .ico, .btn-bank .ico, .hint-btn .ico, .game-lb-tab .ico, .btn-next .ico { margin-right:6px; vertical-align:-0.22em; }
-  .dark-mode { --nav-active:#f4c050; --nav-pill:rgba(244,192,80,0.16); --accent-rgb:244,192,80; }
+  .dark-mode { --nav-active:#f4c050; --nav-pill:rgba(244,192,80,0.16); --accent-rgb:244,192,80; --gold-text:#F4B942; }
   .hm { width:100%; max-width:560px; display:flex; flex-direction:column; gap:24px; }
   :where(.hm button) { font:inherit; color:inherit; }
   .hm-head { display:flex; align-items:center; gap:12px; }
@@ -199,7 +206,7 @@
   .diff-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
   .diff-badge { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.06em; flex-shrink: 0; }
   .badge-easy   { background: rgba(59,191,160,0.15);  color: var(--teal-text);  border: 1px solid var(--teal); }
-  .badge-medium { background: rgba(107,175,122,0.15); color: var(--fern);  border: 1px solid var(--fern); }
+  .badge-medium { background: rgba(107,175,122,0.15); color: var(--teal-text);  border: 1px solid var(--fern); }
   .badge-hard   { background: rgba(200,135,58,0.15);  color: var(--earth-text); border: 1px solid var(--earth); }
 
   /* HUD */
@@ -229,14 +236,14 @@
   .phase-dot.active { background:var(--fern); box-shadow:0 0 6px var(--fern); }
   .phase-dot.done   { background:var(--teal); }
   .phase-label { font-size:0.76rem; color:var(--text-muted); margin-bottom:12px; font-weight:600; letter-spacing:0.02em; }
-  .pts-hint { color: var(--fern); font-size: 0.75rem; margin-left: 4px; }
+  .pts-hint { color: var(--teal-text); font-size: 0.75rem; margin-left: 4px; }
 
   .btn-group { display:flex; flex-wrap:wrap; gap:9px; margin-bottom:8px; }
   .btn { flex:1; min-width:120px; padding:13px 14px; border:1.5px solid var(--border); background:var(--surface-2); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; color:var(--text); cursor:pointer; transition:all 0.15s; text-align:center; }
   .btn:active { border-color:var(--fern); background:rgba(107,175,122,0.1); }
   .btn.correct { border-color:var(--teal);  background:var(--teal-dim);  color:var(--teal-text); }
   .btn.wrong   { border-color:var(--earth); background:var(--earth-dim); color:var(--earth-text); }
-  .btn.reveal  { border-color:var(--moss);  background:rgba(74,124,89,0.12); color:#8FD9A8; }
+  .btn.reveal  { border-color:var(--moss);  background:rgba(74,124,89,0.12); color:var(--teal-text); }
   .btn:disabled { cursor:default; }
 
   .book-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:5px; margin-bottom:8px; max-height:250px; overflow-y:auto; padding-right:3px; }
@@ -246,7 +253,7 @@
   .book-btn:active { border-color:var(--fern); color:var(--text); background:rgba(107,175,122,0.1); }
   .book-btn.correct { border-color:var(--teal);  background:var(--teal-dim);  color:var(--teal-text); }
   .book-btn.wrong   { border-color:var(--earth); background:var(--earth-dim); color:var(--earth-text); }
-  .book-btn.reveal  { border-color:var(--moss);  background:rgba(74,124,89,0.12); color:#8FD9A8; }
+  .book-btn.reveal  { border-color:var(--moss);  background:rgba(74,124,89,0.12); color:var(--teal-text); }
   .book-btn:disabled { cursor:default; }
 
   .chapter-grid { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; max-height:190px; overflow-y:auto; }
@@ -254,7 +261,7 @@
   .chapter-btn:active { border-color:var(--fern); color:var(--text); background:rgba(107,175,122,0.1); }
   .chapter-btn.correct { border-color:var(--teal);  background:var(--teal-dim);  color:var(--teal-text); }
   .chapter-btn.wrong   { border-color:var(--earth); background:var(--earth-dim); color:var(--earth-text); }
-  .chapter-btn.reveal  { border-color:var(--moss);  background:rgba(74,124,89,0.12); color:#8FD9A8; }
+  .chapter-btn.reveal  { border-color:var(--moss);  background:rgba(74,124,89,0.12); color:var(--teal-text); }
   .chapter-btn:disabled { cursor:default; }
 
   /* Difficulty feature styles */
@@ -270,7 +277,7 @@
   .feedback { min-height:26px; font-size:0.83rem; font-weight:600; margin-top:8px; letter-spacing:0.02em; }
   .feedback.correct { color:var(--teal-text); }
   .feedback.wrong   { color:var(--earth-text); }
-  .points-pop { display:inline-block; background:var(--moss); color:#DFF0E3; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:20px; margin-left:6px; animation:pop 0.4s ease; }
+  .points-pop { display:inline-block; background:#355f42; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:20px; margin-left:6px; animation:pop 0.4s ease; }
   @keyframes pop { 0%{transform:scale(0.5);opacity:0} 60%{transform:scale(1.25)} 100%{transform:scale(1);opacity:1} }
 
   .divider { border:none; border-top:1px solid var(--border); margin:18px 0 14px; }
@@ -313,7 +320,7 @@
   .lb-row td { padding:12px 12px; font-size:0.88rem; color:var(--text); }
   .lb-row td:last-child { text-align:right; font-weight:700; color:var(--teal-text); }
   .lb-rank { font-weight:700; color:var(--text-muted); font-size:0.82rem; }
-  .lb-rank.gold   { color:#F4B942; }
+  .lb-rank.gold   { color:var(--gold-text); }
   .lb-rank.silver { color:#A8B8C8; }
   .lb-rank.bronze { color:#C8873A; }
   .lb-name { font-weight:600; }
@@ -372,12 +379,12 @@
   .endless-hud-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:1px; padding:9px 0; border-right:1px solid var(--border); font-size:0.75rem; color:var(--text-muted); letter-spacing:0.06em; text-transform:uppercase; }
   .endless-hud-item:last-child { border-right:none; }
   .endless-hud-item strong { color:var(--text); font-size:1.15rem; font-weight:700; display:block; letter-spacing:-0.01em; }
-  .endless-hud-item .multiplier { color:#F4B942; font-size:1rem; font-weight:700; }
+  .endless-hud-item .multiplier { color:var(--gold-text); font-size:1rem; font-weight:700; }
   .endless-badge { background:linear-gradient(135deg,#4A7C59,#3BBFA0); color:white; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.06em; }
-  .endless-verse-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:#F4B942; margin-bottom:12px; display:flex; align-items:center; gap:8px; font-weight:600; }
+  .endless-verse-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--gold-text); margin-bottom:12px; display:flex; align-items:center; gap:8px; font-weight:600; }
   .endless-verse-label::after { content:''; flex:1; height:1px; background:#F4B94230; }
   .bank-bar { display:flex; gap:8px; margin-bottom:8px; }
-  .btn-bank { flex:1; padding:10px; background:rgba(244,185,66,0.1); border:1.5px solid #F4B942; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:700; color:#F4B942; cursor:pointer; }
+  .btn-bank { flex:1; padding:10px; background:rgba(244,185,66,0.1); border:1.5px solid #F4B942; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:700; color:var(--gold-text); cursor:pointer; }
   .btn-bank:active { background:rgba(244,185,66,0.2); }
   .game-over-endless { text-align:center; padding:16px 0 6px; }
   .endless-final { font-size:3.2rem; font-weight:700; line-height:1; margin:12px 0 2px; background:linear-gradient(135deg,#F4B942,#3BBFA0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
@@ -508,7 +515,7 @@
   .challenge-result { text-align:center; font-size:0.82rem; font-weight:700; padding:6px; border-radius:8px; margin-bottom:8px; }
   .challenge-result.win { background:var(--teal-dim); color:var(--teal-text); }
   .challenge-result.lose { background:var(--earth-dim); color:var(--earth-text); }
-  .challenge-result.pending { background:rgba(244,185,66,0.1); color:#F4B942; }
+  .challenge-result.pending { background:rgba(244,185,66,0.1); color:var(--gold-text); }
   .challenge-result.expired { background:var(--surface-2); color:var(--text-muted); }
 
   /* Avatar System */
@@ -559,7 +566,7 @@
   .btn-friend-action.accept { border-color:var(--teal); color:var(--teal-text); background:var(--teal-dim); }
   .btn-friend-action.decline { border-color:var(--earth); color:var(--earth-text); background:var(--earth-dim); }
   .btn-friend-action.message { border-color:var(--nav-active); color:var(--nav-active); background:rgba(var(--accent-rgb),0.08); }
-  .btn-friend-action.challenge { border-color:#F4B942; color:#F4B942; background:rgba(244,185,66,0.08); }
+  .btn-friend-action.challenge { border-color:#F4B942; color:var(--gold-text); background:rgba(244,185,66,0.08); }
   .notif-badge { position:absolute; top:-4px; right:-4px; background:#E53E3E; color:white; font-size:0.75rem; font-weight:700; border-radius:10px; padding:2px 5px; min-width:18px; text-align:center; }
   .notif-item { display:flex; align-items:flex-start; gap:10px; padding:12px 16px; border-bottom:1px solid var(--border); }
   .notif-item.unread { background:rgba(var(--accent-rgb),0.05); }
@@ -620,7 +627,7 @@
   .champion-card { background:var(--surface); border:1.5px solid #F4B942; border-radius:20px; padding:28px 24px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto; }
   .champion-header { text-align:center; margin-bottom:20px; }
   .champion-icon { font-size:3rem; margin-bottom:8px; }
-  .champion-title { font-size:1.3rem; font-weight:700; color:#F4B942; margin-bottom:4px; }
+  .champion-title { font-size:1.3rem; font-weight:700; color:var(--gold-text); margin-bottom:4px; }
   .champion-subtitle { font-size:0.82rem; color:var(--text-muted); }
   .champion-section { margin-bottom:16px; }
   .champion-section-title { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
@@ -629,7 +636,7 @@
   .champion-row:last-child { border-bottom:none; }
   .champion-rank { font-size:1.2rem; width:28px; text-align:center; flex-shrink:0; }
   .champion-name { flex:1; font-size:0.88rem; font-weight:600; color:var(--text); }
-  .champion-score { font-size:0.88rem; font-weight:700; color:#F4B942; }
+  .champion-score { font-size:0.88rem; font-weight:700; color:var(--gold-text); }
   .btn-champion-close { width:100%; padding:14px; background:linear-gradient(135deg,#4A7C59,#3BBFA0); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:700; color:white; cursor:pointer; margin-top:16px; }
 
   /* Game leaderboards */
@@ -763,7 +770,7 @@
 
   /* Fill in the Blank */
   .blank-verse { font-family:'DM Mono',monospace; font-size:clamp(0.9rem,2.4vw,1.05rem); line-height:2.2; color:var(--text); margin-bottom:16px; }
-  .blank-word { display:inline-block; min-width:80px; border-bottom:2px solid var(--fern); color:var(--fern); font-weight:700; text-align:center; margin:0 4px; cursor:pointer; padding:0 6px; border-radius:4px; transition:all 0.15s; }
+  .blank-word { display:inline-block; min-width:80px; border-bottom:2px solid var(--fern); color:var(--teal-text); font-weight:700; text-align:center; margin:0 4px; cursor:pointer; padding:0 6px; border-radius:4px; transition:all 0.15s; }
   @media (hover:hover) and (pointer:fine) {.blank-word:hover { background:rgba(107,175,122,0.1); }}
   .blank-word.revealed { color:var(--teal-text); border-color:var(--teal); background:var(--teal-dim); }
   .blank-word.wrong { color:var(--earth-text); border-color:var(--earth); background:var(--earth-dim); }
@@ -784,7 +791,7 @@
   .ref-option:active { border-color:var(--fern); background:rgba(107,175,122,0.1); }
   .ref-option.correct { border-color:var(--teal); background:var(--teal-dim); color:var(--teal-text); }
   .ref-option.wrong   { border-color:var(--earth); background:var(--earth-dim); color:var(--earth-text); }
-  .ref-option.reveal  { border-color:var(--moss); background:rgba(74,124,89,0.12); color:#8FD9A8; }
+  .ref-option.reveal  { border-color:var(--moss); background:rgba(74,124,89,0.12); color:var(--teal-text); }
   .ref-option:disabled { cursor:default; }
 
   /* Answer feedback: right answers pop and glow, wrong ones shake, the revealed answer fades in */
@@ -795,7 +802,7 @@
   :is(.btn,.book-btn,.chapter-btn,.blank-option,.ref-option,.story-choice,.word-chip).wrong { animation:ansWrong .4s ease; }
   :is(.btn,.book-btn,.chapter-btn,.ref-option).reveal { animation:ansReveal .7s ease; }
   .feedback.correct, .feedback.wrong, .story-feedback.correct, .story-feedback.wrong { animation:fadeIn .25s ease; }
-  .ref-option-letter { width:28px; height:28px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:0.78rem; font-weight:700; flex-shrink:0; }
+  .ref-option-letter { width:28px; height:28px; border-radius:50%; background:rgba(var(--accent-rgb),0.14); color:var(--text); display:flex; align-items:center; justify-content:center; font-size:0.78rem; font-weight:700; flex-shrink:0; }
 
   /* Guest submit */
   .guest-submit-box { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:12px; text-align:center; }
@@ -832,9 +839,9 @@
   .fg-margin-line { position:absolute; left:32px; top:0; bottom:0; width:1px; background:rgba(200,64,26,0.18); pointer-events:none; }
   .fg-page-inner { padding:16px 14px 24px 42px; position:relative; }
   .fg-guide-header { border-bottom:1.5px solid rgba(139,105,20,0.3); padding-bottom:10px; margin-bottom:12px; }
-  .fg-guide-label { font-size:0.75rem; font-weight:700; color:#9a6028; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:2px; font-family:Georgia,serif; }
+  .fg-guide-label { font-size:0.75rem; font-weight:700; color:#7a4a18; text-transform:uppercase; letter-spacing:0.14em; margin-bottom:2px; font-family:Georgia,serif; }
   .fg-guide-title { font-size:1rem; font-weight:700; color:#2e1c00; font-family:Georgia,serif; }
-  .fg-guide-sub { font-size:0.75rem; color:#9a7040; font-style:italic; margin-top:1px; font-family:Georgia,serif; }
+  .fg-guide-sub { font-size:0.75rem; color:#6e5028; font-style:italic; margin-top:1px; font-family:Georgia,serif; }
   .fg-path-entry { padding:10px 0; border-bottom:1px solid rgba(139,105,20,0.18); }
   .fg-path-entry:last-of-type { border-bottom:none; }
   .fg-path-tappable { cursor:pointer; }
@@ -842,18 +849,18 @@
   .fg-num { width:22px; height:22px; border-radius:50%; font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-right:10px; margin-top:2px; font-family:Georgia,serif; }
   .fg-num-done { background:#c8941a; color:white; }
   .fg-num-active { background:#7a3810; color:#f4c050; border:2px solid #f4b942; }
-  .fg-num-lock { background:#e8d8b0; color:#9a8050; border:1px solid #c4a060; }
+  .fg-num-lock { background:#e8d8b0; color:#6b5530; border:1px solid #c4a060; }
   .fg-path-body { flex:1; overflow:hidden; }
   .fg-path-title { font-size:0.87rem; font-weight:700; color:#2e1c00; margin-bottom:1px; font-family:Georgia,serif; }
   .fg-path-sub { font-size:0.75rem; color:#7a5010; font-style:italic; font-family:Georgia,serif; }
   .fg-path-meta { display:flex; align-items:center; gap:7px; margin-top:4px; flex-wrap:wrap; }
   .fg-stars { font-size:12px; color:#c8941a; letter-spacing:1px; }
-  .fg-pct { font-size:0.75rem; color:#9a7030; background:rgba(139,105,20,0.12); padding:1px 6px; border-radius:10px; font-family:Georgia,serif; }
-  .fg-stamp { display:inline-block; border:1.5px solid #c8401a; color:#c8401a; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:1px 5px; border-radius:3px; transform:rotate(-2deg); font-family:Georgia,serif; }
-  .fg-stamp-done { border-color:#5aaa30; color:#5aaa30; transform:rotate(1deg); }
-  .fg-lock-text { font-size:0.75rem; color:#9a7030; font-family:Georgia,serif; font-style:italic; }
+  .fg-pct { font-size:0.75rem; color:#6e5020; background:rgba(139,105,20,0.12); padding:1px 6px; border-radius:10px; font-family:Georgia,serif; }
+  .fg-stamp { display:inline-block; border:1.5px solid #a83410; color:#a83410; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:1px 5px; border-radius:3px; transform:rotate(-2deg); font-family:Georgia,serif; }
+  .fg-stamp-done { border-color:#2e6b14; color:#2e6b14; transform:rotate(1deg); }
+  .fg-lock-text { font-size:0.75rem; color:#6e5020; font-family:Georgia,serif; font-style:italic; }
   .fg-paw-sig { text-align:right; margin-top:12px; opacity:0.28; }
-  .fg-page-num { text-align:right; margin-top:8px; font-size:0.75rem; color:#9a7040; font-style:italic; font-family:Georgia,serif; }
+  .fg-page-num { text-align:right; margin-top:8px; font-size:0.75rem; color:#6e5028; font-style:italic; font-family:Georgia,serif; }
   .fg-cover { background:linear-gradient(160deg,#5a2808,#3a1804); min-height:480px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px 20px; text-align:center; cursor:pointer; }
   .fg-cover-emblem { width:80px; height:80px; border-radius:50%; border:1.5px solid rgba(196,160,96,0.35); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; }
   .fg-cover-title { font-family:Georgia,serif; font-size:1.1rem; font-weight:700; color:#f4c050; line-height:1.35; margin-bottom:6px; }
@@ -867,13 +874,14 @@
   .fg-ch-n { width:20px; height:20px; border-radius:50%; font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:Georgia,serif; }
   .fg-ch-done { background:#c8941a; color:white; }
   .fg-ch-next { background:#7a3810; color:#f4c050; border:1.5px solid #f4b942; }
-  .fg-ch-lock { background:#e8d8b0; color:#9a8050; border:1px solid #c4a060; }
+  .fg-ch-lock { background:#e8d8b0; color:#6b5530; border:1px solid #c4a060; }
   .fg-ch-title { font-family:Georgia,serif; font-size:0.79rem; color:#2e1c00; flex:1; }
   .fg-ch-stars { font-size:12px; color:#f4b942; letter-spacing:0.5px; }
   .fg-begin-btn { width:100%; padding:10px; background:linear-gradient(135deg,#7a3810,#5a2808); border:none; border-radius:10px; color:#f4c050; font-size:0.85rem; font-weight:700; cursor:pointer; font-family:Georgia,serif; margin-top:12px; }
 
   /* ── Re-theme shared gameplay UI when it renders inside the journal page ── */
   .fg-page-inner {
+    --nav-active:   #6b3410;
     --surface:      #f5e8c8;
     --surface-2:    #efe0b8;
     --border:       rgba(139,105,20,0.35);
@@ -893,10 +901,10 @@
   .fg-page-inner .chapter-narrative { font-family:Georgia,serif; }
   .fg-page-inner .chapter-verse-reveal { background:rgba(139,105,20,0.08); border-color:#c8941a; }
   .fg-page-inner .chapter-verse-label,
-  .fg-page-inner .chapter-verse-ref { font-family:Georgia,serif; color:#9a6028; }
+  .fg-page-inner .chapter-verse-ref { font-family:Georgia,serif; color:#7a4a18; }
   .fg-page-inner .chapter-verse-text { font-family:Georgia,serif; }
   .fg-page-inner .divider { border-top-color:rgba(139,105,20,0.25); }
-  .fg-page-inner .story-round-label { font-family:Georgia,serif; color:#9a6028; }
+  .fg-page-inner .story-round-label { font-family:Georgia,serif; color:#7a4a18; }
   .fg-page-inner .story-round-dot.active { background:#c8941a; box-shadow:0 0 6px rgba(200,148,26,0.6); }
   .fg-page-inner .story-round-dot.done { background:linear-gradient(90deg,#c8941a,#e8b840); }
   .fg-page-inner .story-choice { font-family:Georgia,serif; }
@@ -919,7 +927,7 @@
   .journal-page::after { content:'';position:absolute;left:50px;top:0;bottom:0;width:1px;background:rgba(200,64,26,0.2);pointer-events:none; }
   .journal-tag { display:inline-block;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:2px 10px;border-radius:20px;margin-bottom:8px; }
   .journal-tag-fire { background:#f4b942;color:#4a2808; }
-  .journal-tag-green { background:#5aaa30;color:white; }
+  .journal-tag-green { background:#2e6b14;color:white; }
   .journal-tag-red { background:#c8401a;color:white; }
   .journal-tag-blue { background:#1a3a9e;color:white; }
   .journal-date { font-family:Georgia,serif;font-size:1rem;font-weight:700;color:#4a2808;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(139,105,20,0.2); }
@@ -934,14 +942,14 @@
   .journal-dot { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;border:1.5px solid; }
   .journal-dot-filled { background:linear-gradient(135deg,#f4b942,#c8901a);border-color:#c8901a;color:white; }
   .journal-dot-today { background:linear-gradient(135deg,#c8401a,#8b2a0a);border-color:#8b2a0a;color:white;box-shadow:0 0 0 3px rgba(200,64,26,0.2); }
-  .journal-dot-sabbath { background:linear-gradient(135deg,#5aaa30,#3a7a18);border-color:#3a7a18;color:white;box-shadow:0 0 0 3px rgba(90,170,48,0.2); }
+  .journal-dot-sabbath { background:linear-gradient(135deg,#2e6b14,#3a7a18);border-color:#3a7a18;color:white;box-shadow:0 0 0 3px rgba(90,170,48,0.2); }
   .journal-dot-empty { background:rgba(255,255,255,0.4);border-color:rgba(139,105,20,0.3);color:#9a6a28; }
   .journal-paw { text-align:right;margin-top:10px;opacity:0.35; }
   .journal-btn { width:100%;padding:13px;background:linear-gradient(135deg,#7a3810,#5a2808);border:none;border-radius:10px;color:#f4c050;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:Georgia,serif;margin-top:14px;letter-spacing:0.02em; }
   .journal-sabbath-page { background:#eef5e8; }
   @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-  .streak-card-done { border:3px solid #5aaa30 !important;background:#f0fae8 padding-box,repeating-linear-gradient(45deg,#5aaa30 0,#5aaa30 4px,#8ade50 4px,#8ade50 8px,#5aaa30 8px,#5aaa30 12px,#8ade50 12px,#8ade50 16px) border-box !important; }
+  .streak-card-done { border:3px solid #2e6b14 !important;background:#f0fae8 padding-box,repeating-linear-gradient(45deg,#2e6b14 0,#2e6b14 4px,#8ade50 4px,#8ade50 8px,#2e6b14 8px,#2e6b14 12px,#8ade50 12px,#8ade50 16px) border-box !important; }
 
 </style>
 </head>
@@ -1082,7 +1090,8 @@ const TOTAL_ROUNDS = 10;
 const POINTS = { testament:300, book:500, chapter:700, verse:900 };
 const ENDLESS_BASE_POINTS = 500;
 function maxPhases() { return (difficulty === 'hard' || endlessMode) ? 4 : 3; }
-function isEndlessUnlocked() { return perfectHardRuns >= 3; }
+// Endless mode is open to everyone (it used to unlock after 3 perfect Hard runs).
+function isEndlessUnlocked() { return true; }
 
 // ═══════════════════════════════════════
 // STATE
@@ -2652,10 +2661,10 @@ function renderDiffScreen() {
     ? `<div class="diff-card" id="endless-btn" style="border-color:#F4B942;background:rgba(244,185,66,0.04);">
         <div class="diff-icon"><img src="icons/diff-endless.svg" width="32" height="32" style="object-fit:contain;" alt="Endless"></div>
         <div class="diff-info">
-          <div class="diff-name" style="color:#F4B942;">Endless Mode</div>
+          <div class="diff-name" style="color:var(--gold-text);">Endless Mode</div>
           <div class="diff-desc">All difficulties mixed. Get one wrong and it's all over. How far can you go?</div>
         </div>
-        <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:#F4B942;border:1px solid #F4B942;">LIVE</div>
+        <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:var(--gold-text);border:1px solid #F4B942;">LIVE</div>
       </div>`
     : `<div class="diff-card" style="opacity:0.5;cursor:default;">
         <div class="diff-icon">${ico('lock', 28)}</div>
@@ -2675,6 +2684,7 @@ function renderDiffScreen() {
 
   document.getElementById('root').innerHTML = `
     <div class="diff-screen">
+      <h2 class="sr-only">Scripture Scout setup</h2>
       <div class="trans-label">Translation</div>
       <div class="translation-switcher" id="diffTransSwitcher">${transButtons}</div>
       <p class="diff-intro">Each round you see a verse and guess the Testament, Book, and Chapter — earning more points with each correct step.</p>
@@ -2748,7 +2758,7 @@ function renderEndlessCard() {
   const dots = [0,1,2,3].map(i=>`<div class="phase-dot ${i<phase?'done':i===phase?'active':''}"></div>`).join('');
   const pts = Math.round(ENDLESS_BASE_POINTS * endlessMultiplier);
   card.innerHTML = `
-    <div class="endless-verse-label">Question ${endlessStreak+1} <span style="color:#F4B942;font-size:0.75rem;margin-left:4px">+${pts} pts per step</span></div>
+    <div class="endless-verse-label">Question ${endlessStreak+1} <span style="color:var(--gold-text);font-size:0.75rem;margin-left:4px">+${pts} pts per step</span></div>
     <div class="verse-text">${quoteVerse(currentVerse.text)}</div>
     <hr class="divider"/>
     <div class="phase-bar">${dots}</div>
@@ -3413,13 +3423,13 @@ let fitbSession = {
 
 function renderFillBlankSetup() {
   const root = document.getElementById('root');
-  const miaEndlessUnlocked = perfectHardMIA >= 3;
+  const miaEndlessUnlocked = true;
   const miaEndlessCard = miaEndlessUnlocked
     ? `<div class="diff-card" id="miaEndlessBtn" style="border-color:#F4B942;background:rgba(244,185,66,0.04);margin-bottom:12px;cursor:pointer;">
           <div class="diff-icon"><img src="icons/diff-endless.svg" width="32" height="32" style="object-fit:contain;" alt="Endless"></div>
-          <div class="diff-info"><div class="diff-name" style="color:#F4B942;">Endless Missing in Action</div>
+          <div class="diff-info"><div class="diff-name" style="color:var(--gold-text);">Endless Missing in Action</div>
           <div class="diff-desc">Keep going until you get a word wrong. One mistake ends the run!</div></div>
-          <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:#F4B942;border:1px solid #F4B942;">LIVE</div>
+          <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:var(--gold-text);border:1px solid #F4B942;">LIVE</div>
         </div>`
     : `<div class="diff-card" style="opacity:0.5;cursor:default;margin-bottom:12px;">
           <div class="diff-icon">${ico('lock', 28)}</div>
@@ -3462,7 +3472,7 @@ function renderFillBlankSetup() {
   let diff = 'easy';
   let size = 10;
 
-  if(perfectHardMIA >= 3) {
+  {
     document.getElementById('miaEndlessBtn')?.addEventListener('click', startMIAEndless);
   }
   document.querySelectorAll('#fitbTransOptions .setup-btn').forEach(btn => {
@@ -3812,7 +3822,7 @@ async function renderFillBlankComplete() {
     perfectHardMIA++;
     localStorage.setItem('ss_perfect_hard_mia', perfectHardMIA);
   }
-  const justUnlockedMIA = s.difficulty === 'hard' && perfectHardMIA === 3;
+  const justUnlockedMIA = false; // Endless is always open now
 
   await updateStreak();
   const miaName = currentUsername || (currentUser ? currentUser.email.split('@')[0] : playerName) || 'Scout';
@@ -3824,7 +3834,7 @@ async function renderFillBlankComplete() {
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div class="verse-label">Missing in Action Complete</div>
-      ${justUnlockedMIA ? `<div style="background:rgba(244,185,66,0.1);border:1px solid #F4B942;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;font-size:0.85rem;color:#F4B942;font-weight:600;">🔓 Endless Missing in Action Unlocked!</div>` : ''}
+      ${justUnlockedMIA ? `<div style="background:rgba(244,185,66,0.1);border:1px solid #F4B942;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;font-size:0.85rem;color:var(--gold-text);font-weight:600;">🔓 Endless Missing in Action Unlocked!</div>` : ''}
       <div style="margin:12px 0;color:var(--nav-active);">${ico('edit',44)}</div>
       <h2 style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:6px;">${pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Well done!' : 'Keep practicing!'}</h2>
       <div style="font-size:3rem;font-weight:700;background:linear-gradient(135deg,#8FD9A8,#3BBFA0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:12px 0;">${s.score.toLocaleString()}</div>
@@ -3847,13 +3857,13 @@ let rcSession = {
 
 function renderRefChallengeSetup() {
   const root = document.getElementById('root');
-  const trackEndlessUnlocked = perfectHardTrack >= 3;
+  const trackEndlessUnlocked = true;
   const trackEndlessCard = trackEndlessUnlocked
     ? `<div class="diff-card" id="trackEndlessBtn" style="border-color:#F4B942;background:rgba(244,185,66,0.04);margin-bottom:12px;cursor:pointer;">
           <div class="diff-icon"><img src="icons/diff-endless.svg" width="32" height="32" style="object-fit:contain;" alt="Endless"></div>
-          <div class="diff-info"><div class="diff-name" style="color:#F4B942;">Endless Track It Down</div>
+          <div class="diff-info"><div class="diff-name" style="color:var(--gold-text);">Endless Track It Down</div>
           <div class="diff-desc">Keep going until you pick a wrong reference. Multiplier increases each round!</div></div>
-          <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:#F4B942;border:1px solid #F4B942;">LIVE</div>
+          <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:var(--gold-text);border:1px solid #F4B942;">LIVE</div>
         </div>`
     : `<div class="diff-card" style="opacity:0.5;cursor:default;margin-bottom:12px;">
           <div class="diff-icon">${ico('lock', 28)}</div>
@@ -3896,7 +3906,7 @@ function renderRefChallengeSetup() {
   let diff = 'easy';
   let size = 10;
 
-  if(perfectHardTrack >= 3) {
+  {
     document.getElementById('trackEndlessBtn')?.addEventListener('click', startTrackEndless);
   }
   document.querySelectorAll('#rcTransOptions .setup-btn').forEach(btn => {
@@ -4068,7 +4078,7 @@ async function renderRefChallengeComplete() {
     perfectHardTrack++;
     localStorage.setItem('ss_perfect_hard_track', perfectHardTrack);
   }
-  const justUnlockedTrack = s.difficulty === 'hard' && perfectHardTrack === 3;
+  const justUnlockedTrack = false; // Endless is always open now
 
   await updateStreak();
   const trackName = currentUsername || (currentUser ? currentUser.email.split('@')[0] : playerName) || 'Scout';
@@ -4080,7 +4090,7 @@ async function renderRefChallengeComplete() {
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div class="verse-label"><img src="icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Track It Down Complete</div>
-      ${justUnlockedTrack ? `<div style="background:rgba(244,185,66,0.1);border:1px solid #F4B942;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;font-size:0.85rem;color:#F4B942;font-weight:600;">🔓 Endless Track It Down Unlocked!</div>` : ''}
+      ${justUnlockedTrack ? `<div style="background:rgba(244,185,66,0.1);border:1px solid #F4B942;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;font-size:0.85rem;color:var(--gold-text);font-weight:600;">🔓 Endless Track It Down Unlocked!</div>` : ''}
       <div style="margin:12px 0;"><img src="icons/target.svg" width="40" height="40" style="object-fit:contain;" alt=""></div>
       <h2 style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:6px;">${pct >= 80 ? 'Sharp as a sword!' : pct >= 60 ? 'Good work!' : 'Keep studying!'}</h2>
       <div style="font-size:3rem;font-weight:700;background:linear-gradient(135deg,#8FD9A8,#3BBFA0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:12px 0;">${pct}%</div>
@@ -4260,7 +4270,7 @@ async function renderStoryPath(pathId) {
       const isLocked = ch.chapter_num > completed + 1;
       const numClass = isDone ? 'fg-ch-done' : isCurrent ? 'fg-ch-next' : 'fg-ch-lock';
       const stars = storyProgress[`stars_${pathId}_${ch.chapter_num}`] || 0;
-      const starsHtml = isDone ? '★'.repeat(stars||1) + '☆'.repeat(3-(stars||1)) : (isCurrent ? '▶' : ico('lock',16));
+      const starsHtml = isDone ? '★'.repeat(stars||1) + '☆'.repeat(3-(stars||1)) : (isCurrent ? '<span style="color:#7a3810;">▶</span>' : '<span style="color:#7a5010;">' + ico('lock',16) + '</span>');
       return `
         <div class="fg-ch-row ${isLocked ? '' : 'fg-path-tappable'}" ${isLocked ? '' : `data-chapter="${ch.id}"`}>
           <div class="fg-ch-n ${numClass}">${isDone ? '✓' : ch.chapter_num}</div>
@@ -5771,7 +5781,7 @@ async function renderTopicTrivia(topic, roundIdx) {
       + '<div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">' + topic.title + ' — Trivia</div>'
       + '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Question ' + (qIdx+1) + ' of ' + questions.length + ' · Score: ' + score + '</div>'
       + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
-      + Array.from({length:questions.length},(_,i)=>'<div style="width:10px;height:10px;border-radius:50%;background:' + (i<qIdx?'#5aaa30':i===qIdx?'#f4b942':'rgba(139,105,20,0.2)') + '"></div>').join('')
+      + Array.from({length:questions.length},(_,i)=>'<div style="width:10px;height:10px;border-radius:50%;background:' + (i<qIdx?'#2e6b14':i===qIdx?'#f4b942':'rgba(139,105,20,0.2)') + '"></div>').join('')
       + '</div></div>'
       + '<div class="card" style="max-width:560px;width:100%">'
       + '<div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">' + (q.diff||'').toUpperCase() + ' · ' + (q.ref||'') + '</div>'
@@ -5816,7 +5826,7 @@ function renderTopicFillin(topic, roundIdx) {
       + '<div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">' + topic.title + ' — Fill in the Blank</div>'
       + '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Verse ' + (vIdx+1) + ' of ' + verses.length + ' · Score: ' + score + '</div>'
       + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
-      + Array.from({length:verses.length},(_,i)=>'<div style="width:10px;height:10px;border-radius:50%;background:' + (i<vIdx?'#5aaa30':i===vIdx?'#60A5FA':'rgba(139,105,20,0.2)') + '"></div>').join('')
+      + Array.from({length:verses.length},(_,i)=>'<div style="width:10px;height:10px;border-radius:50%;background:' + (i<vIdx?'#2e6b14':i===vIdx?'#60A5FA':'rgba(139,105,20,0.2)') + '"></div>').join('')
       + '</div></div>'
       + '<div class="card" style="max-width:560px;width:100%">'
       + '<div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);margin-bottom:10px;">' + v.ref + '</div>'
@@ -5944,7 +5954,7 @@ function renderTopicScoutCard(topic) {
     + '<div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">' + topic.title + ' — Scripture Scout</div>'
     + '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Verse ' + (_teScoutVersesFound+1) + ' of 3 · Score: ' + _teScoutScore + '</div>'
     + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
-    + [0,1,2].map(i => '<div style="width:10px;height:10px;border-radius:50%;background:' + (i<_teScoutVersesFound?'#5aaa30':i===_teScoutVersesFound?'#34D399':'rgba(139,105,20,0.2)') + '"></div>').join('')
+    + [0,1,2].map(i => '<div style="width:10px;height:10px;border-radius:50%;background:' + (i<_teScoutVersesFound?'#2e6b14':i===_teScoutVersesFound?'#34D399':'rgba(139,105,20,0.2)') + '"></div>').join('')
     + '</div></div>'
     + '<div class="card">'
     + '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;text-align:center;">Which book and where is this verse?</div>'
@@ -6357,14 +6367,14 @@ function renderTriviaQuestion() {
       <div style="font-size:0.78rem;color:var(--text-muted);">Q ${s.current+1}${s.mode==='normal'?' / 10':''}</div>
       <div style="font-size:0.88rem;font-weight:700;color:var(--teal-text);">${s.score.toLocaleString()} pts</div>
     </div>
-    <div style="height:6px;background:var(--surface-2);border-radius:3px;margin-bottom:16px;overflow:hidden;">
+    <div role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progress)}" style="height:6px;background:var(--surface-2);border-radius:3px;margin-bottom:16px;overflow:hidden;">
       <div style="height:100%;background:var(--teal);border-radius:3px;width:${progress}%;transition:width 0.3s;"></div>
     </div>
     <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;">
       <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:700;margin-bottom:8px;">
         ${q.diff==='easy'?'<img src="icons/diff-easy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Easy · +100pts':q.diff==='medium'?'<img src="icons/diff-medium.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Medium · +200pts':'<img src="icons/diff-hard.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Hard · +300pts'}
       </div>
-      <div style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.5;font-family:Georgia,serif;">${q.q}</div>
+      <div role="heading" aria-level="2" style="font-size:1rem;font-weight:600;color:var(--text);line-height:1.5;font-family:Georgia,serif;">${q.q}</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;" id="triviaChoices">
       ${shuffledChoices.map(c=>`
@@ -6373,13 +6383,16 @@ function renderTriviaQuestion() {
           ${c}
         </button>`).join('')}
     </div>
-    <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:10px;">${ico('book',14)} ${q.ref}</div>`;
+    <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:10px;">${ico('book',14)} ${q.ref}</div>
+    <div id="triviaFeedback" class="sr-only" role="status" aria-live="polite"></div>`;
 }
 
 function checkTriviaAnswer(btn, chosen, pts) {
   const s = triviaSession;
   const q = s.questions[s.current];
   const correct = chosen === q.a;
+  const tf = document.getElementById('triviaFeedback');
+  if (tf) tf.textContent = correct ? 'Correct.' : 'Incorrect. The answer is ' + q.a + '.';
   document.querySelectorAll('#triviaChoices button').forEach(b => {
     b.disabled = true;
     const bText = b.textContent.trim();
@@ -6394,10 +6407,10 @@ function checkTriviaAnswer(btn, chosen, pts) {
     playCorrect(); showRandyReaction('happy');
   } else {
     s.wrong++; playWrong(); showRandyReaction('sad');
-    if(s.mode==='endless'){setTimeout(()=>renderTriviaComplete(),1500);return;}
+    if(s.mode==='endless'){setTimeout(()=>renderTriviaComplete(),2200);return;}
   }
   s.current++;
-  setTimeout(()=>renderTriviaQuestion(),1200);
+  setTimeout(()=>renderTriviaQuestion(),2000);
 }
 
 async function renderTriviaComplete() {
@@ -6948,7 +6961,7 @@ async function renderChallenges() {
           </div>
           <div style="display:flex;align-items:center;font-size:0.85rem;font-weight:700;color:var(--text-muted);">vs</div>
           <div class="challenge-score-box">
-            <div class="challenge-score-val" style="color:#F4B942;">${(isMine ? (c.opponent_score ?? '—') : c.challenger_score).toLocaleString?.() || '—'}</div>
+            <div class="challenge-score-val" style="color:var(--gold-text);">${(isMine ? (c.opponent_score ?? '—') : c.challenger_score).toLocaleString?.() || '—'}</div>
             <div class="challenge-score-label">${escapeHtml(theirName.split(' ')[0])}'s Score</div>
           </div>
         </div>
@@ -7079,8 +7092,8 @@ function challengeHUD() {
 
   return `<div style="text-align:center;padding:12px 16px 0;">
     <div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">Challenge mode</div>
-    ${target ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px;">Beat <strong style="color:#F4B942;">${target.toLocaleString()} pts</strong> to win!</div>` : ''}
-    <div id="challengeSpeedBonus" style="font-size:0.78rem;color:#F4B942;margin-top:2px;">Speed bonus: +500 pts</div>
+    ${target ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px;">Beat <strong style="color:var(--gold-text);">${target.toLocaleString()} pts</strong> to win!</div>` : ''}
+    <div id="challengeSpeedBonus" style="font-size:0.78rem;color:var(--gold-text);margin-top:2px;">Speed bonus: +500 pts</div>
   </div>`;
 }
 
@@ -7370,7 +7383,7 @@ async function finishChallenge(score, verse) {
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div style="margin-bottom:12px;color:var(--nav-active);">${ico(won?'trophy':tied?'handshake':'swords', 48)}</div>
       <div style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:8px;">${won?'You won!':tied?'Tied!':'So close!'}</div>
-      ${timeBonus > 0 ? `<div style="font-size:0.82rem;color:#F4B942;margin-bottom:8px;">Speed bonus: +${timeBonus} pts</div>` : ''}
+      ${timeBonus > 0 ? `<div style="font-size:0.82rem;color:var(--gold-text);margin-bottom:8px;">Speed bonus: +${timeBonus} pts</div>` : ''}
       <div style="display:flex;gap:12px;justify-content:center;margin:16px 0;">
         <div class="challenge-score-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;">
           <div style="font-size:1.5rem;font-weight:700;color:var(--teal-text);">${totalScore.toLocaleString()}</div>
@@ -7378,7 +7391,7 @@ async function finishChallenge(score, verse) {
         </div>
         <div style="display:flex;align-items:center;font-size:0.85rem;font-weight:700;">vs</div>
         <div class="challenge-score-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;">
-          <div style="font-size:1.5rem;font-weight:700;color:#F4B942;">${ch.challengerScore.toLocaleString()}</div>
+          <div style="font-size:1.5rem;font-weight:700;color:var(--gold-text);">${ch.challengerScore.toLocaleString()}</div>
           <div style="font-size:0.75rem;color:var(--text-muted);">Their Score</div>
         </div>
       </div>
@@ -8009,7 +8022,7 @@ const ALL_BADGES = [
   { id:'perfect_10',  name:'Flawless',         desc:'10 perfect scores',      cat:'performance' },
   { id:'top_1',       name:'Leaderboard King', desc:'Reach #1 on any board',  cat:'performance' },
   { id:'hard_3',      name:'Hard Mode Hero',   desc:'3 perfect Hard runs',    cat:'performance' },
-  { id:'endless',     name:'Endless Explorer', desc:'Unlock Endless Mode',    cat:'performance' },
+  { id:'endless',     name:'Endless Explorer', desc:'Complete a perfect Hard run',    cat:'performance' },
   { id:'score_10k',   name:'High Roller',      desc:'Score 10,000+ pts',      cat:'performance' },
   { id:'all_games',   name:'Scout',            desc:'Play all 4 games',       cat:'exploration' },
   { id:'story_start', name:'Story Seeker',     desc:'Start Story Mode',       cat:'exploration' },
@@ -8837,7 +8850,7 @@ async function updateStreak(bonusDay=false) {
     const streakSub = document.getElementById('homeStreakSub');
     if(streakSub) { streakSub.textContent = 'streak earned today!'; streakSub.style.color = '#4a8a28'; streakSub.style.fontWeight = '700'; }
     const streakBadge = document.getElementById('homeStreakBadge');
-    if(streakBadge) { streakBadge.textContent = '✓ Done'; streakBadge.style.background = '#e0f4d0'; streakBadge.style.color = '#4a8a28'; streakBadge.style.border = '1px solid #5aaa30'; }
+    if(streakBadge) { streakBadge.textContent = '✓ Done'; streakBadge.style.background = '#e0f4d0'; streakBadge.style.color = '#4a8a28'; streakBadge.style.border = '1px solid #2e6b14'; }
   }
 }
 
@@ -10141,7 +10154,7 @@ function renderDailyTriviaGame(topic) {
       <div style="text-align:center;margin-top:12px;">
         <div style="font-size:0.88rem;font-weight:700;color:var(--text);">Score: ${score}</div>
         <div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">
-          ${Array.from({length:questions.length},(_,i)=>`<div style="width:10px;height:10px;border-radius:50%;background:${i<qIdx?'#5aaa30':i===qIdx?'#f4b942':'rgba(139,105,20,0.2)'}"></div>`).join('')}
+          ${Array.from({length:questions.length},(_,i)=>`<div style="width:10px;height:10px;border-radius:50%;background:${i<qIdx?'#2e6b14':i===qIdx?'#f4b942':'rgba(139,105,20,0.2)'}"></div>`).join('')}
         </div>
       </div>`;
 
@@ -10879,6 +10892,34 @@ if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
     });
     syncDialogs();
     syncHeading();
+    syncBlanks();
+    syncFocus();
+  }
+
+  // Fill-in-the-blank slots are spans showing "?????": give them a meaningful name and state.
+  function syncBlanks() {
+    const root = document.getElementById('root');
+    if (!root) return;
+    const blanks = [...root.querySelectorAll('.blank-word')];
+    blanks.forEach((b, i) => {
+      const t = b.textContent.trim();
+      const filled = t && !/^[?\s]+$/.test(t);
+      b.setAttribute('aria-label', 'Blank ' + (i + 1) + ' of ' + blanks.length + (filled ? ': ' + t + '. Activate to clear.' : ': empty'));
+    });
+  }
+
+  // When a screen is rebuilt (next question, next chapter) the focused button disappears and focus falls
+  // to the page. Put it back at the new screen's heading so keyboard and screen-reader users keep their place.
+  let lastFocused = null;
+  const noteFocus = e => { const t = e.target.closest && e.target.closest('#root button,#root [role=button],#root a,#root input,#root select,#root textarea,#root [tabindex]'); lastFocused = t || (e.target.closest && e.target.closest('#root') ? e.target : null); };
+  document.addEventListener('focusin', noteFocus);
+  document.addEventListener('click', noteFocus, true); // some platforms don't focus a tapped button, so track the tap too
+  function syncFocus() {
+    if (!lastFocused || document.contains(lastFocused)) return;
+    lastFocused = null;
+    const root = document.getElementById('root');
+    const h = root && root.querySelector('h1,h2,h3,[role=heading]');
+    if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
   }
 
   // ── Dialogs: name them, move focus in, keep it in, and give it back on close ──
