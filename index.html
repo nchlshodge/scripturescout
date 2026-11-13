@@ -9601,6 +9601,7 @@ const DAILY_TOPICS = ["faith", "prayer", "love", "grace", "hope", "forgiveness",
 // Cache today's topic and verse pool
 let _dailyTopicCache = null;
 let _dailyVersePool = null;
+let _dailyCacheDay = null; // which day the in-memory cache belongs to, so an app left open overnight refreshes
 
 // ═══════════════════════════════════════
 // DAILY TRIVIA TOPIC SYSTEM
@@ -9967,13 +9968,14 @@ function getDailyTriviaQuestions(topic, count=5) {
 // Today's topic from the curated list, picked by day-of-year. Shared by the home screen
 // theme label and the Daily Challenge so they always agree.
 function getTodaysTopic() {
+  // Count calendar days (not raw milliseconds) so daylight-saving changes can't shift the topic by an hour.
   const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((now - start) / 86400000);
+  const dayOfYear = Math.round((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000);
   return DAILY_TOPICS[dayOfYear % DAILY_TOPICS.length];
 }
 
 async function getDailyTopicAndVerses() {
+  if(_dailyCacheDay !== getDailyKey()) { _dailyTopicCache = null; _dailyVersePool = null; _dailyCacheDay = getDailyKey(); }
   if(_dailyTopicCache && _dailyVersePool) return { topic: _dailyTopicCache, verses: _dailyVersePool };
 
   // Check localStorage cache first
@@ -10046,9 +10048,10 @@ async function submitDailyScore(game, score) {
 }
 
 async function fetchDailyLeaderboard(game) {
-  const today = getDailyKey();
-  const since = new Date(today).toISOString();
-  const tomorrow = new Date(new Date(today).getTime() + 86400000).toISOString();
+  // The player's local day. (new Date('YYYY-MM-DD') would be midnight UTC and cut the window short for anyone west of UTC.)
+  const now = new Date();
+  const since = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString();
   // Sort by score desc, then created_at asc — first to get the score wins tiebreaker
   return sbFetch(`leaderboard_daily?game=eq.${game}&created_at=gte.${since}&created_at=lt.${tomorrow}&order=score.desc,created_at.asc&limit=10&select=*`);
 }

@@ -8,4 +8,8 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
   real function, no `${...}` leaking into plain strings, the Content Security Policy, no secret keys, required
   files, and that the privacy policy covers what the app does.
 
+- `daily.test.js` checks the Daily Challenge dates with a fake clock in several time zones: the day key, per-day
+  completion, the daily topic (including daylight-saving and year boundaries), the leaderboard's day window and
+  the overnight cache refresh.
+
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.
