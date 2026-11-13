@@ -52,11 +52,20 @@ test('every file the service worker caches actually exists, and is copied into t
   }
 });
 
+test('every icon, story icon and badge on disk is cached for offline use', () => {
+  const listed = new Set([...SW.matchAll(/^\s+'([^']+)',$/gm)].map(m => m[1]));
+  for (const dir of ['icons', 'story-icons', 'badges']) {
+    for (const f of fs.readdirSync(path.join(ROOT, dir)).filter(f => !f.startsWith('.'))) {
+      assert.ok(listed.has(`${dir}/${f}`), `${dir}/${f} is not in the service worker's list`);
+    }
+  }
+});
+
 test('installing caches the app shell, and one missing file does not block the install', async () => {
   const files = ALL_FILES(); delete files['randy-sad.webp']; delete files['randy-happy.webp'];
   const w = makeWorker({ files });
   await w.fire('install', {});
-  const cached = [...w.stores['ss-shell-v1'].keys()];
+  const cached = [...w.stores['ss-shell-v2'].keys()];
   assert.ok(cached.includes('index.html') && cached.includes('vendor/supabase-js-2.119.0.js'));
 });
 
@@ -69,7 +78,7 @@ test('offline, opening the app serves the saved page; online, the fresh page is 
   w.setOnline(true);
   const fresh = await w.fire('fetch', { request: req('https://scripturescout.test/index.html', { mode: 'navigate' }) });
   assert.equal(fresh.body, 'net:index.html');
-  assert.equal(w.stores['ss-shell-v1'].get('index.html').body, 'net:index.html');
+  assert.equal(w.stores['ss-shell-v2'].get('index.html').body, 'net:index.html');
 });
 
 test('with nothing saved yet, going offline fails normally instead of serving junk', async () => {
@@ -119,7 +128,7 @@ test('activating removes old Scripture Scout caches but not other sites\' caches
   await w.fire('install', {});
   await w.fire('activate', {});
   assert.ok(!('ss-shell-v0' in w.stores));
-  assert.ok('ss-shell-v1' in w.stores && 'other-cache' in w.stores);
+  assert.ok('ss-shell-v2' in w.stores && 'other-cache' in w.stores);
 });
 
 // ── The app itself ────────────────────────────────────────────────────────────

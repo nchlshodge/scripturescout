@@ -926,6 +926,7 @@ function updateOnlineStatus() {
 }
 window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
+window.addEventListener('online', () => { flushPendingWrites(); refreshOfflinePack(); });
 
 let _offlineCheckTimer = null;
 function scheduleOfflineCheck() {
@@ -1301,7 +1302,7 @@ async function apiWrite(url, options) {
 
 // Runs a save once, retries after a short pause (covers a dropped connection), and tells the player if
 // it still failed so a score or progress isn't lost without them knowing.
-async function saveWithRetry(fn, what) {
+async function saveWithRetry(fn, what, quiet=false) {
   for (let attempt = 0; attempt < 2; attempt++) {
     try { return await fn(); }
     catch(e) {
@@ -1309,7 +1310,7 @@ async function saveWithRetry(fn, what) {
       if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
     }
   }
-  showStreakToast("Couldn't save your " + what + ". Check your connection and try again.");
+  if (!quiet) showStreakToast("Couldn't save your " + what + ". Check your connection and try again.");
   return null;
 }
 
@@ -1329,6 +1330,212 @@ async function sbFetch(path, options={}, _retried=false) {
   }
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json();
+}
+
+// ═══════════════════════════════════════
+// OFFLINE PLAY: saved questions/stories and a save queue
+// ═══════════════════════════════════════
+// While online the app quietly saves a copy of the Bible trivia questions, the Story Mode
+// paths/chapters and each chapter's verse on the device (about 1 MB, refreshed daily).
+// With no connection those screens read the saved copy instead. Progress and scores earned
+// offline wait in a small queue on the device and are sent when the connection is back.
+const PACK_KEYS = { meta:'ss_pack_meta', paths:'ss_pack_paths', chapters:'ss_pack_chapters', trivia:'ss_pack_trivia', verses:'ss_pack_verses' };
+const PACK_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const PENDING_KEY = 'ss_pending_writes';
+
+function packGet(key) {
+  try { const v = localStorage.getItem(PACK_KEYS[key]); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+}
+function packSet(key, value) {
+  try { localStorage.setItem(PACK_KEYS[key], JSON.stringify(value)); return true; } catch(e) { return false; }   // storage full or blocked: play online as before
+}
+
+// Tries the live data; if that fails and a saved copy exists, uses the saved copy.
+async function packedRead(fetcher, fromPack) {
+  try { return await fetcher(); }
+  catch(e) {
+    const saved = fromPack();
+    if (saved !== null && saved !== undefined) return saved;
+    throw e;
+  }
+}
+const sameId = (a, b) => String(a) === String(b);
+
+function getStoryPaths() {
+  return packedRead(
+    () => sbFetch('story_paths?order=order_num&select=*'),
+    () => { const p = packGet('paths'); return p && p.length ? [...p].sort((a, b) => a.order_num - b.order_num) : null; });
+}
+async function getStoryPath(pathId) {
+  const rows = await packedRead(
+    () => sbFetch(`story_paths?id=eq.${pathId}&select=*`),
+    () => { const p = packGet('paths'); return p && p.length ? p.filter(x => sameId(x.id, pathId)) : null; });
+  return rows[0];
+}
+// pathId null: every chapter's id and path (to count chapters per path). Otherwise that path's chapters in order.
+function getStoryChapters(pathId = null) {
+  return packedRead(
+    () => pathId === null ? sbFetch('story_chapters?select=id,path_id') : sbFetch(`story_chapters?path_id=eq.${pathId}&order=chapter_num&select=*`),
+    () => {
+      const c = packGet('chapters');
+      if (!c || !c.length) return null;
+      return pathId === null ? c : c.filter(x => sameId(x.path_id, pathId)).sort((a, b) => a.chapter_num - b.chapter_num);
+    });
+}
+// The number of the path's last chapter (null if unknown).
+function getLastChapterNum(pathId) {
+  return packedRead(
+    async () => { const r = await sbFetch(`story_chapters?path_id=eq.${pathId}&select=chapter_num&order=chapter_num.desc&limit=1`); return r.length ? r[0].chapter_num : null; },
+    () => { const c = packGet('chapters'); const mine = c ? c.filter(x => sameId(x.path_id, pathId)) : []; return mine.length ? Math.max(...mine.map(x => x.chapter_num)) : null; });
+}
+// Trivia questions: by story path, by topic, or by difficulty (any difficulty when omitted).
+function getTrivia({ slug, topic, difficulty, limit } = {}) {
+  let q = 'bible_trivia_questions?';
+  if (slug) q += `story_path_slug=eq.${slug}&select=*`;
+  else if (topic) q += `topic=eq.${encodeURIComponent(topic)}&select=*&limit=${limit}`;
+  else q += `select=*${difficulty ? `&difficulty=eq.${difficulty}` : ''}&limit=${limit}`;
+  return packedRead(
+    () => sbFetch(q),
+    () => {
+      const t = packGet('trivia');
+      if (!t || !t.length) return null;
+      const rows = t.filter(r => slug ? r.story_path_slug === slug : topic ? r.topic === topic : (!difficulty || r.difficulty === difficulty));
+      return slug ? rows : shuffle(rows).slice(0, limit);   // saved copy: a random selection, so offline games vary
+    });
+}
+const verseKey = (translation, c) => `${translation}|${c.book}|${c.chapter}|${c.verse}`;
+function getSavedVerse(chapter) {
+  const v = packGet('verses');
+  return v && v[verseKey(TRANSLATION, chapter)] || '';
+}
+function saveVerse(chapter, text) {
+  const v = packGet('verses') || {};
+  if (v[verseKey(TRANSLATION, chapter)] === text) return;
+  v[verseKey(TRANSLATION, chapter)] = text;
+  packSet('verses', v);
+}
+
+async function fetchAllRows(path) {
+  const out = [];
+  for (let offset = 0; offset <= 20000; offset += 1000) {
+    const rows = await sbFetch(`${path}&limit=1000&offset=${offset}`);
+    out.push(...rows);
+    if (rows.length < 1000) break;
+  }
+  return out;
+}
+
+let _packRefreshing = false;
+async function refreshOfflinePack(force = false) {
+  if (_packRefreshing || !navigator.onLine) return false;
+  const meta = packGet('meta') || {};
+  const fresh = !!meta.at && Date.now() - meta.at < PACK_MAX_AGE_MS && !!packGet('trivia') && !!packGet('chapters');
+  if (!force && fresh && meta.translation === TRANSLATION) return false;
+  _packRefreshing = true;
+  try {
+    if (force || !fresh) {
+      const paths = await fetchAllRows('story_paths?select=*&order=id');
+      const chapters = (await fetchAllRows('story_chapters?select=*&order=id')).map(({ created_at, ...c }) => c);
+      const trivia = (await fetchAllRows('bible_trivia_questions?select=*&order=id')).map(({ created_at, ...q }) => q);
+      if (paths.length) packSet('paths', paths);
+      if (chapters.length) packSet('chapters', chapters);
+      if (trivia.length) packSet('trivia', trivia);
+    }
+    // The verse shown at the start of each chapter, in the translation currently chosen.
+    const chapters = packGet('chapters') || [];
+    const have = packGet('verses') || {};
+    const need = chapters.filter(c => c.book && c.chapter && c.verse && !(verseKey(TRANSLATION, c) in have));
+    for (let i = 0; i < need.length; i += 20) {
+      const batch = need.slice(i, i + 20);
+      const clauses = batch.map(c => `and(book.eq.${encodeURIComponent(c.book)},chapter.eq.${c.chapter},verse.eq.${c.verse})`).join(',');
+      const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&or=(${clauses})&select=book,chapter,verse,text`);
+      rows.forEach(r => { have[verseKey(TRANSLATION, r)] = r.text; });
+    }
+    packSet('verses', have);
+    packSet('meta', { at: Date.now(), translation: TRANSLATION });
+    return true;
+  } catch(e) {
+    console.warn('Offline pack refresh failed:', e?.message);
+    return false;
+  } finally { _packRefreshing = false; }
+}
+
+// Story progress for the signed-in player, kept so the story list still shows it with no connection.
+const storyProgressKey = uid => `ss_story_progress_${uid}`;
+function readSavedStoryProgress() {
+  if (!currentUser) return [];
+  try { const v = JSON.parse(localStorage.getItem(storyProgressKey(currentUser.id)) || '[]'); return Array.isArray(v) ? v : []; } catch(e) { return []; }
+}
+function writeSavedStoryProgress(rows) {
+  if (!currentUser) return;
+  try { localStorage.setItem(storyProgressKey(currentUser.id), JSON.stringify(rows.map(r => ({ path_id: r.path_id, chapter_num: r.chapter_num, stars: r.stars })))); } catch(e) {}
+}
+function rememberStoryProgress(pathId, chapterNum, stars) {
+  const rows = readSavedStoryProgress();
+  const row = rows.find(r => sameId(r.path_id, pathId) && r.chapter_num === chapterNum);
+  if (row) row.stars = Math.max(row.stars || 0, stars); else rows.push({ path_id: pathId, chapter_num: chapterNum, stars });
+  writeSavedStoryProgress(rows);
+}
+
+// Saves waiting for a connection: { id, kind: 'story_progress' | 'score', userId, payload }.
+function readPending() {
+  try { const v = JSON.parse(localStorage.getItem(PENDING_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch(e) { return []; }
+}
+function writePending(list) {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify(list)); return true; } catch(e) { return false; }
+}
+let _flushingPending = false;
+function queuePendingWrite(kind, payload) {
+  if (!currentUser) return false;
+  const list = readPending();
+  // Keep one waiting save per chapter / per leaderboard, holding the best result, so a long offline stretch stays small.
+  const same = !_flushingPending && list.find(x => x.kind === kind && x.userId === currentUser.id && (
+    kind === 'story_progress'
+      ? sameId(x.payload.p_path_id, payload.p_path_id) && x.payload.p_chapter_num === payload.p_chapter_num
+      : x.payload.table === payload.table && x.payload.data.difficulty === payload.data.difficulty));
+  if (same) {
+    if (kind === 'story_progress') {
+      same.payload.p_stars = Math.max(same.payload.p_stars, payload.p_stars);
+      same.payload.p_completed = same.payload.p_completed || payload.p_completed;
+    } else if (payload.data.score > same.payload.data.score) same.payload = payload;
+  } else {
+    list.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), kind, userId: currentUser.id, payload });
+  }
+  return writePending(list.slice(-200));
+}
+async function sendPendingWrite(item) {
+  if (item.kind === 'story_progress') {
+    await apiWrite(`${SUPABASE_URL}/rest/v1/rpc/upsert_story_progress`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(item.payload)
+    });
+    return true;
+  }
+  if (item.kind === 'score') return await submitGameScore(item.payload.table, item.payload.data, { replay: true });
+  return true;   // unknown kind from some other version: drop it
+}
+async function flushPendingWrites() {
+  if (_flushingPending || !currentUser || !authToken || !navigator.onLine) return 0;
+  const mine = readPending().filter(x => x.userId === currentUser.id);
+  if (!mine.length) return 0;
+  _flushingPending = true;
+  let sent = 0;
+  try {
+    for (const item of mine) {
+      let ok = false;
+      try { ok = await sendPendingWrite(item); } catch(e) { console.warn('Pending save failed:', e?.message); }
+      if (!ok) break;   // still can't reach the server: keep the rest and try again later
+      writePending(readPending().filter(x => x.id !== item.id));
+      sent++;
+    }
+  } finally { _flushingPending = false; }
+  if (sent) showStreakToast('Synced your progress from offline play.');
+  return sent;
+}
+function clearSavedPlayerData(userId) {
+  try { localStorage.removeItem(storyProgressKey(userId)); } catch(e) {}
+  writePending(readPending().filter(x => x.userId !== userId));
 }
 
 // ═══════════════════════════════════════
@@ -1532,6 +1739,7 @@ async function deleteAccount() {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Delete failed');
+    clearSavedPlayerData(currentUser.id);   // nothing of theirs stays on this device
     currentUser = null;
     authToken = null;
     refreshToken = null;
@@ -2133,6 +2341,8 @@ function showApp() {
   if(currentUser && !currentUsername) setTimeout(showUsernamePrompt, 500);
   if(currentUser) setTimeout(checkMonthlyChampion, 2000);
   prefetchDailyChallenge();
+  flushPendingWrites();
+  setTimeout(refreshOfflinePack, 3000);   // save the questions and stories for offline play, in the background
 
   // Load streak in background and update display when ready
   if(currentUser) {
@@ -3988,13 +4198,20 @@ async function renderStoryMode() {
   // Small translation switcher at top of story screen added after load
 
   try {
-    const paths = await sbFetch('story_paths?order=order_num&select=*');
-    const chapters = await sbFetch('story_chapters?select=id,path_id');
+    const paths = await getStoryPaths();
+    const chapters = await getStoryChapters();
 
     // Load user progress if logged in
     if(currentUser) {
       try {
-        const progress = await sbFetch(`story_progress?user_id=eq.${currentUser.id}&select=*&order=stars.desc`);
+        let progress;
+        try {
+          progress = await sbFetch(`story_progress?user_id=eq.${currentUser.id}&select=*&order=stars.desc`);
+          writeSavedStoryProgress(progress);
+        } catch(e) {
+          progress = readSavedStoryProgress();   // offline: the last copy saved on this device
+          if(!progress.length) throw e;
+        }
         progress.forEach(p => {
           // Track highest chapter completed per path
           if(!storyProgress[p.path_id] || p.chapter_num > storyProgress[p.path_id]) {
@@ -4130,8 +4347,8 @@ async function renderStoryPath(pathId) {
   if(heartTimerInterval) clearInterval(heartTimerInterval);
 
   try {
-    const [path] = await sbFetch(`story_paths?id=eq.${pathId}&select=*`);
-    const chapters = await sbFetch(`story_chapters?path_id=eq.${pathId}&order=chapter_num&select=*`);
+    const path = await getStoryPath(pathId);
+    const chapters = await getStoryChapters(pathId);
     const completed = storyProgress[pathId] || 0;
 
     const nextChapter = chapters.find(c => c.chapter_num === completed + 1);
@@ -4202,8 +4419,8 @@ async function renderStoryChapter(chapter, pathId, completedSoFar) {
   let verseText = '';
   try {
     const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&book=eq.${encodeURIComponent(chapter.book)}&chapter=eq.${chapter.chapter}&verse=eq.${chapter.verse}&select=text&limit=1`);
-    if(rows.length) verseText = rows[0].text;
-  } catch(e) { console.warn("Caught:", e?.message); }
+    if(rows.length) { verseText = rows[0].text; saveVerse(chapter, verseText); }
+  } catch(e) { console.warn("Caught:", e?.message); verseText = getSavedVerse(chapter); }
 
   // Get existing stars for this chapter
   const existingStars = storyProgress[`stars_${pathId}_${chapter.chapter_num}`] || 0;
@@ -4697,14 +4914,26 @@ function checkAllStoryBlanks() {
 // ═══════════════════════════════════════
 const _submittedScores = new Set();
 
-async function submitGameScore(table, data) {
-  if(!currentUser || !authToken) return;
+// Returns true when the score is on the server. With { replay: true } (sending a score that was
+// waiting offline) it stays quiet and never re-queues. Otherwise a score that can't be sent is
+// kept on the device and sent later.
+async function submitGameScore(table, data, { replay = false } = {}) {
+  if(!currentUser || !authToken) return false;
 
-  // Guard against double submissions
-  const key = `${table}_${data.score}_${data.difficulty}_${Date.now().toString().slice(0,-3)}`;
-  if(_submittedScores.has(key)) return;
-  _submittedScores.add(key);
-  setTimeout(() => _submittedScores.delete(key), 10000);
+  if(!replay) {
+    // Guard against double submissions
+    const key = `${table}_${data.score}_${data.difficulty}_${Date.now().toString().slice(0,-3)}`;
+    if(_submittedScores.has(key)) return false;
+    _submittedScores.add(key);
+    setTimeout(() => _submittedScores.delete(key), 10000);
+  }
+  const keepForLater = () => {
+    if(replay) return false;
+    queuePendingWrite('score', { table, data });
+    showStreakToast("Score saved on this device. It will sync when you're back online.");
+    return false;
+  };
+  if(!navigator.onLine) return keepForLater();
 
   const headers = {
     'apikey': SUPABASE_KEY,
@@ -4747,20 +4976,24 @@ async function submitGameScore(table, data) {
         await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
           method: 'PATCH', headers, body: JSON.stringify({ created_at: now })
         }).catch(()=>{});
-        showNotBestToast(existing.score);
-        return;
+        if(!replay) showNotBestToast(existing.score);
+        return true;
       }
       const res = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
         method: 'PATCH', headers, body: JSON.stringify({ ...safeData, created_at: now })
-      }), 'score');
-      if(res) showScoreToast(data.score, table, data.difficulty, true);
+      }), 'score', true);
+      if(!res) return keepForLater();
+      if(!replay) showScoreToast(data.score, table, data.difficulty, true);
+      return true;
     } else {
       const res = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/${table}`, {
         method: 'POST', headers, body: JSON.stringify(safeData)
-      }), 'score');
-      if(res) showScoreToast(data.score, table, data.difficulty, false);
+      }), 'score', true);
+      if(!res) return keepForLater();
+      if(!replay) showScoreToast(data.score, table, data.difficulty, false);
+      return true;
     }
-  } catch(e) { console.error('Score submit failed:', e); }
+  } catch(e) { console.error('Score submit failed:', e); return false; }
 }
 
 function showScoreToast(score, table, difficulty, isPersonalBest=false) {
@@ -5008,7 +5241,7 @@ function renderStoryRoundComplete(stars) {
 
   document.getElementById('nextChapterBtn').onclick = async () => {
     // Find next chapter and go directly to it
-    const pathChapters = await sbFetch(`story_chapters?path_id=eq.${s.pathId}&order=chapter_num&select=*`);
+    const pathChapters = await getStoryChapters(s.pathId);
     const nextChapter = pathChapters.find(c => c.chapter_num === s.chapter.chapter_num + 1);
     if(nextChapter) {
       renderStoryChapter(nextChapter, s.pathId, s.chapter.chapter_num);
@@ -5025,9 +5258,8 @@ async function renderStoryPathRecap(pathId) {
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Preparing your recap…</div></div>`;
 
-  const paths = await sbFetch(`story_paths?id=eq.${pathId}&select=*`);
-  const path = paths[0];
-  const pool = await sbFetch(`bible_trivia_questions?story_path_slug=eq.${path.slug}&select=*`);
+  const path = await getStoryPath(pathId);
+  const pool = await getTrivia({ slug: path.slug });
 
   if(!pool.length) { renderStoryPath(pathId); return; }
 
@@ -5112,17 +5344,27 @@ function renderStoryRecapComplete() {
 async function completeStoryChapter(pathId, chapterNum, stars) {
   storyProgress[pathId] = Math.max(storyProgress[pathId] || 0, chapterNum);
   if(!currentUser || !authToken) return;
+  const starKey = `stars_${pathId}_${chapterNum}`;
+  storyProgress[starKey] = Math.max(storyProgress[starKey] || 0, stars);
+  rememberStoryProgress(pathId, chapterNum, stars);   // so the story list still shows it after a restart with no connection
 
   try {
-    const pathChapters = await sbFetch(`story_chapters?path_id=eq.${pathId}&select=chapter_num&order=chapter_num.desc&limit=1`);
-    const totalChapters = pathChapters.length ? pathChapters[0].chapter_num : 10;
+    const lastChapter = await getLastChapterNum(pathId);
+    const totalChapters = lastChapter || 10;
     const isCompleted = chapterNum >= totalChapters;
+    const payload = { p_path_id: pathId, p_chapter_num: chapterNum, p_stars: stars, p_completed: isCompleted };
+    const keepForLater = () => {
+      queuePendingWrite('story_progress', payload);
+      showStreakToast("Progress saved on this device. It will sync when you're back online.");
+    };
+    if(!navigator.onLine) { keepForLater(); return; }
 
     // upsert_story_progress (not a raw insert) so replaying a chapter updates
     // the existing row instead of piling up a new one every time — stars only
     // ever move up (GREATEST) and completed only ever moves to true (OR), so a
-    // lower-scoring replay can't regress an already-recorded best.
-    await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/rpc/upsert_story_progress`, {
+    // lower-scoring replay can't regress an already-recorded best. That also
+    // makes it safe to send again later from the offline queue.
+    const saved = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/rpc/upsert_story_progress`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
@@ -5130,13 +5372,9 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal'
       },
-      body: JSON.stringify({
-        p_path_id: pathId,
-        p_chapter_num: chapterNum,
-        p_stars: stars,
-        p_completed: isCompleted
-      })
-    }), 'story progress');
+      body: JSON.stringify(payload)
+    }), 'story progress', true);
+    if(!saved) { keepForLater(); return; }
 
     await updateStreak();
 
@@ -5606,7 +5844,7 @@ async function renderTopicTrivia(topic, roundIdx) {
   // Try Supabase first, fall back to local
   let questions = [];
   try {
-    const rows = await sbFetch(`bible_trivia_questions?topic=eq.${encodeURIComponent(topic.id)}&select=*&limit=20`);
+    const rows = await getTrivia({ topic: topic.id, limit: 20 });
     if(rows && rows.length >= 3) {
       questions = shuffle(rows).slice(0, 5).map(r => ({
         q: r.question,
@@ -6147,9 +6385,8 @@ async function startTrivia(diff) {
   try {
     // Fetch a larger pool then pick randomly client-side
     // This avoids relying on Supabase order=random() which may not work
-    const dbDiff = isEndless ? '' : `&difficulty=eq.${diff}`;
     const limit = isEndless ? 120 : 60;
-    const rows = await sbFetch(`bible_trivia_questions?select=*${dbDiff}&limit=${limit}`);
+    const rows = await getTrivia({ difficulty: isEndless ? '' : diff, limit });
 
     if(rows && rows.length >= 5) {
       // Filter out recently seen questions

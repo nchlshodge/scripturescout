@@ -98,7 +98,7 @@ test('a round replay keeps the best stars the player already had', async () => {
   close();
 });
 
-test('a failed save is retried once and the player is told if it still fails', async () => {
+test('a failed save is retried once, then kept on the device and the player is told', async () => {
   const calls = [];
   const fetchImpl = async (url, opts = {}) => { calls.push(String(url)); return { ok: !String(url).includes('/rpc/'), status: 500, json: async () => [], text: async () => '' }; };
   const { window, close } = loadApp({ fetchImpl });
@@ -109,7 +109,7 @@ test('a failed save is retried once and the player is told if it still fails', a
   assert.equal(calls.filter(u => u.includes('/rpc/')).length, 2, 'tried twice');
   assert.equal(window.eval('storyProgress[7]'), 2, 'progress still shows on screen');
   const toast = [...window.document.body.children].find(c => c.getAttribute('role') === 'status');
-  assert.match(toast.textContent, /Couldn't save your story progress/);
+  assert.match(toast.textContent, /saved on this device/);
   close();
 });
 

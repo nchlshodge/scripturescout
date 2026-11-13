@@ -6,7 +6,7 @@
 // and the app shows its own offline message when they fail.
 
 // Bump this when the list of cached files changes. Old caches are deleted on activate.
-const SHELL_CACHE = 'ss-shell-v1';
+const SHELL_CACHE = 'ss-shell-v2';
 const FONT_CACHE = 'ss-fonts-v1';
 
 const SHELL_FILES = [
@@ -23,6 +23,62 @@ const SHELL_FILES = [
   'randy-happy.webp',
   'randy-sad.webp',
   'randy-thinking.webp',
+  // Icons and badges (listed by hand: the test fails if a file in these folders is missing from here)
+  'icons/daily.svg',
+  'icons/diff-easy.svg',
+  'icons/diff-endless.svg',
+  'icons/diff-hard.svg',
+  'icons/diff-medium.svg',
+  'icons/leaderboard.svg',
+  'icons/mia.svg',
+  'icons/scout.svg',
+  'icons/story.svg',
+  'icons/streak-fire.svg',
+  'icons/target.svg',
+  'icons/testament-nt.svg',
+  'icons/testament-ot.svg',
+  'icons/track.svg',
+  'icons/trivia.svg',
+  'icons/trophy.svg',
+  'story-icons/abraham-1.svg',
+  'story-icons/abraham-2.svg',
+  'story-icons/abraham-3.svg',
+  'story-icons/acts-1.svg',
+  'story-icons/acts-2.svg',
+  'story-icons/acts-3.svg',
+  'story-icons/creation-story.svg',
+  'story-icons/gospel-story.svg',
+  'story-icons/isaac.svg',
+  'story-icons/jacob-1.svg',
+  'story-icons/jacob-2.svg',
+  'story-icons/joseph-1.svg',
+  'story-icons/joseph-2.svg',
+  'story-icons/joshua-story.svg',
+  'story-icons/moses-1.svg',
+  'story-icons/moses-2.svg',
+  'story-icons/moses-3.svg',
+  'story-icons/moses-4.svg',
+  'story-icons/noah-story.svg',
+  'story-icons/sermon-on-the-mount.svg',
+  'story-icons/tower-of-babel.svg',
+  'badges/all_games.svg',
+  'badges/both_tests.svg',
+  'badges/daily_7.svg',
+  'badges/daily_all.svg',
+  'badges/endless.svg',
+  'badges/hard_3.svg',
+  'badges/perfect_1.svg',
+  'badges/perfect_10.svg',
+  'badges/score_10k.svg',
+  'badges/story_done.svg',
+  'badges/story_start.svg',
+  'badges/streak_100.svg',
+  'badges/streak_14.svg',
+  'badges/streak_3.svg',
+  'badges/streak_30.svg',
+  'badges/streak_365.svg',
+  'badges/streak_7.svg',
+  'badges/top_1.svg',
 ];
 
 self.addEventListener('install', (event) => {
