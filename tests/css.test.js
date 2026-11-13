@@ -63,3 +63,13 @@ test('no animation is defined twice (the last one silently wins)', () => {
   const names = rules.filter(r => r.sel.startsWith('@keyframes')).map(r => r.sel.split(/\s+/)[1]);
   assert.deepEqual(names.filter((n, i) => names.indexOf(n) !== i), []);
 });
+
+test('no style selector is written twice in the same place (merge them instead)', () => {
+  const seen = new Map();
+  for (const r of rules) {
+    if (r.sel.startsWith('@')) continue;
+    const key = r.ctx + r.sel.replace(/\s+/g, ' ');
+    seen.set(key, (seen.get(key) || 0) + 1);
+  }
+  assert.deepEqual([...seen].filter(([, n]) => n > 1).map(([k]) => k), []);
+});

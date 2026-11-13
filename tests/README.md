@@ -31,7 +31,7 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
 - `globals.test.js` finds names the code uses but never defines, which
   would throw an error the moment that code runs.
 - `leaderboard.test.js` checks the Scripture Scout leaderboard's This Week / All Time and difficulty tabs.
-- `css.test.js` keeps the stylesheet clean: no style rule, animation or variable that nothing uses, and no animation
-  defined twice.
+- `css.test.js` keeps the stylesheet clean: no style rule, animation or variable that nothing uses, no animation
+  defined twice, and no selector written twice.
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.
