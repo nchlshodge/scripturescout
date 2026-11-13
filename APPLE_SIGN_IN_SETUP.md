@@ -32,6 +32,23 @@ into Supabase again, or Apple sign-in will silently stop working. Don't commit t
 - **URL Configuration → Redirect URLs:** make sure `scripturescout://auth-callback` and your web app URL
   are listed (they should already be, from Google sign-in).
 
+## 3b. Let account deletion revoke the Apple sign-in (required by Apple)
+Apple requires apps with Sign in with Apple to revoke the person's Apple authorization when they delete
+their account. This is built and deployed (the `delete-account` function plus the `apple_tokens` table),
+but it only works once these four **Edge Function secrets** exist. Supabase Dashboard → Edge Functions →
+Secrets (or `supabase secrets set …`):
+
+| Secret | Value |
+|---|---|
+| `APPLE_TEAM_ID` | your Team ID (step 1.4) |
+| `APPLE_KEY_ID` | the Key ID (step 1.3) |
+| `APPLE_SERVICES_ID` | `com.scripturescout.signin` (the Services ID) |
+| `APPLE_PRIVATE_KEY` | the full text of the `.p8` file, including the BEGIN/END lines |
+
+Until they are set, deleting an account still works; it just skips the Apple step (the function log says
+"skipped"). Unlike the Supabase client secret in step 2, this key does **not** expire every 6 months: the
+function makes a fresh short-lived token from the `.p8` each time.
+
 ## 4. Turn it on
 Set `const APPLE_SIGNIN_ENABLED = true;` in `index.html`, then rebuild the iOS app
 (`npm run cap:ios`). Both buttons then appear on every platform, Apple first.
@@ -40,12 +57,12 @@ Set `const APPLE_SIGNIN_ENABLED = true;` in `index.html`, then rebuild the iOS a
 - New Apple account → lands in the app, age prompt appears, username prompt appears.
 - Sign out, sign in again with Apple → straight in.
 - "Hide My Email" option works (the account email will be a privaterelay address).
-- Delete account works (see below).
+- Delete account works (see 3b and the last section).
 
 ## Still to do after it works
-- **Revoke Apple tokens on account deletion.** Apple requires apps with Sign in with Apple to revoke
-  the user's Apple token when they delete their account. Not built yet: it needs the user's Apple
-  refresh token saved at sign-in and a call to `https://appleid.apple.com/auth/revoke` from the
-  `delete-account` function.
-- Update `privacy.html`: it says Apple sign-in is "in the future" — change to present tense.
+- Update `privacy.html`: it says Apple sign-in is "in the future" — change to present tense, and mention that
+  Apple's sign-in token is kept privately until the account is deleted.
 - Mention Sign in with Apple in the App Store review notes.
+- **Test deletion on a real Apple account** (TestFlight): after deleting, the app should disappear from
+  Settings → Apple ID → Sign in with Apple on that phone, and the function log (Supabase → Edge Functions →
+  delete-account → Logs) should say `Apple revoke: revoked`.

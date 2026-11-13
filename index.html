@@ -10712,6 +10712,8 @@ if (supabaseClient) {
   // supabase-js auto-refreshes the underlying session in the background; without this,
   // our own `authToken` mirror goes stale ~1hr in and every authenticated fetch starts failing.
   supabaseClient.auth.onAuthStateChange((event, session) => {
+    // Apple only hands over its refresh token at the moment of sign-in; keep it for account deletion.
+    if (event === 'SIGNED_IN' && session) setTimeout(() => saveAppleRefreshToken(session), 0);
     if (session) {
       authToken = session.access_token;
       localStorage.setItem('ss_token', session.access_token);
@@ -10727,6 +10729,21 @@ if (supabaseClient) {
       renderNewPasswordScreen();
     }
   });
+}
+
+// Apple requires apps that offer Sign in with Apple to revoke the person's Apple authorization when they
+// delete their account. Apple's refresh token is only available right after sign-in, so it is passed to the
+// server here (a private table the delete-account function reads; the app itself can never read it back).
+async function saveAppleRefreshToken(session) {
+  const token = session && session.provider_refresh_token;
+  if (!token || !session.access_token) return false;
+  if (!session.user || !session.user.app_metadata || session.user.app_metadata.provider !== 'apple') return false;
+  const saved = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/rpc/save_apple_refresh_token`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_token: token })
+  }), 'Apple sign-in details', true);
+  return !!saved;
 }
 
 // Shared by every provider (Google, Apple) once Supabase hands back a session.

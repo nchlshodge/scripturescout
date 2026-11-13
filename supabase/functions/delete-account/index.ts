@@ -21,6 +21,7 @@
 // trusting a user id the client could pass in) so a user can only ever delete
 // their own account.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { revokeAppleToken } from "./apple-revoke.mjs";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -53,6 +54,7 @@ const USER_DATA_TABLES: [string, string][] = [
   ["user_scores", "user_id"],
   ["conversation_members", "user_id"],
   ["messages", "sender_id"],
+  ["apple_tokens", "user_id"],   // after the Apple token has been read and revoked below
 ];
 
 Deno.serve(async (req) => {
@@ -70,6 +72,17 @@ Deno.serve(async (req) => {
   const userId = callerData.user.id;
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+
+  // Apple requires apps with Sign in with Apple to revoke the person's Apple authorization when they
+  // delete their account. Best effort: if Apple can't be reached the account is still deleted, because
+  // the person's right to delete comes first (they can also remove the app in their Apple ID settings).
+  const { data: appleRow, error: appleReadError } = await admin
+    .from("apple_tokens").select("refresh_token").eq("user_id", userId).maybeSingle();
+  if (appleReadError) console.warn("Could not read Apple token:", appleReadError.message);
+  if (appleRow?.refresh_token) {
+    const result = await revokeAppleToken({ refreshToken: appleRow.refresh_token, env: Deno.env.toObject() });
+    console.log(`Apple revoke: ${result.status} (${result.detail})`);
+  }
 
   for (const [table, column] of USER_DATA_TABLES) {
     const { error } = await admin.from(table).delete().eq(column, userId);
