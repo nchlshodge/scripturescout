@@ -337,6 +337,7 @@
   .auth-success { background:rgba(45,110,62,0.1); border:1px solid #2d6e3e; border-radius:8px; padding:10px 14px; font-size:0.82rem; color:#2d6e3e; margin-bottom:14px; display:none; }
   .auth-success { background:var(--teal-dim); border:1px solid var(--teal); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--teal-text); margin-bottom:14px; display:none; }
   .auth-footer { text-align:center; margin-top:10px; font-size:0.8rem; color:var(--text-muted); }
+  .auth-link.inline { display:inline; min-height:0; padding:0; }
   .auth-link { min-height:44px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; color:#8b4513; cursor:pointer; text-decoration:underline; background:none; border:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; }
 
   /* User profile bar */
@@ -1026,6 +1027,10 @@ const IS_NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && wi
 // iOS push (APNs) isn't wired up yet since it needs a paid Apple Developer account.
 // Apple only allows in-app payments/tips through its own IAP (guideline 3.1.1), so external
 // donation links are hidden in the iOS build and shown on web/Android/Amazon.
+// Sign in with Apple. Flip to true once the Apple/Supabase setup in APPLE_SIGN_IN_SETUP.md is done.
+// Apple's rule (guideline 4.8): an app that offers Google sign-in must also offer Sign in with Apple,
+// so while this is false the Google button is hidden in the iPhone app (it stays on web and Android).
+const APPLE_SIGNIN_ENABLED = false;
 const IS_IOS_NATIVE = IS_NATIVE && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'ios';
 const IS_ANDROID_NATIVE = IS_NATIVE && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android';
 // Custom URL scheme the native apps register to catch the OAuth redirect back from the system browser.
@@ -1834,14 +1839,15 @@ function renderAuthScreen(mode='login') {
         <!-- Footer links -->
         <div style="text-align:center;font-size:12px;color:var(--text-muted);margin-bottom:4px;">
           ${mode==='login'
-            ? `Don't have an account? <button class="auth-link" onclick="renderAuthScreen('signup')">Sign up free</button>`
-            : `Already have an account? <button class="auth-link" onclick="renderAuthScreen('login')">Sign in</button>`}
+            ? `Don't have an account? <button class="auth-link inline" onclick="renderAuthScreen('signup')">Sign up free</button>`
+            : `Already have an account? <button class="auth-link inline" onclick="renderAuthScreen('login')">Sign in</button>`}
         </div>
         ${mode==='login' ? `
         <div style="text-align:center;margin-bottom:8px;">
           <button class="auth-link" onclick="renderForgotPassword()">Forgot your password?</button>
         </div>` : ''}
 
+        ${(APPLE_SIGNIN_ENABLED || !IS_IOS_NATIVE) ? `
         <!-- Divider -->
         <div style="display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--text-muted);font-size:12px;">
           <div style="flex:1;height:1px;background:var(--border);"></div>
@@ -1849,7 +1855,13 @@ function renderAuthScreen(mode='login') {
           <div style="flex:1;height:1px;background:var(--border);"></div>
         </div>
 
-        <!-- Google -->
+
+        ${APPLE_SIGNIN_ENABLED ? `<button class="btn-apple" onclick="signInWithApple()" style="margin-bottom:8px;">
+          <svg class="apple-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.8-3-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.5 1.3-2.6-.1 0-2.5-1-2.5-3.8ZM14.2 5.8c.6-.8 1.1-1.8.9-2.8-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.7 1 .1 2-.5 2.8-1.3Z"/></svg>
+          Continue with Apple
+        </button>` : ''}
+
+        <!-- Google (hidden in the iPhone app until Sign in with Apple is enabled) -->
         <button class="btn-google" onclick="signInWithGoogle()" style="margin-bottom:8px;">
           <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -1859,10 +1871,7 @@ function renderAuthScreen(mode='login') {
           </svg>
           Continue with Google
         </button>
-
-        <!-- Apple: signInWithApple() is already wired up, but hidden until Apple Developer
-             Program enrollment + the Supabase provider config is done — until then this
-             would just be a dead end for real users. -->
+        ` : ''}
 
         <!-- Skip -->
         <div style="text-align:center;padding-top:10px;border-top:1px solid var(--border);">
@@ -1872,7 +1881,7 @@ function renderAuthScreen(mode='login') {
       </div>
 
       <div style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:14px;">
-        By continuing, you agree to our <button class="auth-link" style="font-size:12px;" onclick="openTermsOfService()">Terms of Service</button> and <button class="auth-link" style="font-size:12px;" onclick="openPrivacyPolicy()">Privacy Policy</button>.
+        By continuing, you agree to our <button class="auth-link inline" style="font-size:12px;" onclick="openTermsOfService()">Terms of Service</button> and <span style="white-space:nowrap;"><button class="auth-link inline" style="font-size:12px;" onclick="openPrivacyPolicy()">Privacy Policy</button>.</span>
       </div>
     </div>`;
 
@@ -10688,9 +10697,27 @@ if (supabaseClient) {
   });
 }
 
+// Shared by every provider (Google, Apple) once Supabase hands back a session.
+async function adoptOAuthSession(session) {
+  authToken = session.access_token;
+  currentUser = session.user;
+  localStorage.setItem('ss_token', session.access_token);
+  localStorage.setItem('ss_user', JSON.stringify(session.user));
+  const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username,avatar_icon,avatar_color`).catch(() => []);
+  if (profiles.length) {
+    currentUsername = profiles[0].username;
+    playerName = currentUsername;
+    localStorage.setItem('ss_username', currentUsername);
+  } else {
+    playerName = currentUser.email ? currentUser.email.split('@')[0] : 'Scout';
+  }
+  showApp();
+  if (!currentUsername) setTimeout(showUsernamePrompt, 600);
+}
+
 if (IS_NATIVE && supabaseClient && window.Capacitor?.Plugins?.App) {
   // Catches the app being re-opened via the scripturescout://auth-callback deep link
-  // after the user finishes Google sign-in in the system browser (see signInWithGoogle()).
+  // after the user finishes Google or Apple sign-in in the system browser (see signInWithGoogle()/signInWithApple()).
   window.Capacitor.Plugins.App.addListener('appUrlOpen', async ({ url }) => {
     if (!url || !url.startsWith(NATIVE_OAUTH_REDIRECT)) return;
     try {
@@ -10701,25 +10728,10 @@ if (IS_NATIVE && supabaseClient && window.Capacitor?.Plugins?.App) {
       // exchangeCodeForSession expects just the extracted code, not the full callback URL.
       const { data, error } = await supabaseClient.auth.exchangeCodeForSession(authCode);
       if (error) throw error;
-      if (data?.session) {
-        authToken = data.session.access_token;
-        currentUser = data.session.user;
-        localStorage.setItem('ss_token', data.session.access_token);
-        localStorage.setItem('ss_user', JSON.stringify(data.session.user));
-        const profiles = await sbFetch(`profiles?id=eq.${currentUser.id}&select=username,avatar_icon,avatar_color`).catch(() => []);
-        if (profiles.length) {
-          currentUsername = profiles[0].username;
-          playerName = currentUsername;
-          localStorage.setItem('ss_username', currentUsername);
-        } else {
-          playerName = currentUser.email ? currentUser.email.split('@')[0] : 'Scout';
-        }
-        showApp();
-        if (!currentUsername) setTimeout(showUsernamePrompt, 600);
-      }
+      if (data?.session) await adoptOAuthSession(data.session);
     } catch(e) {
-      console.warn('Google sign-in callback failed:', e?.message);
-      showStreakToast('Google sign-in failed — please try again.');
+      console.warn('Sign-in callback failed:', e?.message);
+      showStreakToast('Sign-in failed — please try again.');
     }
   });
 }
