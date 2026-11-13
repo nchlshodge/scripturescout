@@ -214,13 +214,41 @@ test('starting a trivia game offline plays the saved questions', async () => {
   s.close();
 });
 
-test('online reading is unchanged: live data wins over the saved copy', async () => {
-  const s = setup();
+test('online, a difficulty game draws from the whole saved set, not just the first questions', async () => {
+  const many = Array.from({ length: 300 }, (_, i) => question(i + 1, 'medium'));
+  const s = setup({ trivia: many });
   await s.call('refreshOfflinePack');
-  s.ev(`globalThis.__live = true`);
+  s.net.calls.length = 0;
+  const seen = new Set();
+  for (let i = 0; i < 12; i++) (await s.call('getTrivia', { difficulty: 'medium', limit: 60 })).forEach(r => seen.add(r.id));
+  assert.ok(seen.size > 150, `saw ${seen.size} different questions`);
+  assert.equal(s.net.calls.length, 0, 'no request needed');
+  s.close();
+});
+
+test('with nothing saved yet, trivia asks the server as before', async () => {
+  const s = setup();
   const rows = await s.call('getTrivia', { difficulty: 'hard', limit: 60 });
   assert.equal(rows.length, 6);
   assert.ok(s.net.calls.some(c => c.url.includes('difficulty=eq.hard')));
+  s.close();
+});
+
+test('a difficulty with fewer than 5 saved questions still asks the server', async () => {
+  const s = setup();
+  await s.call('refreshOfflinePack');
+  s.net.calls.length = 0;
+  await s.call('getTrivia', { difficulty: 'medium', limit: 60 });   // only 1 medium question is saved
+  assert.ok(s.net.calls.some(c => c.url.includes('difficulty=eq.medium')));
+  s.close();
+});
+
+test('story recaps and topic rounds still use live data when online', async () => {
+  const s = setup();
+  await s.call('refreshOfflinePack');
+  s.net.calls.length = 0;
+  await s.call('getTrivia', { slug: 'abraham' });
+  assert.ok(s.net.calls.some(c => c.url.includes('story_path_slug=eq.abraham')));
   s.close();
 });
 

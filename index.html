@@ -1389,19 +1389,24 @@ function getLastChapterNum(pathId) {
     () => { const c = packGet('chapters'); const mine = c ? c.filter(x => sameId(x.path_id, pathId)) : []; return mine.length ? Math.max(...mine.map(x => x.chapter_num)) : null; });
 }
 // Trivia questions: by story path, by topic, or by difficulty (any difficulty when omitted).
+// A difficulty game picks from the whole saved set (a random selection each time). Asking the server
+// for "the first 60" would show the same 60 questions forever, so it is only used when nothing is saved yet.
 function getTrivia({ slug, topic, difficulty, limit } = {}) {
   let q = 'bible_trivia_questions?';
   if (slug) q += `story_path_slug=eq.${slug}&select=*`;
   else if (topic) q += `topic=eq.${encodeURIComponent(topic)}&select=*&limit=${limit}`;
   else q += `select=*${difficulty ? `&difficulty=eq.${difficulty}` : ''}&limit=${limit}`;
-  return packedRead(
-    () => sbFetch(q),
-    () => {
-      const t = packGet('trivia');
-      if (!t || !t.length) return null;
-      const rows = t.filter(r => slug ? r.story_path_slug === slug : topic ? r.topic === topic : (!difficulty || r.difficulty === difficulty));
-      return slug ? rows : shuffle(rows).slice(0, limit);   // saved copy: a random selection, so offline games vary
-    });
+  const fromSaved = () => {
+    const t = packGet('trivia');
+    if (!t || !t.length) return null;
+    const rows = t.filter(r => slug ? r.story_path_slug === slug : topic ? r.topic === topic : (!difficulty || r.difficulty === difficulty));
+    return slug ? rows : shuffle(rows).slice(0, limit);
+  };
+  if (!slug && !topic) {
+    const saved = fromSaved();
+    if (saved && saved.length >= 5) return Promise.resolve(saved);
+  }
+  return packedRead(() => sbFetch(q), fromSaved);
 }
 const verseKey = (translation, c) => `${translation}|${c.book}|${c.chapter}|${c.verse}`;
 function getSavedVerse(chapter) {
