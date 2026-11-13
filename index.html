@@ -6837,6 +6837,7 @@ async function sendChallenge(friendId, friendUsername, game, difficulty, score, 
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' },
       body: JSON.stringify(body)
     });
+    if(!res.ok) throw new Error('HTTP ' + res.status);   // don't tell the friend (or the player) about a challenge that wasn't saved
     const data = await res.json();
     // Send notification
     const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
@@ -6850,47 +6851,60 @@ async function sendChallenge(friendId, friendUsername, game, difficulty, score, 
 
 async function respondToChallenge(challengeId, score, verse) {
   try {
-    // Calculate time bonus based on how fast they completed it
+    // Speed bonus: up to 500 points, shrinking steadily to 0 over 5 minutes. Only counts if the saved
+    // challenge is the one being played (a leftover from an earlier challenge must not give a bonus).
     const ch = window._activeChallenge;
     let timeBonus = 0;
-    if(ch?.startedAt) {
+    if(ch?.startedAt && String(ch.id) === String(challengeId)) {
       const elapsed = (new Date() - ch.startedAt) / 1000; // seconds
-      // Max 500 pts, decays over 300 seconds (5 minutes)
-      // Full bonus if under 30 seconds, zero bonus after 5 minutes
       const maxBonus = 500;
       const maxSeconds = 300;
-      timeBonus = Math.max(0, Math.floor(maxBonus * (1 - elapsed / maxSeconds)));
+      timeBonus = Math.max(0, Math.min(maxBonus, Math.floor(maxBonus * (1 - elapsed / maxSeconds))));
     }
     const totalScore = score + timeBonus;
 
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/challenges?id=eq.${challengeId}`, {
+    // Only a challenge that is still waiting and hasn't run out of time can be answered (and only once).
+    const nowIso = new Date().toISOString();
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/challenges?id=eq.${challengeId}&status=eq.pending&expires_at=gt.${nowIso}`, {
       method: 'PATCH',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' },
       body: JSON.stringify({ opponent_score: totalScore, opponent_name: currentUsername || playerName, status: 'completed', time_bonus: timeBonus })
     });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const challenge = data[0];
-    if(challenge) {
-      const won = score > challenge.challenger_score;
-      const tied = score === challenge.challenger_score;
-      const msg = won
-        ? `🏆 ${currentUsername} beat your challenge on ${challenge.game}! They scored ${score.toLocaleString()} vs your ${challenge.challenger_score.toLocaleString()}.`
-        : tied
-        ? `🤝 ${currentUsername} tied your challenge on ${challenge.game}! You both scored ${score.toLocaleString()}.`
-        : `😅 ${currentUsername} accepted your challenge on ${challenge.game} but couldn't beat your score of ${challenge.challenger_score.toLocaleString()}.`;
-      await createNotification(challenge.challenger_id, 'challenge_result', msg, { challenge_id: challengeId, score, challenger_score: challenge.challenger_score });
-    }
-    return data[0];
-  } catch(e) { console.error('Challenge respond failed:', e); }
+    if(!challenge) { showStreakToast('This challenge was already answered or has expired.'); return undefined; }
+    // Win/tie is decided on the same number that was saved (score + speed bonus), so both players see the same result.
+    const won = totalScore > challenge.challenger_score;
+    const tied = totalScore === challenge.challenger_score;
+    const msg = won
+      ? `🏆 ${currentUsername} beat your challenge on ${challenge.game}! They scored ${totalScore.toLocaleString()} vs your ${challenge.challenger_score.toLocaleString()}.`
+      : tied
+      ? `🤝 ${currentUsername} tied your challenge on ${challenge.game}! You both scored ${totalScore.toLocaleString()}.`
+      : `😅 ${currentUsername} accepted your challenge on ${challenge.game} but couldn't beat your score of ${challenge.challenger_score.toLocaleString()}.`;
+    await createNotification(challenge.challenger_id, 'challenge_result', msg, { challenge_id: challengeId, score: totalScore, challenger_score: challenge.challenger_score });
+    return challenge;
+  } catch(e) { console.error('Challenge respond failed:', e); showStreakToast('Could not save your challenge result — try again.'); }
+}
+
+// Builds the argument list for acceptChallenge(...) inside an onclick. Challenge rows are written by other players,
+// so every field is checked or escaped before it goes into the page.
+const CHALLENGE_GAMES = ['scout', 'trivia', 'mia', 'track'];
+const CHALLENGE_DIFFS = ['easy', 'medium', 'hard', 'endless'];
+function challengeAcceptArgs(c) {
+  const num = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
+  const game = CHALLENGE_GAMES.includes(c.game) ? c.game : 'scout';
+  const diff = CHALLENGE_DIFFS.includes(c.difficulty) ? c.difficulty : 'hard';
+  return `'${escapeJsAttr(String(c.id))}','${game}','${diff}',${num(c.challenger_score)},'${escapeJsAttr(String(c.verse_book || ''))}',${Math.trunc(num(c.verse_chapter))},${Math.trunc(num(c.verse_verse))}`;
 }
 
 function showChallengeBanner(challenge) {
   const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
   const gameIcons = Object.fromEntries(['scout','trivia','mia','track'].map(g => [g, `<img src="icons/${g}.svg" width="32" height="32" style="object-fit:contain;" alt="">`]));
   const fromName = challenge.challenger_name || 'Someone';
-  const game = gameNames[challenge.game] || challenge.game;
+  const game = gameNames[challenge.game] || 'a game';
   const icon = gameIcons[challenge.game] || '';
-  const score = challenge.challenger_score;
+  const score = Number(challenge.challenger_score) || 0;
   const expires = new Date(challenge.expires_at);
   const hoursLeft = Math.max(0, Math.floor((expires - new Date()) / 3600000));
 
@@ -6902,14 +6916,14 @@ function showChallengeBanner(challenge) {
       <div class="challenge-banner-swords" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 19 18.5 5.5M14 4.5l5.5-.5-.5 5.5"/><path d="M19 19 5.5 5.5M10 4.5 4.5 4l.5 5.5"/><path d="M4 18l2 2M20 18l-2 2"/></svg></div>
       <div class="challenge-banner-title">You've been challenged</div>
       <div class="challenge-banner-subtitle">${escapeHtml(fromName)} wants to battle</div>
-      <div class="challenge-banner-from">${icon}<span>${game} · ${challenge.difficulty}</span></div>
+      <div class="challenge-banner-from">${icon}<span>${game} · ${escapeHtml(CHALLENGE_DIFFS.includes(challenge.difficulty) ? challenge.difficulty : '')}</span></div>
       <div class="challenge-banner-score">
         <div class="challenge-banner-score-val">${score.toLocaleString()}</div>
         <div class="challenge-banner-score-label">Score to beat</div>
       </div>
-      ${challenge.verse_book ? `<div class="challenge-banner-verse">${challenge.verse_book} ${challenge.verse_chapter}:${challenge.verse_verse}</div>` : ''}
+      ${challenge.verse_book ? `<div class="challenge-banner-verse">${escapeHtml(challenge.verse_book)} ${escapeHtml(challenge.verse_chapter)}:${escapeHtml(challenge.verse_verse)}</div>` : ''}
       <div class="challenge-banner-expiry">${hoursLeft} hour${hoursLeft!==1?'s':''} left to respond</div>
-      <button class="btn-accept-challenge" onclick="document.getElementById('challengeBannerOverlay').remove();acceptChallenge('${challenge.id}','${challenge.game}','${challenge.difficulty}',${score},'${challenge.verse_book||''}',${challenge.verse_chapter||0},${challenge.verse_verse||0})">
+      <button class="btn-accept-challenge" onclick="document.getElementById('challengeBannerOverlay').remove();acceptChallenge(${challengeAcceptArgs(challenge)})">
         Accept the challenge
       </button>
       <button class="btn-decline-challenge" onclick="document.getElementById('challengeBannerOverlay').remove()">
@@ -6956,7 +6970,7 @@ async function renderChallenges() {
     const status = expired ? 'expired' : c.status;
     const myScore = isMine ? c.challenger_score : c.opponent_score;
     const theirScore = isMine ? c.opponent_score : c.challenger_score;
-    const theirName = isMine ? (c.opponent_name || 'Waiting...') : c.challenger_name;
+    const theirName = String(isMine ? (c.opponent_name || 'Waiting...') : (c.challenger_name || 'Someone'));
     const won = myScore !== null && theirScore !== null && myScore > theirScore;
     const tied = myScore !== null && theirScore !== null && myScore === theirScore;
 
@@ -6974,9 +6988,9 @@ async function renderChallenges() {
         <div class="challenge-header">
           <div class="challenge-icon">${gameIcons[c.game]||'🎮'}</div>
           <div>
-            <div class="challenge-title">${gameNames[c.game]||c.game} — ${c.difficulty}</div>
+            <div class="challenge-title">${escapeHtml(gameNames[c.game]||c.game)} — ${escapeHtml(c.difficulty)}</div>
             <div class="challenge-meta">${isMine ? 'You challenged' : 'Challenge from'} ${escapeHtml(theirName)} · ${timeAgo(c.created_at)}</div>
-            ${c.verse_book ? `<div class="challenge-meta">${ico('book',14)} ${c.verse_book} ${c.verse_chapter}:${c.verse_verse}</div>` : ''}
+            ${c.verse_book ? `<div class="challenge-meta">${ico('book',14)} ${escapeHtml(c.verse_book)} ${escapeHtml(c.verse_chapter)}:${escapeHtml(c.verse_verse)}</div>` : ''}
           </div>
         </div>
         <div class="challenge-scores">
@@ -6991,7 +7005,7 @@ async function renderChallenges() {
           </div>
         </div>
         <div class="challenge-result ${resultClass}">${resultText}</div>
-        ${status === 'pending' && !isMine ? `<button class="btn-next" onclick="acceptChallenge('${c.id}','${c.game}','${c.difficulty}',${c.challenger_score},'${c.verse_book||''}',${c.verse_chapter||0},${c.verse_verse||0})" style="margin-top:0;">Accept Challenge →</button>` : ''}
+        ${status === 'pending' && !isMine ? `<button class="btn-next" onclick="acceptChallenge(${challengeAcceptArgs(c)})" style="margin-top:0;">Accept Challenge →</button>` : ''}
       </div>`;
   }
 
@@ -7396,6 +7410,7 @@ async function finishChallenge(score, verse) {
   if(!ch) return;
   const result = await respondToChallenge(ch.id, score, verse);
   window._activeChallenge = null;
+  const saved = !!result;
 
   // Get the time bonus that was applied
   const timeBonus = result?.time_bonus || 0;
@@ -7407,7 +7422,8 @@ async function finishChallenge(score, verse) {
   root.innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div style="margin-bottom:12px;color:var(--nav-active);">${ico(won?'trophy':tied?'handshake':'swords', 48)}</div>
-      <div style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:8px;">${won?'You won!':tied?'Tied!':'So close!'}</div>
+      <div style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:8px;">${!saved?'Result not saved':won?'You won!':tied?'Tied!':'So close!'}</div>
+      ${!saved ? `<div style="font-size:0.85rem;color:var(--earth-text);margin-bottom:8px;">We couldn't record your score, so it hasn't counted. The challenge may have expired.</div>` : ''}
       ${timeBonus > 0 ? `<div style="font-size:0.82rem;color:var(--gold-text);margin-bottom:8px;">Speed bonus: +${timeBonus} pts</div>` : ''}
       <div style="display:flex;gap:12px;justify-content:center;margin:16px 0;">
         <div class="challenge-score-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;">
@@ -7705,7 +7721,7 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
             <div class="challenge-icon">${ico('swords', 28)}</div>
             <div>
               <div class="challenge-title">${escapeHtml(c.challenger_name)} challenged you!</div>
-              <div class="challenge-meta">${gameNames[c.game]||c.game} · Beat ${c.challenger_score.toLocaleString()} pts · ⏰ ${hoursLeft}h left</div>
+              <div class="challenge-meta">${escapeHtml(gameNames[c.game]||'A game')} · Beat ${(Number(c.challenger_score)||0).toLocaleString()} pts · ${hoursLeft}h left</div>
             </div>
           </div>
           <button class="btn-next" style="margin-top:4px;" onclick="event.stopPropagation();showChallengeBanner(${escapeHtml(JSON.stringify(c))})">Accept challenge</button>

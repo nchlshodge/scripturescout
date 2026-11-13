@@ -21,5 +21,7 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
   how chips are shown and highlighted, and that the chat refreshes (without losing typed text) when reactions change.
 - `friends.test.js` checks the friends system: the Friends and Requests tabs, searching, sending, accepting and declining
   requests, and starting a direct chat. One test is marked "todo" for a known gap (invite links are never read).
+- `challenges.test.js` checks challenges: sending, answering with the speed bonus, the result screen, the pop-up banner and
+  the Challenges list (including that other players' text can't inject code).
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.
