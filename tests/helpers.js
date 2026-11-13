@@ -34,3 +34,27 @@ function loadApp({ fetchImpl } = {}) {
 const get = (window, name) => window.eval(name);
 
 module.exports = { ROOT, HTML, inlineScript, loadApp, get };
+
+// A clock the test controls: new Date() and Date.now() inside the app follow clock.now.
+function fakeClock(window, startMs) {
+  const clock = { now: startMs, advance(ms) { clock.now += ms; }, set(ms) { clock.now = ms; } };
+  const RealDate = window.Date;
+  window.Date = class extends RealDate {
+    constructor(...a) { a.length === 0 ? super(clock.now) : super(...a); }
+    static now() { return clock.now; }
+  };
+  window.eval('globalThis.Date = window.Date');
+  return clock;
+}
+
+// Replaces setInterval/clearInterval so a test can run ticks by hand.
+function fakeIntervals(window) {
+  const t = { active: new Map(), nextId: 1, cleared: [] };
+  window.setInterval = (fn) => { const id = t.nextId++; t.active.set(id, fn); return id; };
+  window.clearInterval = (id) => { t.cleared.push(id); t.active.delete(id); };
+  t.tick = () => { for (const fn of [...t.active.values()]) fn(); };
+  return t;
+}
+
+module.exports.fakeClock = fakeClock;
+module.exports.fakeIntervals = fakeIntervals;

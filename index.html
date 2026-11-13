@@ -5296,13 +5296,20 @@ let heartsEmptyOnBack = null;
 function goBackFromHeartsEmpty() {
   const cb = heartsEmptyOnBack;
   heartsEmptyOnBack = null;
+  if(heartTimerInterval) { clearInterval(heartTimerInterval); heartTimerInterval = null; }   // stop the countdown so it can't fire later
   if(cb) cb(); else showHome();
 }
 
 function getHeartData() {
-  const data = localStorage.getItem('ss_hearts');
-  if(!data) return { hearts: MAX_HEARTS, lastLostTime: null };
-  try { return JSON.parse(data); } catch(e) { return { hearts: MAX_HEARTS, lastLostTime: null }; }
+  // Saved data comes from the device, so never trust its shape: bad values fall back to a full set of hearts.
+  const fresh = { hearts: MAX_HEARTS, lastLostTime: null };
+  let d;
+  try { d = JSON.parse(localStorage.getItem('ss_hearts')); } catch(e) { return fresh; }
+  if(!d || typeof d !== 'object') return fresh;
+  const raw = (d.hearts === null || d.hearts === undefined || d.hearts === '') ? NaN : Number(d.hearts);
+  const hearts = Number.isFinite(raw) ? Math.min(MAX_HEARTS, Math.max(0, Math.floor(raw))) : MAX_HEARTS;
+  const last = Number.isFinite(d.lastLostTime) ? d.lastLostTime : null;
+  return { hearts, lastLostTime: last };
 }
 
 function saveHeartData(hearts, lastLostTime) {
@@ -5312,16 +5319,21 @@ function saveHeartData(hearts, lastLostTime) {
 function getCurrentHearts() {
   const data = getHeartData();
   if(data.hearts >= MAX_HEARTS) return MAX_HEARTS;
-  if(!data.lastLostTime) return data.hearts;
+  if(!data.lastLostTime) {
+    // Missing hearts but no running timer (damaged data): start one so they can still come back.
+    saveHeartData(data.hearts, Date.now());
+    return data.hearts;
+  }
 
-  // Calculate how many hearts have refilled
-  const elapsed = Date.now() - data.lastLostTime;
+  // If the phone's clock was set back, the loss time can be in the future; treat it as "just now".
+  const lastLost = Math.min(data.lastLostTime, Date.now());
+  const elapsed = Date.now() - lastLost;
   const refilled = Math.floor(elapsed / HEART_REFILL_MS);
   const current = Math.min(MAX_HEARTS, data.hearts + refilled);
 
-  // Update stored value if hearts refilled
-  if(current > data.hearts) {
-    const newLastLost = current >= MAX_HEARTS ? null : data.lastLostTime + (refilled * HEART_REFILL_MS);
+  // Update stored value if hearts refilled (or the loss time needed correcting)
+  if(current > data.hearts || lastLost !== data.lastLostTime) {
+    const newLastLost = current >= MAX_HEARTS ? null : lastLost + (refilled * HEART_REFILL_MS);
     saveHeartData(current, newLastLost);
   }
   return current;
@@ -5330,14 +5342,17 @@ function getCurrentHearts() {
 function loseHeart() {
   const current = getCurrentHearts();
   const newHearts = Math.max(0, current - 1);
-  saveHeartData(newHearts, newHearts < MAX_HEARTS ? Date.now() : null);
+  // Only start a new 30-minute timer if hearts were full. If one is already running, keep it, so the
+  // time already waited for the next heart isn't thrown away.
+  const running = getHeartData().lastLostTime;
+  saveHeartData(newHearts, newHearts < MAX_HEARTS ? (current >= MAX_HEARTS ? Date.now() : (running || Date.now())) : null);
   return newHearts;
 }
 
 function getNextRefillTime() {
   const data = getHeartData();
   if(!data.lastLostTime || data.hearts >= MAX_HEARTS) return null;
-  const elapsed = Date.now() - data.lastLostTime;
+  const elapsed = Math.max(0, Date.now() - data.lastLostTime);
   const nextRefill = HEART_REFILL_MS - (elapsed % HEART_REFILL_MS);
   return nextRefill;
 }
@@ -5385,6 +5400,8 @@ function showHeartsEmptyScreen(onBack) {
   // Start countdown timer
   if(heartTimerInterval) clearInterval(heartTimerInterval);
   heartTimerInterval = setInterval(() => {
+    // Player left this screen some other way (menu, back button): stop quietly, don't redirect them.
+    if(!document.getElementById('heartCountdown')) { clearInterval(heartTimerInterval); heartTimerInterval = null; heartsEmptyOnBack = null; return; }
     const current = getCurrentHearts();
     const countdown = document.getElementById('heartCountdown');
     const timerNext = document.getElementById('heartTimerNext');

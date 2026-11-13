@@ -13,5 +13,7 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
   the overnight cache refresh.
 - `story.test.js` checks Story Mode progress: saving chapters and stars (with retry), loading progress, the
   "Continue" card, which chapters are open or locked, and that progress is cleared on sign-out.
+- `hearts.test.js` checks the Story Mode hearts: losing and refilling hearts on a fake clock, the Out of Hearts screen and
+  its countdown, damaged saved data, and that the countdown timer stops when the player leaves.
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.
