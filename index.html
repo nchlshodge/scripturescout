@@ -95,7 +95,7 @@
   .hm-game-text { display:flex; flex-direction:column; gap:3px; min-width:0; }
   .hm-game-name { font-weight:700; font-size:0.98rem; line-height:1.2; color:var(--text); }
   .hm-game-desc { font-size:0.82rem; line-height:1.4; color:var(--text-muted); }
-  .hm-support { align-self:center; padding:10px 14px; font-size:0.85rem; font-weight:600; color:var(--text-muted); text-decoration:underline; text-underline-offset:3px; }
+  .hm-support { align-self:center; min-height:44px; display:inline-flex; align-items:center; padding:10px 14px; font-size:0.85rem; font-weight:600; color:var(--text-muted); text-decoration:underline; text-underline-offset:3px; }
   @media (hover:hover) and (pointer:fine) { .hm-game:hover { border-color:var(--nav-active); } .hm-cta:hover { filter:brightness(1.06); } }
 
   /* Bottom navigation (main screens only) */
@@ -332,7 +332,7 @@
   .auth-success { background:rgba(45,110,62,0.1); border:1px solid #2d6e3e; border-radius:8px; padding:10px 14px; font-size:0.82rem; color:#2d6e3e; margin-bottom:14px; display:none; }
   .auth-success { background:var(--teal-dim); border:1px solid var(--teal); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--teal-text); margin-bottom:14px; display:none; }
   .auth-footer { text-align:center; margin-top:10px; font-size:0.8rem; color:var(--text-muted); }
-  .auth-link { color:#8b4513; cursor:pointer; text-decoration:underline; background:none; border:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; }
+  .auth-link { min-height:44px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; color:#8b4513; cursor:pointer; text-decoration:underline; background:none; border:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; }
 
   /* User profile bar */
   .user-bar { display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 16px; margin-bottom:16px; width:100%; max-width:560px; }
@@ -9467,6 +9467,7 @@ function initTheme() {
 function showStreakToast(msg) {
   const toast = document.createElement('div');
   toast.style.cssText = `position:fixed;bottom:calc(92px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--teal);border-radius:12px;padding:12px 20px;font-size:0.88rem;font-weight:600;color:var(--text);z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;`;
+  toast.setAttribute('role','status'); toast.setAttribute('aria-live','polite');
   toast.textContent = msg;
   document.body.appendChild(toast);
   setTimeout(() => toast.style.opacity='0', 2500);
@@ -10802,13 +10803,63 @@ if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
       const name = inp.getAttribute('placeholder') || inp.getAttribute('title');
       if (name) inp.setAttribute('aria-label', name);
     });
-    document.querySelectorAll('body > div[style*="position:fixed"][style*="z-index:99999"]:not([role]), .challenge-banner-overlay:not([role])').forEach(o => {
-      o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true');
-      const first = o.querySelector('button,a,input,textarea,select');
-      if (first) setTimeout(() => first.focus(), 0);
+    // Full-screen overlays (style strings are normalised by the browser, so check computed style, not the attribute text)
+    [...document.body.children].forEach(o => {
+      if (o.tagName !== 'DIV' || o.hasAttribute('role')) return;
+      const cs = getComputedStyle(o);
+      if ((cs.position === 'fixed' && parseInt(cs.zIndex, 10) >= 99999) || o.classList.contains('challenge-banner-overlay') || o.classList.contains('avatar-picker-overlay')) {
+        o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true');
+      }
     });
+    syncDialogs();
+    syncHeading();
   }
-  function schedule() { if (!queued) { queued = true; requestAnimationFrame(enhance); } }
+
+  // ── Dialogs: name them, move focus in, keep it in, and give it back on close ──
+  let openDialog = null, opener = null;
+  function syncDialogs() {
+    const dlgs = document.querySelectorAll('[role=dialog][aria-modal=true]');
+    const top = dlgs.length ? dlgs[dlgs.length - 1] : null;
+    if (top === openDialog) return;
+    if (top) {
+      if (!openDialog) opener = document.activeElement;
+      if (!top.hasAttribute('aria-label') && !top.hasAttribute('aria-labelledby')) {
+        const t = top.querySelector('h1,h2,h3,[id$=Title]') || top.querySelector('[style*="font-weight:700"]');
+        if (t && t.textContent.trim()) top.setAttribute('aria-label', t.textContent.trim().slice(0, 80));
+      }
+      // Everything behind the dialog becomes unreachable for keyboard and screen readers.
+      [...document.body.children].forEach(c => {
+        if (c.tagName === 'SCRIPT' || c.tagName === 'STYLE' || c.matches('[role=dialog],[role=status]')) return;
+        c.inert = true;
+      });
+      const first = top.querySelector('input,textarea,select,button,a[href]');
+      if (first) setTimeout(() => first.focus(), 0);
+    } else {
+      [...document.body.children].forEach(c => { c.inert = false; });
+      if (opener && document.contains(opener)) opener.focus();
+      opener = null;
+    }
+    openDialog = top;
+  }
+
+  // ── Headings: screens are built from divs, so mark each screen's title as a heading ──
+  function syncHeading() {
+    const root = document.getElementById('root');
+    if (!root) return;
+    let h = root.querySelector('h1,h2,h3,[role=heading]');
+    if (!h) {
+      h = root.querySelector('.verse-label,[class*=title],[class*=heading]');
+      if (!h) {
+        for (const el of root.querySelectorAll('div,span,p')) {
+          if (el.children.length === 0 && el.textContent.trim() && parseFloat(getComputedStyle(el).fontSize) >= 18 && /georgia|serif/i.test(getComputedStyle(el).fontFamily)) { h = el; break; }
+        }
+      }
+      if (h) { h.setAttribute('role', 'heading'); h.setAttribute('aria-level', '2'); }
+    }
+    const t = h && h.textContent.trim().replace(/\s+/g, ' ').slice(0, 60);
+    document.title = (t && t !== 'Scripture Scout') ? t + ' · Scripture Scout' : 'Scripture Scout';
+  }
+  function schedule() { if (!queued) { queued = true; requestAnimationFrame(enhance); setTimeout(() => { if (queued) enhance(); }, 120); } }
   new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
   document.addEventListener('keydown', e => {
     const t = e.target;
@@ -10816,7 +10867,18 @@ if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
       e.preventDefault(); t.click();
     } else if (e.key === 'Escape') {
       const dlgs = document.querySelectorAll('[role=dialog][aria-modal=true]');
-      if (dlgs.length) dlgs[dlgs.length - 1].remove();
+      // The age prompt can't be dismissed: an answer (or signing out) is required.
+      if (dlgs.length && dlgs[dlgs.length - 1].id !== 'ageGateOverlay') dlgs[dlgs.length - 1].remove();
+    } else if (e.key === 'Tab') {
+      const dlgs = document.querySelectorAll('[role=dialog][aria-modal=true]');
+      if (!dlgs.length) return;
+      const d = dlgs[dlgs.length - 1];
+      const f = [...d.querySelectorAll('input,textarea,select,button,a[href],[tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && x.offsetParent !== null);
+      if (!f.length) { e.preventDefault(); return; }
+      const first = f[0], last = f[f.length - 1];
+      if (!d.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
   });
   schedule();
