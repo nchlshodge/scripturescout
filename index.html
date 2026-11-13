@@ -51,6 +51,8 @@
   /* ── Home screen ───────────────────────────────────────────── */
   :root { --nav-active:#8b4513; --nav-pill:rgba(139,69,19,0.13); }
   :root { --accent-rgb:139,69,19; }
+  .ico { display:inline-block; vertical-align:-0.2em; flex-shrink:0; }
+  .btn-friend-action .ico, .btn-share .ico, .btn-bank .ico, .hint-btn .ico, .game-lb-tab .ico, .btn-next .ico { margin-right:6px; vertical-align:-0.22em; }
   .dark-mode { --nav-active:#f4c050; --nav-pill:rgba(244,192,80,0.16); --accent-rgb:244,192,80; }
   .hm { width:100%; max-width:560px; display:flex; flex-direction:column; gap:24px; }
   :where(.hm button) { font:inherit; color:inherit; }
@@ -982,16 +984,16 @@
   </svg>
 </div>
 <div id="offlineBanner" style="display:none;position:fixed;top:0;left:0;width:100%;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:#7a3a10;color:#f4c050;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;text-align:center;z-index:10000;box-sizing:border-box;">
-  📡 You're offline — scores and progress will save once you're back online.
+  You're offline — scores and progress will save once you're back online.
 </div>
 <div id="topBar" style="display:none;width:100%;max-width:560px;display:none;position:relative;z-index:1;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
     <div id="userBar" style="flex:1;"></div>
     <div style="display:flex;align-items:center;gap:4px;">
-      <button id="themeToggleBtn" onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;padding:0;width:44px;height:44px;line-height:1;" title="Toggle light/dark mode" aria-label="Dark mode" aria-pressed="false">🌙</button>
-      <button id="soundToggleBtn" onclick="toggleSound()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;padding:0;width:44px;height:44px;line-height:1;" title="Toggle sound effects" aria-label="Sound effects" aria-pressed="false">🔇</button>
+      <button id="themeToggleBtn" onclick="toggleTheme()" style="background:none;border:none;cursor:pointer;padding:0;width:44px;height:44px;line-height:1;color:var(--text-muted);display:inline-flex;align-items:center;justify-content:center;" title="Toggle light/dark mode" aria-label="Dark mode" aria-pressed="false"></button>
+      <button id="soundToggleBtn" onclick="toggleSound()" style="background:none;border:none;cursor:pointer;padding:0;width:44px;height:44px;line-height:1;color:var(--text-muted);display:inline-flex;align-items:center;justify-content:center;" title="Toggle sound effects" aria-label="Sound effects" aria-pressed="false"></button>
       <div style="position:relative;display:none;" id="notifBellWrap">
-        <button onclick="renderNotificationHub()" aria-label="Notifications" style="background:none;border:none;cursor:pointer;font-size:1.3rem;padding:0;width:44px;height:44px;line-height:1;">🔔</button>
+        <button onclick="renderNotificationHub()" aria-label="Notifications" style="background:none;border:none;cursor:pointer;padding:0;width:44px;height:44px;line-height:1;color:var(--text-muted);display:inline-flex;align-items:center;justify-content:center;"><span id="bellIcon"></span></button>
         <span id="notifBadge" style="display:none;position:absolute;top:0;right:0;background:#C53030;color:white;font-size:0.75rem;font-weight:700;border-radius:10px;padding:2px 5px;min-width:16px;text-align:center;line-height:1.4;">0</span>
       </div>
     </div>
@@ -1349,6 +1351,43 @@ function escapeJsAttr(str) {
 }
 
 // ═══════════════════════════════════════
+// ICONS (inline SVG, same stroke style as the bottom navigation)
+// ═══════════════════════════════════════
+const ICO = {
+  moon: '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>',
+  volume: '<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
+  mute: '<path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>',
+  bell: '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5Z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/>',
+  bellOff: '<path d="M6 16.5V11a6 6 0 0 1 9-5.2M18 11v5.5l1.5 1.5h-15"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0M4 4l16 16"/>',
+  warning: '<path d="M12 4 2.8 19.5h18.4L12 4Z"/><path d="M12 10v4.5M12 17.2v.1"/>',
+  ban: '<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>',
+  edit: '<path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17l-1 3Z"/><path d="M14.5 7.5l3 3"/>',
+  chat: '<path d="M4 5.5h16v10H12l-4.5 3.5v-3.5H4v-10Z"/>',
+  users: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17" cy="9.5" r="2.5"/><path d="M17.5 14.2c2.3.2 3.8 1.9 3.8 4.3"/>',
+  swords: '<path d="M5 19 18.5 5.5M14 4.5l5.5-.5-.5 5.5"/><path d="M19 19 5.5 5.5M10 4.5 4.5 4l.5 5.5"/><path d="M4 18l2 2M20 18l-2 2"/>',
+  refresh: '<path d="M19.5 12a7.5 7.5 0 1 1-2.3-5.4"/><path d="M19.5 4.5v4h-4"/>',
+  calendar: '<rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+  lock: '<rect x="5.5" y="10.5" width="13" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/>',
+  coins: '<ellipse cx="12" cy="7" rx="6.5" ry="3"/><path d="M5.5 7v5c0 1.7 2.9 3 6.5 3s6.5-1.3 6.5-3V7M5.5 12v5c0 1.7 2.9 3 6.5 3s6.5-1.3 6.5-3v-5"/>',
+  bulb: '<path d="M9 17.5h6M10 20.5h4"/><path d="M12 3.5a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2h5c0-.8.4-1.5 1-2A6 6 0 0 0 12 3.5Z"/>',
+  send: '<path d="M20.5 4 3.5 11l6 2.5L12 20.5l8.5-16.5Z"/><path d="M9.5 13.5 20.5 4"/>',
+  search: '<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>',
+  check: '<circle cx="12" cy="12" r="8.5"/><path d="M8 12.3l2.8 2.8L16.2 9.5"/>',
+  alert: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.3v.1"/>',
+  trophy: '<path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.5 4M17 6h2.5a2.5 2.5 0 0 1-2.5 4"/><path d="M12 14v3.5M8.5 20h7M10 17.5h4"/>',
+  handshake: '<path d="M3 12l4-4 4 1.5 3-1.5 4 4"/><path d="M3 12l5 5.5a1.6 1.6 0 0 0 2.3-2.2M10.3 15.3l1.5 1.7a1.6 1.6 0 0 0 2.4-2.1M14.2 14.9l1.2 1.3a1.6 1.6 0 0 0 2.4-2L21 12"/>',
+  hand: '<path d="M8 12V6.5a1.5 1.5 0 0 1 3 0V11M11 10.5V5a1.5 1.5 0 0 1 3 0v5.5M14 10.5V6.5a1.5 1.5 0 0 1 3 0V14c0 4-2.5 6.5-6 6.5-2.5 0-4-1.2-5.2-3.2L4 14.5c-.6-1.2.9-2.3 1.9-1.4L8 15"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  leaf: '<path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14"/><path d="M5 19c3-4 6-6.5 10-8"/>',
+  book: '<path d="M4.5 5.5C7 4.8 9.7 5 12 6.8c2.3-1.8 5-2 7.5-1.3v12.5c-2.5-.7-5.2-.5-7.5 1.3-2.3-1.8-5-2-7.5-1.3V5.5Z"/><path d="M12 6.8v12.5"/>',
+  mail: '<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/>'
+};
+function ico(name, size = 18) {
+  return `<svg class="ico" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICO[name] || ''}</svg>`;
+}
+
+// ═══════════════════════════════════════
 // SUPABASE HELPERS
 // ═══════════════════════════════════════
 // Like fetch(), but throws if the server rejects the write (RLS/constraint/network), so callers'
@@ -1573,7 +1612,7 @@ async function submitAgeGate() {
 
 async function deleteAccount() {
   const confirmation = await showTextInputModal({
-    icon: '⚠️',
+    icon: 'warning',
     title: 'Delete your account?',
     desc: 'This permanently deletes your account, scores, streaks, friends, and all progress. This cannot be undone. Type DELETE to confirm.',
     placeholder: 'Type DELETE',
@@ -1899,7 +1938,7 @@ async function handleAuth(mode) {
       // Check username availability first
       const existing = await sbFetch(`profiles?username=eq.${encodeURIComponent(username)}&select=id`);
       if(existing.length) {
-        errEl.textContent = '⚠️ That username is already taken — try another!';
+        errEl.textContent = 'That username is already taken — try another!';
         errEl.style.display = 'block';
         btn.textContent = 'Create Account →';
         btn.disabled = false;
@@ -1943,7 +1982,7 @@ async function handleAuth(mode) {
       showApp();
     }
   } catch(e) {
-    errEl.textContent = `⚠️ ${e.message}`;
+    errEl.textContent = `${e.message}`;
     errEl.style.display = 'block';
     btn.textContent = mode==='login'?'Sign In →':'Create Account →';
     btn.disabled = false;
@@ -1955,7 +1994,7 @@ function renderForgotPassword() {
     <div class="auth-screen">
       <div class="auth-card">
         <div style="margin-bottom:20px;">
-          <p style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;">🔐 Reset your password</p>
+          <p style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;">Reset your password</p>
           <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;">Enter your email and we'll send you a link to reset your password.</p>
         </div>
         <div class="auth-error" id="resetError"></div>
@@ -2007,7 +2046,7 @@ async function sendPasswordReset() {
     btn.disabled = true;
     setTimeout(()=>renderAuthScreen('login'), 4000);
   } catch(e) {
-    errEl.textContent = `⚠️ Something went wrong — please try again.`;
+    errEl.textContent = `Something went wrong — please try again.`;
     errEl.style.display = 'block';
     btn.textContent = 'Send Reset Link →';
     btn.disabled = false;
@@ -2027,7 +2066,7 @@ function renderNewPasswordScreen() {
     <div class="auth-screen">
       <div class="auth-card">
         <div style="margin-bottom:20px;">
-          <p style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;">🔐 Set a new password</p>
+          <p style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;">Set a new password</p>
           <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;">Choose a new password for your account.</p>
         </div>
         <div class="auth-error" id="newPasswordError"></div>
@@ -2078,7 +2117,7 @@ async function handleSetNewPassword() {
     // up the existing session and takes the user straight into the app.
     window.location.href = currentAppUrl();
   } catch(e) {
-    errEl.textContent = `⚠️ ${e.message}`;
+    errEl.textContent = `${e.message}`;
     errEl.style.display = 'block';
     btn.textContent = 'Save New Password →';
     btn.disabled = false;
@@ -2207,7 +2246,7 @@ function showApp() {
 
 // In-app replacement for window.prompt() — native prompt() renders as a bare,
 // inconsistent OS dialog inside a WebView (and is sometimes disabled outright).
-function showTextInputModal({ title='', desc='', placeholder='', defaultValue='', confirmLabel='OK', icon='✏️' } = {}) {
+function showTextInputModal({ title='', desc='', placeholder='', defaultValue='', confirmLabel='OK', icon='edit' } = {}) {
   return new Promise(resolve => {
     const existing = document.getElementById('textInputModalOverlay');
     if(existing) existing.remove();
@@ -2217,7 +2256,7 @@ function showTextInputModal({ title='', desc='', placeholder='', defaultValue=''
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
     overlay.innerHTML = `
       <div style="background:var(--surface);border:1.5px solid var(--fern);border-radius:20px;padding:32px 24px;max-width:400px;width:100%;text-align:center;">
-        ${icon ? `<div style="font-size:2.2rem;margin-bottom:10px;">${icon}</div>` : ''}
+        ${icon ? `<div style="margin-bottom:10px;color:var(--nav-active);">${ICO[icon] ? ico(icon, 36) : `<span style="font-size:2.2rem;">${icon}</span>`}</div>` : ''}
         ${title ? `<div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;">${title}</div>` : ''}
         ${desc ? `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">${desc}</div>` : ''}
         <input id="textInputModalField" type="text" maxlength="40" placeholder="${placeholder}"
@@ -2252,7 +2291,7 @@ function showUsernamePrompt() {
   overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
   overlay.innerHTML = `
     <div style="background:var(--surface);border:1.5px solid var(--fern);border-radius:20px;padding:32px 24px;max-width:400px;width:100%;text-align:center;">
-      <div style="font-size:2.5rem;margin-bottom:12px;">👋</div>
+      <div style="margin-bottom:12px;color:var(--nav-active);">${ico('hand', 44)}</div>
       <div style="font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px;">Welcome to Scripture Scout!</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">Choose a username so friends can find you and your scores appear on the leaderboard.</div>
       <input id="usernamePromptInput" type="text" maxlength="20" placeholder="Choose a username…"
@@ -2292,7 +2331,7 @@ async function saveUsername() {
     // Check availability
     const existing = await sbFetch(`profiles?username=eq.${encodeURIComponent(username)}&select=id`);
     if(existing.length && existing[0].id !== currentUser?.id) {
-      if(errEl) { errEl.textContent = '⚠️ That username is taken — try another!'; errEl.style.display = 'block'; }
+      if(errEl) { errEl.textContent = 'That username is taken — try another!'; errEl.style.display = 'block'; }
       if(btn) { btn.textContent = "Let's Go! →"; btn.disabled = false; }
       return;
     }
@@ -2314,7 +2353,7 @@ async function saveUsername() {
     showHome();
 
   } catch(e) {
-    if(errEl) { errEl.textContent = `⚠️ ${e.message || 'Could not save username. Try again.'}`;  errEl.style.display = 'block'; }
+    if(errEl) { errEl.textContent = `${e.message || 'Could not save username. Try again.'}`;  errEl.style.display = 'block'; }
     if(btn) { btn.textContent = "Let's Go! →"; btn.disabled = false; }
   }
 }
@@ -2520,7 +2559,7 @@ async function renderLeaderboard() {
   root.innerHTML = `
     <div class="leaderboard-screen">
       <div style="display:flex;gap:6px;margin-bottom:12px;">
-        <button class="game-lb-tab ${lbView==='weekly'?'active':''}" id="lbWeeklyTab" onclick="setLbView('weekly')" style="flex:1;">📅 This Week</button>
+        <button class="game-lb-tab ${lbView==='weekly'?'active':''}" id="lbWeeklyTab" onclick="setLbView('weekly')" style="flex:1;">${ico('calendar')}This week</button>
         <button class="game-lb-tab ${lbView==='alltime'?'active':''}" id="lbAlltimeTab" onclick="setLbView('alltime')" style="flex:1;"><img src="icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> All Time</button>
       </div>
       <div class="lb-diff-tabs">
@@ -2610,7 +2649,7 @@ function renderDiffScreen() {
         <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:#F4B942;border:1px solid #F4B942;">LIVE</div>
       </div>`
     : `<div class="diff-card" style="opacity:0.5;cursor:default;">
-        <div class="diff-icon">🔒</div>
+        <div class="diff-icon">${ico('lock', 28)}</div>
         <div class="diff-info">
           <div class="diff-name">Endless Mode</div>
           <div class="diff-desc">Complete Hard mode perfectly ${3-perfectHardRuns} more time${3-perfectHardRuns===1?'':'s'} to unlock.</div>
@@ -2800,10 +2839,10 @@ function endlessGuess(type, choice) {
         phase = 0;
         const area = document.getElementById('choicesArea');
         if(area) area.innerHTML = `
-          <div class="ref-box">📖 <strong>${currentVerse.book} ${currentVerse.ch}:${currentVerse.v}</strong></div>
+          <div class="ref-box">${ico('book',16)} <strong>${currentVerse.book} ${currentVerse.ch}:${currentVerse.v}</strong></div>
           <div class="bank-bar">
             <button class="btn-next" id="continueBtn">Keep Going →</button>
-            <button class="btn-bank" id="bankBtn">🏦 Bank Score</button>
+            <button class="btn-bank" id="bankBtn">${ico('coins')}Bank score</button>
           </div>`;
         document.getElementById('continueBtn')?.addEventListener('click', async()=>{
           const card=document.getElementById('card');
@@ -2816,7 +2855,7 @@ function endlessGuess(type, choice) {
     }, 1100);
   } else {
     // WRONG — game over, lose everything
-    if(fb){ fb.className='feedback wrong'; fb.innerHTML=`✗ Wrong${reveal?` — it was <strong>${reveal}</strong>`:''}. Run ended! 💀`; }
+    if(fb){ fb.className='feedback wrong'; fb.innerHTML=`✗ Wrong${reveal?` — it was <strong>${reveal}</strong>`:''}. Run ended!`; }
     setTimeout(()=>endlessGameOver(true), 1800);
   }
 }
@@ -2828,7 +2867,7 @@ async function endlessGameOver(lost) {
   if(!card) return;
   card.innerHTML = `
     <div class="game-over-endless">
-      <div class="verse-label">${lost?'💀 Run Ended':'🏦 Score Banked'}</div>
+      <div class="verse-label">${lost?'Run ended':'Score banked'}</div>
       <h2>${lost?'So close...':'Well played, Scout!'}</h2>
       <div class="endless-final">${endlessScore.toLocaleString()}</div>
       <div class="endless-streak-display">${endlessStreak} verse${endlessStreak===1?'':'s'} completed</div>
@@ -2860,7 +2899,7 @@ async function endlessGameOver(lost) {
       const btn = document.getElementById('submitEndlessBtn');
       const isAuthError = e.message.includes('401') || e.message.includes('403') || e.message.includes('JWT');
       if(isAuthError && currentUser) {
-        btn.textContent = '⚠️ Please confirm your email first';
+        btn.textContent = 'Please confirm your email first';
         btn.disabled = false;
         const nameEntry = document.querySelector('.name-entry');
         if(nameEntry && !document.getElementById('confirmMsg')) {
@@ -2871,7 +2910,7 @@ async function endlessGameOver(lost) {
           nameEntry.appendChild(msg);
         }
       } else {
-        btn.textContent = '⚠️ Failed — try again';
+        btn.textContent = 'Failed — try again';
         btn.disabled = false;
       }
     }
@@ -2896,7 +2935,7 @@ function showSpinner(card) {
   card.innerHTML=`<div class="verse-label">Loading…</div><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Fetching from Scripture…</div></div>`;
 }
 function showError(card,msg) {
-  card.innerHTML=`<div class="error-box">⚠️ ${msg}</div><button class="btn-next" id="retryBtn">Retry</button><button class="btn-change-diff" id="backBtn">← Back</button>`;
+  card.innerHTML=`<div class="error-box">${msg}</div><button class="btn-next" id="retryBtn">Retry</button><button class="btn-change-diff" id="backBtn">← Back</button>`;
   document.getElementById('retryBtn').onclick=async()=>{
     // Retry fetching the current verse — keep score and progress intact
     showSpinner(card);
@@ -2943,7 +2982,7 @@ function hintCost(pts) {
 function hintLabel() {
   const pts = POINTS[getPhaseKey(Math.min(phase, maxPhases()-1))];
   const cost = hintCost(pts);
-  return `💡 Hint <span class="hint-cost">-${cost}pts</span>`;
+  return `${ico('bulb')}Hint <span class="hint-cost">-${cost}pts</span>`;
 }
 
 function applyHint() {
@@ -2956,7 +2995,7 @@ function applyHint() {
 
   // Disable hint button
   const btn = document.getElementById('hintBtn');
-  if(btn) { btn.disabled=true; btn.innerHTML='💡 Hint used'; }
+  if(btn) { btn.disabled=true; btn.innerHTML=ico('bulb') + 'Hint used'; }
 
   // Show relevant hint
   showHintBox();
@@ -3007,7 +3046,7 @@ function showHintBox() {
   const hintEl = document.createElement('div');
   hintEl.id = 'easyHint';
   hintEl.className = 'hint-box';
-  hintEl.innerHTML = `💡 ${hintText}`;
+  hintEl.innerHTML = `${ico('bulb')}${hintText}`;
   const choicesArea = document.getElementById('choicesArea');
   if(choicesArea) choicesArea.insertAdjacentElement('beforebegin', hintEl);
 }
@@ -3055,7 +3094,7 @@ function _renderCardPhase() {
   // Add fresh hint button before choices
   const hintWrap = document.createElement('div');
   hintWrap.className = 'hint-btn-wrap';
-  hintWrap.innerHTML = `<button class="hint-btn" id="hintBtn" ${hintUsed?'disabled':''} onclick="applyHint()">${hintUsed?'💡 Hint used':hintLabel()}</button>`;
+  hintWrap.innerHTML = `<button class="hint-btn" id="hintBtn" ${hintUsed?'disabled':''} onclick="applyHint()">${hintUsed?ico('bulb') + 'Hint used':hintLabel()}</button>`;
   area.parentElement.insertBefore(hintWrap, area);
 
   if(phase===0){
@@ -3192,7 +3231,7 @@ function renderNextButton(){
   const area=document.getElementById('choicesArea');
   if(!area)return;
   area.innerHTML=`
-    <div class="ref-box">📖 <strong>${currentVerse.book} ${currentVerse.ch}:${currentVerse.v}</strong> — ${currentVerse.t==='OT'?'Old':'New'} Testament</div>
+    <div class="ref-box">${ico('book',16)} <strong>${currentVerse.book} ${currentVerse.ch}:${currentVerse.v}</strong> — ${currentVerse.t==='OT'?'Old':'New'} Testament</div>
     <button class="btn-next" id="nextBtn">${round<TOTAL_ROUNDS?'Next Verse →':'See Final Score'}</button>
     <button class="btn-change-diff" id="changeDiffBtn">← Change difficulty</button>`;
   document.getElementById('nextBtn').onclick=nextRound;
@@ -3239,7 +3278,7 @@ function renderGameOver(card){
         </div>
       `}
       <button class="btn-next" id="playAgainBtn" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);">Play Again</button>
-      <button class="btn-share" id="shareBtn" style="margin-top:8px;" onclick="shareScore(${score})">📨 Challenge a Friend</button>
+      <button class="btn-share" id="shareBtn" style="margin-top:8px;" onclick="shareScore(${score})">${ico('send')}Challenge a friend</button>
       <button class="btn-change-diff" id="chooseDiffBtn">← Choose difficulty</button>
     </div>`;
 
@@ -3256,7 +3295,7 @@ function renderGameOver(card){
       await updateStreak();
   setTimeout(()=>switchTab(currentUser ? 'stats' : 'leaderboard'), 1200);
     } catch(e) {
-      document.getElementById('submitBtn').textContent = '⚠️ Failed — try again';
+      document.getElementById('submitBtn').textContent = 'Failed — try again';
       document.getElementById('submitBtn').disabled = false;
     }
   };
@@ -3374,7 +3413,7 @@ function renderFillBlankSetup() {
           <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:#F4B942;border:1px solid #F4B942;">LIVE</div>
         </div>`
     : `<div class="diff-card" style="opacity:0.5;cursor:default;margin-bottom:12px;">
-          <div class="diff-icon">🔒</div>
+          <div class="diff-icon">${ico('lock', 28)}</div>
           <div class="diff-info"><div class="diff-name">Endless Mode</div>
           <div class="diff-desc">Complete Hard mode perfectly ${3-perfectHardMIA} more time${3-perfectHardMIA===1?'':'s'} to unlock.</div></div>
           <div class="endless-progress" style="margin-top:8px;"><div class="endless-progress-fill" style="width:${(perfectHardMIA/3)*100}%"></div></div>
@@ -3524,7 +3563,7 @@ async function startFillBlank(diff, size) {
     }
     renderFillBlankCard();
   } catch(e) {
-    root.innerHTML = `<div class="error-box">⚠️ ${e.message}</div><button class="btn-next" onclick="renderFillBlankSetup()">Try Again</button>`;
+    root.innerHTML = `<div class="error-box">${e.message}</div><button class="btn-next" onclick="renderFillBlankSetup()">Try Again</button>`;
   }
 }
 
@@ -3554,7 +3593,7 @@ function renderFillBlankCard() {
     <div class="flashcard-progress-bar"><div class="flashcard-progress-fill" style="width:${progress}%"></div></div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label">Missing in Action — fill the blanks</div>
-      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">📖 ${v.book} ${v.chapter}:${v.verse} — ${v.testament==='OT'?'Old':'New'} Testament</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">${ico('book',16)} ${v.book} ${v.chapter}:${v.verse} — ${v.testament==='OT'?'Old':'New'} Testament</div>
       <div class="blank-verse" id="blankVerse">${blankHtml}</div>
       <div id="blankInputArea"></div>
       <div class="feedback" id="fitbFeedback" role="status" aria-live="polite"></div>
@@ -3589,11 +3628,11 @@ function renderBlankInput() {
       .map((w, i) => ({ word: w, used: false, chipIndex: i }));
 
     area.innerHTML = `
-      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
       <div id="fitbAnswerRow" class="answer-row">
         <span class="answer-placeholder" id="fitbAnswerPlaceholder">Tap words below…</span>
       </div>
-      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
       <div id="fitbWordBank" class="word-bank">
         ${fitbWordBank.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
       </div>
@@ -3777,7 +3816,7 @@ async function renderFillBlankComplete() {
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div class="verse-label">Missing in Action Complete</div>
       ${justUnlockedMIA ? `<div style="background:rgba(244,185,66,0.1);border:1px solid #F4B942;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;font-size:0.85rem;color:#F4B942;font-weight:600;">🔓 Endless Missing in Action Unlocked!</div>` : ''}
-      <div style="font-size:2.5rem;margin:12px 0;">✏️</div>
+      <div style="margin:12px 0;color:var(--nav-active);">${ico('edit',44)}</div>
       <h2 style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:6px;">${pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Well done!' : 'Keep practicing!'}</h2>
       <div style="font-size:3rem;font-weight:700;background:linear-gradient(135deg,#8FD9A8,#3BBFA0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:12px 0;">${s.score.toLocaleString()}</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:24px;">${s.correct} words correct</div>
@@ -3808,7 +3847,7 @@ function renderRefChallengeSetup() {
           <div class="diff-badge" style="background:rgba(244,185,66,0.15);color:#F4B942;border:1px solid #F4B942;">LIVE</div>
         </div>`
     : `<div class="diff-card" style="opacity:0.5;cursor:default;margin-bottom:12px;">
-          <div class="diff-icon">🔒</div>
+          <div class="diff-icon">${ico('lock', 28)}</div>
           <div class="diff-info"><div class="diff-name">Endless Mode</div>
           <div class="diff-desc">Complete Hard mode perfectly ${3-perfectHardTrack} more time${3-perfectHardTrack===1?'':'s'} to unlock.</div></div>
           <div class="endless-progress" style="margin-top:8px;"><div class="endless-progress-fill" style="width:${(perfectHardTrack/3)*100}%"></div></div>
@@ -3902,7 +3941,7 @@ async function startRefChallenge(diff, size) {
     }
     renderRefChallengeCard();
   } catch(e) {
-    root.innerHTML = `<div class="error-box">⚠️ ${e.message}</div><button class="btn-next" onclick="renderRefChallengeSetup()">Try Again</button>`;
+    root.innerHTML = `<div class="error-box">${e.message}</div><button class="btn-next" onclick="renderRefChallengeSetup()">Try Again</button>`;
   }
 }
 
@@ -4143,7 +4182,7 @@ async function renderStoryMode() {
       const bookPage = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
         <div class="fg-page-inner">
           <div class="fg-guide-header">
-            <div class="fg-guide-label">📜 Randy's Field Guide</div>
+            <div class="fg-guide-label">Randy's Field Guide</div>
             <div class="fg-guide-title">${sectionLabel}</div>
             <div class="fg-guide-sub">${currentPaths.length} paths · ${sectionChapterCount} chapters</div>
           </div>
@@ -4188,7 +4227,7 @@ async function renderStoryMode() {
     renderStoryScreen();
 
   } catch(e) {
-    root.innerHTML = `<div class="error-box">⚠️ Could not load stories — ${e.message}</div>
+    root.innerHTML = `<div class="error-box">Could not load stories — ${e.message}</div>
       <button class="btn-next" onclick="renderStoryMode()">Retry</button>`;
   }
 }
@@ -4212,7 +4251,7 @@ async function renderStoryPath(pathId) {
       const isLocked = ch.chapter_num > completed + 1;
       const numClass = isDone ? 'fg-ch-done' : isCurrent ? 'fg-ch-next' : 'fg-ch-lock';
       const stars = storyProgress[`stars_${pathId}_${ch.chapter_num}`] || 0;
-      const starsHtml = isDone ? '⭐'.repeat(stars||1) + '☆'.repeat(3-(stars||1)) : (isCurrent ? '▶' : '🔒');
+      const starsHtml = isDone ? '★'.repeat(stars||1) + '☆'.repeat(3-(stars||1)) : (isCurrent ? '▶' : ico('lock',16));
       return `
         <div class="fg-ch-row ${isLocked ? '' : 'fg-path-tappable'}" ${isLocked ? '' : `data-chapter="${ch.id}"`}>
           <div class="fg-ch-n ${numClass}">${isDone ? '✓' : ch.chapter_num}</div>
@@ -4225,7 +4264,7 @@ async function renderStoryPath(pathId) {
       <div class="fg-page-inner">
         <div class="fg-back-btn" onclick="renderStoryMode()">← back to stories</div>
         <div class="fg-guide-header">
-          <div class="fg-guide-label">📜 Randy's Field Guide</div>
+          <div class="fg-guide-label">Randy's Field Guide</div>
           <div class="fg-guide-title">${getStoryPathIcon(path, 32)} ${path.title}</div>
           <div class="fg-guide-sub">${path.description}</div>
         </div>
@@ -4247,7 +4286,7 @@ async function renderStoryPath(pathId) {
     const beginBtn = document.getElementById('fgBeginChapterBtn');
     if(beginBtn && nextChapter) beginBtn.onclick = () => renderStoryChapter(nextChapter, pathId, completed);
   } catch(e) {
-    root.innerHTML = `<div class="error-box">⚠️ ${e.message}</div><button class="btn-next" onclick="renderStoryMode()">Back</button>`;
+    root.innerHTML = `<div class="error-box">${e.message}</div><button class="btn-next" onclick="renderStoryMode()">Back</button>`;
   }
 }
 
@@ -4403,16 +4442,16 @@ async function renderStoryRound() {
         <!-- Full verse shown upfront on Round 1 only -->
         ${round === 1 ? `
         <div class="chapter-verse-reveal" style="margin-bottom:16px;">
-          <div class="chapter-verse-label">✨ Key Verse — Read it first</div>
+          <div class="chapter-verse-label">Key Verse — Read it first</div>
           <div class="chapter-verse-text">"${verseText}"</div>
-          <div class="chapter-verse-ref" style="font-size:0.78rem;font-weight:700;">📖 ${chapter.book} ${chapter.chapter}:${chapter.verse}</div>
+          <div class="chapter-verse-ref" style="font-size:0.78rem;font-weight:700;">${ico('book',16)} ${chapter.book} ${chapter.chapter}:${chapter.verse}</div>
         </div>` : ''}
 
         <hr class="divider"/>
 
         <!-- Step 1: Reference -->
         <div id="storyRefSection">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">
+          <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">
             Step 1 — Now, where is this verse from?
           </div>
           ${refChoicesHtml}
@@ -4423,7 +4462,7 @@ async function renderStoryRound() {
         <!-- Step 2: Fill blanks (hidden until ref answered) -->
         <div id="storyBlanksSection" style="display:none;margin-top:16px;">
           <hr class="divider" style="margin-bottom:14px;"/>
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">
+          <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">
             Step 2 — ${round === 1 ? 'Fill in the missing words' : round === 2 ? 'Tap the key words in order' : 'Type the verse from memory'}
           </div>
           ${round === 1 ? `<div class="blank-verse" id="storyBlankVerse" style="margin-bottom:14px;">${blankHtml}</div>` : ''}
@@ -4440,7 +4479,7 @@ async function renderStoryRound() {
         </div>
 
       </div>
-      ${stars > 0 ? `<div style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">Current mastery: ${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>` : ''}
+      ${stars > 0 ? `<div style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">Current mastery: ${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>` : ''}
     </div>
   </div>`;
   root.innerHTML = `<div class="story-screen">${buildBookShell(page)}</div>`;
@@ -4604,11 +4643,11 @@ function renderStoryBlankInput() {
   storyWordBankData = shuffle(wordList).map((w, i) => ({ word: w, chipIndex: i, used: false }));
 
   area.innerHTML = `
-    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
+    <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
     <div id="storyAnswerRow" class="answer-row">
       <span class="answer-placeholder" id="storyAnswerPlaceholder">Tap words below…</span>
     </div>
-    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
+    <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
     <div id="storyWordPool" class="word-bank">
       ${storyWordBankData.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
@@ -4967,7 +5006,7 @@ async function renderGameLeaderboard(title, table, difficulties, diffLabels, cur
       <div class="game-lb">
         <div class="verse-label">${title} Leaderboard</div>
         <div style="display:flex;gap:6px;margin-bottom:12px;">
-          <button class="game-lb-tab ${activeView==='weekly'?'active':''}" id="weeklyTab" style="flex:1;">📅 This Week</button>
+          <button class="game-lb-tab ${activeView==='weekly'?'active':''}" id="weeklyTab" style="flex:1;">${ico('calendar')}This week</button>
           <button class="game-lb-tab ${activeView==='alltime'?'active':''}" id="alltimeTab" style="flex:1;"><img src="icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> All Time</button>
         </div>
         <div class="game-lb-tabs">${diffTabs}</div>
@@ -5043,9 +5082,9 @@ function renderStoryRoundComplete(stars) {
     <div class="fg-page-inner">
       <div class="fg-back-btn" onclick="renderStoryPath(${s.pathId})">← all chapters</div>
       <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-        <div style="font-size:2.5rem;margin-bottom:12px;">📜</div>
+        <div style="margin-bottom:12px;color:var(--nav-active);">${ico('book',44)}</div>
         <div class="verse-label" style="justify-content:center;">Chapter ${s.chapter.chapter_num} — ${s.chapter.title}</div>
-        <div class="story-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+        <div class="story-stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
         <h2 style="font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:6px;">
           ${stars===3?'Chapter Mastered! 🏆':stars===2?'Well done!':'Chapter Unlocked!'}
         </h2>
@@ -5056,14 +5095,14 @@ function renderStoryRoundComplete(stars) {
         </p>
 
         <div class="chapter-verse-reveal" style="margin-bottom:20px;text-align:left;">
-          <div class="chapter-verse-label">✨ Key Verse</div>
+          <div class="chapter-verse-label">Key Verse</div>
           <div class="chapter-verse-text">"${s.verseText}"</div>
           <div class="chapter-verse-ref">${s.chapter.book} ${s.chapter.chapter}:${s.chapter.verse}</div>
         </div>
 
         ${hasNextRound && !isMaxStars ? `
         <button class="btn-next" id="nextRoundBtn" style="background:linear-gradient(135deg,#7a3810,#c8941a);margin-bottom:8px;">
-          ⭐ Try Round ${s.round+1} for more stars →
+          ★ Try Round ${s.round+1} for more stars →
         </button>` : ''}
         <button class="btn-next" id="nextChapterBtn" style="${hasNextRound&&!isMaxStars?'background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);':''}">
           Next Chapter →
@@ -5120,7 +5159,7 @@ function renderStoryRecapQuestion() {
   const page = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
     <div class="fg-page-inner">
       <div class="fg-guide-header">
-        <div class="fg-guide-label">📜 Randy's Field Guide</div>
+        <div class="fg-guide-label">Randy's Field Guide</div>
         <div class="fg-guide-title">Recap: ${rq.path.title}</div>
         <div class="fg-guide-sub">Question ${rq.idx + 1} of ${rq.questions.length}</div>
       </div>
@@ -5172,7 +5211,7 @@ function renderStoryRecapComplete() {
   const page = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
     <div class="fg-page-inner">
       <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-        <div style="font-size:2.5rem;margin-bottom:12px;">🏆</div>
+        <div style="margin-bottom:12px;color:var(--nav-active);">${ico('trophy',48)}</div>
         <div class="verse-label" style="justify-content:center;">${rq.path.title} — Recap Complete</div>
         <h2 style="font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:6px;">${rq.correct}/${total} correct</h2>
         <p style="font-size:0.84rem;color:var(--text-muted);line-height:1.6;margin-bottom:20px;">${flavor}</p>
@@ -5720,7 +5759,7 @@ async function renderTopicTrivia(topic, roundIdx) {
     const choices = shuffle([...q.choices]);
     root.innerHTML = '<div style="max-width:560px;width:100%;margin:0 auto">'
       + '<div style="text-align:center;margin-bottom:12px;">'
-      + '<div style="font-size:0.75rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">📖 ' + topic.title + ' — Trivia</div>'
+      + '<div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">' + topic.title + ' — Trivia</div>'
       + '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Question ' + (qIdx+1) + ' of ' + questions.length + ' · Score: ' + score + '</div>'
       + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
       + Array.from({length:questions.length},(_,i)=>'<div style="width:10px;height:10px;border-radius:50%;background:' + (i<qIdx?'#5aaa30':i===qIdx?'#f4b942':'rgba(139,105,20,0.2)') + '"></div>').join('')
@@ -5765,7 +5804,7 @@ function renderTopicFillin(topic, roundIdx) {
     const v = verses[vIdx];
     root.innerHTML = '<div style="max-width:560px;width:100%;margin:0 auto">'
       + '<div style="text-align:center;margin-bottom:12px;">'
-      + '<div style="font-size:0.75rem;font-weight:700;color:#60A5FA;text-transform:uppercase;letter-spacing:0.1em;">✏️ ' + topic.title + ' — Fill in the Blank</div>'
+      + '<div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">' + topic.title + ' — Fill in the Blank</div>'
       + '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Verse ' + (vIdx+1) + ' of ' + verses.length + ' · Score: ' + score + '</div>'
       + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
       + Array.from({length:verses.length},(_,i)=>'<div style="width:10px;height:10px;border-radius:50%;background:' + (i<vIdx?'#5aaa30':i===vIdx?'#60A5FA':'rgba(139,105,20,0.2)') + '"></div>').join('')
@@ -5893,7 +5932,7 @@ function renderTopicScoutCard(topic) {
 
   root.innerHTML = '<div style="max-width:560px;width:100%;margin:0 auto">'
     + '<div style="text-align:center;margin-bottom:12px;">'
-    + '<div style="font-size:0.75rem;font-weight:700;color:#34D399;text-transform:uppercase;letter-spacing:0.1em;">🔍 ' + topic.title + ' — Scripture Scout</div>'
+    + '<div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">' + topic.title + ' — Scripture Scout</div>'
     + '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Verse ' + (_teScoutVersesFound+1) + ' of 3 · Score: ' + _teScoutScore + '</div>'
     + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
     + [0,1,2].map(i => '<div style="width:10px;height:10px;border-radius:50%;background:' + (i<_teScoutVersesFound?'#5aaa30':i===_teScoutVersesFound?'#34D399':'rgba(139,105,20,0.2)') + '"></div>').join('')
@@ -6325,7 +6364,7 @@ function renderTriviaQuestion() {
           ${c}
         </button>`).join('')}
     </div>
-    <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:10px;">📖 ${q.ref}</div>`;
+    <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:10px;">${ico('book',14)} ${q.ref}</div>`;
 }
 
 function checkTriviaAnswer(btn, chosen, pts) {
@@ -6544,7 +6583,7 @@ function renderMIAEndlessCard() {
     </div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label">Endless Missing in Action</div>
-      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">📖 ${v.book} ${v.chapter}:${v.verse}</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">${ico('book',16)} ${v.book} ${v.chapter}:${v.verse}</div>
       <div class="blank-verse" id="blankVerse">${blankHtml}</div>
       <div id="blankInputArea"></div>
       <div class="feedback" id="fitbFeedback" role="status" aria-live="polite"></div>
@@ -6568,10 +6607,10 @@ function renderBlankInputEndless() {
     es.streak++;
     es.score += Math.round(500 * (1 + es.streak * 0.1));
     area.innerHTML = `
-      <div class="ref-box">📖 <strong>${s.verses[0].book} ${s.verses[0].chapter}:${s.verses[0].verse}</strong></div>
+      <div class="ref-box">${ico('book',16)} <strong>${s.verses[0].book} ${s.verses[0].chapter}:${s.verses[0].verse}</strong></div>
       <div class="bank-bar">
         <button class="btn-next" id="miaNextBtn">Keep Going →</button>
-        <button class="btn-bank" id="miaBankBtn">🏦 Bank Score</button>
+        <button class="btn-bank" id="miaBankBtn">${ico('coins')}Bank score</button>
       </div>`;
     document.getElementById('miaNextBtn').onclick = fetchNextMIAVerse;
     document.getElementById('miaBankBtn').onclick = endMIAEndless;
@@ -6613,7 +6652,7 @@ async function endMIAEndless(lost) {
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div class="verse-label"><img src="icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless Missing in Action</div>
-      <div style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">${lost ? '💀 Run Ended!' : '🏦 Score Banked!'}</div>
+      <div style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">${lost ? 'Run ended' : 'Score banked'}</div>
       <div class="endless-final">${es.score.toLocaleString()}</div>
       <div class="endless-streak-display">${es.streak} verse${es.streak===1?'':'s'} completed</div>
       <button class="btn-next" onclick="startMIAEndless()">Play Again</button>
@@ -6698,10 +6737,10 @@ async function renderTrackEndlessCard() {
         setTimeout(() => {
           const area = document.getElementById('trackRefOptions');
           if(area) area.innerHTML = `
-            <div class="ref-box">📖 <strong>${v.book} ${v.chapter}:${v.verse}</strong></div>
+            <div class="ref-box">${ico('book',16)} <strong>${v.book} ${v.chapter}:${v.verse}</strong></div>
             <div class="bank-bar">
               <button class="btn-next" id="trackNextBtn">Keep Going →</button>
-              <button class="btn-bank" id="trackBankBtn">🏦 Bank Score</button>
+              <button class="btn-bank" id="trackBankBtn">${ico('coins')}Bank score</button>
             </div>`;
           document.getElementById('trackNextBtn').onclick = fetchNextTrackVerse;
           document.getElementById('trackBankBtn').onclick = () => endTrackEndless(false);
@@ -6720,7 +6759,7 @@ async function endTrackEndless(lost) {
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
       <div class="verse-label"><img src="icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless Track It Down</div>
-      <div style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">${lost ? '💀 Run Ended!' : '🏦 Score Banked!'}</div>
+      <div style="font-size:1rem;color:var(--text-muted);margin-bottom:8px;">${lost ? 'Run ended' : 'Score banked'}</div>
       <div class="endless-final">${es.score.toLocaleString()}</div>
       <div class="endless-streak-display">${es.streak} verse${es.streak===1?'':'s'} correct</div>
       <button class="btn-next" onclick="startTrackEndless()">Play Again</button>
@@ -6890,7 +6929,7 @@ async function renderChallenges() {
           <div>
             <div class="challenge-title">${gameNames[c.game]||c.game} — ${c.difficulty}</div>
             <div class="challenge-meta">${isMine ? 'You challenged' : 'Challenge from'} ${escapeHtml(theirName)} · ${timeAgo(c.created_at)}</div>
-            ${c.verse_book ? `<div class="challenge-meta">📖 ${c.verse_book} ${c.verse_chapter}:${c.verse_verse}</div>` : ''}
+            ${c.verse_book ? `<div class="challenge-meta">${ico('book',14)} ${c.verse_book} ${c.verse_chapter}:${c.verse_verse}</div>` : ''}
           </div>
         </div>
         <div class="challenge-scores">
@@ -6949,7 +6988,7 @@ async function acceptChallenge(challengeId, game, difficulty, challengerScore, b
   // Launch the appropriate game
   root.innerHTML = `
     <div style="text-align:center;padding:20px;">
-      <div style="font-size:0.78rem;font-weight:700;color:#F4B942;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">⚔️ Challenge Mode</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);margin-bottom:8px;">Challenge mode</div>
       <div style="font-size:0.88rem;color:var(--text-muted);margin-bottom:20px;">Beat ${challengerScore.toLocaleString()} pts to win!</div>
     </div>`;
 
@@ -7024,15 +7063,15 @@ function challengeHUD() {
       const elapsed = (new Date() - startedAt) / 1000;
       const bonus = Math.max(0, Math.floor(500 * (1 - elapsed / 300)));
       const bonusEl = document.getElementById('challengeSpeedBonus');
-      if(bonusEl) bonusEl.textContent = `⚡ Speed bonus: +${bonus} pts`;
+      if(bonusEl) bonusEl.textContent = `Speed bonus: +${bonus} pts`;
       else clearInterval(interval);
     }, 1000);
   }, 100);
 
   return `<div style="text-align:center;padding:12px 16px 0;">
-    <div style="font-size:0.75rem;font-weight:700;color:#F4B942;text-transform:uppercase;letter-spacing:0.1em;">⚔️ Challenge Mode</div>
+    <div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">Challenge mode</div>
     ${target ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px;">Beat <strong style="color:#F4B942;">${target.toLocaleString()} pts</strong> to win!</div>` : ''}
-    <div id="challengeSpeedBonus" style="font-size:0.78rem;color:#F4B942;margin-top:2px;">⚡ Speed bonus: +500 pts</div>
+    <div id="challengeSpeedBonus" style="font-size:0.78rem;color:#F4B942;margin-top:2px;">Speed bonus: +500 pts</div>
   </div>`;
 }
 
@@ -7151,7 +7190,7 @@ function renderChallengeMIA(verse) {
   root.innerHTML = challengeHUD() + `
     <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
       <div class="verse-label">Fill in the blanks</div>
-      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">📖 ${verse.book} ${verse.chapter}:${verse.verse}</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">${ico('book',16)} ${verse.book} ${verse.chapter}:${verse.verse}</div>
       <div class="blank-verse" id="challengeMIAVerse">${blankHtml}</div>
       <div id="challengeMIAInput"></div>
       <div class="feedback" id="challengeMIAFeedback" role="status" aria-live="polite"></div>
@@ -7165,9 +7204,9 @@ function renderChallengeMIA(verse) {
 
   const area = document.getElementById('challengeMIAInput');
   area.innerHTML = `
-    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
+    <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
     <div id="challengeAnswerRow" class="answer-row"><span class="answer-placeholder">Tap words below…</span></div>
-    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
+    <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
     <div id="challengeWordBank" class="word-bank">
       ${challengeWordBank.map(w=>`<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
@@ -7320,15 +7359,15 @@ async function finishChallenge(score, verse) {
   const root = document.getElementById('root');
   root.innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-      <div style="font-size:3rem;margin-bottom:12px;">${won?'🏆':tied?'🤝':'😅'}</div>
+      <div style="margin-bottom:12px;color:var(--nav-active);">${ico(won?'trophy':tied?'handshake':'swords', 48)}</div>
       <div style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:8px;">${won?'You won!':tied?'Tied!':'So close!'}</div>
-      ${timeBonus > 0 ? `<div style="font-size:0.82rem;color:#F4B942;margin-bottom:8px;">⚡ Speed bonus: +${timeBonus} pts</div>` : ''}
+      ${timeBonus > 0 ? `<div style="font-size:0.82rem;color:#F4B942;margin-bottom:8px;">Speed bonus: +${timeBonus} pts</div>` : ''}
       <div style="display:flex;gap:12px;justify-content:center;margin:16px 0;">
         <div class="challenge-score-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;">
           <div style="font-size:1.5rem;font-weight:700;color:var(--teal-text);">${totalScore.toLocaleString()}</div>
           <div style="font-size:0.75rem;color:var(--text-muted);">Your Score${timeBonus>0?' (inc. speed bonus)':''}</div>
         </div>
-        <div style="display:flex;align-items:center;font-size:1.2rem;">⚔️</div>
+        <div style="display:flex;align-items:center;font-size:0.85rem;font-weight:700;">vs</div>
         <div class="challenge-score-box" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;">
           <div style="font-size:1.5rem;font-weight:700;color:#F4B942;">${ch.challengerScore.toLocaleString()}</div>
           <div style="font-size:0.75rem;color:var(--text-muted);">Their Score</div>
@@ -7594,7 +7633,7 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
       <div class="verse-label">Notifications</div>
 
       ${friendRequests.length ? `
-      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Friend Requests (${friendRequests.length})</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Friend Requests (${friendRequests.length})</div>
       ${friendRequests.map(r => `
         <div class="friend-card" style="margin-bottom:8px;">
           <div class="friend-avatar">${escapeHtml(getReqName(r.user_id)[0]?.toUpperCase())}</div>
@@ -7610,28 +7649,28 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
       <hr class="divider" style="margin:12px 0;"/>` : ''}
 
       ${pendingChallenges.length ? `
-      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Pending Challenges (${pendingChallenges.length})</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Pending Challenges (${pendingChallenges.length})</div>
       ${pendingChallenges.map(c => {
         const hoursLeft = Math.max(0, Math.floor((new Date(c.expires_at) - new Date()) / 3600000));
         return `
         <div class="challenge-card pending" style="margin-bottom:8px;cursor:pointer;" onclick="showChallengeBanner(${escapeHtml(JSON.stringify(c))})">
           <div class="challenge-header">
-            <div class="challenge-icon">⚔️</div>
+            <div class="challenge-icon">${ico('swords', 28)}</div>
             <div>
               <div class="challenge-title">${escapeHtml(c.challenger_name)} challenged you!</div>
               <div class="challenge-meta">${gameNames[c.game]||c.game} · Beat ${c.challenger_score.toLocaleString()} pts · ⏰ ${hoursLeft}h left</div>
             </div>
           </div>
-          <button class="btn-next" style="margin-top:4px;" onclick="event.stopPropagation();showChallengeBanner(${escapeHtml(JSON.stringify(c))})">⚔️ Accept Challenge!</button>
+          <button class="btn-next" style="margin-top:4px;" onclick="event.stopPropagation();showChallengeBanner(${escapeHtml(JSON.stringify(c))})">Accept challenge</button>
         </div>`;
       }).join('')}
       <hr class="divider" style="margin:12px 0;"/>` : ''}
 
-      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Recent Notifications</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Recent Notifications</div>
       <div class="card" style="max-width:560px;width:100%;padding:0;overflow:hidden;">
         ${notifs.length ? notifs.map(n => `
           <div class="notif-item">
-            <div class="notif-icon">${n.type==='friend_request'?'👋':n.type==='friend_accept'?'🤝':n.type==='challenge'?'⚔️':n.type==='challenge_result'?'🏆':'💬'}</div>
+            <div class="notif-icon">${ico(n.type==='friend_request'?'users':n.type==='friend_accept'?'handshake':n.type==='challenge'?'swords':n.type==='challenge_result'?'trophy':'chat', 22)}</div>
             <div>
               <div class="notif-text">${escapeHtml(n.message)}</div>
               <div class="notif-time">${timeAgo(n.created_at)}</div>
@@ -7800,7 +7839,7 @@ function showReportModal(userId, username, msgId = null) {
   overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
   overlay.innerHTML = `
     <div style="background:var(--surface);border:1.5px solid var(--earth);border-radius:20px;padding:32px 24px;max-width:400px;width:100%;">
-      <div style="font-size:2rem;margin-bottom:10px;text-align:center;">⚠️</div>
+      <div style="margin-bottom:10px;text-align:center;color:var(--earth-text);">${ico('warning', 36)}</div>
       <div style="font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:6px;text-align:center;">${msgId ? 'Report this message' : 'Report ' + escapeHtml(username)}</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;line-height:1.5;text-align:center;">We'll review this. You can also block them so they can't reach you anymore.</div>
       <select id="reportReasonField" style="width:100%;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:10px;">
@@ -7870,7 +7909,7 @@ function showAvatarPicker() {
         </div>
 
         <!-- Color picker -->
-        <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Background Color</div>
+        <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Background Color</div>
         <div class="avatar-color-row">
           ${AVATAR_COLORS.map(c => `
             <div class="avatar-color-btn ${selectedColor===c.id?'selected':''}"
@@ -7880,7 +7919,7 @@ function showAvatarPicker() {
         </div>
 
         <!-- Icon picker -->
-        <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Icon (optional)</div>
+        <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Icon (optional)</div>
         <div class="avatar-icon-grid">
           <button class="avatar-icon-btn ${!selectedIcon?'selected':''}" onclick="selectAvatarIcon(null)" style="font-size:0.8rem;color:var(--text-muted);">None</button>
           ${AVATAR_ICONS.map(icon => `
@@ -8039,7 +8078,7 @@ async function renderProfile(userId=null, username=null) {
   const pushStatus = isOwnProfile ? await getPushSubscriptionStatus() : 'unsupported';
 
   // Group badges by category
-  const cats = { streak:'🔥 Streak', performance:'🎯 Performance', exploration:'🗺️ Exploration' };
+  const cats = { streak:'Streak', performance:'Performance', exploration:'Exploration' };
 
   root.innerHTML = `
     <div class="friends-screen">
@@ -8052,20 +8091,20 @@ async function renderProfile(userId=null, username=null) {
           </div>
           <div class="profile-username">${escapeHtml(profileUsername || '(no username set)')}</div>
           <div class="profile-joined">Scripture Scout Player</div>
-          ${isOwnProfile && !currentUsername ? `<div style="font-size:0.78rem;color:#F4B942;margin-top:4px;">⚠️ Set a username so friends can find you!</div>` : ''}
-          ${isOwnProfile ? `<button class="btn-friend-action" style="margin-top:8px;" onclick="editUsername()">${currentUsername ? '✏️ Change Username' : '✏️ Set Username'}</button>` : ''}
+          ${isOwnProfile && !currentUsername ? `<div style="font-size:0.78rem;color:var(--earth-text);margin-top:4px;">Set a username so friends can find you!</div>` : ''}
+          ${isOwnProfile ? `<button class="btn-friend-action" style="margin-top:8px;" onclick="editUsername()">${ico('edit')}${currentUsername ? 'Change username' : 'Set username'}</button>` : ''}
           ${isOwnProfile && pushStatus !== 'unsupported' ? `
             <button class="btn-friend-action" style="margin-top:8px;" ${pushStatus==='denied'?'':'onclick="togglePushNotifications()"'}>
-              ${pushStatus==='subscribed' ? '🔔 Notifications On — Tap to Turn Off'
-                : pushStatus==='denied' ? '🔕 Notifications Blocked (check browser settings)'
-                : '🔕 Enable Notifications'}
+              ${pushStatus==='subscribed' ? ico('bell') + 'Notifications on — tap to turn off'
+                : pushStatus==='denied' ? ico('bellOff') + 'Notifications blocked (check your settings)'
+                : ico('bellOff') + 'Enable notifications'}
             </button>` : ''}
           ${!isOwnProfile ? `
             <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
               <button class="btn-friend-action" onclick="${isBlocked(profileId) ? `unblockUser('${profileId}','${escapeJsAttr(profileUsername)}')` : `blockUser('${profileId}','${escapeJsAttr(profileUsername)}')`}">
-                ${isBlocked(profileId) ? '✅ Unblock' : '🚫 Block'}
+                ${isBlocked(profileId) ? ico('check') + 'Unblock' : ico('ban') + 'Block'}
               </button>
-              <button class="btn-friend-action" style="border-color:var(--earth);color:var(--earth-text);" onclick="showReportModal('${profileId}','${escapeJsAttr(profileUsername)}')">⚠️ Report</button>
+              <button class="btn-friend-action" style="border-color:var(--earth);color:var(--earth-text);" onclick="showReportModal('${profileId}','${escapeJsAttr(profileUsername)}')">${ico('warning')}Report</button>
             </div>` : ''}
         </div>
 
@@ -8073,7 +8112,7 @@ async function renderProfile(userId=null, username=null) {
 
         <!-- Stats -->
         <div style="padding:16px;">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Stats</div>
+          <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Stats</div>
           <div class="profile-stats-grid">
             <div class="profile-stat">
               <div class="profile-stat-val">${streak.current_streak||0} <img src="icons/streak-fire.svg" width="20" height="20" style="vertical-align:-4px;object-fit:contain;" alt=""></div>
@@ -8092,7 +8131,7 @@ async function renderProfile(userId=null, username=null) {
               <div class="profile-stat-label">Best Score</div>
             </div>
             <div class="profile-stat">
-              <div class="profile-stat-val">${streak.freeze_tokens||0}🌿</div>
+              <div class="profile-stat-val">${streak.freeze_tokens||0} ${ico('leaf',16)}</div>
               <div class="profile-stat-label">Sabbath Rests</div>
             </div>
             <div class="profile-stat">
@@ -8107,7 +8146,7 @@ async function renderProfile(userId=null, username=null) {
         <!-- Badges -->
         ${isOwnProfile ? `
         <div style="padding:16px;">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Badges</div>
+          <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Badges</div>
           ${Object.entries(cats).map(([cat, catLabel]) => `
             <div style="font-size:0.75rem;font-weight:600;color:var(--text-muted);margin:10px 0 6px;">${catLabel}</div>
             <div class="badge-grid-profile">
@@ -8122,7 +8161,7 @@ async function renderProfile(userId=null, username=null) {
 
         <!-- Recent Scores -->
         <div style="padding:16px 16px 8px;">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Recent Scores</div>
+          <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Recent Scores</div>
         </div>
         ${allScores.length ? allScores.map(s => `
           <div class="recent-score-row">
@@ -8140,9 +8179,9 @@ async function renderProfile(userId=null, username=null) {
         ${isOwnProfile ? `
         <hr class="divider" style="margin:0;"/>
         <div style="padding:16px;">
-          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Account</div>
-          <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderBlockedUsersList()">🚫 Blocked Users</button>
-          ${isAppAdmin ? `<button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderReportsAdmin()">⚠️ Review Reports</button>` : ''}
+          <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Account</div>
+          <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderBlockedUsersList()">${ico('ban')}Blocked users</button>
+          ${isAppAdmin ? `<button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderReportsAdmin()">${ico('warning')}Review reports</button>` : ''}
           <a class="btn-friend-action" style="display:block;box-sizing:border-box;width:100%;margin-bottom:8px;text-align:center;text-decoration:none;" href="mailto:nick@rochesterchristian.church?subject=Scripture%20Scout%20support">Contact Support</a>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openTermsOfService()">Terms of Service</button>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openPrivacyPolicy()">Privacy Policy</button>
@@ -8209,7 +8248,7 @@ async function renderFriends(startTab=null) {
       <div class="friends-screen">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
           <div class="verse-label" style="margin:0;">Friends</div>
-          <button class="btn-friend-action" onclick="renderMessages()">💬 Messages</button>
+          <button class="btn-friend-action" onclick="renderMessages()">${ico('chat')}Messages</button>
         </div>
         <div class="friends-tabs" style="margin-top:12px;">
           <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="renderFriends('friends')">Friends ${friends.length>0?`(${friends.length})`:''}</div>
@@ -8233,14 +8272,14 @@ async function renderFriends(startTab=null) {
                     <svg width="14" height="14" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="11" r="7" fill="#d4a830" opacity="0.4" stroke="#7a4a08" stroke-width="2"/><path d="M4 28 Q4 20 16 20 Q28 20 28 28" fill="none" stroke="#7a4a08" stroke-width="2" stroke-linecap="round"/></svg>
                     Profile
                   </button>
-                  <button class="btn-friend-action message" aria-label="Send message" onclick="openDirectMessage('${fId}','${escapeJsAttr(uname)}')">💬</button>
-                  <button class="btn-friend-action challenge" aria-label="Challenge to a duel" onclick="challengeFriend('${fId}','${escapeJsAttr(uname)}')">⚔️</button>
+                  <button class="btn-friend-action message" aria-label="Send message" onclick="openDirectMessage('${fId}','${escapeJsAttr(uname)}')">${ico('chat', 18)}</button>
+                  <button class="btn-friend-action challenge" aria-label="Challenge to a duel" onclick="challengeFriend('${fId}','${escapeJsAttr(uname)}')">${ico('swords', 18)}</button>
                 </div>
               </div>`;
           }).join('') : `<div class="empty-state">No friends yet!<br>Search for friends by username to get started.</div>`}
         ` : activeTab === 'requests' ? `
           ${requests.length ? `
-            <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Incoming Requests</div>
+            <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Incoming Requests</div>
             ${requests.map(r => `
             <div class="friend-card">
               <div class="friend-avatar">${escapeHtml(getUsername(r.user_id)[0]?.toUpperCase())}</div>
@@ -8255,7 +8294,7 @@ async function renderFriends(startTab=null) {
             </div>`).join('')}` : ''}
 
           ${sentRequests.length ? `
-            <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:12px 0 8px;">Sent — Waiting for Response</div>
+            <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:12px 0 8px;">Sent — Waiting for Response</div>
             ${sentRequests.map(r => `
             <div class="friend-card" style="opacity:0.7;">
               <div class="friend-avatar">${escapeHtml(getUsername(r.friend_id)[0]?.toUpperCase())}</div>
@@ -8281,7 +8320,7 @@ async function renderFriends(startTab=null) {
         `}
 
         <div style="display:flex;gap:8px;margin-top:12px;">
-          <button class="btn-change-diff" style="flex:0 0 auto;" onclick="renderFriends(window._friendsActiveTab)">🔄 Refresh</button>
+          <button class="btn-change-diff" style="flex:0 0 auto;" onclick="renderFriends(window._friendsActiveTab)">${ico('refresh')}Refresh</button>
         </div>
       </div>`;
 
@@ -8406,7 +8445,7 @@ async function startChallengeGame(friendId, friendUsername, game, difficulty) {
   const root = document.getElementById('root');
   root.innerHTML = `
     <div style="text-align:center;padding:20px 16px 8px;">
-      <div style="font-size:0.78rem;font-weight:700;color:#F4B942;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">⚔️ Challenge Mode</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);margin-bottom:4px;">Challenge mode</div>
       <div style="font-size:0.85rem;color:var(--text-muted);">Play your best — ${escapeHtml(friendUsername)} will try to beat you!</div>
     </div>`;
 
@@ -8439,7 +8478,7 @@ async function renderMessages() {
           const conv = m.conversations;
           return `
             <div class="conv-item" onclick="openConversation('${conv.id}','${escapeJsAttr(conv.name || 'Direct Message')}','${conv.type}')">
-              <div class="conv-avatar ${conv.type==='group'?'group':''}">${conv.type==='group'?'👥':escapeHtml((conv.name||'?')[0].toUpperCase())}</div>
+              <div class="conv-avatar ${conv.type==='group'?'group':''}">${conv.type==='group'?ico('users', 20):escapeHtml((conv.name||'?')[0].toUpperCase())}</div>
               <div style="flex:1;min-width:0;">
                 <div class="conv-name">${escapeHtml(conv.name || 'Direct Message')}</div>
                 <div class="conv-preview">Tap to open</div>
@@ -8485,7 +8524,7 @@ async function openDirectMessage(friendId, friendUsername) {
 }
 
 async function newGroupChat() {
-  const name = await showTextInputModal({ title: 'New group chat', placeholder: 'Group name', confirmLabel: 'Create', icon: '👥' });
+  const name = await showTextInputModal({ title: 'New group chat', placeholder: 'Group name', confirmLabel: 'Create', icon: 'users' });
   if(!name) return;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/conversations`, {
     method: 'POST',
@@ -8531,7 +8570,7 @@ async function openConversation(convId, convName, convType) {
       <div id="convScreen_${convId}" style="display:flex;flex-direction:column;max-width:560px;width:100%;height:calc(100vh - 120px);height:calc(100dvh - 120px);">
         <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
           <button class="btn-friend-action" aria-label="Back to messages" onclick="renderMessages()">←</button>
-          <div class="conv-avatar ${convType==='group'?'group':''}" style="width:36px;height:36px;font-size:0.9rem;">${convType==='group'?'👥':escapeHtml(convName[0]?.toUpperCase() || '?')}</div>
+          <div class="conv-avatar ${convType==='group'?'group':''}" style="width:36px;height:36px;font-size:0.9rem;">${convType==='group'?ico('users', 18):escapeHtml(convName[0]?.toUpperCase() || '?')}</div>
           <div style="font-weight:700;font-size:1rem;color:var(--text);">${escapeHtml(convName)}</div>
           ${convType==='group'?`<button class="btn-friend-action" style="margin-left:auto;" onclick="addGroupMember('${convId}')">+ Add</button>`:''}
         </div>
@@ -8548,8 +8587,8 @@ async function openConversation(convId, convName, convType) {
               <div style="display:flex;flex-direction:column;align-items:${isMine?'flex-end':'flex-start'};">
                 ${!isMine?`<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px;">${escapeHtml(m.data?.username||'Friend')}</div>`:''}
                 <div class="msg-bubble ${bubbleClass}" data-msg-id="${m.id}" data-sender="${escapeHtml(m.sender_id||'')}" data-sname="${escapeHtml(m.data?.username||'Friend')}" ondblclick="showReactionPicker(${m.id})" title="Press and hold to react or report">
-                  ${m.type==='score'?`🏆 <strong>${escapeHtml(m.data?.game||'Game')}</strong><br>${escapeHtml(m.data?.score?.toLocaleString())} pts`:''}
-                  ${m.type==='verse'?`📖 <strong>${escapeHtml(m.data?.ref||'')}</strong><br><em>${escapeHtml(m.content)}</em>`:''}
+                  ${m.type==='score'?`${ico('trophy',16)} <strong>${escapeHtml(m.data?.game||'Game')}</strong><br>${escapeHtml(m.data?.score?.toLocaleString())} pts`:''}
+                  ${m.type==='verse'?`${ico('book',16)} <strong>${escapeHtml(m.data?.ref||'')}</strong><br><em>${escapeHtml(m.content)}</em>`:''}
                   ${m.type==='text'?escapeHtml(maskObjectionable(m.content)):''}
                 </div>
                 ${Object.keys(rxnGroups).length?`<div class="msg-reactions">${Object.entries(rxnGroups).map(([e,c])=>`<span class="reaction-chip ${rxns.find(r=>r.emoji===e&&r.user_id===currentUser.id)?'mine':''}" onclick="toggleReaction(${m.id},'${escapeJsAttr(e)}')">${escapeHtml(e)} ${c}</span>`).join('')}</div>`:''}
@@ -8558,8 +8597,8 @@ async function openConversation(convId, convName, convType) {
           }).join('') : `<div class="empty-state">No messages yet — say hello! 👋</div>`}
         </div>
         <div class="msg-input-bar">
-          <button onclick="shareScoreInChat('${convId}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;" title="Share score">🏆</button>
-          <button onclick="shareVerseInChat('${convId}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;" title="Share verse">📖</button>
+          <button onclick="shareScoreInChat('${convId}')" style="background:none;border:none;cursor:pointer;padding:6px;color:var(--nav-active);" title="Share score" aria-label="Share score">${ico('trophy',24)}</button>
+          <button onclick="shareVerseInChat('${convId}')" style="background:none;border:none;cursor:pointer;padding:6px;color:var(--nav-active);" title="Share verse" aria-label="Share verse">${ico('book',24)}</button>
           <input class="msg-input" id="msgInput" placeholder="Message…" autocomplete="off"/>
           <button class="btn-send" onclick="sendMessage('${convId}')">Send</button>
         </div>
@@ -8671,7 +8710,7 @@ function showReactionPicker(msgId) {
 }
 
 async function addGroupMember(convId) {
-  const username = await showTextInputModal({ title: 'Add member', placeholder: 'Username', confirmLabel: 'Add', icon: '➕' });
+  const username = await showTextInputModal({ title: 'Add member', placeholder: 'Username', confirmLabel: 'Add', icon: 'plus' });
   if(!username) return;
   const rows = await sbFetch(`profiles?username=eq.${encodeURIComponent(username)}&select=id,username`);
   if(!rows.length) { showStreakToast('User not found!'); return; }
@@ -8910,7 +8949,7 @@ function getJournalEntry(streak, isSabbathEarned, isSabbathUsed, isReset) {
   if(isSabbathUsed) return {
     tag: '🌿 Sabbath Rest Used', tagClass: 'journal-tag-green',
     date: dateStr,
-    body: `Missed yesterday. Life happened — it does that.<br><br>Good thing you had a <strong>🌿 Sabbath Rest</strong> stored up. Streak protected. No damage done.<br><br>Moses didn't cross the Red Sea on his first try either. Get back out there.`,
+    body: `Missed yesterday. Life happened — it does that.<br><br>Good thing you had a <strong>Sabbath Rest</strong> stored up. Streak protected. No damage done.<br><br>Moses didn't cross the Red Sea on his first try either. Get back out there.`,
     sign: '<strong>Streak intact. Rest spent. Onward.</strong>',
     sabbath: true
   };
@@ -8919,8 +8958,8 @@ function getJournalEntry(streak, isSabbathEarned, isSabbathUsed, isReset) {
     tag: '🌿 Sabbath Rest Earned', tagClass: 'journal-tag-green',
     date: dateStr,
     body: streak === 6
-      ? `Day 6. Six days of work, then rest — even God kept that rhythm.<br><br>A <strong>🌿 Sabbath Rest</strong> added to the pack. If you miss a day, it'll cover you. Use it wisely — or better yet, don't need it at all.`
-      : `Day ${streak}. Another <strong>🌿 Sabbath Rest</strong> earned.<br><br>At this rate you're going to run out of days to miss. That's called faithfulness.`,
+      ? `Day 6. Six days of work, then rest — even God kept that rhythm.<br><br>A <strong>Sabbath Rest</strong> added to the pack. If you miss a day, it'll cover you. Use it wisely — or better yet, don't need it at all.`
+      : `Day ${streak}. Another <strong>Sabbath Rest</strong> earned.<br><br>At this rate you're going to run out of days to miss. That's called faithfulness.`,
     sign: '<strong>Selah.</strong>',
     sabbath: true
   };
@@ -8955,7 +8994,7 @@ function showJournalCard(streak, longest, rests, isSabbathEarned=false, isSabbat
   const entry = getJournalEntry(streak, isSabbathEarned, isSabbathUsed, isReset);
   const dotCount = Math.min(streak, 7);
   const dots = Array.from({length: dotCount}, (_,i) => {
-    if(isSabbathEarned && i === dotCount-1) return '<div class="journal-dot journal-dot-sabbath">🌿</div>';
+    if(isSabbathEarned && i === dotCount-1) return '<div class="journal-dot journal-dot-sabbath">' + ico('leaf',14) + '</div>';
     if(i === dotCount-1) return '<div class="journal-dot journal-dot-today">✓</div>';
     return '<div class="journal-dot journal-dot-filled">✓</div>';
   }).join('');
@@ -9283,7 +9322,7 @@ function toggleSound() {
   _soundEnabled = !_soundEnabled;
   localStorage.setItem('ss_sound', _soundEnabled ? '1' : '0');
   const btn = document.getElementById('soundToggleBtn');
-  if(btn) { btn.textContent = _soundEnabled ? '🔊' : '🔇'; btn.setAttribute('aria-pressed', _soundEnabled); }
+  if(btn) { btn.innerHTML = ico(_soundEnabled ? 'volume' : 'mute', 22); btn.setAttribute('aria-pressed', _soundEnabled); }
   if(_soundEnabled) playCorrect(); // preview sound when turning on
 }
 
@@ -9291,7 +9330,7 @@ function initSound() {
   const saved = localStorage.getItem('ss_sound');
   _soundEnabled = saved === '1';
   const btn = document.getElementById('soundToggleBtn');
-  if(btn) { btn.textContent = _soundEnabled ? '🔊' : '🔇'; btn.setAttribute('aria-pressed', _soundEnabled); }
+  if(btn) { btn.innerHTML = ico(_soundEnabled ? 'volume' : 'mute', 22); btn.setAttribute('aria-pressed', _soundEnabled); }
 }
 
 function playTone(frequency, duration, type='sine', volume=0.3, delay=0) {
@@ -9450,8 +9489,8 @@ function toggleTheme() {
   const isDark = document.body.classList.toggle('dark-mode');
   localStorage.setItem('ss_theme', isDark ? 'dark' : 'light');
   const btn = document.getElementById('themeToggleBtn');
-  if(btn) { btn.textContent = isDark ? '☀️' : '🌙'; btn.setAttribute('aria-pressed', isDark); }
-  showStreakToast(isDark ? '🌙 Dark mode' : '☀️ Light mode');
+  if(btn) { btn.innerHTML = ico(isDark ? 'sun' : 'moon', 22); btn.setAttribute('aria-pressed', isDark); }
+  showStreakToast(isDark ? 'Dark mode on' : 'Light mode on');
 }
 
 function initTheme() {
@@ -9465,18 +9504,18 @@ function initTheme() {
     document.body.classList.remove('dark-mode');
   }
   const btn = document.getElementById('themeToggleBtn');
-  if(btn) btn.textContent = isDark ? '☀️' : '🌙';
+  if(btn) btn.innerHTML = ico(isDark ? 'sun' : 'moon', 22);
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
     if(localStorage.getItem('ss_theme') !== null) return;
     if(e.matches) {
       document.body.classList.add('dark-mode');
       const btn = document.getElementById('themeToggleBtn');
-      if(btn) btn.textContent = '☀️';
+      if(btn) btn.innerHTML = ico('sun', 22);
     } else {
       document.body.classList.remove('dark-mode');
       const btn = document.getElementById('themeToggleBtn');
-      if(btn) btn.textContent = '🌙';
+      if(btn) btn.innerHTML = ico('moon', 22);
     }
   });
 }
@@ -10079,7 +10118,7 @@ function renderDailyTriviaGame(topic) {
 
     root.innerHTML = `
       <div style="text-align:center;margin-bottom:12px;">
-        <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Bible Trivia</div>
+        <div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">Daily Challenge — Bible Trivia</div>
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Today's theme: <strong>${topic.charAt(0).toUpperCase()+topic.slice(1)}</strong> · Question ${qIdx+1} of ${questions.length}</div>
       </div>
       <div class="card" style="max-width:560px;width:100%;">
@@ -10153,7 +10192,7 @@ async function renderDailyScout(verse) {
   function renderPhase() {
     root.innerHTML = `
       <div style="text-align:center;margin-bottom:12px;">
-        <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Scripture Scout</div>
+        <div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">Daily Challenge — Scripture Scout</div>
       </div>
       <div class="card" style="max-width:560px;width:100%;">
         <div class="verse-text" style="margin-bottom:16px;">${quoteVerse(verse.text)}</div>
@@ -10249,7 +10288,7 @@ function renderDailyMemory(verse) {
   const root = document.getElementById('root');
   root.innerHTML = `
     <div style="text-align:center;margin-bottom:12px;">
-      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Memory Trail</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">Daily Challenge — Memory Trail</div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="flashcard-label">Can you recall this verse?</div>
@@ -10292,11 +10331,11 @@ async function renderDailyMIA(verse) {
   const root = document.getElementById('root');
   root.innerHTML = `
     <div style="text-align:center;margin-bottom:12px;">
-      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Missing in Action</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">Daily Challenge — Missing in Action</div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label">Fill in the blanks</div>
-      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">📖 ${verse.book} ${verse.chapter}:${verse.verse}</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">${ico('book',16)} ${verse.book} ${verse.chapter}:${verse.verse}</div>
       <div class="blank-verse" id="dailyMIAVerse">${blankHtml}</div>
       <div id="dailyMIAInput"></div>
       <div class="feedback" id="dailyMIAFeedback" role="status" aria-live="polite"></div>
@@ -10310,11 +10349,11 @@ async function renderDailyMIA(verse) {
 
   const area = document.getElementById('dailyMIAInput');
   area.innerHTML = `
-    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
+    <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
     <div id="dailyMIAAnswerRow" class="answer-row">
       <span class="answer-placeholder">Tap words below…</span>
     </div>
-    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
+    <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
     <div id="dailyMIAWordBank" class="word-bank">
       ${dailyMIAWordBank.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
@@ -10418,7 +10457,7 @@ async function renderDailyTrack(verse) {
   const root = document.getElementById('root');
   root.innerHTML = `
     <div style="text-align:center;margin-bottom:12px;">
-      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Track It Down</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">Daily Challenge — Track It Down</div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label"><img src="icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Where is this verse from?</div>
@@ -10464,14 +10503,14 @@ async function showDailyResult(game, score) {
 
   root.innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:28px 24px;">
-      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Daily Challenge Complete!</div>
+      <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Daily Challenge Complete!</div>
       <div style="font-size:2rem;margin-bottom:8px;">${gameIcons[game]}</div>
       <div style="font-size:2.5rem;font-weight:700;color:var(--teal-text);margin-bottom:4px;">${score.toLocaleString()}</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:${myRank?'8px':'20px'};">points scored</div>
       ${myRank ? `<div style="font-size:0.9rem;color:var(--nav-active);font-weight:600;margin-bottom:20px;">You ranked #${myRank} today! ${myRank===1?'🏆':myRank<=3?'🎉':''}</div>` : ''}
 
       <div style="text-align:left;margin-bottom:16px;">
-        <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Today's Leaderboard</div>
+        <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Today's Leaderboard</div>
         <div class="card" style="padding:0;overflow:hidden;">
           ${rows.length ? rows.map((r,i) => `
             <div class="daily-lb-row ${r.score===score&&!r._marked?'highlight':''}">
@@ -10516,7 +10555,7 @@ async function renderFullDailyLeaderboard() {
   function renderSection(game, rows) {
     return `
       <div style="margin-bottom:16px;">
-        <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+        <div style="font-family:Georgia,serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
           <span>${game.icon} ${game.name}</span>
           <div style="flex:1;height:1px;background:var(--border);"></div>
         </div>
@@ -10727,6 +10766,7 @@ if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
   // re-registered, on every normal reload.
   initTheme();
   initSound();
+  const _bi = document.getElementById('bellIcon'); if(_bi) _bi.innerHTML = ico('bell', 24);
 
   let bootHandled = false;
 
