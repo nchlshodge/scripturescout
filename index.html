@@ -733,23 +733,7 @@
   .flashcard-hud-item:last-child { border-right:none; }
   .flashcard-hud-item strong { color:var(--text); font-size:1.1rem; font-weight:700; display:block; }
 
-  .flashcard-wrap { width:100%; max-width:560px; perspective:1000px; }
-  .flashcard { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:32px 24px; min-height:220px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; cursor:pointer; transition:all 0.15s; position:relative; box-shadow:0 20px 40px rgba(0,0,0,0.4); }
-  .flashcard:active { transform:scale(0.98); }
-  .flashcard-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-muted); font-weight:600; margin-bottom:16px; }
-  .flashcard-reference { font-size:1.8rem; font-weight:700; color:var(--text); margin-bottom:8px; color:var(--teal-text); }
-  .flashcard-book { font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; }
-  .flashcard-tap-hint { font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
-  .flashcard-verse { font-family:'DM Mono',monospace; font-size:clamp(0.88rem,2.2vw,1rem); line-height:1.8; color:var(--text); font-style:italic; margin-bottom:16px; }
-  .flashcard-ref-revealed { font-size:1rem; font-weight:700; color:var(--teal-text); margin-bottom:20px; }
 
-  .rating-btns { display:flex; gap:10px; width:100%; max-width:560px; margin-top:14px; }
-  .rating-btn { flex:1; padding:14px 8px; border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; transition:all 0.15s; }
-  .rating-btn:active { transform:scale(0.97); }
-  .rating-knew { background:var(--teal-dim); color:var(--teal-text); border:1.5px solid var(--teal); }
-  .rating-almost { background:rgba(107,175,122,0.12); color:var(--fern); border:1.5px solid var(--fern); }
-  .rating-didnt { background:var(--earth-dim); color:var(--earth-text); border:1.5px solid var(--earth); }
-  .rating-icon { font-size:1.4rem; }
 
   .flashcard-progress-bar { width:100%; max-width:560px; height:4px; background:var(--border); border-radius:2px; margin-bottom:16px; overflow:hidden; }
   .flashcard-progress-fill { height:100%; background:linear-gradient(90deg,#4A7C59,#3BBFA0); border-radius:2px; transition:width 0.4s ease; }
@@ -1116,11 +1100,11 @@ let currentUsername = localStorage.getItem('ss_username') || '';
 let endlessMode = false;
 let endlessStreak = 0;
 let endlessScore = 0;
+let _endlessStreakTracked = false;   // so one Endless run only counts once toward the daily streak
 let endlessMultiplier = 1;
 let perfectHardRuns = parseInt(localStorage.getItem('ss_perfect_hard') || '0');
 let perfectHardMIA   = parseInt(localStorage.getItem('ss_perfect_hard_mia') || '0');
 let perfectHardTrack = parseInt(localStorage.getItem('ss_perfect_hard_track') || '0');
-let perfectHardMemory = parseInt(localStorage.getItem('ss_perfect_hard_memory') || '0');
 
 // ═══════════════════════════════════════
 // TABS
@@ -2563,11 +2547,12 @@ function lbDiffDesc(diff) {
 
 async function loadLbScores() {
   try {
-    const scores = await fetchLeaderboard(lbFilter);
+    const weekly = lbView === 'weekly';
+    const scores = await fetchLeaderboard(lbFilter, weekly ? 1 : null);   // "This Week" = the last 7 days, "All Time" = everything
     const card = document.getElementById('lbCard');
     if (!card) return;
     if (!scores.length) {
-      card.innerHTML = `<div class="lb-empty">No ${lbFilter} scores yet — be the first! 🏆</div>`;
+      card.innerHTML = `<div class="lb-empty">No ${lbFilter} scores ${weekly ? 'this week' : 'yet'} — be the first! 🏆</div>`;
       return;
     }
     const rankIcon = (i) => i===0?'🥇':i===1?'🥈':i===2?'🥉':`<span class="lb-rank">${i+1}</span>`;
@@ -2594,7 +2579,9 @@ function setLbView(v) {
   lbView = v;
   document.getElementById('lbWeeklyTab')?.classList.toggle('active', v==='weekly');
   document.getElementById('lbAlltimeTab')?.classList.toggle('active', v==='alltime');
-  refreshLeaderboard();
+  const card = document.getElementById('lbCard');
+  if(card) card.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading scores…</div></div>`;
+  loadLbScores();
 }
 
 function setLbFilter(f) {
@@ -3369,11 +3356,13 @@ const BOOK_CONTEXT = {
   'Revelation':'John\'s visions about the end of history, the defeat of evil, and the new creation — Come, Lord Jesus.'
 };
 
-// Memory Trail (flashcard) removed
 
 // ═══════════════════════════════════════
 // FILL IN THE BLANK MODE
 // ═══════════════════════════════════════
+// Fill-in-the-blank working state (declared up front instead of being created by the first assignment)
+let fitbWordBank = [];
+let fitbAnswerRow = [];
 let fitbSession = {
   verses: [], current: 0, score: 0, correct: 0,
   blanks: [], currentBlankIndex: 0, difficulty: 'easy', options: []
@@ -6410,111 +6399,6 @@ async function renderTriviaComplete() {
     await submitGameScore('leaderboard_trivia',{user_id:currentUser.id,player_name:currentUsername||playerName,score:s.score,difficulty:s.difficulty,correct:s.correct});
   }
   await updateStreak();
-}
-
-// ═══════════════════════════════════════
-// ENDLESS MEMORY TRAIL
-let memoryEndlessState = { streak: 0, missCount: 0, score: 0 };
-
-async function startMemoryEndless() {
-  memoryEndlessState = { streak: 0, missCount: 0, score: 0 };
-  flashcardSession.filter.difficulty = 'hard';
-  flashcardSession.verses = [];
-  flashcardSession.current = 0;
-  flashcardSession.knew = 0;
-  flashcardSession.almost = 0;
-  flashcardSession.didnt = 0;
-
-  const root = document.getElementById('root');
-  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading Endless Memory Trail…</div></div>`;
-
-  // Pre-fetch a batch of verses
-  const total = DIFF_COUNTS[TRANSLATION]['hard'];
-  const usedVerseIdsEM = new Set();
-  let safetyEM = 0;
-  while(flashcardSession.verses.length < 20 && safetyEM < 200) {
-    safetyEM++;
-    const offset = Math.floor(Math.random() * total);
-    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.hard&select=*&limit=1&offset=${offset}`);
-    if(rows.length && !usedVerseIdsEM.has(rows[0].id)) {
-      usedVerseIdsEM.add(rows[0].id);
-      flashcardSession.verses.push(rows[0]);
-    }
-  }
-
-  renderMemoryEndlessCard();
-}
-
-function renderMemoryEndlessCard() {
-  const s = flashcardSession;
-  const es = memoryEndlessState;
-  if(s.current >= s.verses.length) {
-    // Fetch more verses
-    startMemoryEndless();
-    return;
-  }
-
-  const v = s.verses[s.current];
-  currentHints = null; hintsRevealed = 0;
-  const heartDisplay = '💔'.repeat(es.missCount) + '❤️'.repeat(3 - es.missCount);
-
-  document.getElementById('root').innerHTML = `
-    <div class="endless-hud">
-      <div class="endless-hud-item"><strong id="emScoreDisplay">${es.score.toLocaleString()}</strong> pts</div>
-      <div class="endless-hud-item"><strong id="emStreakDisplay">${es.streak}</strong> streak</div>
-      <div class="endless-hud-item">${heartDisplay}</div>
-      <div class="endless-hud-item"><span class="endless-badge"><img src="icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Memory</span></div>
-    </div>
-    <div class="card" id="card">
-      <div class="flashcard-label">Can you recall this verse?</div>
-      <div class="flashcard-reference">${v.book} ${v.chapter}:${v.verse}</div>
-      <div class="flashcard-book">${v.testament === 'OT' ? '<img src="icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament' : '<img src="icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament'}</div>
-      <div class="flashcard-tap-hint">Rate yourself after flipping</div>
-      <hr class="divider" style="margin:14px 0;"/>
-      <div id="memoryFlipArea">
-        <button class="btn-next" id="memoryFlipBtn">Flip to see verse →</button>
-      </div>
-    </div>`;
-
-  document.getElementById('memoryFlipBtn').onclick = () => {
-    document.getElementById('memoryFlipArea').innerHTML = `
-      <div class="flashcard-verse" style="margin-bottom:14px;">${quoteVerse(v.text)}</div>
-      <div class="rating-btns">
-        <button class="rating-btn rating-didnt" onclick="rateMemoryEndless('didnt_know')"><span class="rating-icon">😬</span>Didn't Know</button>
-        <button class="rating-btn rating-almost" onclick="rateMemoryEndless('almost')"><span class="rating-icon">🤔</span>Almost</button>
-        <button class="rating-btn rating-knew" onclick="rateMemoryEndless('knew_it')"><span class="rating-icon">✅</span>Knew It!</button>
-      </div>`;
-  };
-}
-
-async function rateMemoryEndless(rating) {
-  const es = memoryEndlessState;
-  if(rating === 'knew_it') {
-    es.streak++;
-    es.score += 300 + (es.streak * 50);
-  } else if(rating === 'almost') {
-    es.score += 100;
-  } else {
-    es.missCount++;
-    es.streak = 0;
-  }
-
-  if(es.missCount >= 3) {
-    // Game over
-    await updateStreak();
-    document.getElementById('root').innerHTML = `
-      <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-        <div class="verse-label"><img src="icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Endless Memory Trail</div>
-        <div class="endless-final">${es.score.toLocaleString()}</div>
-        <div class="endless-streak-display">Run ended after 3 misses</div>
-        <button class="btn-next" onclick="startMemoryEndless()">Play Again</button>
-        <button class="btn-change-diff" style="margin-top:8px;" onclick="showHome()">← Back</button>
-      </div>`;
-    return;
-  }
-
-  flashcardSession.current++;
-  renderMemoryEndlessCard();
 }
 
 // ═══════════════════════════════════════

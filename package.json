@@ -1,7 +1,7 @@
 {
   "name": "scripture-scout",
   "version": "1.0.0",
-  "description": "Scripture Scout \u2014 a Bible verse and trivia game.",
+  "description": "Scripture Scout — a Bible verse and trivia game.",
   "private": true,
   "scripts": {
     "test": "node --test tests/*.test.js",
@@ -34,6 +34,7 @@
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.0",
     "acorn": "^8.19.0",
+    "eslint-scope": "^9.1.2",
     "jsdom": "^31.0.1"
   }
 }

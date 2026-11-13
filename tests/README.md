@@ -28,5 +28,8 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
 - `memory-trail.test.js` guards against leftovers of the removed Memory Trail game (it had been mislabelling a Challenge
   option and had unreachable code that saved scores under Trivia), checks every daily game saves only its own score,
   and fails if any function is left that nothing calls.
+- `globals.test.js` finds names the code uses but never defines, which
+  would throw an error the moment that code runs.
+- `leaderboard.test.js` checks the Scripture Scout leaderboard's This Week / All Time and difficulty tabs.
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.

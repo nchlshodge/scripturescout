@@ -58,6 +58,7 @@ test('asking to start a game that does not exist (like the old Memory Trail) doe
 test('the old Memory Trail daily code is gone (it saved its score under Trivia)', () => {
   assert.equal(get(loadApp().window, 'typeof renderDailyMemory'), 'undefined');
   assert.equal(get(loadApp().window, 'typeof completeDailyMIA'), 'undefined');
+  for (const name of ['startMemoryEndless', 'renderMemoryEndlessCard', 'rateMemoryEndless']) assert.equal(get(loadApp().window, 'typeof ' + name), 'undefined', name);
   assert.doesNotMatch(HTML, /Daily Challenge — Memory Trail/);
 });
 
