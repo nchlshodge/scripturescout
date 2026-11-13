@@ -7911,7 +7911,9 @@ async function submitReport(userId, username) {
   const reason = document.getElementById('reportReasonField')?.value || 'Other';
   const details = document.getElementById('reportDetailsField')?.value?.trim() || null;
   const msgId = window._reportMsgId || null;
-  const excerpt = msgId ? (document.querySelector(`.msg-bubble[data-msg-id="${msgId}"]`)?.textContent || '').trim().slice(0, 300) || null : null;
+  // Use the message's original words (the screen may show blocked words masked), so a reviewer sees what was said.
+  const bubbleEl = msgId ? document.querySelector(`.msg-bubble[data-msg-id="${msgId}"]`) : null;
+  const excerpt = bubbleEl ? ((bubbleEl.dataset.raw || bubbleEl.textContent || '').trim().slice(0, 300) || null) : null;
   try {
     const rres = await fetch(`${SUPABASE_URL}/rest/v1/user_reports`, {
       method: 'POST',
@@ -8633,7 +8635,7 @@ async function openConversation(convId, convName, convType) {
             return `
               <div style="display:flex;flex-direction:column;align-items:${isMine?'flex-end':'flex-start'};">
                 ${!isMine?`<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px;">${escapeHtml(m.data?.username||'Friend')}</div>`:''}
-                <div class="msg-bubble ${bubbleClass}" data-msg-id="${m.id}" data-sender="${escapeHtml(m.sender_id||'')}" data-sname="${escapeHtml(m.data?.username||'Friend')}" ondblclick="showReactionPicker(${m.id})" title="Press and hold to react or report">
+                <div class="msg-bubble ${bubbleClass}" data-msg-id="${m.id}" data-sender="${escapeHtml(m.sender_id||'')}" data-raw="${m.type==='text'?escapeHtml(m.content||''):''}" data-sname="${escapeHtml(m.data?.username||'Friend')}" ondblclick="showReactionPicker(${m.id})" title="Press and hold to react or report">
                   ${m.type==='score'?`${ico('trophy',16)} <strong>${escapeHtml(m.data?.game||'Game')}</strong><br>${escapeHtml(m.data?.score?.toLocaleString())} pts`:''}
                   ${m.type==='verse'?`${ico('book',16)} <strong>${escapeHtml(m.data?.ref||'')}</strong><br><em>${escapeHtml(m.content)}</em>`:''}
                   ${m.type==='text'?escapeHtml(maskObjectionable(m.content)):''}

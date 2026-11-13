@@ -15,5 +15,7 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
   "Continue" card, which chapters are open or locked, and that progress is cleared on sign-out.
 - `hearts.test.js` checks the Story Mode hearts: losing and refilling hearts on a fake clock, the Out of Hearts screen and
   its countdown, damaged saved data, and that the countdown timer stops when the player leaves.
+- `moderation.test.js` checks chat moderation: the word filter (and that the database copy matches it), sending and
+  refused messages, masked display, blocking and unblocking, and reporting users and messages.
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.
