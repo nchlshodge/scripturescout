@@ -353,8 +353,3 @@ test('tapping Friends while signed out asks you to sign in and loads nothing', (
   assert.equal(s.calls.length, 0);
   s.close();
 });
-
-test('opening someone\'s invite link offers to add them as a friend', { todo: 'invite links are created but never read — see the Friends > Add Friend tab' }, async () => {
-  const html = require('fs').readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf8');
-  assert.ok(/searchParams\.get\(['"]invite['"]\)|URLSearchParams[^;]*invite/.test(html), 'nothing reads ?invite=');
-});

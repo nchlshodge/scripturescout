@@ -12,10 +12,10 @@ function inlineScript() {
   return scripts.sort((a, b) => b.length - a.length)[0];
 }
 
-function loadApp({ fetchImpl } = {}) {
+function loadApp({ fetchImpl, url = 'https://scripturescout.test/' } = {}) {
   const errors = [];
   const dom = new JSDOM(HTML, {
-    url: 'https://scripturescout.test/',
+    url,
     runScripts: 'dangerously',
     pretendToBeVisual: true,
     beforeParse(window) {

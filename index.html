@@ -1903,6 +1903,8 @@ function renderAuthScreen(mode='login') {
         <div style="color:var(--text-muted);font-size:12px;margin-top:3px;">Scout the Scriptures. Every day.</div>
       </div>
 
+      ${hasPendingInvite() ? `<div role="status" style="background:var(--surface-2);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:0.85rem;line-height:1.5;color:var(--text);text-align:center;">A friend invited you to Scripture Scout. Sign in or create an account and we'll offer to connect you.</div>` : ''}
+
       <!-- Auth Card -->
       <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:20px;">
 
@@ -2347,7 +2349,8 @@ function showApp() {
   if(currentUser) setTimeout(checkMonthlyChampion, 2000);
   prefetchDailyChallenge();
   flushPendingWrites();
-  setTimeout(refreshOfflinePack, 3000);   // save the questions and stories for offline play, in the background
+  setTimeout(refreshOfflinePack, 3000);
+  if(currentUser) setTimeout(handlePendingInvite, 2500);   // someone opened a friend's invite link   // save the questions and stories for offline play, in the background
 
   // Load streak in background and update display when ready
   if(currentUser) {
@@ -8329,8 +8332,8 @@ async function renderFriends(startTab=null) {
           <hr class="divider" style="margin:16px 0;"/>
           <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">Or share your invite link:</div>
           <div style="display:flex;gap:8px;">
-            <input class="search-input" style="margin-bottom:0;" readonly value="https://scripturescout.pages.dev?invite=${currentUser.id}"/>
-            <button class="btn-friend-action" onclick="navigator.clipboard.writeText('https://scripturescout.pages.dev?invite=${currentUser.id}');showStreakToast('Link copied!')">Copy</button>
+            <input class="search-input" style="margin-bottom:0;" readonly aria-label="Your invite link" value="${inviteLink(currentUser.id)}"/>
+            <button class="btn-friend-action" onclick="copyInviteLink()">Copy</button>
           </div>
         `}
 
@@ -8397,6 +8400,99 @@ async function sendFriendRequest(friendId, friendUsername) {
     _notifCache.lastFetched = 0;
     renderFriends('requests');
   } catch(e) { showStreakToast('Could not send request — maybe already sent?'); }
+}
+
+// ── INVITE LINKS ──
+// "Add Friend" shows a link like https://…/?invite=<your id>. Opening it saves the id, and once the visitor is
+// signed in (and has a username) the app offers to connect them with the person who invited them.
+const INVITE_BASE_URL = 'https://scripturescout.pages.dev/';
+const PENDING_INVITE_KEY = 'ss_pending_invite';
+const INVITE_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function inviteLink(userId) { return `${INVITE_BASE_URL}?invite=${userId}`; }
+function copyInviteLink() {
+  const link = inviteLink(currentUser.id);
+  const done = () => showStreakToast('Link copied!');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done, () => showStreakToast('Could not copy. Select the link and copy it yourself.'));
+  else showStreakToast('Could not copy. Select the link and copy it yourself.');
+}
+function hasPendingInvite() { try { return !!localStorage.getItem(PENDING_INVITE_KEY); } catch(e) { return false; } }
+function clearPendingInvite() { try { localStorage.removeItem(PENDING_INVITE_KEY); } catch(e) {} }
+// Reads ?invite= from the address, remembers it (if it looks like a real id), and removes it from the address bar.
+function captureInviteFromUrl() {
+  try {
+    const url = new URL(window.location.href);
+    const id = url.searchParams.get('invite');
+    if (id === null) return;
+    url.searchParams.delete('invite');
+    window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+    if (INVITE_ID_RE.test(id)) localStorage.setItem(PENDING_INVITE_KEY, id.toLowerCase());
+  } catch(e) {}
+}
+captureInviteFromUrl();
+
+function askInvite({ title, desc, confirmLabel }) {
+  return new Promise(resolve => {
+    document.getElementById('inviteModalOverlay')?.remove();
+    const overlay = document.createElement('div');
+    overlay.id = 'inviteModalOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+    overlay.innerHTML = `
+      <div style="background:var(--surface);border:1.5px solid var(--fern);border-radius:20px;padding:28px 24px;max-width:400px;width:100%;text-align:center;">
+        <div style="margin-bottom:10px;color:var(--nav-active);">${ico('users', 36)}</div>
+        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text);margin:0 0 6px;">${title}</h2>
+        <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">${desc}</div>
+        <div style="display:flex;gap:10px;">
+          <button id="inviteModalNo" style="flex:1;padding:13px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);cursor:pointer;">Not now</button>
+          <button id="inviteModalYes" style="flex:1;padding:13px;background:linear-gradient(135deg,#4A7C59,#3BBFA0);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;color:white;cursor:pointer;">${confirmLabel}</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const done = result => { overlay.remove(); resolve(result); };
+    document.getElementById('inviteModalYes').addEventListener('click', () => done(true));
+    document.getElementById('inviteModalNo').addEventListener('click', () => done(false));
+    overlay.addEventListener('keydown', e => { if (e.key === 'Escape') done(false); });
+    overlay.addEventListener('click', e => { if (e.target === overlay) done(false); });
+    document.getElementById('inviteModalYes').focus();
+  });
+}
+
+let _inviteBusy = false;
+let _inviteTries = 0;
+// Runs after sign-in. Waits (without losing the invite) until the player has a username and has answered
+// the age question, so the friend request can actually be sent.
+async function handlePendingInvite() {
+  if (_inviteBusy || !hasPendingInvite() || !currentUser || !authToken) return;
+  if (!currentUsername || document.getElementById('ageGateOverlay') || document.getElementById('usernamePromptOverlay')) {
+    if (++_inviteTries <= 12) setTimeout(handlePendingInvite, 2500);
+    return;
+  }
+  _inviteBusy = true;
+  try {
+    const id = localStorage.getItem(PENDING_INVITE_KEY);
+    if (id === currentUser.id) { clearPendingInvite(); showStreakToast("That's your own invite link."); return; }
+    if (typeof isBlocked === 'function' && isBlocked(id)) { clearPendingInvite(); return; }
+    let who, rel;
+    try {
+      const rows = await sbFetch(`profiles?id=eq.${id}&select=id,username`);
+      if (!rows.length || !rows[0].username) { clearPendingInvite(); showStreakToast("That invite link isn't valid any more."); return; }
+      who = rows[0].username;
+      rel = await sbFetch(`friends?or=(and(user_id.eq.${currentUser.id},friend_id.eq.${id}),and(user_id.eq.${id},friend_id.eq.${currentUser.id}))&select=id,user_id,status`);
+    } catch(e) { console.warn('Invite lookup failed, will try again later:', e?.message); return; }   // offline: keep it for next time
+    clearPendingInvite();
+    const name = escapeHtml(who);
+    const existing = rel[0];
+    if (existing && existing.status === 'accepted') { showStreakToast(`You and ${who} are already friends.`); return; }
+    if (existing && existing.user_id === currentUser.id) { showStreakToast(`You already sent ${who} a friend request.`); return; }
+    if (existing) {   // they already asked to be our friend
+      if (await askInvite({ title: `${name} wants to be friends`, desc: `${name} invited you to Scripture Scout and already sent you a friend request. Accept it?`, confirmLabel: 'Accept' })) {
+        await acceptFriend(existing.id, id, who);
+      }
+      return;
+    }
+    if (await askInvite({ title: `Add ${name} as a friend?`, desc: `${name} invited you to Scripture Scout. You can challenge each other and chat once they accept.`, confirmLabel: 'Send request' })) {
+      await sendFriendRequest(id, who);
+    }
+  } finally { _inviteBusy = false; }
 }
 
 async function acceptFriend(requestId, fromId, fromUsername, after = 'friends') {
