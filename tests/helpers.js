@@ -58,3 +58,21 @@ function fakeIntervals(window) {
 
 module.exports.fakeClock = fakeClock;
 module.exports.fakeIntervals = fakeIntervals;
+
+// Replaces setTimeout/clearTimeout with a virtual clock the test advances by hand.
+function fakeTimeouts(window) {
+  const t = { now: 0, nextId: 1, pending: new Map() };
+  window.setTimeout = (fn, ms = 0, ...args) => { const id = t.nextId++; t.pending.set(id, { at: t.now + ms, fn: () => fn(...args) }); return id; };
+  window.clearTimeout = (id) => { t.pending.delete(id); };
+  t.advance = (ms) => {
+    const end = t.now + ms;
+    for (;;) {
+      const due = [...t.pending.entries()].filter(([, v]) => v.at <= end).sort((a, b) => a[1].at - b[1].at)[0];
+      if (!due) break;
+      t.pending.delete(due[0]); t.now = Math.max(t.now, due[1].at); due[1].fn();
+    }
+    t.now = end;
+  };
+  return t;
+}
+module.exports.fakeTimeouts = fakeTimeouts;

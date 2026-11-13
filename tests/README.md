@@ -17,5 +17,7 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
   its countdown, damaged saved data, and that the countdown timer stops when the player leaves.
 - `moderation.test.js` checks chat moderation: the word filter (and that the database copy matches it), sending and
   refused messages, masked display, blocking and unblocking, and reporting users and messages.
+- `reactions.test.js` checks chat reactions: the long-press and right-click menu, adding and removing a reaction,
+  how chips are shown and highlighted, and that the chat refreshes (without losing typed text) when reactions change.
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.

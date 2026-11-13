@@ -8731,14 +8731,20 @@ async function shareVerseInChat(convId) {
 }
 
 async function toggleReaction(msgId, emoji) {
-  let res;
-  const existing = await sbFetch(`message_reactions?message_id=eq.${msgId}&user_id=eq.${currentUser.id}&emoji=eq.${emoji}&select=id`);
-  if(existing.length) {
-    res = await fetch(`${SUPABASE_URL}/rest/v1/message_reactions?id=eq.${existing[0].id}`, { method:'DELETE', headers:{ 'apikey':SUPABASE_KEY,'Authorization':`Bearer ${authToken}` } });
-  } else {
-    res = await fetch(`${SUPABASE_URL}/rest/v1/message_reactions`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ message_id: msgId, user_id: currentUser.id, username: currentUsername, emoji }) });
+  try {
+    let res;
+    const existing = await sbFetch(`message_reactions?message_id=eq.${msgId}&user_id=eq.${currentUser.id}&emoji=eq.${encodeURIComponent(emoji)}&select=id`);
+    if(existing.length) {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/message_reactions?id=eq.${existing[0].id}`, { method:'DELETE', headers:{ 'apikey':SUPABASE_KEY,'Authorization':`Bearer ${authToken}` } });
+    } else {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/message_reactions`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ message_id: msgId, user_id: currentUser.id, username: currentUsername, emoji }) });
+    }
+    if(res && !res.ok) throw new Error('HTTP ' + res.status);
+  } catch(e) {
+    console.warn('toggleReaction failed:', e?.message);
+    showStreakToast('Could not save your reaction — try again.');
+    return;
   }
-  if(res && !res.ok) { showStreakToast('Could not save your reaction — try again.'); return; }
   // Re-render now so the reaction shows immediately (the poll skips unchanged messages)
   if(window._refreshConversation) window._refreshConversation().catch(e => console.warn('Chat refresh failed:', e?.message));
 }
