@@ -23,5 +23,7 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
   requests, and starting a direct chat. One test is marked "todo" for a known gap (invite links are never read).
 - `challenges.test.js` checks challenges: sending, answering with the speed bonus, the result screen, the pop-up banner and
   the Challenges list (including that other players' text can't inject code).
+- `daily-screens.test.js` checks the Daily Challenge screens: the hub and the home card, starting each game, scoring in
+  all four daily games, saving results, and the results screen.
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.

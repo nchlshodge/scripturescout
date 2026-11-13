@@ -10022,13 +10022,12 @@ function getDailyTriviaQuestions(topic, count=5) {
     pool = [...pool, ...extra];
   }
   
-  // Shuffle and return count questions
-  const shuffled = pool.sort(() => {
-    // Use deterministic seed based on today's date for consistency
-    const seed = getDailySeed(topic);
-    return (seed % 2 === 0 ? 1 : -1) * (Math.random() - 0.5);
-  });
-  
+  // Shuffle with a generator seeded from today's date and the topic, so every player gets the same questions
+  // in the same order on the same day (as the Daily Challenge promises).
+  let seed = getDailySeed(topic) || 1;
+  const rand = () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const shuffled = [...pool];
+  for(let i = shuffled.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; }
   return shuffled.slice(0, count);
 }
 
@@ -10144,13 +10143,9 @@ async function renderDailyChallenge() {
   const hLeft = Math.floor(msLeft/3600000);
   const mLeft = Math.floor((msLeft%3600000)/60000);
 
-  // Load today's topic
-  let todayTopic = '…';
-  getDailyTopicAndVerses().then(({topic}) => {
-    todayTopic = topic;
-    const topicEl = document.getElementById('dailyTopicLabel');
-    if(topicEl) topicEl.textContent = `Today's theme: ${topic}`;
-  });
+  // Today's topic is worked out on the device from the date, so it shows straight away (and offline).
+  const todayTopic = getTodaysTopic();
+  getDailyTopicAndVerses().catch(() => {});   // warm the verse cache; a failure is handled when a game starts
 
   root.innerHTML = `
     <div class="story-screen">
@@ -10158,7 +10153,7 @@ async function renderDailyChallenge() {
       <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;line-height:1.5;text-align:center;">
         One theme. Four games. Everyone gets the same challenge today.
       </p>
-      <div id="dailyTopicLabel" style="text-align:center;font-size:1.6rem;font-weight:700;color:var(--nav-active);margin-bottom:8px;text-transform:capitalize;letter-spacing:-0.02em;">Loading today's theme…</div>
+      <div id="dailyTopicLabel" style="text-align:center;font-size:1.6rem;font-weight:700;color:var(--nav-active);margin-bottom:8px;text-transform:capitalize;letter-spacing:-0.02em;">Today's theme: ${escapeHtml(todayTopic)}</div>
       <div style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;"><strong style="color:var(--teal-text);">Resets in ${hLeft}h ${mLeft}m</strong></div>
       ${games.map(g => {
         const done = isDailyCompleted(g.id);
@@ -10247,10 +10242,13 @@ function renderDailyTriviaGame(topic) {
 }
 
 async function startDailyGame(game) {
+  // One try per game per day: a finished game shows its results instead of starting again.
+  if(isDailyCompleted(game)) { showDailyLeaderboard(game); return; }
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading today's verse…</div></div>`;
 
-  const verse = await fetchDailyVerse(game);
+  let verse = null;
+  try { verse = await fetchDailyVerse(game); } catch(e) { console.warn('Daily verse failed:', e?.message); }
   if(!verse) { root.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-muted);">Could not load today's challenge. Try again!</div>`; return; }
 
   if(game === 'scout') {
@@ -10258,8 +10256,7 @@ async function startDailyGame(game) {
     renderDailyScout(verse);
   } else if(game === 'trivia') {
     dailyChallengeMode = { active: true, game };
-    const { topic } = await getDailyTopicAndVerses();
-    renderDailyTriviaGame(topic);
+    renderDailyTriviaGame(getTodaysTopic());
   } else if(game === 'mia') {
     dailyChallengeMode = { active: true, game };
     renderDailyMIA(verse);
@@ -10502,7 +10499,8 @@ async function renderDailyMIA(verse) {
     }
     const checkArea = document.getElementById('dailyMIACheckArea');
     if(checkArea) checkArea.innerHTML = `<button class="btn-next" id="dailyMIADoneBtn" style="margin-top:8px;">See Results →</button>`;
-    document.getElementById('dailyMIADoneBtn').onclick = async () => {
+    document.getElementById('dailyMIADoneBtn').onclick = async (ev) => {
+      const doneBtn = ev.currentTarget; if(doneBtn.disabled) return; doneBtn.disabled = true;   // a double tap must not submit twice
       markDailyCompleted('mia', dailyMIAScore);
       await submitDailyScore('mia', dailyMIAScore);
       showDailyResult('mia', dailyMIAScore);
@@ -10589,7 +10587,8 @@ async function showDailyResult(game, score) {
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading results…</div></div>`;
 
-  const rows = await fetchDailyLeaderboard(game);
+  let rows = [], boardFailed = false;
+  try { rows = await fetchDailyLeaderboard(game); } catch(e) { boardFailed = true; console.warn('Daily leaderboard failed:', e?.message); }
   const myRank = rows.findIndex(r => r.score === score) + 1;
   const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
   const gameIcons = Object.fromEntries(['scout','trivia','mia','track'].map(g => [g, `<img src="icons/${g}.svg" width="32" height="32" style="object-fit:contain;" alt="">`]));
@@ -10610,7 +10609,7 @@ async function showDailyResult(game, score) {
               <span style="font-size:1rem;width:28px;text-align:center;">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
               <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${escapeHtml(r.name)}</span>
               <span style="font-size:0.88rem;font-weight:700;color:var(--teal-text);">${r.score.toLocaleString()}</span>
-            </div>`).join('') : `<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.85rem;">You're the first to play today!</div>`}
+            </div>`).join('') : `<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.85rem;">${boardFailed ? "Couldn't load today's leaderboard — your score is saved." : "You're the first to play today!"}</div>`}
         </div>
       </div>
 
