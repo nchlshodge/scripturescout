@@ -37,3 +37,5 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.
 - `contrast.test.js` measures text on gradients along the whole gradient (a plain colour check can't), and guards touch-target
   sizes and the chapter stars/hearts labels. Run against the old code it flags nine low-contrast buttons.
+- `streak.test.js` checks the streak rules (consecutive days, Sabbath Rests, resets, daylight-saving-safe day maths) and offline
+  credit: days played offline are remembered and applied in order when the connection returns, never twice, never to another account.

@@ -927,7 +927,7 @@ function updateOnlineStatus() {
 }
 window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
-window.addEventListener('online', () => { flushPendingWrites(); refreshOfflinePack(); });
+window.addEventListener('online', () => { flushPendingWrites(); syncOfflineStreak(); refreshOfflinePack(); });
 
 let _offlineCheckTimer = null;
 function scheduleOfflineCheck() {
@@ -1540,7 +1540,7 @@ async function flushPendingWrites() {
   return sent;
 }
 function clearSavedPlayerData(userId) {
-  try { localStorage.removeItem(storyProgressKey(userId)); } catch(e) {}
+  try { localStorage.removeItem(storyProgressKey(userId)); localStorage.removeItem(streakCacheKey(userId)); localStorage.removeItem(streakDaysKey(userId)); } catch(e) {}
   writePending(readPending().filter(x => x.userId !== userId));
 }
 
@@ -2350,6 +2350,7 @@ function showApp() {
   if(currentUser) setTimeout(checkMonthlyChampion, 2000);
   prefetchDailyChallenge();
   flushPendingWrites();
+  syncOfflineStreak();
   setTimeout(refreshOfflinePack, 3000);
   if(currentUser) setTimeout(handlePendingInvite, 2500);   // someone opened a friend's invite link   // save the questions and stories for offline play, in the background
 
@@ -5369,11 +5370,12 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
     const totalChapters = lastChapter || 10;
     const isCompleted = chapterNum >= totalChapters;
     const payload = { p_path_id: pathId, p_chapter_num: chapterNum, p_stars: stars, p_completed: isCompleted };
-    const keepForLater = () => {
+    const keepForLater = async () => {
       queuePendingWrite('story_progress', payload);
       showStreakToast("Progress saved on this device. It will sync when you're back online.");
+      await updateStreak();   // an offline chapter still counts toward the streak
     };
-    if(!navigator.onLine) { keepForLater(); return; }
+    if(!navigator.onLine) { await keepForLater(); return; }
 
     // upsert_story_progress (not a raw insert) so replaying a chapter updates
     // the existing row instead of piling up a new one every time — stars only
@@ -5390,7 +5392,7 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
       },
       body: JSON.stringify(payload)
     }), 'story progress', true);
-    if(!saved) { keepForLater(); return; }
+    if(!saved) { await keepForLater(); return; }
 
     await updateStreak();
 
@@ -8869,6 +8871,64 @@ async function addGroupMember(convId) {
 // ═══════════════════════════════════════
 let currentStreak = null; // loaded from Supabase
 
+// ── Streak day arithmetic: calendar days as local "YYYY-MM-DD" keys ──
+function shiftDayKey(key, delta) {
+  const [y, m, d] = key.split('-').map(Number);
+  const dt = new Date(y, m - 1, d + delta, 12);   // noon, so a daylight-saving change can never skip or repeat a day
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+}
+// What playing on `day` does to a streak record, or null when that day is already counted.
+function computeStreakStep(streak, day) {
+  const last = streak.last_played_date;
+  if (last && last >= day) return null;
+  let n = streak.current_streak || 0, tokens = streak.freeze_tokens || 0, usedSabbath = false;
+  if (last && last === shiftDayKey(day, -1)) {
+    n++;                                   // consecutive day
+  } else if (last && last === shiftDayKey(day, -2) && tokens > 0) {
+    n++; tokens = Math.max(0, tokens - 1); usedSabbath = true;   // missed one day but has a Sabbath Rest
+  } else if (!last) {
+    n = 1;                                 // first time
+  } else {
+    n = 1; tokens = 0;                     // streak broken
+  }
+  if (n % 6 === 0 && n > 0) tokens = Math.min(3, tokens + 1);    // a Sabbath Rest every 6 days
+  return {
+    usedSabbath,
+    sabbathEarned: n % 6 === 0 && tokens > (streak.freeze_tokens || 0),
+    updates: { current_streak: n, longest_streak: Math.max(streak.longest_streak || 0, n), last_played_date: day, freeze_tokens: tokens, total_days_played: (streak.total_days_played || 0) + 1 }
+  };
+}
+
+// Offline play still counts toward the streak: the days played are kept on the device (with the last streak
+// seen, so the home screen and the celebration still show sensible numbers) and applied to the real streak,
+// day by day in order, when the connection is back. The server's record always wins.
+const streakCacheKey = uid => `ss_streak_${uid}`;
+const streakDaysKey = uid => `ss_streak_days_${uid}`;
+function readCachedStreak() {
+  if (!currentUser) return null;
+  try { const v = JSON.parse(localStorage.getItem(streakCacheKey(currentUser.id)) || 'null'); return v && typeof v === 'object' && v.user_id === currentUser.id ? v : null; } catch(e) { return null; }
+}
+function cacheStreak(streak) {
+  if (!currentUser || !streak) return;
+  const { _offline, ...clean } = streak;
+  try { localStorage.setItem(streakCacheKey(currentUser.id), JSON.stringify(clean)); } catch(e) {}
+}
+function readStreakDays() {
+  if (!currentUser) return [];
+  try {
+    const v = JSON.parse(localStorage.getItem(streakDaysKey(currentUser.id)) || '[]');
+    return Array.isArray(v) ? [...new Set(v.filter(d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)))].sort().slice(-60) : [];
+  } catch(e) { return []; }
+}
+function writeStreakDays(days) {
+  if (!currentUser) return;
+  try { localStorage.setItem(streakDaysKey(currentUser.id), JSON.stringify(days)); } catch(e) {}
+}
+function addStreakDay(day) {
+  const days = readStreakDays();
+  if (!days.includes(day)) writeStreakDays([...days, day]);
+}
+
 async function loadStreak() {
   if(!currentUser) return null;
   try {
@@ -8882,80 +8942,26 @@ async function loadStreak() {
       const data = await res.json();
       currentStreak = Array.isArray(data) && data[0] ? data[0] : { user_id: currentUser.id, current_streak:0, longest_streak:0, freeze_tokens:0, total_days_played:0 };
     }
+    cacheStreak(currentStreak);
     return currentStreak;
-  } catch(e) { console.error('Load streak failed:', e); return null; }
+  } catch(e) {
+    console.warn('Load streak failed:', e?.message);
+    // No connection: show the last streak seen on this device (flagged, so nothing treats it as the real record).
+    const cached = readCachedStreak();
+    if (cached) { currentStreak = { ...cached, _offline: true }; return currentStreak; }
+    return null;
+  }
 }
 
-async function updateStreak(bonusDay=false) {
-  if(!currentUser) return;
-  try {
-  const streak = await loadStreak();
-  if(!streak) return;
-
-  const today = getDailyKey();
-  const lastPlayed = streak.last_played_date;
-
-  // Already played today
-  if(lastPlayed === today) {
-    // If bonus day (completed all daily challenges) add extra
-    if(bonusDay && !streak._bonusAwardedToday) {
-      await patchStreak({ current_streak: streak.current_streak + 1, longest_streak: Math.max(streak.longest_streak, streak.current_streak + 1), _bonusAwardedToday: true });
-    }
-    return;
-  }
-
-  // Use local date math to avoid timezone issues
-  const yesterdayDate = new Date(); yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  const yesterday = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth()+1).padStart(2,'0')}-${String(yesterdayDate.getDate()).padStart(2,'0')}`;
-  const twoDaysAgoDate = new Date(); twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 2);
-  const twoDaysAgo = `${twoDaysAgoDate.getFullYear()}-${String(twoDaysAgoDate.getMonth()+1).padStart(2,'0')}-${String(twoDaysAgoDate.getDate()).padStart(2,'0')}`;
-
-  let newStreak = streak.current_streak;
-  let newTokens = streak.freeze_tokens;
-  let usedSabbath = false;
-
-  if(lastPlayed === yesterday) {
-    // Consecutive day
-    newStreak++;
-  } else if(lastPlayed === twoDaysAgo && streak.freeze_tokens > 0) {
-    // Missed one day but has Sabbath Rest
-    newStreak++;
-    newTokens = Math.max(0, newTokens - 1);
-    usedSabbath = true;
-  } else if(!lastPlayed) {
-    // First time
-    newStreak = 1;
-  } else {
-    // Streak broken
-    newStreak = 1;
-    newTokens = 0;
-  }
-
-  // Award Sabbath Rest every 6 days
-  if(newStreak % 6 === 0 && newStreak > 0) {
-    newTokens = Math.min(3, newTokens + 1);
-  }
-
-  const newLongest = Math.max(streak.longest_streak, newStreak);
-  const newTotal = (streak.total_days_played || 0) + 1;
-
-  await patchStreak({
-    current_streak: newStreak,
-    longest_streak: newLongest,
-    last_played_date: today,
-    freeze_tokens: newTokens,
-    total_days_played: newTotal,
-    updated_at: new Date().toISOString()
-  });
-
-  // Show journal card — only on FIRST play of the day (new streak update)
-  const sabbathEarned = newStreak % 6 === 0 && newTokens > streak.freeze_tokens;
+// The celebration card, badges and sounds shown when a play counts toward the streak.
+function celebrateStreak(step, streak) {
+  const n = streak.current_streak, longest = streak.longest_streak, tokens = streak.freeze_tokens;
   // Small delay so game completion screen shows first
   setTimeout(() => {
-    if(usedSabbath) { playStreak(); showJournalCard(newStreak, newLongest, newTokens, false, true, false); }
-    else if(sabbathEarned) { playMilestone(); showJournalCard(newStreak, newLongest, newTokens, true, false, false); }
-    else if([1,2,3,7,14,30,50,100].includes(newStreak)) { playMilestone(); showJournalCard(newStreak, newLongest, newTokens, false, false, false); }
-    else { playStreak(); showJournalCard(newStreak, newLongest, newTokens, false, false, false); }
+    if(step.usedSabbath) { playStreak(); showJournalCard(n, longest, tokens, false, true, false); }
+    else if(step.sabbathEarned) { playMilestone(); showJournalCard(n, longest, tokens, true, false, false); }
+    else if([1,2,3,7,14,30,50,100].includes(n)) { playMilestone(); showJournalCard(n, longest, tokens, false, false, false); }
+    else { playStreak(); showJournalCard(n, longest, tokens, false, false, false); }
   }, 1200);
 
   // Check for newly earned badges and queue them
@@ -8963,9 +8969,9 @@ async function updateStreak(bonusDay=false) {
   if(newBadges && newBadges.length > 0) {
     queueBadgeJournals(newBadges);
   }
+}
 
-  // Update home streak card to done state
-  } catch(e) { console.error('updateStreak error:', e); return; }
+function markStreakCardDone() {
   const streakCard = document.getElementById('homeStreakCard');
   if(streakCard) {
     streakCard.classList.add('streak-card-done');
@@ -8974,6 +8980,81 @@ async function updateStreak(bonusDay=false) {
     const streakBadge = document.getElementById('homeStreakBadge');
     if(streakBadge) { streakBadge.textContent = '✓ Done'; streakBadge.style.background = '#e0f4d0'; streakBadge.style.color = '#4a8a28'; streakBadge.style.border = '1px solid #2e6b14'; }
   }
+}
+
+// Counts today toward the streak while the server can't be reached. Returns true if it counted.
+function creditStreakOffline() {
+  const today = getDailyKey();
+  addStreakDay(today);
+  const base = (currentStreak && currentStreak.user_id === currentUser.id) ? currentStreak : readCachedStreak();
+  if (!base) { showStreakToast("Streak counted. It will sync when you're back online."); return true; }
+  const step = computeStreakStep(base, today);
+  if (step) {
+    currentStreak = { ...base, ...step.updates, _offline: true };
+    cacheStreak(currentStreak);
+    celebrateStreak(step, currentStreak);
+    showStreakToast("Streak counted. It will sync when you're back online.");
+  }
+  markStreakCardDone();
+  return true;
+}
+
+let _syncingStreak = false;
+// Applies the days played offline to the real streak, oldest first. Returns true when nothing is left waiting.
+async function syncOfflineStreak() {
+  if (_syncingStreak || !currentUser || !authToken || !navigator.onLine) return false;
+  const days = readStreakDays();
+  if (!days.length) return true;
+  _syncingStreak = true;
+  try {
+    const streak = await loadStreak();
+    if (!streak || streak._offline) return false;
+    let cur = { ...streak }, changed = false;
+    for (const day of days) {
+      const step = computeStreakStep(cur, day);   // null = the server already has that day
+      if (step) { cur = { ...cur, ...step.updates }; changed = true; }
+    }
+    if (changed) {
+      const { current_streak, longest_streak, last_played_date, freeze_tokens, total_days_played } = cur;
+      await patchStreak({ current_streak, longest_streak, last_played_date, freeze_tokens, total_days_played, updated_at: new Date().toISOString() });
+      if (!currentStreak || currentStreak.last_played_date !== cur.last_played_date) return false;   // not saved: try again next time
+    }
+    writeStreakDays(readStreakDays().filter(d => !days.includes(d)));
+    cacheStreak(currentStreak);
+    if (typeof refreshHomeStreak === 'function') refreshHomeStreak();
+    return true;
+  } catch(e) {
+    console.warn('Streak sync failed:', e?.message);
+    return false;
+  } finally { _syncingStreak = false; }
+}
+
+async function updateStreak(bonusDay=false) {
+  if(!currentUser) return;
+  try {
+    // Days played offline go first, so today builds on them.
+    if(navigator.onLine && readStreakDays().length) await syncOfflineStreak();
+    const streak = navigator.onLine ? await loadStreak() : null;
+    if(!streak || streak._offline) { creditStreakOffline(); return; }
+
+    const today = getDailyKey();
+    // Already played today
+    if(streak.last_played_date === today) {
+      // If bonus day (completed all daily challenges) add extra
+      if(bonusDay && !streak._bonusAwardedToday) {
+        await patchStreak({ current_streak: streak.current_streak + 1, longest_streak: Math.max(streak.longest_streak, streak.current_streak + 1), _bonusAwardedToday: true });
+      }
+      return;
+    }
+
+    const step = computeStreakStep(streak, today);
+    if(!step) return;   // already counted (for example from another device)
+    await patchStreak({ ...step.updates, updated_at: new Date().toISOString() });
+    // The save failed twice: keep the day so it is counted when the connection is back.
+    if(!currentStreak || currentStreak.last_played_date !== today) addStreakDay(today);
+    celebrateStreak(step, step.updates);
+  } catch(e) { console.error('updateStreak error:', e); return; }
+  markStreakCardDone();
 }
 
 async function patchStreak(updates) {
