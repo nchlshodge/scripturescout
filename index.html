@@ -1339,6 +1339,14 @@ function escapeJsAttr(str) {
 // ═══════════════════════════════════════
 // SUPABASE HELPERS
 // ═══════════════════════════════════════
+// Like fetch(), but throws if the server rejects the write (RLS/constraint/network), so callers'
+// try/catch can tell the user instead of showing a false success.
+async function apiWrite(url, options) {
+  const res = await fetch(url, options);
+  if (!res.ok) throw new Error('Request failed (' + res.status + ')');
+  return res;
+}
+
 async function sbFetch(path, options={}, _retried=false) {
   const token = authToken || SUPABASE_KEY;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -2163,6 +2171,7 @@ function showApp() {
     });
     loadNotifications();
     loadBlockedUsers();
+    loadAdminStatus();
     checkForPendingChallenges();
     // Poll notifications every 30 seconds
     if(window._notifPollInterval) clearInterval(window._notifPollInterval);
@@ -7670,7 +7679,7 @@ function isBlocked(userId) {
 async function blockUser(userId, username) {
   if (!currentUser || userId === currentUser.id) return;
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/blocked_users`, {
+    await apiWrite(`${SUPABASE_URL}/rest/v1/blocked_users`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
       body: JSON.stringify({ blocker_id: currentUser.id, blocked_id: userId })
@@ -7692,7 +7701,7 @@ async function blockUser(userId, username) {
 async function unblockUser(userId, username) {
   if (!currentUser) return;
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/blocked_users?blocker_id=eq.${currentUser.id}&blocked_id=eq.${userId}`, {
+    await apiWrite(`${SUPABASE_URL}/rest/v1/blocked_users?blocker_id=eq.${currentUser.id}&blocked_id=eq.${userId}`, {
       method: 'DELETE',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
     });
@@ -7704,6 +7713,39 @@ async function unblockUser(userId, username) {
     console.warn('unblockUser failed:', e?.message);
     showStreakToast('Could not unblock — try again.');
   }
+}
+
+// Report review (owner/admin only; see report_alerts_migration.sql)
+let isAppAdmin = false;
+async function loadAdminStatus() {
+  isAppAdmin = false;
+  if (!currentUser) return;
+  try {
+    const rows = await sbFetch(`app_admins?user_id=eq.${currentUser.id}&select=user_id`);
+    isAppAdmin = rows.length > 0;
+  } catch(e) { /* table not set up yet, or not an admin */ }
+}
+async function renderReportsAdmin() {
+  showBackBtn(true);
+  const root = document.getElementById('root');
+  root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading…</div></div>`;
+  let rows = [];
+  try { rows = await sbFetch(`user_reports?order=created_at.desc&limit=50&select=*`); } catch(e) { console.warn('reports load failed:', e?.message); }
+  root.innerHTML = `
+    <div class="friends-screen">
+      <button class="btn-friend-action" onclick="renderProfile()">← Back to Profile</button>
+      <h2 style="font-family:Georgia,serif;margin:14px 0 8px;">Reports</h2>
+      ${rows.length ? rows.map(r => `
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
+          <div style="font-weight:700;color:var(--text);">${escapeHtml(r.reported_username || 'Unknown user')} <span style="font-weight:500;color:var(--text-muted);">· ${escapeHtml(r.reason)}</span></div>
+          ${r.message_excerpt ? `<div style="margin:6px 0;padding:8px 10px;background:var(--surface-2);border-radius:8px;font-size:0.88rem;color:var(--text);">${escapeHtml(r.message_excerpt)}</div>` : ''}
+          ${r.details ? `<div style="font-size:0.85rem;color:var(--text-muted);">${escapeHtml(r.details)}</div>` : ''}
+          <div style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+            <span style="font-size:0.78rem;color:var(--text-muted);">${timeAgo(r.created_at)}</span>
+            <button class="btn-friend-action" style="margin-left:auto;" onclick="renderProfile('${r.reported_user_id}','${escapeJsAttr(r.reported_username||'Scout')}')">View profile</button>
+          </div>
+        </div>`).join('') : `<div class="empty-state" style="padding:16px;">No reports.</div>`}
+    </div>`;
 }
 
 async function renderBlockedUsersList() {
@@ -7845,7 +7887,7 @@ function showAvatarPicker() {
     currentAvatarColor = window._pendingColor || selectedColor;
     try {
       const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` };
-      await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${currentUser.id}`, {
+      await apiWrite(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${currentUser.id}`, {
         method: 'PATCH', headers,
         body: JSON.stringify({ avatar_icon: currentAvatarIcon, avatar_color: currentAvatarColor })
       });
@@ -8079,6 +8121,7 @@ async function renderProfile(userId=null, username=null) {
         <div style="padding:16px;">
           <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Account</div>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderBlockedUsersList()">🚫 Blocked Users</button>
+          ${isAppAdmin ? `<button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderReportsAdmin()">⚠️ Review Reports</button>` : ''}
           <a class="btn-friend-action" style="display:block;box-sizing:border-box;width:100%;margin-bottom:8px;text-align:center;text-decoration:none;" href="mailto:nick@rochesterchristian.church?subject=Scripture%20Scout%20support">Contact Support</a>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openTermsOfService()">Terms of Service</button>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="openPrivacyPolicy()">Privacy Policy</button>
@@ -8103,7 +8146,7 @@ async function editUsername() {
     const existing = await sbFetch(`profiles?username=eq.${encodeURIComponent(newName)}&select=id`);
     if(existing.length && existing[0].id !== currentUser.id) { showStreakToast('Username already taken!'); return; }
     // Update
-    await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${currentUser.id}`, { method:'PATCH', headers, body: JSON.stringify({ username: newName }) });
+    await apiWrite(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${currentUser.id}`, { method:'PATCH', headers, body: JSON.stringify({ username: newName }) });
     currentUsername = newName;
     playerName = newName;
     localStorage.setItem('ss_username', newName);
@@ -8144,8 +8187,11 @@ async function renderFriends(startTab=null) {
     const { friends, requests, getUsername } = window._friendsData;
     root.innerHTML = `
       <div class="friends-screen">
-        <div class="verse-label">👥 Friends</div>
-        <div class="friends-tabs">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div class="verse-label" style="margin:0;">👥 Friends</div>
+          <button class="btn-friend-action" onclick="renderMessages()">💬 Messages</button>
+        </div>
+        <div class="friends-tabs" style="margin-top:12px;">
           <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="renderFriends('friends')">Friends ${friends.length>0?`(${friends.length})`:''}</div>
           <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="renderFriends('requests')">Requests ${requests.length>0?`(${requests.length})`:''}${sentRequests.length>0?` · ${sentRequests.length} sent`:''}</div>
           <div class="friends-tab ${activeTab==='add'?'active':''}" onclick="renderFriends('add')">Add Friend</div>
@@ -8254,7 +8300,7 @@ async function renderFriends(startTab=null) {
 async function sendFriendRequest(friendId, friendUsername) {
   if (isBlocked(friendId)) { showStreakToast(`You've blocked ${friendUsername} — unblock them first to send a request.`); return; }
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/friends`, {
+    await apiWrite(`${SUPABASE_URL}/rest/v1/friends`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=minimal' },
       body: JSON.stringify({ user_id: currentUser.id, friend_id: friendId, status: 'pending' })
@@ -8269,7 +8315,7 @@ async function sendFriendRequest(friendId, friendUsername) {
 
 async function acceptFriend(requestId, fromId, fromUsername) {
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/friends?id=eq.${requestId}`, {
+    await apiWrite(`${SUPABASE_URL}/rest/v1/friends?id=eq.${requestId}`, {
       method: 'PATCH',
       headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
       body: JSON.stringify({ status: 'accepted' })
@@ -8277,18 +8323,18 @@ async function acceptFriend(requestId, fromId, fromUsername) {
     await createNotification(fromId, 'friend_accept', `${currentUsername} accepted your friend request! 🤝`, { from_id: currentUser.id });
     showStreakToast(`You and ${fromUsername} are now friends!`);
     renderFriends();
-  } catch(e) { console.warn("Caught:", e?.message); }
+  } catch(e) { console.warn('acceptFriend failed:', e?.message); showStreakToast('Could not accept — try again.'); }
 }
 
 async function declineFriend(requestId) {
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/friends?id=eq.${requestId}`, {
+    await apiWrite(`${SUPABASE_URL}/rest/v1/friends?id=eq.${requestId}`, {
       method: 'DELETE',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
     });
     showStreakToast('Request declined.');
     renderFriends();
-  } catch(e) { console.warn("Caught:", e?.message); }
+  } catch(e) { console.warn('declineFriend failed:', e?.message); showStreakToast('Could not decline — try again.'); }
 }
 
 async function challengeFriend(friendId, friendUsername) {
@@ -8358,6 +8404,7 @@ const EMOJI_REACTIONS = ['👍','🔥','🙏','❤️','😮','🎉'];
 
 async function renderMessages() {
   showBackBtn(true);
+  setHub('friends');
   const root = document.getElementById('root');
   root.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Loading messages…</div></div>`;
 
@@ -8382,7 +8429,7 @@ async function renderMessages() {
             </div>`;
         }).join('') : `<div class="empty-state">No messages yet!<br>Message a friend from the Friends screen.</div>`}
       </div>
-      <button class="btn-change-diff" style="margin-top:12px;" onclick="showHome()">← Home</button>
+      <button class="btn-change-diff" style="margin-top:12px;" onclick="renderFriends()">← Friends</button>
     </div>`;
 }
 
@@ -8406,17 +8453,16 @@ async function openDirectMessage(friendId, friendUsername) {
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' },
     body: JSON.stringify({ name: friendUsername, type: 'direct', created_by: currentUser.id })
   });
+  if(!res.ok) { showStreakToast('Could not start the chat — try again.'); return; }
   const convData = await res.json();
   const convId = convData[0]?.id;
-  if(!convId) return;
+  if(!convId) { showStreakToast('Could not start the chat — try again.'); return; }
 
   // Add both members
   await Promise.all([
-    fetch(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: currentUser.id, username: currentUsername }) }),
-    fetch(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: friendId, username: friendUsername }) })
-  ]);
-
-  openConversation(convId, friendUsername, 'direct');
+    apiWrite(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: currentUser.id, username: currentUsername }) }),
+    apiWrite(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: friendId, username: friendUsername }) })
+  ]).catch(e => { console.warn('add members failed:', e?.message); return 'fail'; }).then(r => { if (r === 'fail') showStreakToast('Could not start the chat — try again.'); else openConversation(convId, friendUsername, 'direct'); });
 }
 
 async function newGroupChat() {
@@ -8427,10 +8473,13 @@ async function newGroupChat() {
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' },
     body: JSON.stringify({ name, type: 'group', created_by: currentUser.id })
   });
+  if(!res.ok) { showStreakToast('Could not start the chat — try again.'); return; }
   const convData = await res.json();
   const convId = convData[0]?.id;
-  if(!convId) return;
-  await fetch(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: currentUser.id, username: currentUsername }) });
+  if(!convId) { showStreakToast('Could not start the chat — try again.'); return; }
+  try {
+  await apiWrite(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: currentUser.id, username: currentUsername }) });
+  } catch(e) { showStreakToast('Could not create the group — try again.'); return; }
   openConversation(convId, name, 'group');
 }
 
@@ -8606,7 +8655,9 @@ async function addGroupMember(convId) {
   if(!username) return;
   const rows = await sbFetch(`profiles?username=eq.${encodeURIComponent(username)}&select=id,username`);
   if(!rows.length) { showStreakToast('User not found!'); return; }
-  await fetch(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: rows[0].id, username }) });
+  try {
+  await apiWrite(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: rows[0].id, username }) });
+  } catch(e) { showStreakToast('Could not add that user — they may already be in the group.'); return; }
   showStreakToast(`${username} added to the group!`);
 }
 
