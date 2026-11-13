@@ -1,0 +1,11 @@
+# Tests
+
+Run with `npm test` (also runs automatically on every push via GitHub Actions).
+
+- `app.test.js` loads the real `index.html` in a fake browser (jsdom) and checks the app's own functions:
+  HTML escaping, the profanity filter, the 13+ age check, failed-save retries and messages, icons.
+- `static.test.js` reads the source and checks things that have broken before: every button handler points at a
+  real function, no `${...}` leaking into plain strings, the Content Security Policy, no secret keys, required
+  files, and that the privacy policy covers what the app does.
+
+They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.

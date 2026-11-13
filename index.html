@@ -1128,7 +1128,7 @@ let perfectHardMemory = parseInt(localStorage.getItem('ss_perfect_hard_memory') 
 function switchTab(tab) {
   currentTab = tab;
   if (tab === 'play') renderDiffScreen();
-  else if (tab === 'train') renderTrainScreen();
+  else if (tab === 'train') showHome();
   else if (tab === 'leaderboard') renderLeaderboard();
   else if (tab === 'stats') renderStats();
   else if (tab === 'home') showHome();
@@ -3465,7 +3465,7 @@ function renderFillBlankSetup() {
         </div>
         <button class="btn-next" id="startFitbBtn">Start →</button>
         <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderLeaderboardHub()"><img src="icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> View Leaderboards</button>
-        <button class="btn-change-diff" style="margin-top:8px;" onclick="renderTrainScreen()">← Back</button>
+        <button class="btn-change-diff" style="margin-top:8px;" onclick="showHome()">← Back</button>
       </div>
     </div>`;
 
@@ -3899,7 +3899,7 @@ function renderRefChallengeSetup() {
         </div>
         <button class="btn-next" id="startRcBtn">Start →</button>
         <button class="btn-next" style="background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);margin-top:8px;" onclick="renderLeaderboardHub()"><img src="icons/trophy.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> View Leaderboards</button>
-        <button class="btn-change-diff" style="margin-top:8px;" onclick="renderTrainScreen()">← Back</button>
+        <button class="btn-change-diff" style="margin-top:8px;" onclick="showHome()">← Back</button>
       </div>
     </div>`;
 
@@ -6545,7 +6545,7 @@ async function rateMemoryEndless(rating) {
         <div class="endless-final">${es.score.toLocaleString()}</div>
         <div class="endless-streak-display">Run ended after 3 misses</div>
         <button class="btn-next" onclick="startMemoryEndless()">Play Again</button>
-        <button class="btn-change-diff" style="margin-top:8px;" onclick="renderFlashcardSetup()">← Back</button>
+        <button class="btn-change-diff" style="margin-top:8px;" onclick="showHome()">← Back</button>
       </div>`;
     return;
   }

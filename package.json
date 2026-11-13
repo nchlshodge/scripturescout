@@ -1,10 +1,10 @@
 {
   "name": "scripture-scout",
   "version": "1.0.0",
-  "description": "Scripture Scout — a Bible verse and trivia game.",
+  "description": "Scripture Scout \u2014 a Bible verse and trivia game.",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test tests/*.test.js",
     "sync-www": "bash scripts/sync-www.sh",
     "cap:sync": "npm run sync-www && npx cap sync",
     "cap:ios": "npm run sync-www && npx cap sync ios && npx cap open ios",
@@ -32,6 +32,8 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
-    "@capacitor/cli": "^8.5.0"
+    "@capacitor/cli": "^8.5.0",
+    "acorn": "^8.19.0",
+    "jsdom": "^31.0.1"
   }
 }
