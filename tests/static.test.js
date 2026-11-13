@@ -60,10 +60,14 @@ test('Content Security Policy is present and only allows our own hosts', () => {
   assert.doesNotMatch(connect, /\*|http:/);
 });
 
-test('the Supabase library is version-pinned with an integrity hash', () => {
-  const tag = HTML.match(/<script[^>]*cdn\.jsdelivr\.net[^>]*>/)[0];
-  assert.match(tag, /supabase-js@\d+\.\d+\.\d+/);
-  assert.match(tag, /integrity="sha384-/);
+test('the Supabase library is bundled locally, version-pinned, and matches its integrity hash', () => {
+  const tag = HTML.match(/<script[^>]*supabase-js[^>]*>/)[0];
+  const file = tag.match(/src="([^"]+)"/)[1];
+  assert.match(file, /^vendor\/supabase-js-\d+\.\d+\.\d+\.js$/);
+  const want = tag.match(/integrity="sha384-([^"]+)"/)[1];
+  const got = require('node:crypto').createHash('sha384').update(fs.readFileSync(path.join(__dirname, '..', file))).digest('base64');
+  assert.equal(got, want);
+  assert.doesNotMatch(HTML, /cdn\.jsdelivr\.net/);
 });
 
 test('no secret keys are shipped in the page', () => {
@@ -92,7 +96,7 @@ test('every icon file the page references exists', () => {
 
 test('privacy policy mentions the things the app actually does', () => {
   const p = fs.readFileSync(path.join(ROOT, 'privacy.html'), 'utf8');
-  for (const word of ['birth month', 'Supabase', 'Firebase', 'Google Fonts', 'jsDelivr', 'report', 'Delete Account']) {
+  for (const word of ['birth month', 'Supabase', 'Firebase', 'Google Fonts', 'report', 'Delete Account']) {
     assert.match(p, new RegExp(word, 'i'), `privacy policy should mention "${word}"`);
   }
 });

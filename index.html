@@ -8,7 +8,7 @@
   <!-- Content Security Policy. Inline scripts/styles are still allowed because the app renders its UI with
        inline handlers and style attributes; the value here is in blocking everything else: only our own files,
        the pinned Supabase library, Google Fonts and our Supabase project can be loaded or contacted. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://xzkxigwzoznefywsiwmb.supabase.co wss://xzkxigwzoznefywsiwmb.supabase.co; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-src 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://xzkxigwzoznefywsiwmb.supabase.co wss://xzkxigwzoznefywsiwmb.supabase.co; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-src 'none'; form-action 'self'">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#142a19">
@@ -18,9 +18,8 @@
   <meta name="apple-mobile-web-app-title" content="Scripture Scout">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:ital@0;1&display=swap">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
+<script src="vendor/supabase-js-2.119.0.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O"></script>
 <title>Scripture Scout</title>
 <style>
 
@@ -916,17 +915,53 @@ const NATIVE_OAUTH_REDIRECT = 'scripturescout://auth-callback';
 const VAPID_PUBLIC_KEY = 'BFOPktzxxx16VFb_posuz0_wdM7BRTMq5rZP7k8_2LZqNWMaOGCX11fZGsRCxZYcrwQQV5wJdMmk5IqfIFNBzeg';
 let TRANSLATION = localStorage.getItem('ss_translation') || 'WEB';
 
-// Offline banner — the app makes no attempt at true offline-first behavior
-// (every screen depends on live Supabase calls, by design — see sw.js), so
-// this is just honest, persistent feedback that a real request is unlikely
-// to succeed right now, rather than a silent hang or a confusing error deep
-// inside some unrelated screen.
+// Offline behaviour. The app shell (page, images, bundled library) is cached by
+// sw.js so the app opens with no connection, but live data comes from Supabase.
+// So: a banner says plainly that you're offline, and a screen that is stuck
+// loading from Supabase is replaced by a clear "You're offline" panel with a
+// Try again button, instead of a spinner that never finishes.
 function updateOnlineStatus() {
   const banner = document.getElementById('offlineBanner');
   if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
 }
 window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
+
+let _offlineCheckTimer = null;
+function scheduleOfflineCheck() {
+  if (_offlineCheckTimer) return;
+  _offlineCheckTimer = setTimeout(() => {
+    _offlineCheckTimer = null;
+    const root = document.getElementById('root');
+    // Only step in when the screen is still showing nothing but a spinner.
+    if (root && root.querySelector('.spinner') && root.textContent.trim().length < 80) showOfflineScreen();
+  }, 900);
+}
+// Fail fast when the device knows it has no connection, and note any Supabase request that fails.
+(function watchSupabaseRequests() {
+  const nativeFetch = window.fetch.bind(window);
+  window.fetch = function(input, init) {
+    const url = typeof input === 'string' ? input : (input && input.url) || '';
+    if (!url.startsWith(SUPABASE_URL)) return nativeFetch(input, init);
+    if (!navigator.onLine) { scheduleOfflineCheck(); return Promise.reject(new TypeError('You are offline')); }
+    return nativeFetch(input, init).catch(err => { scheduleOfflineCheck(); throw err; });
+  };
+})();
+function showOfflineScreen() {
+  const root = document.getElementById('root');
+  if (!root) return;
+  showBackBtn(false);
+  root.innerHTML = `<div class="card" style="text-align:center;padding:28px 20px;">
+    <img src="randy-sad.webp" alt="" width="96" height="96" style="display:block;margin:0 auto 12px;object-fit:contain;">
+    <h2 style="margin:0 0 8px;">You're offline</h2>
+    <p style="margin:0 0 20px;color:var(--text-muted);font-size:0.9rem;line-height:1.5;">This part of Scripture Scout needs an internet connection. Check your connection, then try again.</p>
+    <button class="btn-next" onclick="retryAfterOffline()">Try again</button>
+  </div>`;
+}
+function retryAfterOffline() {
+  if (!navigator.onLine) { showToast("Still offline — check your connection."); return; }
+  showHome();
+}
 
 const OT_BOOKS = [
   ["Genesis",50],["Exodus",40],["Leviticus",27],["Numbers",36],["Deuteronomy",34],
@@ -7172,8 +7207,9 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray;
 }
 
+// Registers sw.js: it caches the app so it opens offline, and (where supported) receives push notifications.
 async function registerPushServiceWorker() {
-  if (!isPushSupported()) return null;
+  if (!('serviceWorker' in navigator)) return null;
   try {
     swRegistration = await navigator.serviceWorker.register('sw.js');
     return swRegistration;
@@ -10489,8 +10525,8 @@ if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
     }
   }
 
+  await registerPushServiceWorker();
   if (isPushSupported()) {
-    await registerPushServiceWorker();
     // If permission was already granted on a previous visit, keep the subscription alive silently
     // (covers e.g. the browser rotating the push endpoint) without re-prompting the user.
     if (Notification.permission === 'granted' && currentUser) subscribeToPush();

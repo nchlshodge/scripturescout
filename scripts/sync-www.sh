@@ -24,6 +24,7 @@ cp randy-happy.webp www/
 cp randy-sad.webp www/
 cp randy-thinking.webp www/
 
+cp -R vendor www/vendor
 cp -R icons www/icons
 cp -R story-icons www/story-icons
 cp -R badges www/badges
