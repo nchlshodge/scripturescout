@@ -41,6 +41,7 @@
     --teal-text:  #14705a;
     --earth-text: #8a4f10;
     /* Brand accent (home screen, navigation, highlights) */
+    --grad-action: linear-gradient(135deg,#2f6b45,#2a7a62);   /* white text: 5.2:1 or better along the whole gradient */
     --nav-active: #8b4513;
     --nav-pill:   rgba(139,69,19,0.13);
     --accent-rgb: 139,69,19;
@@ -316,7 +317,7 @@
   .auth-success { background:var(--teal-dim); border:1px solid var(--teal); border-radius:8px; padding:10px 14px; font-size:0.82rem; color:var(--teal-text); margin-bottom:14px; display:none; }
   .auth-footer { text-align:center; margin-top:10px; font-size:0.8rem; color:var(--text-muted); }
   .auth-link.inline { display:inline; min-height:0; padding:0; }
-  .auth-link { min-height:44px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; color:#8b4513; cursor:pointer; text-decoration:underline; background:none; border:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; }
+  .auth-link { min-height:44px; padding:0 6px; display:inline-flex; align-items:center; justify-content:center; color:var(--nav-active); cursor:pointer; text-decoration:underline; background:none; border:none; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:600; }
 
   /* User profile bar */
   .user-bar-email { font-size:0.8rem; color:var(--text-muted); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; }
@@ -343,7 +344,7 @@
   .endless-hud-item:last-child { border-right:none; }
   .endless-hud-item strong { color:var(--text); font-size:1.15rem; font-weight:700; display:block; letter-spacing:-0.01em; }
   .endless-hud-item .multiplier { color:var(--gold-text); font-size:1rem; font-weight:700; }
-  .endless-badge { background:linear-gradient(135deg,#4A7C59,#3BBFA0); color:white; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.06em; }
+  .endless-badge { background:var(--grad-action); color:white; font-size:0.75rem; font-weight:700; padding:3px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.06em; }
   .endless-verse-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--gold-text); margin-bottom:12px; display:flex; align-items:center; gap:8px; font-weight:600; }
   .endless-verse-label::after { content:''; flex:1; height:1px; background:#F4B94230; }
   .bank-bar { display:flex; gap:8px; margin-bottom:8px; }
@@ -491,7 +492,7 @@
   .friends-screen { width:100%; max-width:560px; }
   #root:has(> .friends-screen) { width:100%; max-width:560px; }
   .friend-card { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:8px; }
-  .friend-avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,#8b4513,#38BDF8); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:white; flex-shrink:0; }
+  .friend-avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,#8b4513,#6b3410); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:white; flex-shrink:0; }
   .friend-name { font-size:0.92rem; font-weight:600; color:var(--text); }
   .friend-meta { font-size:0.75rem; color:var(--text-muted); }
   .friend-actions { margin-left:auto; display:flex; gap:6px; }
@@ -507,8 +508,8 @@
   .notif-time { font-size:0.75rem; color:var(--text-muted); margin-top:2px; }
   .conv-item { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
   @media (hover:hover) and (pointer:fine) {.conv-item:hover { background:var(--surface-2); }}
-  .conv-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#8b4513,#38BDF8); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:white; flex-shrink:0; }
-  .conv-avatar.group { background:linear-gradient(135deg,#F4B942,#E53E3E); border-radius:12px; }
+  .conv-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#8b4513,#6b3410); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:white; flex-shrink:0; }
+  .conv-avatar.group { background:linear-gradient(135deg,#a8560a,#9b2c2c); border-radius:12px; }
   .conv-name { font-size:0.92rem; font-weight:600; color:var(--text); }
   .conv-preview { font-size:0.78rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
   .conv-time { font-size:0.75rem; color:var(--text-muted); margin-left:auto; flex-shrink:0; }
@@ -564,7 +565,7 @@
   .champion-rank { font-size:1.2rem; width:28px; text-align:center; flex-shrink:0; }
   .champion-name { flex:1; font-size:0.88rem; font-weight:600; color:var(--text); }
   .champion-score { font-size:0.88rem; font-weight:700; color:var(--gold-text); }
-  .btn-champion-close { width:100%; padding:14px; background:linear-gradient(135deg,#4A7C59,#3BBFA0); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:700; color:white; cursor:pointer; margin-top:16px; }
+  .btn-champion-close { width:100%; padding:14px; background:var(--grad-action); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:700; color:white; cursor:pointer; margin-top:16px; }
 
   /* Game leaderboards */
   .game-lb { width:100%; max-width:560px; }
@@ -608,7 +609,7 @@
   .story-type-input:focus { border-color:var(--nav-active); }
   .story-type-input.correct { border-color:var(--teal); background:var(--teal-dim); }
   .story-type-input.wrong { border-color:var(--earth); background:var(--earth-dim); }
-  .story-stars { font-size:1.6rem; text-align:center; margin:8px 0; letter-spacing:4px; }
+  .story-stars { font-size:1.6rem; text-align:center; margin:8px 0; letter-spacing:4px; color:#8a5a00; }   /* the book page stays parchment in dark mode, so this can't follow --text */
   .story-round-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--nav-active); font-weight:600; margin-bottom:12px; text-align:center; }
   .story-feedback { min-height:24px; font-size:0.85rem; font-weight:600; text-align:center; margin-top:4px; }
   .story-feedback.correct { color:var(--teal-text); }
@@ -650,7 +651,7 @@
 
   /* Fill in the Blank */
   .blank-verse { font-family:'DM Mono',monospace; font-size:clamp(0.9rem,2.4vw,1.05rem); line-height:2.2; color:var(--text); margin-bottom:16px; }
-  .blank-word { display:inline-block; min-width:80px; min-height:40px; border-bottom:2px solid var(--fern); color:var(--teal-text); font-weight:700; text-align:center; margin:0 4px; cursor:pointer; padding:0 6px; border-radius:4px; transition:all 0.15s; }
+  .blank-word { display:inline-block; min-width:80px; min-height:44px; border-bottom:2px solid var(--fern); color:var(--teal-text); font-weight:700; text-align:center; margin:0 4px; cursor:pointer; padding:0 6px; border-radius:4px; transition:all 0.15s; }
   @media (hover:hover) and (pointer:fine) {.blank-word:hover { background:rgba(107,175,122,0.1); }}
   .blank-word.revealed { color:var(--teal-text); border-color:var(--teal); background:var(--teal-dim); }
   .blank-word.wrong { color:var(--earth-text); border-color:var(--earth); background:var(--earth-dim); }
@@ -809,7 +810,7 @@
   .journal-stat-label { font-size:0.75rem;color:#9a6a28;text-transform:uppercase;letter-spacing:0.08em;margin-top:3px; }
   .journal-dots { display:flex;gap:5px;margin:12px 0;flex-wrap:wrap; }
   .journal-dot { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;border:1.5px solid; }
-  .journal-dot-filled { background:linear-gradient(135deg,#f4b942,#c8901a);border-color:#c8901a;color:white; }
+  .journal-dot-filled { background:linear-gradient(135deg,#f4b942,#c8901a);border-color:#c8901a;color:#3a2000; }
   .journal-dot-today { background:linear-gradient(135deg,#c8401a,#8b2a0a);border-color:#8b2a0a;color:white;box-shadow:0 0 0 3px rgba(200,64,26,0.2); }
   .journal-dot-sabbath { background:linear-gradient(135deg,#2e6b14,#3a7a18);border-color:#3a7a18;color:white;box-shadow:0 0 0 3px rgba(90,170,48,0.2); }
   .journal-paw { text-align:right;margin-top:10px;opacity:0.35; }
@@ -1910,8 +1911,8 @@ function renderAuthScreen(mode='login') {
 
         <!-- Tabs -->
         <div style="display:flex;background:var(--surface-2);border-radius:10px;padding:3px;margin-bottom:16px;">
-          <button onclick="renderAuthScreen('login')" style="flex:1;padding:8px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:${mode==='login'?'#8b4513':'transparent'};color:${mode==='login'?'#f4b942':'var(--text-muted)'};">Sign In</button>
-          <button onclick="renderAuthScreen('signup')" style="flex:1;padding:8px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:${mode==='signup'?'#8b4513':'transparent'};color:${mode==='signup'?'#f4b942':'var(--text-muted)'};">Create Account</button>
+          <button onclick="renderAuthScreen('login')" style="flex:1;min-height:44px;padding:8px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:${mode==='login'?'#7a3810':'transparent'};color:${mode==='login'?'#f4c050':'var(--text-muted)'};">Sign In</button>
+          <button onclick="renderAuthScreen('signup')" style="flex:1;min-height:44px;padding:8px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;background:${mode==='signup'?'#7a3810':'transparent'};color:${mode==='signup'?'#f4c050':'var(--text-muted)'};">Create Account</button>
         </div>
 
         <div class="auth-error" id="authError"></div>
@@ -1945,7 +1946,7 @@ function renderAuthScreen(mode='login') {
         </div>
 
         <!-- Submit -->
-        <button id="authSubmitBtn" onclick="handleAuth('${mode}')" style="width:100%;padding:13px;background:linear-gradient(135deg,#8b4513,#6b3410);border:none;border-radius:12px;color:#f4b942;font-family:Georgia,serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">
+        <button id="authSubmitBtn" onclick="handleAuth('${mode}')" style="width:100%;padding:13px;background:linear-gradient(135deg,#7a3810,#5a2808);border:none;border-radius:12px;color:#f4c050;font-family:Georgia,serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">
           ${mode==='login'?'Sign In →':'Create Account →'}
         </button>
 
@@ -2388,7 +2389,7 @@ function showTextInputModal({ title='', desc='', placeholder='', defaultValue=''
           style="width:100%;padding:12px 16px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.95rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:14px;"/>
         <div style="display:flex;gap:10px;">
           <button id="textInputModalCancel" style="flex:1;padding:13px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);cursor:pointer;">Cancel</button>
-          <button id="textInputModalOk" style="flex:1;padding:13px;background:linear-gradient(135deg,#4A7C59,#3BBFA0);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;color:white;cursor:pointer;">${confirmLabel}</button>
+          <button id="textInputModalOk" style="flex:1;padding:13px;background:var(--grad-action);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;color:white;cursor:pointer;">${confirmLabel}</button>
         </div>
       </div>`;
     document.body.appendChild(overlay);
@@ -2423,7 +2424,7 @@ function showUsernamePrompt() {
         style="width:100%;padding:12px 16px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.95rem;color:var(--text);outline:none;box-sizing:border-box;margin-bottom:10px;"/>
       <div id="usernamePromptError" style="font-size:0.78rem;color:var(--earth-text);margin-bottom:10px;display:none;"></div>
       <button id="usernamePromptBtn" onclick="saveUsername()" 
-        style="width:100%;padding:14px;background:linear-gradient(135deg,#4A7C59,#3BBFA0);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;color:white;cursor:pointer;">
+        style="width:100%;padding:14px;background:var(--grad-action);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;color:white;cursor:pointer;">
         Let's Go! →
       </button>
       <div style="font-size:0.75rem;color:var(--text-muted);margin-top:10px;">You can change this later in your profile.</div>
@@ -3767,7 +3768,7 @@ function updateFitbCheckButton() {
   if(!area) return;
   const allFilled = fitbAnswerRow.length >= s.blanks.length;
   area.innerHTML = allFilled
-    ? `<button class="btn-next" id="fitbCheckBtn" style="background:linear-gradient(135deg,#4A7C59,#3BBFA0);margin-top:8px;">Check Answers ✓</button>`
+    ? `<button class="btn-next" id="fitbCheckBtn" style="background:var(--grad-action);color:#fff;margin-top:8px;">Check Answers ✓</button>`
     : `<button class="btn-next" style="background:var(--surface-2);color:var(--text-muted);border:1.5px solid var(--border);margin-top:8px;cursor:default;" disabled>Check Answers (${fitbAnswerRow.length}/${s.blanks.length})</button>`;
   if(allFilled) document.getElementById('fitbCheckBtn').onclick = checkAllFitbAnswers;
 }
@@ -4455,6 +4456,13 @@ let storyRoundState = {
   currentBlankIndex: 0
 };
 
+// The hearts row: shown as emoji, announced as a plain count ("2 of 3 hearts left").
+function setStoryHearts(el, remaining) {
+  el.textContent = '❤️'.repeat(remaining) + '🖤'.repeat(3 - remaining);
+  el.setAttribute('role', 'img');
+  el.setAttribute('aria-label', `${remaining} of 3 hearts left`);
+}
+
 async function renderStoryRound() {
   const s = storyInteractive;
   // Check hearts before starting
@@ -4542,7 +4550,7 @@ async function renderStoryRound() {
     refChoicesHtml = `
       <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Type the reference (e.g. John 3:16):</div>
       <input class="story-type-input" id="storyTypeInput" type="text" placeholder="Book Chapter:Verse" autocomplete="off"/>
-      <button class="btn-next" id="storyTypeSubmit" style="background:linear-gradient(135deg,#7a3810,#c8941a);margin-bottom:0;">Check →</button>`;
+      <button class="btn-next" id="storyTypeSubmit" style="margin-bottom:0;">Check →</button>`;
   }
 
   const page = `<div class="fg-page"><div class="fg-page-lines"></div><div class="fg-margin-line"></div>
@@ -4552,7 +4560,7 @@ async function renderStoryRound() {
       <div class="card" style="max-width:560px;width:100%;margin-bottom:12px;">
         <div class="story-round-bar">${roundDots}</div>
         <div class="story-round-label">${roundLabels[round]}</div>
-        <div class="story-hearts">${heartDisplay}</div>
+        <div class="story-hearts" role="img" aria-label="${currentHearts} of 3 hearts left">${heartDisplay}</div>
 
         <div class="chapter-narrative" style="font-size:0.85rem;margin-bottom:14px;line-height:1.7;">${chapter.narrative}</div>
 
@@ -4590,7 +4598,7 @@ async function renderStoryRound() {
             style="width:100%;min-height:100px;padding:12px 14px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--text);outline:none;resize:none;line-height:1.6;box-sizing:border-box;"
             placeholder="Type the full verse here…"></textarea>
           <div style="font-size:0.75rem;color:var(--text-muted);margin:4px 0 10px;text-align:right;" id="storyVerseWordCount">0 words</div>
-          <button class="btn-next" id="storyVerseSubmitBtn" style="background:linear-gradient(135deg,#7a3810,#c8941a);" disabled>Check Verse ✓</button>
+          <button class="btn-next" id="storyVerseSubmitBtn" style="" disabled>Check Verse ✓</button>
           ` : `<div id="storyBlankInput"></div>`}
           <div class="story-feedback" id="storyBlankFeedback" role="status" aria-live="polite"></div>
         </div>
@@ -4633,7 +4641,7 @@ function checkStoryTypedVerse() {
   } else {
     const remaining = loseHeart();
     const heartEl = document.querySelector('.story-hearts');
-    if(heartEl) heartEl.textContent = '❤️'.repeat(remaining) + '🖤'.repeat(3-remaining);
+    if(heartEl) setStoryHearts(heartEl, remaining);
     if(fb) {
       fb.className = 'story-feedback wrong';
       fb.innerHTML = remaining > 0
@@ -4720,7 +4728,7 @@ function checkStoryRef(answer, correct, btn) {
         : `💔 Out of hearts!`;
     }
     const heartEl = document.querySelector('.story-hearts');
-    if(heartEl) heartEl.textContent = '❤️'.repeat(remaining) + '🖤'.repeat(3-remaining);
+    if(heartEl) setStoryHearts(heartEl, remaining);
     if(remaining <= 0) {
       setTimeout(() => showHeartsEmptyScreen(()=>renderStoryPath(s.pathId)), 1500);
     } else {
@@ -4769,7 +4777,7 @@ function renderStoryBlankInput() {
       ${storyWordBankData.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
     <div id="storyCheckBlanksArea">
-      <button class="btn-next" id="storyCheckBlanksBtn" style="background:linear-gradient(135deg,#7a3810,#c8941a);margin-top:8px;" disabled>
+      <button class="btn-next" id="storyCheckBlanksBtn" style="margin-top:8px;" disabled>
         Check Answers (0/${rs.blanks.length})
       </button>
     </div>`;
@@ -4897,7 +4905,7 @@ function checkAllStoryBlanks() {
         : `💔 Out of hearts!`;
     }
     const heartEl = document.querySelector('.story-hearts');
-    if(heartEl) heartEl.textContent = '❤️'.repeat(remaining) + '🖤'.repeat(3-remaining);
+    if(heartEl) setStoryHearts(heartEl, remaining);
 
     if(remaining <= 0) {
       setTimeout(() => showHeartsEmptyScreen(() => renderStoryPath(s.pathId)), 1500);
@@ -5210,7 +5218,7 @@ function renderStoryRoundComplete(stars) {
       <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
         <div style="margin-bottom:12px;color:var(--nav-active);">${ico('book',44)}</div>
         <div class="verse-label" style="justify-content:center;">Chapter ${s.chapter.chapter_num} — ${s.chapter.title}</div>
-        <div class="story-stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+        <div class="story-stars" role="img" aria-label="${stars} of 3 stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
         <h2 style="font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:6px;">
           ${stars===3?'Chapter Mastered! 🏆':stars===2?'Well done!':'Chapter Unlocked!'}
         </h2>
@@ -5227,7 +5235,7 @@ function renderStoryRoundComplete(stars) {
         </div>
 
         ${hasNextRound && !isMaxStars ? `
-        <button class="btn-next" id="nextRoundBtn" style="background:linear-gradient(135deg,#7a3810,#c8941a);margin-bottom:8px;">
+        <button class="btn-next" id="nextRoundBtn" style="margin-bottom:8px;">
           ★ Try Round ${s.round+1} for more stars →
         </button>` : ''}
         <button class="btn-next" id="nextChapterBtn" style="${hasNextRound&&!isMaxStars?'background:var(--surface-2);color:var(--text);border:1.5px solid var(--border);':''}">
@@ -7249,7 +7257,7 @@ function renderChallengeMIA(verse) {
       ${challengeWordBank.map(w=>`<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
     <div id="challengeCheckArea">
-      <button class="btn-next" id="challengeCheckBtn" style="background:linear-gradient(135deg,#4A7C59,#3BBFA0);margin-top:8px;" disabled>Check Answers (0/${blanks.length})</button>
+      <button class="btn-next" id="challengeCheckBtn" style="background:var(--grad-action);color:#fff;margin-top:8px;" disabled>Check Answers (0/${blanks.length})</button>
     </div>`;
 
   function refreshChallengeVerse() {
@@ -8443,7 +8451,7 @@ function askInvite({ title, desc, confirmLabel }) {
         <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:18px;line-height:1.5;">${desc}</div>
         <div style="display:flex;gap:10px;">
           <button id="inviteModalNo" style="flex:1;padding:13px;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);cursor:pointer;">Not now</button>
-          <button id="inviteModalYes" style="flex:1;padding:13px;background:linear-gradient(135deg,#4A7C59,#3BBFA0);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;color:white;cursor:pointer;">${confirmLabel}</button>
+          <button id="inviteModalYes" style="flex:1;padding:13px;background:var(--grad-action);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;color:white;cursor:pointer;">${confirmLabel}</button>
         </div>
       </div>`;
     document.body.appendChild(overlay);
@@ -10397,7 +10405,7 @@ async function renderDailyMIA(verse) {
       ${dailyMIAWordBank.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
     <div id="dailyMIACheckArea">
-      <button class="btn-next" id="dailyMIACheckBtn" style="background:linear-gradient(135deg,#4A7C59,#3BBFA0);margin-top:8px;" disabled>Check Answers (0/${blanks.length})</button>
+      <button class="btn-next" id="dailyMIACheckBtn" style="background:var(--grad-action);color:#fff;margin-top:8px;" disabled>Check Answers (0/${blanks.length})</button>
     </div>`;
 
   function refreshDailyMIAAnswerRow() {
