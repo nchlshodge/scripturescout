@@ -39,3 +39,5 @@ They don't touch Supabase or any network. To add a test, put a `*.test.js` file 
   sizes and the chapter stars/hearts labels. Run against the old code it flags nine low-contrast buttons.
 - `streak.test.js` checks the streak rules (consecutive days, Sabbath Rests, resets, daylight-saving-safe day maths) and offline
   credit: days played offline are remembered and applied in order when the connection returns, never twice, never to another account.
+- `saves.test.js` checks the small saves that used to be fire-and-forget: notifications (create / mark read), turning push off,
+  blocking, the challenge start time, and the under-13 account removal. Each is checked, retried once, and the person is told the truth.

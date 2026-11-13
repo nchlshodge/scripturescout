@@ -1710,7 +1710,13 @@ async function submitAgeGate() {
   if (!meetsMinAge(dob)) {
     // Under 13: we can't keep an account for them. Remove it and everything attached to it.
     try { localStorage.setItem('ss_age_blocked', '1'); } catch(e) {}
-    try { await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` } }); } catch(e) { console.warn('delete-account failed:', e?.message); }
+    const removed = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/functions/v1/delete-account`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` } }), 'account removal', true);
+    if (!removed) {
+      // Don't sign them out and claim it's gone when it isn't: stay here so they can try again.
+      err.textContent = "We couldn't remove this account yet. Check your connection and try again.";
+      btn.disabled = false;
+      return;
+    }
     document.getElementById('ageGateOverlay')?.remove();
     await signOut();
     showStreakToast('Accounts are for ages 13 and up, so yours has been removed. You can still play without one.');
@@ -4990,9 +4996,9 @@ async function submitGameScore(table, data, { replay = false } = {}) {
       // week starts, even if they keep playing (and winning) every week.
       const now = new Date().toISOString();
       if(data.score <= existing.score) {
-        await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
+        await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
           method: 'PATCH', headers, body: JSON.stringify({ created_at: now })
-        }).catch(()=>{});
+        }), 'score date', true);
         if(!replay) showNotBestToast(existing.score);
         return true;
       }
@@ -7025,13 +7031,13 @@ async function acceptChallenge(challengeId, game, difficulty, challengerScore, b
 
   // Record when opponent started
   const startedAt = new Date().toISOString();
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/challenges?id=eq.${challengeId}`, {
-      method: 'PATCH',
-      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-      body: JSON.stringify({ opponent_started_at: startedAt })
-    });
-  } catch(e) { console.warn("Caught:", e?.message); }
+  // Only a record for the challenger (the speed bonus is timed on this device), so a failure never stops the game.
+  const startRecorded = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/challenges?id=eq.${challengeId}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+    body: JSON.stringify({ opponent_started_at: startedAt })
+  }), 'challenge start time', true);
+  if (!startRecorded) console.warn('Could not record when the challenge was started');
 
   // Fetch the specific verse if provided
   let challengeVerse = null;
@@ -7510,14 +7516,17 @@ async function subscribeToPushNative() {
   }
 }
 
-async function subscribeToPush() {
-  if (!currentUser) { showStreakToast('Sign in to enable notifications.'); return false; }
+// { silent: true } is the quiet re-registration at app launch for someone who already turned notifications on:
+// it must never pop up "Notifications enabled!" or an error every time the app opens.
+async function subscribeToPush({ silent = false } = {}) {
+  const say = msg => { if (!silent) showStreakToast(msg); };
+  if (!currentUser) { say('Sign in to enable notifications.'); return false; }
   if (IS_ANDROID_NATIVE) return subscribeToPushNative();
-  if (!isPushSupported()) { showStreakToast('Notifications aren\'t supported in this browser.'); return false; }
+  if (!isPushSupported()) { say('Notifications aren\'t supported in this browser.'); return false; }
 
-  const permission = await Notification.requestPermission();
+  const permission = silent ? Notification.permission : await Notification.requestPermission();
   if (permission !== 'granted') {
-    if (permission === 'denied') showStreakToast('Notifications are blocked — enable them in your browser settings.');
+    if (permission === 'denied') say('Notifications are blocked — enable them in your browser settings.');
     return false;
   }
 
@@ -7538,11 +7547,11 @@ async function subscribeToPush() {
       body: JSON.stringify({ user_id: currentUser.id, endpoint: subJson.endpoint, p256dh: subJson.keys.p256dh, auth: subJson.keys.auth })
     });
     if (!res.ok) throw new Error(`Save subscription failed: ${res.status}`);
-    showStreakToast('Notifications enabled! 🔔');
+    say('Notifications enabled! 🔔');
     return true;
   } catch(e) {
     console.warn('Push subscribe failed:', e?.message);
-    showStreakToast('Could not enable notifications.');
+    say('Could not enable notifications.');
     return false;
   }
 }
@@ -7552,14 +7561,15 @@ async function unsubscribeFromPush() {
     const token = localStorage.getItem('ss_fcm_token');
     try {
       await window.Capacitor?.Plugins?.PushNotifications?.unregister?.();
+      let removed = true;
       if (token && currentUser) {
-        await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions?fcm_token=eq.${encodeURIComponent(token)}`, {
+        removed = !!await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/push_subscriptions?fcm_token=eq.${encodeURIComponent(token)}`, {
           method: 'DELETE',
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
-        });
+        }), 'notification settings', true);
       }
       localStorage.removeItem('ss_fcm_token');
-      showStreakToast('Notifications turned off.');
+      showStreakToast(removed ? 'Notifications turned off.' : "Notifications are off on this device, but we couldn't update your settings. A few may still arrive.");
     } catch(e) { console.warn('Native push unsubscribe failed:', e?.message); }
     return;
   }
@@ -7567,17 +7577,18 @@ async function unsubscribeFromPush() {
   try {
     const reg = swRegistration || await navigator.serviceWorker.getRegistration('sw.js');
     const sub = reg && await reg.pushManager.getSubscription();
+    let removed = true;
     if (sub) {
       const endpoint = sub.endpoint;
       await sub.unsubscribe();
       if (currentUser) {
-        await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions?endpoint=eq.${encodeURIComponent(endpoint)}`, {
+        removed = !!await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/push_subscriptions?endpoint=eq.${encodeURIComponent(endpoint)}`, {
           method: 'DELETE',
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
-        });
+        }), 'notification settings', true);
       }
     }
-    showStreakToast('Notifications turned off.');
+    showStreakToast(removed ? 'Notifications turned off.' : "Notifications are off on this device, but we couldn't update your settings. A few may still arrive.");
   } catch(e) { console.warn('Push unsubscribe failed:', e?.message); }
 }
 
@@ -7594,24 +7605,25 @@ async function togglePushNotifications() {
   renderProfile();
 }
 
+// Returns true when the notification was stored. The request it belongs to (friend request, challenge) is
+// already saved, so a failure here is quiet: the other person still sees it in their lists.
 async function createNotification(userId, type, message, data={}) {
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/notifications`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ user_id: userId, type, message, data })
-    });
-  } catch(e) { console.warn("Caught:", e?.message); }
+  const stored = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/notifications`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ user_id: userId, type, message, data })
+  }), 'notification', true);
+  return !!stored;
 }
 
+// Returns true when it was saved; if not, the notification just shows as unread again next time.
 async function markNotifRead(id) {
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/notifications?id=eq.${id}`, {
-      method: 'PATCH',
-      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-      body: JSON.stringify({ read: true })
-    });
-  } catch(e) { console.warn("Caught:", e?.message); }
+  const saved = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/notifications?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+    body: JSON.stringify({ read: true })
+  }), 'notification', true);
+  return !!saved;
 }
 
 async function renderNotifications() {
@@ -7772,11 +7784,13 @@ async function blockUser(userId, username) {
     });
     blockedUserIds.add(userId);
     // Blocking also ends any existing friendship between the two of you.
-    await fetch(`${SUPABASE_URL}/rest/v1/friends?or=(and(user_id.eq.${currentUser.id},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${currentUser.id}))`, {
+    const unfriended = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/friends?or=(and(user_id.eq.${currentUser.id},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${currentUser.id}))`, {
       method: 'DELETE',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
-    }).catch(()=>{});
-    showStreakToast(`🚫 Blocked ${username}. They can no longer message or friend-request you.`);
+    }), 'friend removal', true);
+    showStreakToast(unfriended
+      ? `🚫 Blocked ${username}. They can no longer message or friend-request you.`
+      : `🚫 Blocked ${username}, but we couldn't remove them from your friends list yet. Try blocking again in a moment.`);
     renderProfile(userId, username);
   } catch(e) {
     console.warn('blockUser failed:', e?.message);
@@ -10973,7 +10987,7 @@ if (IS_ANDROID_NATIVE && window.Capacitor?.Plugins?.PushNotifications) {
   if (isPushSupported()) {
     // If permission was already granted on a previous visit, keep the subscription alive silently
     // (covers e.g. the browser rotating the push endpoint) without re-prompting the user.
-    if (Notification.permission === 'granted' && currentUser) subscribeToPush();
+    if (Notification.permission === 'granted' && currentUser) subscribeToPush({ silent: true });
     navigator.serviceWorker.addEventListener('message', (event) => {
       if (event.data?.type === 'notification-click' && currentUser) renderNotificationHub();
     });
