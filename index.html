@@ -7689,8 +7689,8 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
             <div class="friend-meta">${timeAgo(r.created_at)}</div>
           </div>
           <div class="friend-actions">
-            <button class="btn-friend-action accept" onclick="acceptFriend('${r.id}','${r.user_id}','${escapeJsAttr(getReqName(r.user_id))}');renderNotificationHub();">✓ Accept</button>
-            <button class="btn-friend-action decline" aria-label="Decline request" onclick="declineFriend('${r.id}');renderNotificationHub();">✗</button>
+            <button class="btn-friend-action accept" onclick="acceptFriend('${r.id}','${r.user_id}','${escapeJsAttr(getReqName(r.user_id))}','notifications')">✓ Accept</button>
+            <button class="btn-friend-action decline" aria-label="Decline request" onclick="declineFriend('${r.id}','notifications')">✗</button>
           </div>
         </div>`).join('')}
       <hr class="divider" style="margin:12px 0;"/>` : ''}
@@ -8288,7 +8288,7 @@ async function renderFriends(startTab=null) {
 
   // Preserve current tab or use startTab
   window._friendsActiveTab = startTab || window._friendsActiveTab || 'friends';
-  window._friendsData = { friends, requests, profiles, getUsername };
+  window._friendsData = { friends, requests, sentRequests, profiles, getUsername };
 
   window._friendsRender = function() {
     const activeTab = window._friendsActiveTab;
@@ -8377,13 +8377,23 @@ async function renderFriends(startTab=null) {
       const input = document.getElementById('friendSearch');
       if(input) {
         input.focus();
+        let searchSeq = 0;   // so a slow answer for an older search can't replace the results for the latest one
         input.addEventListener('input', async () => {
           const q = input.value.trim();
+          const mySeq = ++searchSeq;
           const results = document.getElementById('friendSearchResults');
           if(!results) return;
           if(q.length < 2) { results.innerHTML = ''; return; }
           results.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:0.85rem;">Searching…</div>';
-          const rows = await sbFetch(`profiles?select=id,username&limit=5&username=ilike.%25${encodeURIComponent(q)}%25`);
+          let rows;
+          try { rows = await sbFetch(`profiles?select=id,username&limit=5&username=ilike.%25${encodeURIComponent(q)}%25`); }
+          catch(e) { if(mySeq === searchSeq) results.innerHTML = '<div class="empty-state">Search failed — check your connection.</div>'; return; }
+          if(mySeq !== searchSeq) return;
+          // Work out who is already a friend or has a request open, so they aren't offered "+ Add" again.
+          const fd = window._friendsData || {};
+          const friendIds = new Set((fd.friends || []).map(f => f.user_id === currentUser.id ? f.friend_id : f.user_id));
+          const incomingIds = new Set((fd.requests || []).map(r => r.user_id));
+          const sentIds = new Set((fd.sentRequests || []).map(r => r.friend_id));
           const filtered = rows.filter(r => r.id !== currentUser.id);
           results.innerHTML = filtered.length ? filtered.map(r => `
             <div class="friend-card">
@@ -8393,7 +8403,10 @@ async function renderFriends(startTab=null) {
                 <div class="friend-meta">Scripture Scout player</div>
               </div>
               <div class="friend-actions">
-                <button class="btn-friend-action accept" onclick="sendFriendRequest('${r.id}','${escapeJsAttr(r.username)}')">+ Add</button>
+                ${friendIds.has(r.id) ? '<span class="friend-meta">Friends</span>'
+                  : sentIds.has(r.id) ? '<span class="friend-meta">Request sent</span>'
+                  : incomingIds.has(r.id) ? '<span class="friend-meta">Wants to add you — see Requests</span>'
+                  : `<button class="btn-friend-action accept" onclick="sendFriendRequest('${r.id}','${escapeJsAttr(r.username)}')">+ Add</button>`}
               </div>
             </div>`).join('') : `<div class="empty-state">No users found for "<strong>${escapeHtml(q)}</strong>"</div>`;
         });
@@ -8420,7 +8433,7 @@ async function sendFriendRequest(friendId, friendUsername) {
   } catch(e) { showStreakToast('Could not send request — maybe already sent?'); }
 }
 
-async function acceptFriend(requestId, fromId, fromUsername) {
+async function acceptFriend(requestId, fromId, fromUsername, after = 'friends') {
   try {
     await apiWrite(`${SUPABASE_URL}/rest/v1/friends?id=eq.${requestId}`, {
       method: 'PATCH',
@@ -8429,18 +8442,18 @@ async function acceptFriend(requestId, fromId, fromUsername) {
     });
     await createNotification(fromId, 'friend_accept', `${currentUsername} accepted your friend request! 🤝`, { from_id: currentUser.id });
     showStreakToast(`You and ${fromUsername} are now friends!`);
-    renderFriends();
+    if(after === 'notifications') renderNotificationHub(); else renderFriends();
   } catch(e) { console.warn('acceptFriend failed:', e?.message); showStreakToast('Could not accept — try again.'); }
 }
 
-async function declineFriend(requestId) {
+async function declineFriend(requestId, after = 'friends') {
   try {
     await apiWrite(`${SUPABASE_URL}/rest/v1/friends?id=eq.${requestId}`, {
       method: 'DELETE',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
     });
     showStreakToast('Request declined.');
-    renderFriends();
+    if(after === 'notifications') renderNotificationHub(); else renderFriends();
   } catch(e) { console.warn('declineFriend failed:', e?.message); showStreakToast('Could not decline — try again.'); }
 }
 
@@ -8547,7 +8560,13 @@ async function openDirectMessage(friendId, friendUsername) {
   const friendConvs = await sbFetch(`conversation_members?user_id=eq.${friendId}&select=conversation_id`);
   const myIds = myConvs.map(c => c.conversation_id);
   const friendIds = friendConvs.map(c => c.conversation_id);
-  const shared = myIds.find(id => friendIds.includes(id));
+  const sharedIds = myIds.filter(id => friendIds.includes(id));
+  // Only a direct chat counts: a group chat you both happen to be in is not your private conversation.
+  let shared = null;
+  if(sharedIds.length) {
+    const direct = await sbFetch(`conversations?id=in.(${sharedIds.join(',')})&type=eq.direct&select=id`).catch(() => []);
+    shared = direct.length ? direct[0].id : null;
+  }
 
   if(shared) {
     openConversation(shared, friendUsername, 'direct');

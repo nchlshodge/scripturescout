@@ -19,5 +19,7 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
   refused messages, masked display, blocking and unblocking, and reporting users and messages.
 - `reactions.test.js` checks chat reactions: the long-press and right-click menu, adding and removing a reaction,
   how chips are shown and highlighted, and that the chat refreshes (without losing typed text) when reactions change.
+- `friends.test.js` checks the friends system: the Friends and Requests tabs, searching, sending, accepting and declining
+  requests, and starting a direct chat. One test is marked "todo" for a known gap (invite links are never read).
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.
