@@ -8499,7 +8499,7 @@ async function challengeFriend(friendId, friendUsername) {
         </div>
         <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${escapeJsAttr(friendUsername)}','trivia','easy')">
           <div class="chapter-num current">${getFieldIcon('trivia',22)}</div>
-          <div class="chapter-info"><div class="chapter-title">Memory Trail</div><div class="chapter-ref">Hard difficulty</div></div>
+          <div class="chapter-info"><div class="chapter-title">Bible Trivia</div><div class="chapter-ref">Easy difficulty</div></div>
           <div class="chapter-lock">▶️</div>
         </div>
       </div>
@@ -10372,39 +10372,6 @@ async function renderDailyScout(verse) {
     }
   }
   renderPhase();
-}
-
-function renderDailyMemory(verse) {
-  const root = document.getElementById('root');
-  root.innerHTML = `
-    <div style="text-align:center;margin-bottom:12px;">
-      <div role="heading" aria-level="2" style="font-family:Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--nav-active);">Daily Challenge — Memory Trail</div>
-    </div>
-    <div class="card" style="max-width:560px;width:100%;">
-      <div class="flashcard-label">Can you recall this verse?</div>
-      <div class="flashcard-reference">${verse.book} ${verse.chapter}:${verse.verse}</div>
-      <div class="flashcard-book">${verse.testament==='OT'?'<img src="icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament':'<img src="icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament'}</div>
-      <hr class="divider" style="margin:14px 0;"/>
-      <div id="dailyMemFlip">
-        <button class="btn-next" id="dailyFlipBtn">Flip to see verse →</button>
-      </div>
-    </div>`;
-
-  document.getElementById('dailyFlipBtn').onclick = () => {
-    document.getElementById('dailyMemFlip').innerHTML = `
-      <div class="flashcard-verse" style="margin-bottom:14px;">${quoteVerse(verse.text)}</div>
-      <div class="rating-btns">
-        <button class="rating-btn rating-didnt" onclick="completeDailyMIA('didnt_know',0)"><span class="rating-icon">😬</span>Didn't Know</button>
-        <button class="rating-btn rating-almost" onclick="completeDailyMIA('almost',100)"><span class="rating-icon">🤔</span>Almost</button>
-        <button class="rating-btn rating-knew" onclick="completeDailyMIA('knew_it',300)"><span class="rating-icon">✅</span>Knew It!</button>
-      </div>`;
-  };
-}
-
-async function completeDailyMIA(rating, score) {
-  markDailyCompleted('trivia', score);
-  await submitDailyScore('trivia', score);
-  showDailyResult('trivia', score);
 }
 
 async function renderDailyMIA(verse) {

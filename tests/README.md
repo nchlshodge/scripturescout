@@ -25,5 +25,8 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
   the Challenges list (including that other players' text can't inject code).
 - `daily-screens.test.js` checks the Daily Challenge screens: the hub and the home card, starting each game, scoring in
   all four daily games, saving results, and the results screen.
+- `memory-trail.test.js` guards against leftovers of the removed Memory Trail game (it had been mislabelling a Challenge
+  option and had unreachable code that saved scores under Trivia), checks every daily game saves only its own score,
+  and flags newly unused functions.
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.
