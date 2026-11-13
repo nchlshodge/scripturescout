@@ -168,16 +168,11 @@ test('every place the app records a daily score uses one of the four real games'
 
 // ── No new dead code ───────────────────────────────────
 
-test('functions nobody calls are not piling up in the app', () => {
-  // Left over from features that were removed. Delete an entry here when you delete the function; if this test
-  // fails because of a NEW name, either use it or remove it.
-  const KNOWN_UNUSED = new Set(['calculateStreak', 'showLeaderboard', 'showFullStats', 'shareApp', 'checkStoryBlank', 'checkStoryAnswer',
-    'checkHeartsBeforeRound', 'startChallengeMemory', 'toggleTTS', 'speakText', 'playFlip', 'useSabbathRest']);
+test('there are no functions that nothing calls', () => {
+  // Dead code (left over from removed features) hides real code and can be called by mistake. If this fails, either
+  // use the function or delete it. (Names used only inside their own definition count as unused.)
   const ast = acorn.parse(inlineScript(), { ecmaVersion: 'latest' });
   const names = ast.body.filter(n => n.type === 'FunctionDeclaration').map(n => n.id.name);
   const unused = names.filter(nm => (HTML.match(new RegExp('(?<![\\w$.])' + nm.replace(/\$/g, '\\$') + '\\b', 'g')) || []).length <= 1);
-  const unexpected = unused.filter(n => !KNOWN_UNUSED.has(n));
-  const stale = [...KNOWN_UNUSED].filter(n => !unused.includes(n));
-  assert.deepEqual(unexpected, [], 'new unused functions');
-  assert.deepEqual(stale, [], 'listed above but now used or deleted: remove from KNOWN_UNUSED');
+  assert.deepEqual(unused, []);
 });

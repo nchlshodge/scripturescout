@@ -127,20 +127,6 @@ test('setting the phone clock back does not cost the player hearts', () => {
   s.close();
 });
 
-test('checkHeartsBeforeRound lets the player in with hearts, and shows the empty screen without', () => {
-  const s = setup();
-  let proceeded = null, wentBack = 0;
-  get(s.window, 'checkHeartsBeforeRound')(n => { proceeded = n; }, () => { wentBack++; });
-  assert.equal(proceeded, 3);
-  s.lose(); s.lose(); s.lose();
-  proceeded = null;
-  get(s.window, 'checkHeartsBeforeRound')(n => { proceeded = n; }, () => { wentBack++; });
-  assert.equal(proceeded, null);
-  assert.match(s.window.document.getElementById('root').textContent, /Out of Hearts/);
-  assert.equal(wentBack, 0);
-  s.close();
-});
-
 test('the Out of Hearts screen shows the countdown and a slot for each heart', () => {
   const s = setup();
   s.lose(); s.lose(); s.lose();

@@ -27,6 +27,6 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
   all four daily games, saving results, and the results screen.
 - `memory-trail.test.js` guards against leftovers of the removed Memory Trail game (it had been mislabelling a Challenge
   option and had unreachable code that saved scores under Trivia), checks every daily game saves only its own score,
-  and flags newly unused functions.
+  and fails if any function is left that nothing calls.
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.

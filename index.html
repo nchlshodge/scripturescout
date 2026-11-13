@@ -1309,23 +1309,6 @@ function refreshHomeStreak() {
   if(line && info) { line.textContent = info.text; line.classList.toggle('warn', !!info.warn); }
 }
 
-function calculateStreak(scores) {
-  if(!scores.length) return 0;
-  const today = new Date().toDateString();
-  const dates = [...new Set(scores.map(s => new Date(s.created_at).toDateString()))];
-  let streak = 0;
-  let check = new Date();
-  for(let i = 0; i < 30; i++) {
-    if(dates.includes(check.toDateString())) {
-      streak++;
-      check.setDate(check.getDate() - 1);
-    } else break;
-  }
-  return streak;
-}
-
-function showLeaderboard() { showBackBtn(true); renderLeaderboard(); }
-function showFullStats() { showBackBtn(true); renderStats(); }
 
 // Verse text sometimes arrives with its own quotation marks and sometimes without, so strip any
 // and wrap once in typographic quotes (avoids doubled quotes like ""word"").
@@ -2378,33 +2361,6 @@ async function saveUsername() {
   }
 }
 
-// ═══════════════════════════════════════
-// SHARE
-// ═══════════════════════════════════════
-async function shareApp() {
-  const message = `🚨 Think you know your Bible? Prove it.
-
-Scripture Scout will either confirm your biblical knowledge... or expose you completely. Three difficulty levels. One leaderboard. Zero mercy.
-
-👇 https://scripturescout.pages.dev`;
-
-  // Use native share sheet on mobile — text+url combined for WhatsApp compatibility
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: 'Scripture Scout', text: message });
-    } catch(e) {
-      // User cancelled — no problem
-    }
-  } else {
-    // Desktop fallback — copy full message to clipboard
-    try {
-      await navigator.clipboard.writeText(message);
-      showToast('✓ Message copied — go paste it!');
-    } catch(e) {
-      showToast('Copy this link: https://scripturescout.pages.dev');
-    }
-  }
-}
 
 function showToast(msg) {
   const existing = document.querySelector('.share-toast');
@@ -4755,9 +4711,6 @@ function updateStoryCheckButton() {
   if(answered >= needed) btn.onclick = checkAllStoryBlanks;
 }
 
-function checkStoryBlank(answer, correct, blankIndex, btn) {
-  // Legacy stub
-}
 
 function checkAllStoryBlanks() {
   const s = storyInteractive;
@@ -5094,10 +5047,6 @@ async function completeStoryRound() {
   setTimeout(() => renderStoryRoundComplete(newStars), 1200);
 }
 
-async function checkStoryAnswer(answer, correct, btn) {
-  // Legacy fallback — not used in new flow
-  checkStoryRef(answer, correct, btn);
-}
 
 function renderStoryRoundComplete(stars) {
   const s = storyInteractive;
@@ -5421,17 +5370,6 @@ function showHeartsEmptyScreen(onBack) {
     }
   }, 1000);
 }
-
-// Check hearts before starting a story round
-function checkHeartsBeforeRound(onProceed, onBack) {
-  const hearts = getCurrentHearts();
-  if(hearts > 0) {
-    onProceed(hearts);
-  } else {
-    showHeartsEmptyScreen(onBack);
-  }
-}
-
 
 
 // ═══════════════════════════════════════
@@ -7095,16 +7033,6 @@ async function startChallengeTrack(verse, difficulty) {
   renderChallengeTrack(verse);
 }
 
-async function startChallengeMemory(verse) {
-  if(!verse) {
-    const total = DIFF_COUNTS[TRANSLATION]['hard'];
-    const offset = Math.floor(Math.random() * total);
-    const rows = await sbFetch(`verses?translation=eq.${TRANSLATION}&difficulty=eq.hard&select=*&limit=1&offset=${offset}`);
-    if(rows.length) verse = rows[0];
-  }
-  if(!verse) { showStreakToast('Could not load verse.'); return; }
-  renderChallengeMemory(verse);
-}
 
 // ═══════════════════════════════════════
 // CHALLENGE GAME SCREENS (separate from daily)
@@ -7379,31 +7307,6 @@ async function renderChallengeTrack(verse) {
   });
 }
 
-function renderChallengeMemory(verse) {
-  const root = document.getElementById('root');
-  let score = 0;
-
-  root.innerHTML = challengeHUD() + `
-    <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
-      <div class="flashcard-label">Can you recall this verse?</div>
-      <div class="flashcard-reference">${verse.book} ${verse.chapter}:${verse.verse}</div>
-      <div class="flashcard-book">${verse.testament==='OT'?'<img src="icons/testament-ot.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> Old Testament':'<img src="icons/testament-nt.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> New Testament'}</div>
-      <hr class="divider" style="margin:14px 0;"/>
-      <div id="challengeMemFlip">
-        <button class="btn-next" id="challengeFlipBtn">Flip to see verse →</button>
-      </div>
-    </div>`;
-
-  document.getElementById('challengeFlipBtn').onclick = () => {
-    document.getElementById('challengeMemFlip').innerHTML = `
-      <div class="flashcard-verse" style="margin-bottom:14px;">${quoteVerse(verse.text)}</div>
-      <div class="rating-btns">
-        <button class="rating-btn rating-didnt" onclick="completeChallengeGame(0,null)"><span class="rating-icon">😬</span>Didn't Know</button>
-        <button class="rating-btn rating-almost" onclick="completeChallengeGame(100,null)"><span class="rating-icon">🤔</span>Almost</button>
-        <button class="rating-btn rating-knew" onclick="completeChallengeGame(300,null)"><span class="rating-icon">✅</span>Knew It!</button>
-      </div>`;
-  };
-}
 
 async function finishChallenge(score, verse) {
   const ch = window._activeChallenge;
@@ -8967,60 +8870,6 @@ function showRandyReaction(expression, duration=1800) {
 }
 
 // ═══════════════════════════════════════
-// TEXT TO SPEECH SYSTEM
-// ═══════════════════════════════════════
-let _ttsEnabled = localStorage.getItem('ss_tts') === '1';
-let _ttsSpeaking = false;
-let _ttsUtterance = null;
-
-function isTTSSupported() {
-  return 'speechSynthesis' in window;
-}
-
-function toggleTTS() {
-  _ttsEnabled = !_ttsEnabled;
-  localStorage.setItem('ss_tts', _ttsEnabled ? '1' : '0');
-  if(!_ttsEnabled) stopSpeech();
-  updateTTSBtn();
-}
-
-function updateTTSBtn() {
-  const btn = document.getElementById('ttsToggleBtn');
-  if(btn) btn.textContent = _ttsEnabled ? '🔈' : '🔇';
-  btn && (btn.title = _ttsEnabled ? 'Tap to mute narration' : 'Tap to enable narration');
-}
-
-function speakText(text, onEnd) {
-  if(!_ttsEnabled || !isTTSSupported()) { onEnd && onEnd(); return; }
-  stopSpeech();
-  _ttsUtterance = new SpeechSynthesisUtterance(text);
-  _ttsUtterance.rate = 0.92;
-  _ttsUtterance.pitch = 1.0;
-  _ttsUtterance.volume = 1.0;
-
-  // Try to find a good voice
-  const voices = window.speechSynthesis.getVoices();
-  const preferred = voices.find(v =>
-    v.name.includes('Daniel') || v.name.includes('Aaron') ||
-    v.name.includes('Tom') || v.name.includes('Alex') ||
-    (v.lang === 'en-US' && v.localService)
-  ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
-  if(preferred) _ttsUtterance.voice = preferred;
-
-  _ttsUtterance.onend = () => { _ttsSpeaking = false; onEnd && onEnd(); };
-  _ttsUtterance.onerror = () => { _ttsSpeaking = false; onEnd && onEnd(); };
-  _ttsSpeaking = true;
-  window.speechSynthesis.speak(_ttsUtterance);
-}
-
-function stopSpeech() {
-  if(isTTSSupported()) window.speechSynthesis.cancel();
-  _ttsSpeaking = false;
-}
-
-
-
-// ═══════════════════════════════════════
 // RANDY'S FIELD JOURNAL — Streak Card
 // ═══════════════════════════════════════
 
@@ -9495,11 +9344,6 @@ function playComplete() {
   playTone(1047, 0.5, 'sine', 0.35, 0.45);
 }
 
-function playFlip() {
-  // Soft card flip sound
-  playTone(440, 0.08, 'sine', 0.15, 0);
-  playTone(550, 0.08, 'sine', 0.1, 0.06);
-}
 
 // Safety net: any answer element that turns .correct/.wrong gets sound + buzz, even in modes
 // that don't call playCorrect()/playWrong() themselves. Skips if one already played just now.
@@ -9620,11 +9464,6 @@ function showStreakToast(msg) {
   setTimeout(() => toast.remove(), 3000);
 }
 
-async function useSabbathRest() {
-  if(!currentStreak || currentStreak.freeze_tokens <= 0) return;
-  await patchStreak({ freeze_tokens: currentStreak.freeze_tokens - 1 });
-  showStreakToast('🌿 Sabbath Rest used!');
-}
 
 // ═══════════════════════════════════════
 // DAILY CHALLENGE SYSTEM
