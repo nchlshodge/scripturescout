@@ -1528,13 +1528,14 @@ async function signOut() {
   stopTokenRefreshTimer();
   currentUsername = '';
   blockedUserIds = new Set();
+  storyProgress = {};   // don't show this player's story progress to the next account on this device
   localStorage.removeItem('ss_token');
   localStorage.removeItem('ss_refresh_token');
   localStorage.removeItem('ss_user');
   localStorage.removeItem('ss_username');
   renderAuthScreen();
-  document.getElementById('navTabs').style.display = 'none';
-  document.getElementById('userBar').style.display = 'none';
+  { const nt = document.getElementById('navTabs'); if (nt) nt.style.display = 'none'; }
+  { const ub = document.getElementById('userBar'); if (ub) ub.style.display = 'none'; }
 }
 
 // ═══════════════════════════════════════
@@ -1649,13 +1650,14 @@ async function deleteAccount() {
     refreshToken = null;
     stopTokenRefreshTimer();
     currentUsername = '';
+    storyProgress = {};
     localStorage.removeItem('ss_token');
     localStorage.removeItem('ss_refresh_token');
     localStorage.removeItem('ss_user');
     localStorage.removeItem('ss_username');
     renderAuthScreen();
-    document.getElementById('navTabs').style.display = 'none';
-    document.getElementById('userBar').style.display = 'none';
+    { const nt = document.getElementById('navTabs'); if (nt) nt.style.display = 'none'; }
+    { const ub = document.getElementById('userBar'); if (ub) ub.style.display = 'none'; }
     showStreakToast('Your account has been deleted.');
   } catch(e) {
     console.warn('Delete account failed:', e?.message);
@@ -4175,8 +4177,14 @@ async function renderStoryMode() {
     }
 
     // Find last worked on path
-    const lastPathId = Object.keys(storyProgress).sort((a,b) => (storyProgress[b]||0) - (storyProgress[a]||0))[0];
-    const lastPath = lastPathId ? paths.find(p => p.id === parseInt(lastPathId)) : null;
+    // Among paths that are started but not finished, continue the one furthest along. (Only real path ids:
+    // storyProgress also holds "stars_<path>_<chapter>" entries, which must not be mistaken for paths.)
+    const inProgress = paths.filter(p => {
+      const done = storyProgress[p.id] || 0;
+      const total = chapters.filter(c => c.path_id === p.id).length;
+      return done > 0 && done < total;
+    }).sort((a, b) => (storyProgress[b.id] || 0) - (storyProgress[a.id] || 0));
+    const lastPath = inProgress[0] || null;
     const lastCompleted = lastPath ? (storyProgress[lastPath.id] || 0) : 0;
     const lastTotal = lastPath ? chapters.filter(c => c.path_id === lastPath.id).length : 0;
 

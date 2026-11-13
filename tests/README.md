@@ -11,5 +11,7 @@ Run with `npm test` (also runs automatically on every push via GitHub Actions).
 - `daily.test.js` checks the Daily Challenge dates with a fake clock in several time zones: the day key, per-day
   completion, the daily topic (including daylight-saving and year boundaries), the leaderboard's day window and
   the overnight cache refresh.
+- `story.test.js` checks Story Mode progress: saving chapters and stars (with retry), loading progress, the
+  "Continue" card, which chapters are open or locked, and that progress is cleared on sign-out.
 
 They don't touch Supabase or any network. To add a test, put a `*.test.js` file in this folder.
