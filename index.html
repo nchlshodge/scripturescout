@@ -50,7 +50,8 @@
 
   /* ── Home screen ───────────────────────────────────────────── */
   :root { --nav-active:#8b4513; --nav-pill:rgba(139,69,19,0.13); }
-  .dark-mode { --nav-active:#f4c050; --nav-pill:rgba(244,192,80,0.16); }
+  :root { --accent-rgb:139,69,19; }
+  .dark-mode { --nav-active:#f4c050; --nav-pill:rgba(244,192,80,0.16); --accent-rgb:244,192,80; }
   .hm { width:100%; max-width:560px; display:flex; flex-direction:column; gap:24px; }
   :where(.hm button) { font:inherit; color:inherit; }
   .hm-head { display:flex; align-items:center; gap:12px; }
@@ -210,6 +211,8 @@
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 0 0 1px rgba(74,124,89,0.06), 0 20px 40px rgba(0,0,0,0.5); width: 100%; max-width: 560px; padding: 28px 24px 22px; }
   .rope-card { border-radius:16px; background:var(--surface) padding-box, repeating-linear-gradient(45deg,#9b7520 0,#9b7520 4px,#d4aa50 4px,#d4aa50 8px,#b08830 8px,#b08830 12px,#d4aa50 12px,#d4aa50 16px) border-box; border:3px solid transparent; padding:14px 16px; margin-bottom:12px; }
 
+  .friends-screen > .verse-label, .friends-screen > div > .verse-label { font-size:1.35rem; }
+  .friends-tab { min-height:44px; display:flex; align-items:center; justify-content:center; text-align:center; }
   .verse-label { font-family: Georgia,'Times New Roman',serif; font-size: 1rem; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
   .verse-text { font-family: Georgia,'Times New Roman',serif; font-size: clamp(1rem, 2.8vw, 1.15rem); line-height: 1.7; color: var(--text); font-style: italic; margin-bottom: 8px; min-height: 88px; }
 
@@ -416,25 +419,25 @@
   /* Story Mode */
   .story-screen { width:100%; max-width:560px; }
   .story-path-card { background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:20px; cursor:pointer; transition:all 0.18s; margin-bottom:12px; display:flex; align-items:center; gap:16px; }
-  .story-path-card:active { border-color:#A78BFA; background:rgba(167,139,250,0.07); }
+  .story-path-card:active { border-color:var(--nav-active); background:rgba(var(--accent-rgb),0.07); }
   .story-path-icon { font-size:2.5rem; flex-shrink:0; }
   .story-path-info { flex:1; }
   .story-path-title { font-size:1.05rem; font-weight:700; color:var(--text); margin-bottom:4px; }
   .story-path-desc { font-size:0.8rem; color:var(--text-muted); line-height:1.5; margin-bottom:8px; }
   .story-path-progress { height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
-  .story-path-progress-fill { height:100%; background:linear-gradient(90deg,#A78BFA,#38BDF8); border-radius:2px; transition:width 0.4s ease; }
+  .story-path-progress-fill { height:100%; background:linear-gradient(90deg,var(--nav-active),#38BDF8); border-radius:2px; transition:width 0.4s ease; }
   .story-path-progress-label { font-size:0.75rem; color:var(--text-muted); margin-top:4px; }
-  .story-path-badge { font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:10px; background:rgba(167,139,250,0.15); color:#A78BFA; border:1px solid #A78BFA; flex-shrink:0; }
+  .story-path-badge { font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:10px; background:rgba(var(--accent-rgb),0.15); color:var(--nav-active); border:1px solid var(--nav-active); flex-shrink:0; }
 
   /* Chapter list */
   .chapter-list { display:flex; flex-direction:column; gap:8px; }
   .chapter-item { background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:14px 16px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:12px; }
-  .chapter-item.unlocked:active { border-color:#A78BFA; background:rgba(167,139,250,0.07); }
+  .chapter-item.unlocked:active { border-color:var(--nav-active); background:rgba(var(--accent-rgb),0.07); }
   .chapter-item.locked { opacity:0.45; cursor:default; }
   .chapter-item.completed { border-color:var(--teal); }
   .chapter-num { width:32px; height:32px; border-radius:50%; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:0.82rem; font-weight:700; color:var(--text-muted); flex-shrink:0; }
   .chapter-num.completed { background:var(--teal-dim); color:var(--teal-text); }
-  .chapter-num.current { background:rgba(167,139,250,0.2); color:#A78BFA; }
+  .chapter-num.current { background:rgba(var(--accent-rgb),0.2); color:var(--nav-active); }
   .chapter-info { flex:1; }
   .chapter-title { font-size:0.9rem; font-weight:700; color:var(--text); margin-bottom:2px; }
   .chapter-ref { font-size:0.75rem; color:var(--text-muted); }
@@ -442,11 +445,11 @@
 
   /* Chapter reading screen */
   .chapter-narrative { font-size:0.95rem; line-height:1.9; color:var(--text); margin-bottom:20px; }
-  .chapter-verse-reveal { background:var(--surface-2); border:1.5px solid #A78BFA; border-radius:12px; padding:20px; margin-bottom:20px; text-align:center; }
-  .chapter-verse-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:#A78BFA; font-weight:600; margin-bottom:10px; }
+  .chapter-verse-reveal { background:var(--surface-2); border:1.5px solid var(--nav-active); border-radius:12px; padding:20px; margin-bottom:20px; text-align:center; }
+  .chapter-verse-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--nav-active); font-weight:600; margin-bottom:10px; }
   .chapter-verse-text { font-family:Georgia,'Times New Roman',serif; font-size:clamp(1rem,2.6vw,1.1rem); line-height:1.7; color:var(--text); font-style:italic; margin-bottom:8px; }
-  .chapter-verse-ref { font-size:0.85rem; font-weight:700; color:#A78BFA; }
-  .chapter-complete-badge { text-align:center; padding:16px; background:rgba(167,139,250,0.08); border:1px solid #A78BFA; border-radius:12px; margin-bottom:16px; }
+  .chapter-verse-ref { font-size:0.85rem; font-weight:700; color:var(--nav-active); }
+  .chapter-complete-badge { text-align:center; padding:16px; background:rgba(var(--accent-rgb),0.08); border:1px solid var(--nav-active); border-radius:12px; margin-bottom:16px; }
 
   /* Heart Timer System */
   .hearts-empty-screen { text-align:center; padding:24px; width:100%; max-width:560px; }
@@ -467,17 +470,21 @@
 
   /* Challenge Banner */
   .challenge-banner-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; animation:fadeIn 0.3s ease; }
-  .challenge-banner-card { background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid #F4B942; border-radius:24px; padding:36px 28px; max-width:420px; width:100%; text-align:center; animation:scaleIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
-  .challenge-banner-swords { font-size:4rem; margin-bottom:16px; animation:swords 1s ease-in-out infinite alternate; }
-  .challenge-banner-title { font-size:2rem; font-weight:700; color:#F4B942; margin-bottom:8px; letter-spacing:-0.02em; line-height:1.1; }
-  .challenge-banner-subtitle { font-size:1rem; color:#DFF0E3; margin-bottom:6px; }
-  .challenge-banner-from { font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:8px; }
-  .challenge-banner-score { display:inline-block; background:rgba(244,185,66,0.15); border:1.5px solid #F4B942; border-radius:12px; padding:10px 24px; margin-bottom:24px; }
-  .challenge-banner-score-val { font-size:1.8rem; font-weight:700; color:#F4B942; }
-  .challenge-banner-score-label { font-size:0.75rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.08em; }
-  .challenge-banner-verse { font-size:0.82rem; color:rgba(255,255,255,0.5); margin-bottom:24px; font-style:italic; }
-  .btn-accept-challenge { width:100%; padding:16px; background:linear-gradient(135deg,#B87D0A,#F4B942); border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:700; color:#1a1a2e; cursor:pointer; margin-bottom:10px; }
-  .btn-decline-challenge { width:100%; padding:12px; background:transparent; border:1.5px solid rgba(255,255,255,0.2); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; color:rgba(255,255,255,0.5); cursor:pointer; }
+  .challenge-banner-card { background:#1e4a12; border:2px solid #c9a22a; border-radius:20px; padding:32px 24px 24px; max-width:420px; width:100%; text-align:center; animation:scaleIn 0.35s ease-out; box-sizing:border-box; }
+  .challenge-banner-swords { color:#f4c050; margin-bottom:12px; }
+  .challenge-banner-swords svg { width:44px; height:44px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+  .challenge-banner-title { font-family:Georgia,'Times New Roman',serif; font-size:1.7rem; font-weight:700; color:#f4c050; margin-bottom:8px; line-height:1.15; }
+  .challenge-banner-subtitle { font-size:1rem; color:#f1ead8; margin-bottom:6px; }
+  .challenge-banner-from { display:flex; align-items:center; justify-content:center; gap:8px; font-size:0.88rem; color:rgba(241,234,216,0.8); margin-bottom:14px; }
+  .challenge-banner-from img { width:22px; height:22px; }
+  .challenge-banner-score { display:inline-block; background:rgba(244,192,80,0.12); border:1.5px solid rgba(244,192,80,0.6); border-radius:12px; padding:10px 24px; margin-bottom:18px; }
+  .challenge-banner-score-val { font-family:Georgia,'Times New Roman',serif; font-size:1.9rem; font-weight:700; color:#f4c050; }
+  .challenge-banner-score-label { font-size:0.8rem; color:rgba(241,234,216,0.75); }
+  .challenge-banner-verse { font-size:0.85rem; color:rgba(241,234,216,0.75); margin-bottom:6px; font-style:italic; }
+  .challenge-banner-expiry { font-size:0.8rem; color:rgba(241,234,216,0.65); margin-bottom:18px; }
+  .btn-accept-challenge { width:100%; min-height:50px; padding:14px; background:#f4b942; box-shadow:0 2px 0 #b98418; border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:700; color:#3a2000; cursor:pointer; margin-bottom:10px; }
+  .btn-accept-challenge:active { transform:translateY(1px); box-shadow:0 1px 0 #b98418; }
+  .btn-decline-challenge { width:100%; min-height:44px; padding:12px; background:transparent; border:1.5px solid rgba(241,234,216,0.35); border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:600; color:rgba(241,234,216,0.9); cursor:pointer; }
   @keyframes swords { from{transform:rotate(-15deg) scale(0.9)} to{transform:rotate(15deg) scale(1.1)} }
   @keyframes scaleIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -508,14 +515,14 @@
   .avatar-icon-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-bottom:16px; }
   .avatar-icon-btn { width:48px; height:48px; border-radius:12px; border:2px solid transparent; background:var(--surface-2); font-size:1.5rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.1s; }
   .avatar-icon-btn:active { transform:scale(0.9); }
-  .avatar-icon-btn.selected { border-color:#A78BFA; background:rgba(167,139,250,0.15); }
+  .avatar-icon-btn.selected { border-color:var(--nav-active); background:rgba(var(--accent-rgb),0.15); }
   .avatar-color-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; justify-content:center; }
   .avatar-color-btn { width:40px; height:40px; border-radius:50%; border:3px solid transparent; cursor:pointer; transition:all 0.1s; }
-  .avatar-color-btn.selected { border-color:white; box-shadow:0 0 0 2px #A78BFA; }
+  .avatar-color-btn.selected { border-color:white; box-shadow:0 0 0 2px var(--nav-active); }
 
   /* Profile Page */
   .profile-header { text-align:center; padding:24px 16px 16px; }
-  .profile-avatar-lg { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#7C5CFC,#38BDF8); display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:700; color:white; margin:0 auto 12px; }
+  .profile-avatar-lg { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#8b4513,#38BDF8); display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:700; color:white; margin:0 auto 12px; }
   .profile-username { font-size:1.4rem; font-weight:700; color:var(--text); margin-bottom:4px; }
   .profile-joined { font-size:0.78rem; color:var(--text-muted); }
   .profile-stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:16px 0; }
@@ -539,49 +546,50 @@
 
   /* Friends & Messaging */
   .friends-screen { width:100%; max-width:560px; }
+  #root:has(> .friends-screen) { width:100%; max-width:560px; }
   .friend-card { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:8px; }
-  .friend-avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,#7C5CFC,#38BDF8); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:white; flex-shrink:0; }
+  .friend-avatar { width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,#8b4513,#38BDF8); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:white; flex-shrink:0; }
   .friend-name { font-size:0.92rem; font-weight:600; color:var(--text); }
   .friend-meta { font-size:0.75rem; color:var(--text-muted); }
   .friend-actions { margin-left:auto; display:flex; gap:6px; }
   .btn-friend-action { padding:6px 12px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.75rem; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:var(--surface-2); color:var(--text); }
   .btn-friend-action.accept { border-color:var(--teal); color:var(--teal-text); background:var(--teal-dim); }
   .btn-friend-action.decline { border-color:var(--earth); color:var(--earth-text); background:var(--earth-dim); }
-  .btn-friend-action.message { border-color:#A78BFA; color:#A78BFA; background:rgba(167,139,250,0.08); }
+  .btn-friend-action.message { border-color:var(--nav-active); color:var(--nav-active); background:rgba(var(--accent-rgb),0.08); }
   .btn-friend-action.challenge { border-color:#F4B942; color:#F4B942; background:rgba(244,185,66,0.08); }
   .notif-badge { position:absolute; top:-4px; right:-4px; background:#E53E3E; color:white; font-size:0.75rem; font-weight:700; border-radius:10px; padding:2px 5px; min-width:18px; text-align:center; }
   .notif-item { display:flex; align-items:flex-start; gap:10px; padding:12px 16px; border-bottom:1px solid var(--border); }
-  .notif-item.unread { background:rgba(167,139,250,0.05); }
+  .notif-item.unread { background:rgba(var(--accent-rgb),0.05); }
   .notif-icon { font-size:1.4rem; flex-shrink:0; }
   .notif-text { flex:1; font-size:0.85rem; color:var(--text); line-height:1.5; }
   .notif-time { font-size:0.75rem; color:var(--text-muted); margin-top:2px; }
   .conv-item { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
   @media (hover:hover) and (pointer:fine) {.conv-item:hover { background:var(--surface-2); }}
-  .conv-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#7C5CFC,#38BDF8); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:white; flex-shrink:0; }
+  .conv-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#8b4513,#38BDF8); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:white; flex-shrink:0; }
   .conv-avatar.group { background:linear-gradient(135deg,#F4B942,#E53E3E); border-radius:12px; }
   .conv-name { font-size:0.92rem; font-weight:600; color:var(--text); }
   .conv-preview { font-size:0.78rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; }
   .conv-time { font-size:0.75rem; color:var(--text-muted); margin-left:auto; flex-shrink:0; }
-  .conv-unread { background:#7C5CFC; color:white; font-size:0.75rem; font-weight:700; border-radius:10px; padding:2px 6px; margin-left:auto; }
+  .conv-unread { background:#8b4513; color:white; font-size:0.75rem; font-weight:700; border-radius:10px; padding:2px 6px; margin-left:auto; }
   .msg-bubble { max-width:75%; padding:10px 14px; border-radius:16px; margin-bottom:4px; font-size:0.88rem; line-height:1.5; }
   .msg-bubble { -webkit-touch-callout:none; }
   @media (pointer:coarse) { .msg-bubble { -webkit-user-select:none; user-select:none; } }
-  .msg-bubble.mine { background:linear-gradient(135deg,#7C5CFC,#5B4ED4); color:white; border-bottom-right-radius:4px; margin-left:auto; }
+  .msg-bubble.mine { background:linear-gradient(135deg,#8b4513,#6b3410); color:white; border-bottom-right-radius:4px; margin-left:auto; }
   .msg-bubble.theirs { background:var(--surface); border:1px solid var(--border); color:var(--text); border-bottom-left-radius:4px; }
   .msg-bubble.score-share { border:1.5px solid #F4B942; background:rgba(244,185,66,0.08); }
-  .msg-bubble.verse-share { border:1.5px solid #A78BFA; background:rgba(167,139,250,0.08); }
+  .msg-bubble.verse-share { border:1.5px solid var(--nav-active); background:rgba(var(--accent-rgb),0.08); }
   .msg-reactions { display:flex; gap:4px; flex-wrap:wrap; margin-top:4px; }
   .reaction-chip { padding:2px 8px; background:var(--surface-2); border:1px solid var(--border); border-radius:20px; font-size:0.8rem; cursor:pointer; }
-  .reaction-chip.mine { border-color:#A78BFA; background:rgba(167,139,250,0.1); }
+  .reaction-chip.mine { border-color:var(--nav-active); background:rgba(var(--accent-rgb),0.1); }
   .msg-input-bar { display:flex; gap:8px; padding:12px; border-top:1px solid var(--border); background:var(--surface); position:sticky; bottom:0; }
   .msg-input { flex:1; padding:10px 14px; background:var(--surface-2); border:1.5px solid var(--border); border-radius:20px; font-family:'DM Sans',sans-serif; font-size:0.88rem; color:var(--text); outline:none; }
-  .msg-input:focus { border-color:#A78BFA; }
-  .btn-send { padding:10px 16px; background:linear-gradient(135deg,#7C5CFC,#A78BFA); border:none; border-radius:20px; color:white; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.88rem; cursor:pointer; }
+  .msg-input:focus { border-color:var(--nav-active); }
+  .btn-send { padding:10px 16px; background:linear-gradient(135deg,#8b4513,var(--nav-active)); border:none; border-radius:20px; color:white; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.88rem; cursor:pointer; }
   .search-input { width:100%; padding:11px 16px; background:var(--surface-2); border:1.5px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.9rem; color:var(--text); outline:none; margin-bottom:12px; box-sizing:border-box; }
-  .search-input:focus { border-color:#A78BFA; }
+  .search-input:focus { border-color:var(--nav-active); }
   .friends-tabs { display:flex; gap:6px; margin-bottom:16px; }
   .friends-tab { flex:1; padding:9px; background:var(--surface-2); border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:600; color:var(--text-muted); cursor:pointer; text-align:center; }
-  .friends-tab.active { border-color:#A78BFA; color:#A78BFA; background:rgba(167,139,250,0.08); }
+  .friends-tab.active { border-color:var(--nav-active); color:var(--nav-active); background:rgba(var(--accent-rgb),0.08); }
   .empty-state { text-align:center; padding:32px 16px; color:var(--text-muted); font-size:0.88rem; line-height:1.6; }
 
   /* Streak System */
@@ -589,19 +597,19 @@
   .streak-milestone { background:rgba(59,191,160,0.1); border:1px solid var(--teal); border-radius:10px; padding:12px 16px; font-size:0.85rem; color:var(--teal-text); font-weight:600; text-align:center; margin-top:12px; }
 
   /* Daily Challenge */
-  .daily-card { background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(56,189,248,0.05)); border:1.5px solid #A78BFA; border-radius:16px; padding:20px; margin-bottom:16px; cursor:pointer; transition:all 0.15s; }
-  @media (hover:hover) and (pointer:fine) {.daily-card:hover { border-color:#7C5CFC; background:linear-gradient(135deg,rgba(167,139,250,0.14),rgba(56,189,248,0.08)); }}
+  .daily-card { background:linear-gradient(135deg,rgba(var(--accent-rgb),0.08),rgba(var(--accent-rgb),0.03)); border:1.5px solid var(--nav-active); border-radius:16px; padding:20px; margin-bottom:16px; cursor:pointer; transition:all 0.15s; }
+  @media (hover:hover) and (pointer:fine) {.daily-card:hover { border-color:#8b4513; background:linear-gradient(135deg,rgba(var(--accent-rgb),0.14),rgba(var(--accent-rgb),0.05)); }}
   .daily-card.completed { opacity:0.6; cursor:default; border-color:var(--teal); background:var(--teal-dim); }
   .daily-card-header { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
   .daily-card-icon { font-size:1.6rem; }
   .daily-card-title { font-size:1rem; font-weight:700; color:var(--text); }
   .daily-card-badge { margin-left:auto; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700; letter-spacing:0.05em; }
-  .daily-badge-new { background:rgba(167,139,250,0.15); color:#A78BFA; border:1px solid #A78BFA; }
+  .daily-badge-new { background:rgba(var(--accent-rgb),0.15); color:var(--nav-active); border:1px solid var(--nav-active); }
   .daily-badge-done { background:var(--teal-dim); color:var(--teal-text); border:1px solid var(--teal); }
   .daily-card-desc { font-size:0.82rem; color:var(--text-muted); line-height:1.5; }
   .daily-lb-row { display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid var(--border); }
   .daily-lb-row:last-child { border-bottom:none; }
-  .daily-lb-row.highlight { background:rgba(167,139,250,0.08); }
+  .daily-lb-row.highlight { background:rgba(var(--accent-rgb),0.08); }
   .daily-countdown { font-size:0.78rem; color:var(--text-muted); text-align:center; margin-top:8px; }
 
   /* Monthly Champion Modal */
@@ -639,12 +647,12 @@
   /* Duolingo word chips */
   .word-bank { display:flex; flex-wrap:wrap; gap:8px; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:12px; min-height:60px; margin-bottom:12px; }
   .word-chip { padding:8px 14px; background:var(--surface-2); border:1.5px solid var(--border-hi); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; color:var(--text); cursor:pointer; transition:all 0.12s; user-select:none; }
-  .word-chip:active { transform:scale(0.95); background:rgba(167,139,250,0.15); border-color:#A78BFA; }
+  .word-chip:active { transform:scale(0.95); background:rgba(var(--accent-rgb),0.15); border-color:var(--nav-active); }
   .word-chip.used { opacity:0.25; cursor:default; pointer-events:none; }
   .word-chip.correct { background:var(--teal-dim); border-color:var(--teal); color:var(--teal-text); }
   .word-chip.wrong { background:var(--earth-dim); border-color:var(--earth); color:var(--earth-text); animation:shake 0.3s ease; }
   .answer-row { display:flex; flex-wrap:wrap; gap:6px; min-height:44px; padding:10px 12px; background:var(--surface-2); border:1.5px dashed var(--border-hi); border-radius:10px; margin-bottom:10px; align-items:center; }
-  .answer-chip { padding:6px 12px; background:linear-gradient(135deg,rgba(167,139,250,0.15),rgba(56,189,248,0.1)); border:1.5px solid #A78BFA; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; color:var(--text); cursor:pointer; transition:all 0.12s; }
+  .answer-chip { padding:6px 12px; background:linear-gradient(135deg,rgba(var(--accent-rgb),0.15),rgba(56,189,248,0.1)); border:1.5px solid var(--nav-active); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; color:var(--text); cursor:pointer; transition:all 0.12s; }
   .answer-chip:active { transform:scale(0.95); opacity:0.7; }
   .answer-placeholder { font-size:0.78rem; color:var(--text-muted); font-style:italic; }
 
@@ -652,19 +660,19 @@
   .story-hearts { display:flex; gap:4px; justify-content:center; margin-bottom:8px; font-size:1.4rem; }
   .story-round-bar { display:flex; gap:6px; margin-bottom:16px; }
   .story-round-dot { flex:1; height:6px; border-radius:3px; background:var(--border); transition:background 0.3s; }
-  .story-round-dot.active { background:#A78BFA; box-shadow:0 0 6px #A78BFA; }
-  .story-round-dot.done { background:linear-gradient(90deg,#A78BFA,#38BDF8); }
+  .story-round-dot.active { background:var(--nav-active); box-shadow:0 0 6px var(--nav-active); }
+  .story-round-dot.done { background:linear-gradient(90deg,var(--nav-active),#38BDF8); }
   .story-choice { width:100%; padding:14px 18px; border:1.5px solid var(--border); background:var(--surface-2); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.92rem; font-weight:600; color:var(--text); cursor:pointer; transition:all 0.15s; text-align:left; margin-bottom:8px; display:block; }
-  .story-choice:active { border-color:#A78BFA; background:rgba(167,139,250,0.1); }
+  .story-choice:active { border-color:var(--nav-active); background:rgba(var(--accent-rgb),0.1); }
   .story-choice.correct { border-color:var(--teal); background:var(--teal-dim); color:var(--teal-text); }
   .story-choice.wrong { border-color:var(--earth); background:var(--earth-dim); color:var(--earth-text); animation:shake 0.4s ease; }
   @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
   .story-type-input { width:100%; padding:12px 14px; background:var(--surface-2); border:1.5px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; color:var(--text); outline:none; margin-bottom:8px; }
-  .story-type-input:focus { border-color:#A78BFA; }
+  .story-type-input:focus { border-color:var(--nav-active); }
   .story-type-input.correct { border-color:var(--teal); background:var(--teal-dim); }
   .story-type-input.wrong { border-color:var(--earth); background:var(--earth-dim); }
   .story-stars { font-size:1.6rem; text-align:center; margin:8px 0; letter-spacing:4px; }
-  .story-round-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#A78BFA; font-weight:600; margin-bottom:12px; text-align:center; }
+  .story-round-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--nav-active); font-weight:600; margin-bottom:12px; text-align:center; }
   .story-feedback { min-height:24px; font-size:0.85rem; font-weight:600; text-align:center; margin-top:4px; }
   .story-feedback.correct { color:var(--teal-text); }
   .story-feedback.wrong { color:var(--earth-text); }
@@ -3375,7 +3383,7 @@ function renderFillBlankSetup() {
   root.innerHTML = `
     <div class="flashcard-setup">
       <div class="card">
-        <div class="verse-label">✏️ Missing in Action Setup</div>
+        <div class="verse-label">Missing in Action Setup</div>
         ${miaEndlessCard}
         <div class="setup-section">
           <div class="setup-label">Translation</div>
@@ -3545,8 +3553,8 @@ function renderFillBlankCard() {
     </div>
     <div class="flashcard-progress-bar"><div class="flashcard-progress-fill" style="width:${progress}%"></div></div>
     <div class="card" style="max-width:560px;width:100%;">
-      <div class="verse-label">✏️ Missing in Action — fill the blanks</div>
-      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;margin-bottom:10px;">📖 ${v.book} ${v.chapter}:${v.verse} — ${v.testament==='OT'?'Old':'New'} Testament</div>
+      <div class="verse-label">Missing in Action — fill the blanks</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">📖 ${v.book} ${v.chapter}:${v.verse} — ${v.testament==='OT'?'Old':'New'} Testament</div>
       <div class="blank-verse" id="blankVerse">${blankHtml}</div>
       <div id="blankInputArea"></div>
       <div class="feedback" id="fitbFeedback" role="status" aria-live="polite"></div>
@@ -3581,11 +3589,11 @@ function renderBlankInput() {
       .map((w, i) => ({ word: w, used: false, chipIndex: i }));
 
     area.innerHTML = `
-      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--teal-text);font-weight:600;margin-bottom:6px;">Your answer:</div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
       <div id="fitbAnswerRow" class="answer-row">
         <span class="answer-placeholder" id="fitbAnswerPlaceholder">Tap words below…</span>
       </div>
-      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:10px 0 6px;">Word bank:</div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
       <div id="fitbWordBank" class="word-bank">
         ${fitbWordBank.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
       </div>
@@ -3767,7 +3775,7 @@ async function renderFillBlankComplete() {
 
   document.getElementById('root').innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:32px 24px;">
-      <div class="verse-label">✏️ Missing in Action Complete</div>
+      <div class="verse-label">Missing in Action Complete</div>
       ${justUnlockedMIA ? `<div style="background:rgba(244,185,66,0.1);border:1px solid #F4B942;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center;font-size:0.85rem;color:#F4B942;font-weight:600;">🔓 Endless Missing in Action Unlocked!</div>` : ''}
       <div style="font-size:2.5rem;margin:12px 0;">✏️</div>
       <h2 style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:6px;">${pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Well done!' : 'Keep practicing!'}</h2>
@@ -4404,7 +4412,7 @@ async function renderStoryRound() {
 
         <!-- Step 1: Reference -->
         <div id="storyRefSection">
-          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:#9a6028;font-weight:600;margin-bottom:10px;">
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">
             Step 1 — Now, where is this verse from?
           </div>
           ${refChoicesHtml}
@@ -4415,7 +4423,7 @@ async function renderStoryRound() {
         <!-- Step 2: Fill blanks (hidden until ref answered) -->
         <div id="storyBlanksSection" style="display:none;margin-top:16px;">
           <hr class="divider" style="margin-bottom:14px;"/>
-          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:#9a6028;font-weight:600;margin-bottom:10px;">
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">
             Step 2 — ${round === 1 ? 'Fill in the missing words' : round === 2 ? 'Tap the key words in order' : 'Type the verse from memory'}
           </div>
           ${round === 1 ? `<div class="blank-verse" id="storyBlankVerse" style="margin-bottom:14px;">${blankHtml}</div>` : ''}
@@ -4596,11 +4604,11 @@ function renderStoryBlankInput() {
   storyWordBankData = shuffle(wordList).map((w, i) => ({ word: w, chipIndex: i, used: false }));
 
   area.innerHTML = `
-    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#9a6028;font-weight:600;margin-bottom:6px;">Your answer:</div>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
     <div id="storyAnswerRow" class="answer-row">
       <span class="answer-placeholder" id="storyAnswerPlaceholder">Tap words below…</span>
     </div>
-    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:10px 0 6px;">Word bank:</div>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
     <div id="storyWordPool" class="word-bank">
       ${storyWordBankData.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
@@ -4877,10 +4885,10 @@ function renderLeaderboardHub() {
       <div class="verse-label"><img src="icons/trophy.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Leaderboards</div>
       <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;line-height:1.5;">Select a game to see the top scores.</p>
       <div class="chapter-list">
-        <div class="chapter-item unlocked" id="lbDailyBtn" style="border-color:#A78BFA;background:rgba(167,139,250,0.04);">
+        <div class="chapter-item unlocked" id="lbDailyBtn" style="border-color:var(--nav-active);background:rgba(var(--accent-rgb),0.04);">
           <div class="chapter-num current">${getFieldIcon('daily',22)}</div>
           <div class="chapter-info">
-            <div class="chapter-title" style="color:#A78BFA;">Daily Challenge</div>
+            <div class="chapter-title" style="color:var(--nav-active);">Daily Challenge</div>
             <div class="chapter-ref">Today's top scores across all games</div>
           </div>
           <div class="chapter-lock">▶️</div>
@@ -4918,7 +4926,6 @@ function renderLeaderboardHub() {
           <div class="chapter-lock">▶️</div>
         </div>
       </div>
-      <button class="btn-change-diff" style="margin-top:16px;" onclick="showHome()">← Home</button>
     </div>`;
 
   document.getElementById('lbDailyBtn').onclick = () => { showBackBtn(true); renderFullDailyLeaderboard(); };
@@ -5713,7 +5720,7 @@ async function renderTopicTrivia(topic, roundIdx) {
     const choices = shuffle([...q.choices]);
     root.innerHTML = '<div style="max-width:560px;width:100%;margin:0 auto">'
       + '<div style="text-align:center;margin-bottom:12px;">'
-      + '<div style="font-size:0.75rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">📖 ' + topic.title + ' — Trivia</div>'
+      + '<div style="font-size:0.75rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">📖 ' + topic.title + ' — Trivia</div>'
       + '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Question ' + (qIdx+1) + ' of ' + questions.length + ' · Score: ' + score + '</div>'
       + '<div style="display:flex;gap:4px;justify-content:center;margin-top:6px;">'
       + Array.from({length:questions.length},(_,i)=>'<div style="width:10px;height:10px;border-radius:50%;background:' + (i<qIdx?'#5aaa30':i===qIdx?'#f4b942':'rgba(139,105,20,0.2)') + '"></div>').join('')
@@ -6536,8 +6543,8 @@ function renderMIAEndlessCard() {
       <div class="endless-hud-item"><span class="endless-badge"><img src="icons/diff-endless.svg" width="16" height="16" style="vertical-align:-3px;object-fit:contain;" alt=""> MIA</span></div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
-      <div class="verse-label">✏️ Endless Missing in Action</div>
-      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;margin-bottom:10px;">📖 ${v.book} ${v.chapter}:${v.verse}</div>
+      <div class="verse-label">Endless Missing in Action</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">📖 ${v.book} ${v.chapter}:${v.verse}</div>
       <div class="blank-verse" id="blankVerse">${blankHtml}</div>
       <div id="blankInputArea"></div>
       <div class="feedback" id="fitbFeedback" role="status" aria-live="polite"></div>
@@ -6793,10 +6800,10 @@ async function respondToChallenge(challengeId, score, verse) {
 
 function showChallengeBanner(challenge) {
   const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
-  const gameIcons = { scout:'scout', trivia:'trivia', mia:'mia', track:'track' };
+  const gameIcons = Object.fromEntries(['scout','trivia','mia','track'].map(g => [g, `<img src="icons/${g}.svg" width="32" height="32" style="object-fit:contain;" alt="">`]));
   const fromName = challenge.challenger_name || 'Someone';
   const game = gameNames[challenge.game] || challenge.game;
-  const icon = gameIcons[challenge.game] || '🎮';
+  const icon = gameIcons[challenge.game] || '';
   const score = challenge.challenger_score;
   const expires = new Date(challenge.expires_at);
   const hoursLeft = Math.max(0, Math.floor((expires - new Date()) / 3600000));
@@ -6806,18 +6813,18 @@ function showChallengeBanner(challenge) {
   banner.id = 'challengeBannerOverlay';
   banner.innerHTML = `
     <div class="challenge-banner-card">
-      <div class="challenge-banner-swords">⚔️</div>
-      <div class="challenge-banner-title">You've Been<br>Challenged!</div>
+      <div class="challenge-banner-swords" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 19 18.5 5.5M14 4.5l5.5-.5-.5 5.5"/><path d="M19 19 5.5 5.5M10 4.5 4.5 4l.5 5.5"/><path d="M4 18l2 2M20 18l-2 2"/></svg></div>
+      <div class="challenge-banner-title">You've been challenged</div>
       <div class="challenge-banner-subtitle">${escapeHtml(fromName)} wants to battle</div>
-      <div class="challenge-banner-from">${icon} ${game} · ${challenge.difficulty} difficulty</div>
+      <div class="challenge-banner-from">${icon}<span>${game} · ${challenge.difficulty}</span></div>
       <div class="challenge-banner-score">
         <div class="challenge-banner-score-val">${score.toLocaleString()}</div>
         <div class="challenge-banner-score-label">Score to beat</div>
       </div>
-      ${challenge.verse_book ? `<div class="challenge-banner-verse">📖 ${challenge.verse_book} ${challenge.verse_chapter}:${challenge.verse_verse}</div>` : ''}
-      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-bottom:16px;">⏰ ${hoursLeft} hour${hoursLeft!==1?'s':''} remaining</div>
+      ${challenge.verse_book ? `<div class="challenge-banner-verse">${challenge.verse_book} ${challenge.verse_chapter}:${challenge.verse_verse}</div>` : ''}
+      <div class="challenge-banner-expiry">${hoursLeft} hour${hoursLeft!==1?'s':''} left to respond</div>
       <button class="btn-accept-challenge" onclick="document.getElementById('challengeBannerOverlay').remove();acceptChallenge('${challenge.id}','${challenge.game}','${challenge.difficulty}',${score},'${challenge.verse_book||''}',${challenge.verse_chapter||0},${challenge.verse_verse||0})">
-        ⚔️ Accept the Challenge!
+        Accept the challenge
       </button>
       <button class="btn-decline-challenge" onclick="document.getElementById('challengeBannerOverlay').remove()">
         Maybe later
@@ -6855,7 +6862,7 @@ async function renderChallenges() {
     sbFetch(`challenges?opponent_id=eq.${currentUser.id}&order=created_at.desc&limit=20&select=*`)
   ]);
 
-  const gameIcons = { scout:'scout', trivia:'trivia', mia:'mia', track:'track' };
+  const gameIcons = Object.fromEntries(['scout','trivia','mia','track'].map(g => [g, `<img src="icons/${g}.svg" width="32" height="32" style="object-fit:contain;" alt="">`]));
   const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
 
   function renderChallenge(c, isMine) {
@@ -6869,12 +6876,12 @@ async function renderChallenges() {
 
     let resultText = '';
     let resultClass = '';
-    if(status === 'expired') { resultText = '⏰ Expired — no response'; resultClass = 'expired'; }
-    else if(status === 'pending' && isMine) { resultText = '⏳ Waiting for response...'; resultClass = 'pending'; }
-    else if(status === 'pending' && !isMine) { resultText = '⚔️ Challenge waiting for you!'; resultClass = 'pending'; }
-    else if(won) { resultText = '🏆 You won!'; resultClass = 'win'; }
-    else if(tied) { resultText = '🤝 Tied!'; resultClass = 'win'; }
-    else { resultText = '😅 You lost'; resultClass = 'lose'; }
+    if(status === 'expired') { resultText = 'Expired — no response'; resultClass = 'expired'; }
+    else if(status === 'pending' && isMine) { resultText = 'Waiting for a response'; resultClass = 'pending'; }
+    else if(status === 'pending' && !isMine) { resultText = 'Your turn to play'; resultClass = 'pending'; }
+    else if(won) { resultText = 'You won'; resultClass = 'win'; }
+    else if(tied) { resultText = 'Tied'; resultClass = 'win'; }
+    else { resultText = 'You lost'; resultClass = 'lose'; }
 
     return `
       <div class="challenge-card ${won?'won':status==='pending'?'pending':'lost'}">
@@ -6891,7 +6898,7 @@ async function renderChallenges() {
             <div class="challenge-score-val" style="color:var(--teal-text);">${(isMine ? c.challenger_score : (c.opponent_score ?? '—')).toLocaleString?.() || '—'}</div>
             <div class="challenge-score-label">Your Score</div>
           </div>
-          <div style="display:flex;align-items:center;font-size:1.2rem;color:var(--text-muted);">⚔️</div>
+          <div style="display:flex;align-items:center;font-size:0.85rem;font-weight:700;color:var(--text-muted);">vs</div>
           <div class="challenge-score-box">
             <div class="challenge-score-val" style="color:#F4B942;">${(isMine ? (c.opponent_score ?? '—') : c.challenger_score).toLocaleString?.() || '—'}</div>
             <div class="challenge-score-label">${escapeHtml(theirName.split(' ')[0])}'s Score</div>
@@ -6909,10 +6916,9 @@ async function renderChallenges() {
 
   root.innerHTML = `
     <div class="friends-screen">
-      <div class="verse-label">⚔️ Challenges</div>
+      <div class="verse-label">Challenges</div>
       ${allChallenges.length ? allChallenges.map(c => renderChallenge(c, !c._received)).join('') :
         `<div class="empty-state">No challenges yet!<br>Challenge a friend after finishing a game.</div>`}
-      <button class="btn-change-diff" style="margin-top:12px;" onclick="showHome()">← Home</button>
     </div>`;
 }
 
@@ -7144,8 +7150,8 @@ function renderChallengeMIA(verse) {
 
   root.innerHTML = challengeHUD() + `
     <div class="card" style="max-width:560px;width:100%;margin-top:8px;">
-      <div class="verse-label">✏️ Fill in the blanks</div>
-      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;margin-bottom:10px;">📖 ${verse.book} ${verse.chapter}:${verse.verse}</div>
+      <div class="verse-label">Fill in the blanks</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">📖 ${verse.book} ${verse.chapter}:${verse.verse}</div>
       <div class="blank-verse" id="challengeMIAVerse">${blankHtml}</div>
       <div id="challengeMIAInput"></div>
       <div class="feedback" id="challengeMIAFeedback" role="status" aria-live="polite"></div>
@@ -7159,9 +7165,9 @@ function renderChallengeMIA(verse) {
 
   const area = document.getElementById('challengeMIAInput');
   area.innerHTML = `
-    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--teal-text);font-weight:600;margin-bottom:6px;">Your answer:</div>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
     <div id="challengeAnswerRow" class="answer-row"><span class="answer-placeholder">Tap words below…</span></div>
-    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:10px 0 6px;">Word bank:</div>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
     <div id="challengeWordBank" class="word-bank">
       ${challengeWordBank.map(w=>`<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
@@ -7585,10 +7591,10 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
 
   root.innerHTML = `
     <div class="friends-screen">
-      <div class="verse-label">🔔 Notifications</div>
+      <div class="verse-label">Notifications</div>
 
       ${friendRequests.length ? `
-      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:600;margin-bottom:8px;">👋 Friend Requests (${friendRequests.length})</div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Friend Requests (${friendRequests.length})</div>
       ${friendRequests.map(r => `
         <div class="friend-card" style="margin-bottom:8px;">
           <div class="friend-avatar">${escapeHtml(getReqName(r.user_id)[0]?.toUpperCase())}</div>
@@ -7604,7 +7610,7 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
       <hr class="divider" style="margin:12px 0;"/>` : ''}
 
       ${pendingChallenges.length ? `
-      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:#F4B942;font-weight:600;margin-bottom:8px;">⚔️ Pending Challenges (${pendingChallenges.length})</div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Pending Challenges (${pendingChallenges.length})</div>
       ${pendingChallenges.map(c => {
         const hoursLeft = Math.max(0, Math.floor((new Date(c.expires_at) - new Date()) / 3600000));
         return `
@@ -7621,7 +7627,7 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
       }).join('')}
       <hr class="divider" style="margin:12px 0;"/>` : ''}
 
-      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">📬 Recent Notifications</div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Recent Notifications</div>
       <div class="card" style="max-width:560px;width:100%;padding:0;overflow:hidden;">
         ${notifs.length ? notifs.map(n => `
           <div class="notif-item">
@@ -7633,7 +7639,6 @@ async function renderNotifHubContent(root, notifs, friendRequests, pendingChalle
           </div>`).join('') : `<div class="empty-state">No notifications yet!</div>`}
       </div>
 
-      <button class="btn-change-diff" style="margin-top:12px;" onclick="showHome()">← Home</button>
     </div>`;
 }
 
@@ -7664,7 +7669,7 @@ const AVATAR_ICONS = [
 ];
 
 const AVATAR_COLORS = [
-  { id:'purple',  gradient:'linear-gradient(135deg,#7C5CFC,#A78BFA)', label:'Purple' },
+  { id:'purple',  gradient:'linear-gradient(135deg,#8b4513,var(--nav-active))', label:'Purple' },
   { id:'teal',    gradient:'linear-gradient(135deg,#0F6E56,#3BBFA0)', label:'Teal' },
   { id:'blue',    gradient:'linear-gradient(135deg,#1851a3,#38BDF8)', label:'Blue' },
   { id:'amber',   gradient:'linear-gradient(135deg,#B87D0A,#F4B942)', label:'Gold' },
@@ -7776,7 +7781,7 @@ async function renderBlockedUsersList() {
   root.innerHTML = `
     <div class="friends-screen" id="blockedUsersList">
       <button class="btn-friend-action" onclick="renderProfile()">← Back to Profile</button>
-      <div class="verse-label" style="margin-top:14px;">🚫 Blocked Users</div>
+      <div class="verse-label" style="margin-top:14px;">Blocked Users</div>
       ${rows.length ? rows.map(r => `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
           <div style="font-weight:600;color:var(--text);">${escapeHtml(nameById[r.blocked_id] || 'Scout')}</div>
@@ -7865,7 +7870,7 @@ function showAvatarPicker() {
         </div>
 
         <!-- Color picker -->
-        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Background Color</div>
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Background Color</div>
         <div class="avatar-color-row">
           ${AVATAR_COLORS.map(c => `
             <div class="avatar-color-btn ${selectedColor===c.id?'selected':''}"
@@ -7875,7 +7880,7 @@ function showAvatarPicker() {
         </div>
 
         <!-- Icon picker -->
-        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Icon (optional)</div>
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Icon (optional)</div>
         <div class="avatar-icon-grid">
           <button class="avatar-icon-btn ${!selectedIcon?'selected':''}" onclick="selectAvatarIcon(null)" style="font-size:0.8rem;color:var(--text-muted);">None</button>
           ${AVATAR_ICONS.map(icon => `
@@ -8043,7 +8048,7 @@ async function renderProfile(userId=null, username=null) {
         <div class="profile-header">
           <div style="position:relative;display:inline-block;margin-bottom:12px;">
             ${renderAvatarEl(isOwnProfile?currentAvatarIcon:null, isOwnProfile?currentAvatarColor:'purple', escapeHtml(profileUsername[0]?.toUpperCase()), 80, '2rem')}
-            ${isOwnProfile ? `<button onclick="showAvatarPicker()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#A78BFA;border:2px solid var(--surface);color:white;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✏️</button>` : ''}
+            ${isOwnProfile ? `<button onclick="showAvatarPicker()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--nav-active);border:2px solid var(--surface);color:white;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✏️</button>` : ''}
           </div>
           <div class="profile-username">${escapeHtml(profileUsername || '(no username set)')}</div>
           <div class="profile-joined">Scripture Scout Player</div>
@@ -8068,7 +8073,7 @@ async function renderProfile(userId=null, username=null) {
 
         <!-- Stats -->
         <div style="padding:16px;">
-          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Stats</div>
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Stats</div>
           <div class="profile-stats-grid">
             <div class="profile-stat">
               <div class="profile-stat-val">${streak.current_streak||0} <img src="icons/streak-fire.svg" width="20" height="20" style="vertical-align:-4px;object-fit:contain;" alt=""></div>
@@ -8102,7 +8107,7 @@ async function renderProfile(userId=null, username=null) {
         <!-- Badges -->
         ${isOwnProfile ? `
         <div style="padding:16px;">
-          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Badges</div>
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Badges</div>
           ${Object.entries(cats).map(([cat, catLabel]) => `
             <div style="font-size:0.75rem;font-weight:600;color:var(--text-muted);margin:10px 0 6px;">${catLabel}</div>
             <div class="badge-grid-profile">
@@ -8117,7 +8122,7 @@ async function renderProfile(userId=null, username=null) {
 
         <!-- Recent Scores -->
         <div style="padding:16px 16px 8px;">
-          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Recent Scores</div>
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Recent Scores</div>
         </div>
         ${allScores.length ? allScores.map(s => `
           <div class="recent-score-row">
@@ -8135,7 +8140,7 @@ async function renderProfile(userId=null, username=null) {
         ${isOwnProfile ? `
         <hr class="divider" style="margin:0;"/>
         <div style="padding:16px;">
-          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:10px;">Account</div>
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:10px;">Account</div>
           <button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderBlockedUsersList()">🚫 Blocked Users</button>
           ${isAppAdmin ? `<button class="btn-friend-action" style="width:100%;margin-bottom:8px;" onclick="renderReportsAdmin()">⚠️ Review Reports</button>` : ''}
           <a class="btn-friend-action" style="display:block;box-sizing:border-box;width:100%;margin-bottom:8px;text-align:center;text-decoration:none;" href="mailto:nick@rochesterchristian.church?subject=Scripture%20Scout%20support">Contact Support</a>
@@ -8146,7 +8151,6 @@ async function renderProfile(userId=null, username=null) {
         </div>` : ''}
 
       </div>
-      <button class="btn-change-diff" style="margin-top:12px;" onclick="showHome()">← Home</button>
     </div>`;
 }
 
@@ -8204,12 +8208,12 @@ async function renderFriends(startTab=null) {
     root.innerHTML = `
       <div class="friends-screen">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-          <div class="verse-label" style="margin:0;">👥 Friends</div>
+          <div class="verse-label" style="margin:0;">Friends</div>
           <button class="btn-friend-action" onclick="renderMessages()">💬 Messages</button>
         </div>
         <div class="friends-tabs" style="margin-top:12px;">
           <div class="friends-tab ${activeTab==='friends'?'active':''}" onclick="renderFriends('friends')">Friends ${friends.length>0?`(${friends.length})`:''}</div>
-          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="renderFriends('requests')">Requests ${requests.length>0?`(${requests.length})`:''}${sentRequests.length>0?` · ${sentRequests.length} sent`:''}</div>
+          <div class="friends-tab ${activeTab==='requests'?'active':''}" onclick="renderFriends('requests')">Requests ${requests.length>0?`(${requests.length})`:''}</div>
           <div class="friends-tab ${activeTab==='add'?'active':''}" onclick="renderFriends('add')">Add Friend</div>
         </div>
 
@@ -8236,7 +8240,7 @@ async function renderFriends(startTab=null) {
           }).join('') : `<div class="empty-state">No friends yet!<br>Search for friends by username to get started.</div>`}
         ` : activeTab === 'requests' ? `
           ${requests.length ? `
-            <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:#A78BFA;font-weight:600;margin-bottom:8px;">👋 Incoming Requests</div>
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Incoming Requests</div>
             ${requests.map(r => `
             <div class="friend-card">
               <div class="friend-avatar">${escapeHtml(getUsername(r.user_id)[0]?.toUpperCase())}</div>
@@ -8251,7 +8255,7 @@ async function renderFriends(startTab=null) {
             </div>`).join('')}` : ''}
 
           ${sentRequests.length ? `
-            <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:12px 0 8px;">⏳ Sent — Waiting for Response</div>
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:12px 0 8px;">Sent — Waiting for Response</div>
             ${sentRequests.map(r => `
             <div class="friend-card" style="opacity:0.7;">
               <div class="friend-avatar">${escapeHtml(getUsername(r.friend_id)[0]?.toUpperCase())}</div>
@@ -8277,7 +8281,6 @@ async function renderFriends(startTab=null) {
         `}
 
         <div style="display:flex;gap:8px;margin-top:12px;">
-          <button class="btn-change-diff" style="flex:1;" onclick="showHome()">← Home</button>
           <button class="btn-change-diff" style="flex:0 0 auto;" onclick="renderFriends(window._friendsActiveTab)">🔄 Refresh</button>
         </div>
       </div>`;
@@ -8359,7 +8362,7 @@ async function challengeFriend(friendId, friendUsername) {
   showBackBtn(true);
   root.innerHTML = `
     <div class="friends-screen">
-      <div class="verse-label">⚔️ Challenge ${escapeHtml(friendUsername)}</div>
+      <div class="verse-label">Challenge ${escapeHtml(friendUsername)}</div>
       <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Pick a game to challenge them on. You play first then they have 24 hours to beat your score!</p>
       <div class="chapter-list">
         <div class="chapter-item unlocked" onclick="startChallengeGame('${friendId}','${escapeJsAttr(friendUsername)}','scout','hard')">
@@ -8429,7 +8432,7 @@ async function renderMessages() {
 
   root.innerHTML = `
     <div class="friends-screen">
-      <div class="verse-label">💬 Messages</div>
+      <div class="verse-label">Messages</div>
       <button class="btn-next" style="margin-bottom:12px;" onclick="newGroupChat()">+ New Group Chat</button>
       <div class="card" style="max-width:560px;width:100%;padding:0;overflow:hidden;">
         ${memberships.length ? memberships.map(m => {
@@ -8527,6 +8530,7 @@ async function openConversation(convId, convName, convType) {
     root.innerHTML = `
       <div id="convScreen_${convId}" style="display:flex;flex-direction:column;max-width:560px;width:100%;height:calc(100vh - 120px);height:calc(100dvh - 120px);">
         <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+          <button class="btn-friend-action" aria-label="Back to messages" onclick="renderMessages()">←</button>
           <div class="conv-avatar ${convType==='group'?'group':''}" style="width:36px;height:36px;font-size:0.9rem;">${convType==='group'?'👥':escapeHtml(convName[0]?.toUpperCase() || '?')}</div>
           <div style="font-weight:700;font-size:1rem;color:var(--text);">${escapeHtml(convName)}</div>
           ${convType==='group'?`<button class="btn-friend-action" style="margin-left:auto;" onclick="addGroupMember('${convId}')">+ Add</button>`:''}
@@ -10018,11 +10022,11 @@ async function renderDailyChallenge() {
 
   root.innerHTML = `
     <div class="story-screen">
-      <div class="verse-label">⚡ Daily Challenge</div>
+      <div class="verse-label">Daily Challenge</div>
       <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;line-height:1.5;text-align:center;">
         One theme. Four games. Everyone gets the same challenge today.
       </p>
-      <div id="dailyTopicLabel" style="text-align:center;font-size:1.6rem;font-weight:700;color:#A78BFA;margin-bottom:8px;text-transform:capitalize;letter-spacing:-0.02em;">Loading today's theme…</div>
+      <div id="dailyTopicLabel" style="text-align:center;font-size:1.6rem;font-weight:700;color:var(--nav-active);margin-bottom:8px;text-transform:capitalize;letter-spacing:-0.02em;">Loading today's theme…</div>
       <div style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;"><strong style="color:var(--teal-text);">Resets in ${hLeft}h ${mLeft}m</strong></div>
       ${games.map(g => {
         const done = isDailyCompleted(g.id);
@@ -10037,7 +10041,6 @@ async function renderDailyChallenge() {
             <div class="daily-card-desc">${done ? `Your score: <strong style="color:var(--teal-text);">${score.toLocaleString()} pts</strong>` : g.desc}</div>
           </div>`;
       }).join('')}
-      <button class="btn-change-diff" style="margin-top:8px;" onclick="showHome()">← Home</button>
     </div>`;
 
   games.forEach(g => {
@@ -10076,7 +10079,7 @@ function renderDailyTriviaGame(topic) {
 
     root.innerHTML = `
       <div style="text-align:center;margin-bottom:12px;">
-        <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Bible Trivia</div>
+        <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Bible Trivia</div>
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Today's theme: <strong>${topic.charAt(0).toUpperCase()+topic.slice(1)}</strong> · Question ${qIdx+1} of ${questions.length}</div>
       </div>
       <div class="card" style="max-width:560px;width:100%;">
@@ -10150,7 +10153,7 @@ async function renderDailyScout(verse) {
   function renderPhase() {
     root.innerHTML = `
       <div style="text-align:center;margin-bottom:12px;">
-        <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Scripture Scout</div>
+        <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Scripture Scout</div>
       </div>
       <div class="card" style="max-width:560px;width:100%;">
         <div class="verse-text" style="margin-bottom:16px;">${quoteVerse(verse.text)}</div>
@@ -10246,7 +10249,7 @@ function renderDailyMemory(verse) {
   const root = document.getElementById('root');
   root.innerHTML = `
     <div style="text-align:center;margin-bottom:12px;">
-      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Memory Trail</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Memory Trail</div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="flashcard-label">Can you recall this verse?</div>
@@ -10289,11 +10292,11 @@ async function renderDailyMIA(verse) {
   const root = document.getElementById('root');
   root.innerHTML = `
     <div style="text-align:center;margin-bottom:12px;">
-      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Missing in Action</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Missing in Action</div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
-      <div class="verse-label">✏️ Fill in the blanks</div>
-      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;margin-bottom:10px;">📖 ${verse.book} ${verse.chapter}:${verse.verse}</div>
+      <div class="verse-label">Fill in the blanks</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);margin-bottom:10px;">📖 ${verse.book} ${verse.chapter}:${verse.verse}</div>
       <div class="blank-verse" id="dailyMIAVerse">${blankHtml}</div>
       <div id="dailyMIAInput"></div>
       <div class="feedback" id="dailyMIAFeedback" role="status" aria-live="polite"></div>
@@ -10307,11 +10310,11 @@ async function renderDailyMIA(verse) {
 
   const area = document.getElementById('dailyMIAInput');
   area.innerHTML = `
-    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--teal-text);font-weight:600;margin-bottom:6px;">Your answer:</div>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:6px;">Your answer:</div>
     <div id="dailyMIAAnswerRow" class="answer-row">
       <span class="answer-placeholder">Tap words below…</span>
     </div>
-    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-weight:600;margin:10px 0 6px;">Word bank:</div>
+    <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin:10px 0 6px;">Word bank:</div>
     <div id="dailyMIAWordBank" class="word-bank">
       ${dailyMIAWordBank.map(w => `<button class="word-chip" data-index="${w.chipIndex}" data-word="${w.word}">${w.word}</button>`).join('')}
     </div>
@@ -10415,7 +10418,7 @@ async function renderDailyTrack(verse) {
   const root = document.getElementById('root');
   root.innerHTML = `
     <div style="text-align:center;margin-bottom:12px;">
-      <div style="font-size:0.78rem;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Track It Down</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--nav-active);text-transform:uppercase;letter-spacing:0.1em;">⚡ Daily Challenge — Track It Down</div>
     </div>
     <div class="card" style="max-width:560px;width:100%;">
       <div class="verse-label"><img src="icons/target.svg" width="18" height="18" style="vertical-align:-4px;object-fit:contain;" alt=""> Where is this verse from?</div>
@@ -10457,18 +10460,18 @@ async function showDailyResult(game, score) {
   const rows = await fetchDailyLeaderboard(game);
   const myRank = rows.findIndex(r => r.score === score) + 1;
   const gameNames = { scout:'Scripture Scout', trivia:'Bible Trivia', mia:'Missing in Action', track:'Track It Down' };
-  const gameIcons = { scout:'scout', trivia:'trivia', mia:'mia', track:'track' };
+  const gameIcons = Object.fromEntries(['scout','trivia','mia','track'].map(g => [g, `<img src="icons/${g}.svg" width="32" height="32" style="object-fit:contain;" alt="">`]));
 
   root.innerHTML = `
     <div class="card" style="max-width:560px;width:100%;text-align:center;padding:28px 24px;">
-      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:#A78BFA;font-weight:600;margin-bottom:8px;">⚡ Daily Challenge Complete!</div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Daily Challenge Complete!</div>
       <div style="font-size:2rem;margin-bottom:8px;">${gameIcons[game]}</div>
       <div style="font-size:2.5rem;font-weight:700;color:var(--teal-text);margin-bottom:4px;">${score.toLocaleString()}</div>
       <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:${myRank?'8px':'20px'};">points scored</div>
-      ${myRank ? `<div style="font-size:0.9rem;color:#A78BFA;font-weight:600;margin-bottom:20px;">You ranked #${myRank} today! ${myRank===1?'🏆':myRank<=3?'🎉':''}</div>` : ''}
+      ${myRank ? `<div style="font-size:0.9rem;color:var(--nav-active);font-weight:600;margin-bottom:20px;">You ranked #${myRank} today! ${myRank===1?'🏆':myRank<=3?'🎉':''}</div>` : ''}
 
       <div style="text-align:left;margin-bottom:16px;">
-        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Today's Leaderboard</div>
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;">Today's Leaderboard</div>
         <div class="card" style="padding:0;overflow:hidden;">
           ${rows.length ? rows.map((r,i) => `
             <div class="daily-lb-row ${r.score===score&&!r._marked?'highlight':''}">
@@ -10513,7 +10516,7 @@ async function renderFullDailyLeaderboard() {
   function renderSection(game, rows) {
     return `
       <div style="margin-bottom:16px;">
-        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.05rem;color:var(--text);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
           <span>${game.icon} ${game.name}</span>
           <div style="flex:1;height:1px;background:var(--border);"></div>
         </div>
@@ -10530,8 +10533,8 @@ async function renderFullDailyLeaderboard() {
 
   root.innerHTML = `
     <div class="game-lb">
-      <div class="verse-label">⚡ Daily Challenge Leaderboard</div>
-      ${topic ? `<div style="text-align:center;font-size:1.1rem;font-weight:700;color:#A78BFA;margin-bottom:4px;text-transform:capitalize;">${topic}</div>` : ''}
+      <div class="verse-label">Daily Challenge Leaderboard</div>
+      ${topic ? `<div style="text-align:center;font-size:1.1rem;font-weight:700;color:var(--nav-active);margin-bottom:4px;text-transform:capitalize;">${topic}</div>` : ''}
       <div style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;">Resets in ${hLeft}h ${mLeft}m</div>
       ${games.map((g, i) => renderSection(g, results[i])).join('')}
       <button class="btn-change-diff" style="margin-top:8px;" onclick="renderLeaderboardHub()">← Leaderboards</button>
