@@ -1351,6 +1351,20 @@ async function apiWrite(url, options) {
   return res;
 }
 
+// Runs a save once, retries after a short pause (covers a dropped connection), and tells the player if
+// it still failed so a score or progress isn't lost without them knowing.
+async function saveWithRetry(fn, what) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try { return await fn(); }
+    catch(e) {
+      console.warn(what + ' save failed (attempt ' + (attempt + 1) + '):', e?.message);
+      if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+  showStreakToast("Couldn't save your " + what + ". Check your connection and try again.");
+  return null;
+}
+
 async function sbFetch(path, options={}, _retried=false) {
   const token = authToken || SUPABASE_KEY;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -4800,17 +4814,15 @@ async function submitGameScore(table, data) {
         showNotBestToast(existing.score);
         return;
       }
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
+      const res = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${existing.id}`, {
         method: 'PATCH', headers, body: JSON.stringify({ ...safeData, created_at: now })
-      });
-      if(res.ok) showScoreToast(data.score, table, data.difficulty, true);
-      else console.error('Score PATCH failed:', res.status, await res.text());
+      }), 'score');
+      if(res) showScoreToast(data.score, table, data.difficulty, true);
     } else {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      const res = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/${table}`, {
         method: 'POST', headers, body: JSON.stringify(safeData)
-      });
-      if(res.ok) showScoreToast(data.score, table, data.difficulty, false);
-      else console.error('Score POST failed:', res.status, await res.text());
+      }), 'score');
+      if(res) showScoreToast(data.score, table, data.difficulty, false);
     }
   } catch(e) { console.error('Score submit failed:', e); }
 }
@@ -5179,7 +5191,7 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
     // the existing row instead of piling up a new one every time — stars only
     // ever move up (GREATEST) and completed only ever moves to true (OR), so a
     // lower-scoring replay can't regress an already-recorded best.
-    await fetch(`${SUPABASE_URL}/rest/v1/rpc/upsert_story_progress`, {
+    await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/rpc/upsert_story_progress`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
@@ -5193,7 +5205,7 @@ async function completeStoryChapter(pathId, chapterNum, stars) {
         p_stars: stars,
         p_completed: isCompleted
       })
-    });
+    }), 'story progress');
 
     await updateStreak();
 
@@ -8781,7 +8793,8 @@ async function patchStreak(updates) {
   if(!currentUser || !currentStreak) return;
   try {
     const headers = { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' };
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/streaks?user_id=eq.${currentUser.id}`, { method:'PATCH', headers, body: JSON.stringify(updates) });
+    const res = await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/streaks?user_id=eq.${currentUser.id}`, { method:'PATCH', headers, body: JSON.stringify(updates) }), 'streak');
+    if(!res) return; // not saved: keep the last confirmed streak instead of showing one that isn't stored
     const data = await res.json();
     if(Array.isArray(data) && data[0]) currentStreak = data[0];
     else Object.assign(currentStreak, updates);
@@ -9955,18 +9968,16 @@ async function fetchDailyVerse(game) {
 
 async function submitDailyScore(game, score) {
   const name = currentUsername || (currentUser?.email?.split('@')[0]) || playerName || 'Scout';
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/leaderboard_daily`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Authorization': authToken ? `Bearer ${authToken}` : `Bearer ${SUPABASE_KEY}`,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({ name, score, game, user_id: currentUser?.id || null })
-    });
-  } catch(e) { console.error('Daily score submit failed:', e); }
+  await saveWithRetry(() => apiWrite(`${SUPABASE_URL}/rest/v1/leaderboard_daily`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Authorization': authToken ? `Bearer ${authToken}` : `Bearer ${SUPABASE_KEY}`,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ name, score, game, user_id: currentUser?.id || null })
+  }), 'daily score');
 }
 
 async function fetchDailyLeaderboard(game) {
