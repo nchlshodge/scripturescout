@@ -2646,6 +2646,19 @@ async function submitScore(name, scoreVal, diff) {
   }
 }
 
+// Players under 18 (and anyone who hasn't confirmed their age yet) appear on leaderboards under an alias like
+// "Scout 7F3A", set by the database. Your own row is marked "(you)" so you can still find yourself.
+const LB_ALIAS_RE = /^Scout [0-9A-F]{4}$/;
+function lbRawName(r) { return r.name || r.player_name || r.username || 'Scout'; }
+function lbDisplayName(r) {
+  const shown = lbRawName(r);
+  return currentUser && r.user_id && r.user_id === currentUser.id && LB_ALIAS_RE.test(shown) ? `${shown} (you)` : shown;
+}
+function lbAliasNote(rows) {
+  const mine = currentUser && rows.some(r => r.user_id === currentUser.id && LB_ALIAS_RE.test(lbRawName(r)));
+  return mine ? `<div style="padding:10px 14px;font-size:0.78rem;line-height:1.5;color:var(--text-muted);">Your name is hidden from other players on leaderboards because you're under 18 or haven't confirmed your age yet.</div>` : '';
+}
+
 async function fetchLeaderboard(diff, weeksBack=null) {
   let url = `leaderboard?select=*&difficulty=eq.${diff}&order=score.desc&limit=20`;
   if(weeksBack) {
@@ -2709,11 +2722,11 @@ async function loadLbScores() {
           ${scores.map((s,i)=>`
             <tr class="lb-row">
               <td>${rankIcon(i)}</td>
-              <td class="lb-name">${escapeHtml(s.name)}</td>
+              <td class="lb-name">${escapeHtml(lbDisplayName(s))}</td>
               <td>${s.score.toLocaleString()}</td>
             </tr>`).join('')}
         </tbody>
-      </table>`;
+      </table>${lbAliasNote(scores)}`;
   } catch(e) {
     const card = document.getElementById('lbCard');
     if (card) card.innerHTML = `<div class="lb-empty">Couldn't load scores — check your connection.</div>`;
@@ -5160,11 +5173,12 @@ async function renderGameLeaderboard(title, table, difficulties, diffLabels, cur
             <div class="game-lb-row">
               <span class="game-lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
               <div style="flex:1;">
-                <div class="game-lb-name">${escapeHtml(r.name||r.player_name||r.username||'Scout')}</div>
+                <div class="game-lb-name">${escapeHtml(lbDisplayName(r))}</div>
                 ${r.streak ? `<div class="game-lb-diff">Streak: ${r.streak}</div>` : `<div class="game-lb-diff">${r.correct ? r.correct+' correct' : ''}</div>`}
               </div>
               <span class="game-lb-score">${r.score.toLocaleString()}</span>
             </div>`).join('') : `<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:0.88rem;">No scores this week — be the first!</div>`}
+          ${lbAliasNote(rows)}
         </div>
         <button class="btn-change-diff" style="margin-top:12px;" onclick="renderLeaderboardHub()">← Leaderboards</button>
       </div>`;
@@ -5192,7 +5206,7 @@ async function showMiniLB(container, table, diff, onViewAll) {
       ${rows.map((r,i) => `
         <div class="game-lb-row">
           <span class="game-lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
-          <span class="game-lb-name">${escapeHtml(r.name)}</span>
+          <span class="game-lb-name">${escapeHtml(lbDisplayName(r))}</span>
           <span class="game-lb-score">${r.score.toLocaleString()}</span>
         </div>`).join('')}
     </div>`;
@@ -10663,7 +10677,7 @@ async function showDailyResult(game, score) {
           ${rows.length ? rows.map((r,i) => `
             <div class="daily-lb-row ${r.score===score&&!r._marked?'highlight':''}">
               <span style="font-size:1rem;width:28px;text-align:center;">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
-              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${escapeHtml(r.name)}</span>
+              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${escapeHtml(lbDisplayName(r))}</span>
               <span style="font-size:0.88rem;font-weight:700;color:var(--teal-text);">${r.score.toLocaleString()}</span>
             </div>`).join('') : `<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.85rem;">${boardFailed ? "Couldn't load today's leaderboard — your score is saved." : "You're the first to play today!"}</div>`}
         </div>
@@ -10711,7 +10725,7 @@ async function renderFullDailyLeaderboard() {
           ${rows.length ? rows.map((r,i) => `
             <div class="daily-lb-row">
               <span style="font-size:1rem;width:28px;text-align:center;">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span>
-              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${escapeHtml(r.name)}</span>
+              <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text);">${escapeHtml(lbDisplayName(r))}</span>
               <span style="font-size:0.88rem;font-weight:700;color:var(--teal-text);">${r.score.toLocaleString()}</span>
             </div>`).join('') : `<div style="padding:14px;text-align:center;color:var(--text-muted);font-size:0.85rem;">No scores yet today — be the first!</div>`}
         </div>

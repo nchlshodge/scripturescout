@@ -44,3 +44,5 @@ They don't touch Supabase or any network. To add a test, put a `*.test.js` file 
 - `minors.test.js` covers the limits for players aged 13-17: the app searches through the server function that leaves out players
   under 18, shows clear messages when the server refuses a chat or group add, and the migration keeps its guarantees. The database
   rules themselves were tested against the live tables when `minor_safety_migration.sql` was applied (inside a rolled-back transaction).
+- `leaderboard-names.test.js` covers leaderboard names for players under 18: the app shows the database's alias, marks your own row "(you)"
+  and explains why, and the migration (applied and tested against the live tables in a rolled-back transaction) keeps its guarantees.
