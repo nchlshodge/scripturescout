@@ -41,3 +41,6 @@ They don't touch Supabase or any network. To add a test, put a `*.test.js` file 
   credit: days played offline are remembered and applied in order when the connection returns, never twice, never to another account.
 - `saves.test.js` checks the small saves that used to be fire-and-forget: notifications (create / mark read), turning push off,
   blocking, the challenge start time, and the under-13 account removal. Each is checked, retried once, and the person is told the truth.
+- `minors.test.js` covers the limits for players aged 13-17: the app searches through the server function that leaves out players
+  under 18, shows clear messages when the server refuses a chat or group add, and the migration keeps its guarantees. The database
+  rules themselves were tested against the live tables when `minor_safety_migration.sql` was applied (inside a rolled-back transaction).

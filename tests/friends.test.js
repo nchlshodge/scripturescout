@@ -26,13 +26,13 @@ function setup(state = {}, { status = {} } = {}) {
   w.__st = st;
   w.eval(`
     currentUser = { id: '${ME}' }; authToken = 't'; currentUsername = 'Me';
-    globalThis.sbFetch = async (p) => {
+    globalThis.sbFetch = async (p, o) => {
       const s = window.__st;
       if (p.startsWith('friends?or=')) return s.friends;
       if (p.startsWith('friends?friend_id=eq.')) return s.incoming;
       if (p.startsWith('friends?user_id=eq.')) return s.sent;
       if (p.startsWith('profiles?id=in.')) { const ids = p.match(/in\\.\\(([^)]*)\\)/)[1].split(','); return ids.map(id => ({ id, username: s.profiles[id] })); }
-      if (p.startsWith('profiles?select=id,username')) return s.search(decodeURIComponent(p));
+      if (p.startsWith('rpc/search_players')) return s.search(JSON.parse(o.body).p_query);
       if (p.startsWith('conversation_members?user_id=eq.${ME}')) return s.myConvs.map(id => ({ conversation_id: id }));
       if (p.startsWith('conversation_members?user_id=eq.')) return s.theirConvs.map(id => ({ conversation_id: id }));
       if (p.startsWith('conversations?id=in.')) { const ids = p.match(/in\\.\\(([^)]*)\\)/)[1].split(','); const only = s.directConvs; return (only === null ? [] : only).filter(id => ids.includes(id)).map(id => ({ id })); }
@@ -148,7 +148,7 @@ test('the Add Friend tab shows your own invite link', async () => {
 });
 
 test('searching needs at least two letters, and finds players by name', async () => {
-  const s = await openSearch({ search: (p) => /username=ilike\.%an%/i.test(p) ? [{ id: ANN, username: 'Ann' }, { id: ME, username: 'Me' }] : [] });
+  const s = await openSearch({ search: (q) => /^an$/i.test(q) ? [{ id: ANN, username: 'Ann' }, { id: ME, username: 'Me' }] : [] });
   await s.type('a'); assert.deepEqual(s.results(), []);
   await s.type('an'); assert.deepEqual(s.results(), ['Ann'], 'you never appear in your own results');
   s.close();
@@ -177,12 +177,12 @@ test('results always match the latest thing typed, even if an older search answe
   const s = await openSearch({});
   s.w.eval(`
     const orig = globalThis.sbFetch;
-    globalThis.sbFetch = (p) => {
-      if (p.startsWith('profiles?select=id,username')) {
-        const q = decodeURIComponent(p).match(/ilike\\.%(.*)%/)[1];
+    globalThis.sbFetch = (p, o) => {
+      if (p.startsWith('rpc/search_players')) {
+        const q = JSON.parse(o.body).p_query;
         return new Promise(res => { (window.__pending = window.__pending || {})[q] = () => res(q === 'an' ? [{ id: 'x', username: 'AnOld' }] : [{ id: 'y', username: 'AnnNew' }]); });
       }
-      return orig(p);
+      return orig(p, o);
     };
   `);
   const input = s.root().querySelector('#friendSearch');
@@ -336,7 +336,7 @@ test('if the chat cannot be created, the player is told and nothing opens', asyn
 });
 
 test('if adding the members fails, the player is told and the empty chat is not opened', async () => {
-  const s = setup({}, { status: { '/rest/v1/conversation_members': 403 } });
+  const s = setup({}, { status: { '/rest/v1/conversation_members': 500 } });
   await get(s.w, 'openDirectMessage')(ANN, 'Ann');
   await wait();
   assert.ok(s.toasts().some(t => /Could not start the chat/.test(t)));

@@ -8379,7 +8379,7 @@ async function renderFriends(startTab=null) {
           if(q.length < 2) { results.innerHTML = ''; return; }
           results.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:0.85rem;">Searching…</div>';
           let rows;
-          try { rows = await sbFetch(`profiles?select=id,username&limit=5&username=ilike.%25${encodeURIComponent(q)}%25`); }
+          try { rows = await sbFetch('rpc/search_players', { method: 'POST', body: JSON.stringify({ p_query: q }) }); }   // leaves out players under 18
           catch(e) { if(mySeq === searchSeq) results.innerHTML = '<div class="empty-state">Search failed — check your connection.</div>'; return; }
           if(mySeq !== searchSeq) return;
           // Work out who is already a friend or has a request open, so they aren't offered "+ Add" again.
@@ -8401,7 +8401,7 @@ async function renderFriends(startTab=null) {
                   : incomingIds.has(r.id) ? '<span class="friend-meta">Wants to add you — see Requests</span>'
                   : `<button class="btn-friend-action accept" onclick="sendFriendRequest('${r.id}','${escapeJsAttr(r.username)}')">+ Add</button>`}
               </div>
-            </div>`).join('') : `<div class="empty-state">No users found for "<strong>${escapeHtml(q)}</strong>"</div>`;
+            </div>`).join('') : `<div class="empty-state">No users found for "<strong>${escapeHtml(q)}</strong>"<br><span style="font-size:0.8rem;">Players under 18 don't show up in search. Ask them for their invite link instead.</span></div>`;
         });
       }
     }
@@ -8639,6 +8639,10 @@ async function renderMessages() {
     </div>`;
 }
 
+// Players under 18 can only chat with their friends (enforced on the server). The server answers 403.
+const CHAT_LIMIT_MESSAGE = 'Chats with players under 18 are limited to friends.';
+const isChatLimitError = e => /\(403\)/.test(String(e && e.message));
+
 async function openDirectMessage(friendId, friendUsername) {
   showBackBtn(true);
   // Check if DM conversation exists
@@ -8674,7 +8678,7 @@ async function openDirectMessage(friendId, friendUsername) {
   await Promise.all([
     apiWrite(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: currentUser.id, username: currentUsername }) }),
     apiWrite(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: friendId, username: friendUsername }) })
-  ]).catch(e => { console.warn('add members failed:', e?.message); return 'fail'; }).then(r => { if (r === 'fail') showStreakToast('Could not start the chat — try again.'); else openConversation(convId, friendUsername, 'direct'); });
+  ]).catch(e => { console.warn('add members failed:', e?.message); return isChatLimitError(e) ? 'limit' : 'fail'; }).then(r => { if (r === 'limit') showStreakToast(CHAT_LIMIT_MESSAGE); else if (r === 'fail') showStreakToast('Could not start the chat — try again.'); else openConversation(convId, friendUsername, 'direct'); });
 }
 
 async function newGroupChat() {
@@ -8814,7 +8818,7 @@ async function sendMessage(convId, type='text', content=null, data={}) {
   }).catch(() => null);
   if(!res || !res.ok) {
     if(input) input.value = text;
-    showStreakToast(res && res.status === 400 ? 'That message has language we don\'t allow here.' : 'Could not send — try again.');
+    showStreakToast(res && res.status === 403 ? CHAT_LIMIT_MESSAGE : res && res.status === 400 ? 'That message has language we don\'t allow here.' : 'Could not send — try again.');
     return;
   }
 
@@ -8876,7 +8880,7 @@ async function addGroupMember(convId) {
   if(!rows.length) { showStreakToast('User not found!'); return; }
   try {
   await apiWrite(`${SUPABASE_URL}/rest/v1/conversation_members`, { method:'POST', headers:{ 'apikey':SUPABASE_KEY,'Content-Type':'application/json','Authorization':`Bearer ${authToken}`,'Prefer':'return=minimal' }, body: JSON.stringify({ conversation_id: convId, user_id: rows[0].id, username }) });
-  } catch(e) { showStreakToast('Could not add that user — they may already be in the group.'); return; }
+  } catch(e) { showStreakToast(isChatLimitError(e) ? 'Players under 18 can only be added to a chat by their friends.' : 'Could not add that user — they may already be in the group.'); return; }
   showStreakToast(`${username} added to the group!`);
 }
 
